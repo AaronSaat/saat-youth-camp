@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'review_komitmen_screen.dart';
+import 'review_evaluasi_screen.dart';
 
-class KomitmenScreen extends StatefulWidget {
-  const KomitmenScreen({super.key});
+class EvaluasiScreen extends StatefulWidget {
+  const EvaluasiScreen({super.key});
 
   @override
-  State<KomitmenScreen> createState() => _KomitmenScreenState();
+  State<EvaluasiScreen> createState() => _EvaluasiScreenState();
 }
 
-class _KomitmenScreenState extends State<KomitmenScreen> {
+class _EvaluasiScreenState extends State<EvaluasiScreen> {
   String? answer1;
   String? answer2;
   String? answer3;
@@ -17,7 +17,7 @@ class _KomitmenScreenState extends State<KomitmenScreen> {
   double _sliderValue = 3;
   bool isLoading = false;
   // ada tipe jawabannya misal 1 = setuju, 2 = baik, 3 = lama, dst
-  final List<String> tingkatKomitmenLabels = [
+  final List<String> tingkatEvaluasiLabels = [
     'Sangat Tidak Setuju',
     'Tidak Setuju',
     'Cukup Tidak Setuju',
@@ -35,21 +35,21 @@ class _KomitmenScreenState extends State<KomitmenScreen> {
   Future<void> _loadSavedProgress() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      answer1 = prefs.getString('komitmen_answer1');
-      answer2 = prefs.getString('komitmen_answer2');
-      answer3 = prefs.getString('komitmen_answer3');
-      _textController.text = prefs.getString('komitmen_komentar') ?? '';
-      _sliderValue = prefs.getDouble('komitmen_slider') ?? 3;
+      answer1 = prefs.getString('evaluasi_answer1');
+      answer2 = prefs.getString('evaluasi_answer2');
+      answer3 = prefs.getString('evaluasi_answer3');
+      _textController.text = prefs.getString('evaluasi_komentar') ?? '';
+      _sliderValue = prefs.getDouble('evaluasi_slider') ?? 3;
     });
   }
 
   Future<void> _saveProgress() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('komitmen_answer1', answer1 ?? '');
-    await prefs.setString('komitmen_answer2', answer2 ?? '');
-    await prefs.setString('komitmen_answer3', answer3 ?? '');
-    await prefs.setString('komitmen_komentar', _textController.text);
-    await prefs.setDouble('komitmen_slider', _sliderValue);
+    await prefs.setString('evaluasi_answer1', answer1 ?? '');
+    await prefs.setString('evaluasi_answer2', answer2 ?? '');
+    await prefs.setString('evaluasi_answer3', answer3 ?? '');
+    await prefs.setString('evaluasi_komentar', _textController.text);
+    await prefs.setDouble('evaluasi_slider', _sliderValue);
   }
 
   Future<void> _handleSubmit() async {
@@ -58,7 +58,7 @@ class _KomitmenScreenState extends State<KomitmenScreen> {
     await Future.delayed(const Duration(seconds: 1));
     setState(() => isLoading = false);
 
-    Navigator.push(context, MaterialPageRoute(builder: (_) => ReviewKomitmenScreen()));
+    Navigator.push(context, MaterialPageRoute(builder: (_) => ReviewEvaluasiScreen()));
   }
 
   Widget _buildYesNoQuestion({
@@ -136,20 +136,20 @@ class _KomitmenScreenState extends State<KomitmenScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Checklist Komitmen', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text('Checklist Evaluasi', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 10),
                     _buildChecklistQuestion(
-                      title: 'Percaya kepada Tuhan Yesus Kristus sebagai Juruselamat saya pribadi.',
+                      title: 'Proses registrasi ulang dapat dipahami dengan mudah',
                       selectedValue: answer1,
                       onChanged: (val) => setState(() => answer1 = val),
                     ),
                     _buildChecklistQuestion(
-                      title: 'Bertobat dari dosa-dosa yang membelenggu.',
+                      title: 'Kehadiran usher dan pengantar sangat membantu saya',
                       selectedValue: answer2,
                       onChanged: (val) => setState(() => answer2 = val),
                     ),
                     _buildChecklistQuestion(
-                      title: 'Belajar untuk sungguh-sungguh mencintai Firman Tuhan.',
+                      title: 'Tim registrasi dan usher ramah dan membuat saya merasa disambut',
                       selectedValue: answer3,
                       onChanged: (val) => setState(() => answer3 = val),
                     ),
@@ -169,8 +169,8 @@ class _KomitmenScreenState extends State<KomitmenScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Seberapa besar komitmen saya untuk hidup bagi Kristus?',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold), // Bold text
+                      'Saya dapat menikmati rangkaian acara dan ibadah',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     Slider(
                       value: _sliderValue,
@@ -186,13 +186,13 @@ class _KomitmenScreenState extends State<KomitmenScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: const [
-                        Text('Sangat Tidak Setuju', style: TextStyle(fontSize: 14)),
-                        Text('Sangat Setuju', style: TextStyle(fontSize: 14)),
+                        Text('Tidak setuju', style: TextStyle(fontSize: 14)),
+                        Text('Sangat setuju', style: TextStyle(fontSize: 14)),
                       ],
                     ),
                     Center(
                       child: Text(
-                        '${tingkatKomitmenLabels[_sliderValue.toInt() - 1]}',
+                        '${tingkatEvaluasiLabels[_sliderValue.toInt() - 1]}',
                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -212,7 +212,7 @@ class _KomitmenScreenState extends State<KomitmenScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Tuliskan komitmen lainnya',
+                      'Secara singkat, apa yang kamu dapat dan apa saranmu untuk drama di Opening?',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
@@ -220,7 +220,7 @@ class _KomitmenScreenState extends State<KomitmenScreen> {
                       controller: _textController,
                       maxLines: 5,
                       decoration: InputDecoration(
-                        hintText: 'Tuliskan komitmen lainnya terkait dengan pesan dari KKR malam ini...',
+                        hintText: 'Tuliskan evaluasi...',
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),

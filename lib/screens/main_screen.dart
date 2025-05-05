@@ -6,6 +6,7 @@ import 'kelompok_screen.dart';
 import 'gereja_screen.dart';
 import 'gereja_kelompok_screen.dart';
 import 'profil_screen.dart';
+import 'daftar_acara_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -32,23 +33,26 @@ class _MainScreenState extends State<MainScreen> {
     role = prefs.getString('role');
 
     if (role == 'Peserta' || role == 'Pembina Kelompok') {
-      _pages = [const DashboardScreen(), const KelompokScreen(), const ProfilScreen()];
+      _pages = [const DashboardScreen(), const DaftarAcaraScreen(), const KelompokScreen(), const ProfilScreen()];
       _navItems = const [
         BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
+        BottomNavigationBarItem(icon: Icon(Icons.event), label: 'Acara'),
         BottomNavigationBarItem(icon: Icon(Icons.group), label: 'Kelompok'),
         BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Profil'),
       ];
     } else if (role == 'Pembina') {
-      _pages = [const DashboardScreen(), const GerejaScreen(), const ProfilScreen()];
+      _pages = [const DashboardScreen(), const DaftarAcaraScreen(), const GerejaScreen(), const ProfilScreen()];
       _navItems = const [
         BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
+        BottomNavigationBarItem(icon: Icon(Icons.event), label: 'Acara'),
         BottomNavigationBarItem(icon: Icon(Icons.church), label: 'Gereja'),
         BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Profil'),
       ];
     } else if (role == 'Panitia') {
-      _pages = [const DashboardScreen(), const GerejaKelompokScreen(), const ProfilScreen()];
+      _pages = [const DashboardScreen(), const DaftarAcaraScreen(), const GerejaKelompokScreen(), const ProfilScreen()];
       _navItems = const [
         BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
+        BottomNavigationBarItem(icon: Icon(Icons.event), label: 'Acara'),
         BottomNavigationBarItem(icon: Icon(Icons.manage_accounts), label: 'Data User'),
         BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Profil'),
       ];
@@ -78,12 +82,21 @@ class _MainScreenState extends State<MainScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('SYC 2024 App'),
+        centerTitle: true,
+        title: const Text(
+          'SYC 2024 APP',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
         backgroundColor: Colors.blueAccent,
-        actions: [IconButton(icon: const Icon(Icons.logout), onPressed: _logout)],
+        actions: [IconButton(icon: const Icon(Icons.logout), onPressed: _logout, iconSize: 30, color: Colors.white)],
       ),
       body: _pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(currentIndex: _currentIndex, onTap: _onItemTapped, items: _navItems),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: _onItemTapped,
+        items: _navItems,
+        type: BottomNavigationBarType.fixed, // agar semua item ditampilkan meskipun lebih dari 3
+      ),
     );
   }
 }

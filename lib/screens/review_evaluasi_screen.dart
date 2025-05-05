@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ReviewKomitmenScreen extends StatefulWidget {
-  const ReviewKomitmenScreen({super.key});
+class ReviewEvaluasiScreen extends StatefulWidget {
+  const ReviewEvaluasiScreen({super.key});
 
   @override
-  State<ReviewKomitmenScreen> createState() => _ReviewKomitmenScreenState();
+  State<ReviewEvaluasiScreen> createState() => _ReviewEvaluasiScreenState();
 }
 
-class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
+class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
   String? answer1;
   String? answer2;
   String? answer3;
@@ -26,11 +26,11 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
     final prefs = await SharedPreferences.getInstance();
 
     setState(() {
-      answer1 = prefs.getString('komitmen_answer1') ?? '';
-      answer2 = prefs.getString('komitmen_answer2') ?? '';
-      answer3 = prefs.getString('komitmen_answer3') ?? '';
-      komentar = prefs.getString('komitmen_komentar') ?? '';
-      _sliderValue = prefs.getDouble('komitmen_slider') ?? 0;
+      answer1 = prefs.getString('evaluasi_answer1') ?? '';
+      answer2 = prefs.getString('evaluasi_answer2') ?? '';
+      answer3 = prefs.getString('evaluasi_answer3') ?? '';
+      komentar = prefs.getString('evaluasi_komentar') ?? '';
+      _sliderValue = prefs.getDouble('evaluasi_slider') ?? 0;
       isLoading = false;
     });
   }
@@ -39,18 +39,18 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
     final prefs = await SharedPreferences.getInstance();
 
     // Hapus jawaban dari SharedPreferences
-    await prefs.remove('komitmen_answer1');
-    await prefs.remove('komitmen_answer2');
-    await prefs.remove('komitmen_answer3');
-    await prefs.remove('komitmen_komentar');
-    await prefs.remove('komitmen_slider');
+    await prefs.remove('evaluasi_answer1');
+    await prefs.remove('evaluasi_answer2');
+    await prefs.remove('evaluasi_answer3');
+    await prefs.remove('evaluasi_komentar');
+    await prefs.remove('evaluasi_slider');
 
     showDialog(
       context: context,
       builder:
           (_) => AlertDialog(
             title: const Text('Terima kasih!'),
-            content: const Text('Komitmen Anda telah dicatat.'),
+            content: const Text('Evaluasi Anda telah dicatat.'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.popUntil(context, (route) => route.isFirst),
@@ -81,16 +81,19 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Review Komitmen Anda:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text('Review Evaluasi Anda:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
 
             // Checklist cards
-            _buildChecklistCard('Percaya kepada Tuhan Yesus Kristus sebagai Juruselamat saya pribadi.', answer1),
-            _buildChecklistCard('Bertobat dari dosa-dosa yang membelenggu.', answer2),
-            _buildChecklistCard('Belajar untuk sungguh-sungguh mencintai Firman Tuhan.', answer3),
+            _buildChecklistCard('Proses registrasi ulang dapat dipahami dengan mudah', answer1),
+            _buildChecklistCard('Kehadiran usher dan pengantar sangat membantu saya', answer2),
+            _buildChecklistCard('Tim registrasi dan usher ramah dan membuat saya merasa disambut', answer3),
 
             const SizedBox(height: 16),
-            const Text('Tingkat Komitmen:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text(
+              'Saya dapat menikmati rangkaian acara dan ibadah',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
 
             Card(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -103,7 +106,10 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
             ),
 
             const SizedBox(height: 16),
-            const Text('Komitmen lainnya:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text(
+              'Secara singkat, apa yang kamu dapat dari ibadah opening ini?',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
 
             Container(
               margin: const EdgeInsets.only(top: 8),
@@ -128,7 +134,7 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
                   elevation: 5,
                 ),
-                child: const Text('Submit Komitmen', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                child: const Text('Submit Evaluasi', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ),
             ),
           ],
