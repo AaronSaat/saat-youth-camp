@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'daftar_acara_screen.dart';
 import 'komitmen_screen.dart';
 import 'evaluasi_screen.dart';
+import 'profil_screen.dart';
+
+import '/widgets/custom_arrow_button.dart';
+
+import 'package:syc/utils/app_colors.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -63,116 +68,196 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Hello, $_email')),
-      body: SingleChildScrollView(
-        // Tambahkan ini
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Komitmen', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 16),
-
-                      SizedBox(
-                        height: 160,
-                        child: ListView.builder(
-                          controller: _komitmenController,
-                          scrollDirection: Axis.horizontal,
-                          itemCount: 5,
-                          itemBuilder: (context, index) {
-                            return Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 10),
-                              child: _komitmenCard(context, 'Komitmen ${index + 1}'),
-                            );
-                          },
-                        ),
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // Manual Indicator
-                      Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(5, (index) {
-                            return AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              margin: const EdgeInsets.symmetric(horizontal: 4),
-                              width: _currentKomitmenPage == index ? 12 : 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: _currentKomitmenPage == index ? Colors.blue : Colors.grey,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                            );
-                          }),
-                        ),
-                      ),
-                    ],
-                  ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Hello,', style: TextStyle(fontSize: 16)),
+                        Text(_email, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ],
                 ),
-              ),
+                const SizedBox(height: 24),
 
-              const SizedBox(height: 16),
+                // BRM
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Bible Reading Movement', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 12),
 
-              Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Evaluasi', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 24),
-
-                      SizedBox(
-                        height: 160,
-                        child: ListView.builder(
-                          controller: _evaluasiController,
-                          scrollDirection: Axis.horizontal,
-                          itemCount: 3,
-                          itemBuilder: (context, index) {
-                            return Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 10),
-                              child: _evaluasiCard(context, 'Evaluasi ${index + 1}'),
-                            );
-                          },
-                        ),
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // Manual Indicator
-                      Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(3, (index) {
-                            return AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              margin: const EdgeInsets.symmetric(horizontal: 4),
-                              width: _currentEvaluasiPage == index ? 12 : 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: _currentEvaluasiPage == index ? Colors.blue : Colors.grey,
-                                borderRadius: BorderRadius.circular(4),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(16)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Today's Read - Amsal 1 : 7",
+                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 20),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            "Takut akan TUHAN adalah permulaan pengetahuan, tetapi orang bodoh menghina hikmat dan didikan.",
+                            style: TextStyle(fontWeight: FontWeight.normal, color: Colors.white),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white.withAlpha(30),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                               ),
-                            );
-                          }),
-                        ),
+                              onPressed: () {
+                                // aksi untuk baca lengkap
+                              },
+                              child: const Text(
+                                'Read More',
+                                style: TextStyle(fontWeight: FontWeight.normal, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+
+                    const SizedBox(height: 16),
+                  ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+
+                // Komitmen
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text('Komitmen', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        const Spacer(),
+                        CircleButton(
+                          onPressed: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const DaftarAcaraScreen()));
+                          },
+                          icon: Icons.arrow_forward,
+                          iconColor: Colors.black,
+                          backgroundColor: AppColors.primary.withAlpha(30),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    SizedBox(
+                      height: 160,
+                      child: ListView.builder(
+                        controller: _komitmenController,
+                        scrollDirection: Axis.horizontal,
+                        itemCount: 5,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 10),
+                            child: _komitmenCard(context, 'Komitmen ${index + 1}'),
+                          );
+                        },
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(5, (index) {
+                          return AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            width: _currentKomitmenPage == index ? 12 : 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: _currentKomitmenPage == index ? AppColors.primary : Colors.grey,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text('Evaluasi', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        const Spacer(),
+                        CircleButton(
+                          onPressed: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const DaftarAcaraScreen()));
+                          },
+                          icon: Icons.arrow_forward,
+                          iconColor: Colors.black,
+                          backgroundColor: AppColors.primary.withAlpha(30),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: 160,
+                      child: ListView.builder(
+                        controller: _evaluasiController,
+                        scrollDirection: Axis.horizontal,
+                        itemCount: 3,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 10),
+                            child: _evaluasiCard(context, 'Evaluasi ${index + 1}'),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(3, (index) {
+                          return AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            width: _currentEvaluasiPage == index ? 12 : 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: _currentEvaluasiPage == index ? AppColors.primary : Colors.grey,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         ),
       ),
@@ -184,18 +269,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       onTap: () => _navigateToKomitmen(context),
       child: Container(
         width: 180,
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.blue[50],
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.blue),
-        ),
+        decoration: BoxDecoration(color: AppColors.primary.withAlpha(20), borderRadius: BorderRadius.circular(16)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.assignment, size: 40, color: Colors.blue),
+            const Icon(Icons.assignment, size: 40, color: AppColors.primary),
             const SizedBox(height: 10),
-            Text(title, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(title, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -207,18 +287,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       onTap: () => _navigateToEvaluasi(context),
       child: Container(
         width: 180,
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.blue[50],
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.blue),
-        ),
+        decoration: BoxDecoration(color: AppColors.primary.withAlpha(20), borderRadius: BorderRadius.circular(16)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.assignment, size: 40, color: Colors.blue),
+            const Icon(Icons.assignment, size: 40, color: AppColors.primary),
             const SizedBox(height: 10),
-            Text(title, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(title, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ],
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:syc/utils/app_colors.dart';
 import 'komitmen_screen.dart';
 import 'evaluasi_screen.dart';
 import 'detail_acara_screen.dart';
@@ -60,16 +61,15 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> with SingleTicker
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 child: Row(
                   children: [
-                    const Icon(Icons.check_circle, color: Colors.green),
+                    const Icon(Icons.check_circle, color: AppColors.primary),
                     const SizedBox(width: 12),
                     const Expanded(
                       child: Text('Komitmen', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     ),
                     Column(
                       children: const [
-                        Icon(Icons.arrow_forward_ios, size: 16),
+                        Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.primary),
                         SizedBox(height: 2),
-                        Text('More info', style: TextStyle(fontSize: 10, color: Colors.grey)),
                       ],
                     ),
                   ],
@@ -93,9 +93,9 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> with SingleTicker
                     MaterialPageRoute(
                       builder:
                           (context) => DetailAcaraScreen(
-                            title: item['title'] ?? 'Detail Acara',
-                            detail:
-                                'Ini adalah detail dari acara ${item['title'] ?? ''}. Akan ada sesi penyampaian materi, diskusi, dan refleksi pribadi.',
+                            // title: item['title'] ?? 'Detail Acara',
+                            // detail:
+                            //     'Ini adalah detail dari acara ${item['title'] ?? ''}. Akan ada sesi penyampaian materi, diskusi, dan refleksi pribadi.',
                           ),
                     ),
                   );
@@ -104,7 +104,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> with SingleTicker
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   child: Row(
                     children: [
-                      const Icon(Icons.event_note, color: Colors.grey),
+                      const Icon(Icons.event_note, color: AppColors.primary),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
@@ -114,9 +114,8 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> with SingleTicker
                       ),
                       Column(
                         children: const [
-                          Icon(Icons.arrow_forward_ios, size: 16),
+                          Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.primary),
                           SizedBox(height: 2),
-                          Text('More info', style: TextStyle(fontSize: 10, color: Colors.grey)),
                         ],
                       ),
                     ],
@@ -132,16 +131,15 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> with SingleTicker
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Row(
                       children: [
-                        const Icon(Icons.assignment, color: Colors.blue),
+                        const Icon(Icons.assignment, color: AppColors.primary),
                         const SizedBox(width: 12),
                         const Expanded(
                           child: Text('Evaluasi', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                         ),
                         Column(
                           children: const [
-                            Icon(Icons.arrow_forward_ios, size: 16),
+                            Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.primary),
                             SizedBox(height: 2),
-                            Text('More info', style: TextStyle(fontSize: 10, color: Colors.grey)),
                           ],
                         ),
                       ],
@@ -161,7 +159,6 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> with SingleTicker
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Daftar Acara'),
         bottom: TabBar(
           controller: _tabController,
           tabs: days.map((day) => Tab(child: Text(day, style: const TextStyle(fontWeight: FontWeight.bold)))).toList(),

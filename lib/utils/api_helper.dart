@@ -1,3 +1,8 @@
+// ini global function untuk auto logout kalo token expired
+
+// jangan lupa di declare
+// import '/utils/api_helper.dart';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '/screens/login_screen.dart';

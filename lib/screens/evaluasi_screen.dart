@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syc/utils/app_colors.dart';
 import 'review_evaluasi_screen.dart';
 
 class EvaluasiScreen extends StatefulWidget {
@@ -115,14 +116,7 @@ class _EvaluasiScreenState extends State<EvaluasiScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          'SYC 2024 APP',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        backgroundColor: Colors.blueAccent,
-      ),
+      appBar: AppBar(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -131,6 +125,7 @@ class _EvaluasiScreenState extends State<EvaluasiScreen> {
             // Card Checklist
             Card(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 4,
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -163,13 +158,14 @@ class _EvaluasiScreenState extends State<EvaluasiScreen> {
             // Card Slider
             Card(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 4,
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Saya dapat menikmati rangkaian acara dan ibadah',
+                      'Seberapa besar komitmen saya untuk hidup bagi Kristus?',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     Slider(
@@ -179,15 +175,14 @@ class _EvaluasiScreenState extends State<EvaluasiScreen> {
                       divisions: 5,
                       label: _sliderValue.toInt().toString(),
                       onChanged: (value) => setState(() => _sliderValue = value),
-                      activeColor: Colors.blueAccent,
-                      inactiveColor: Colors.blue[100],
+                      activeColor: AppColors.primary,
+                      inactiveColor: AppColors.primary.withAlpha(40),
                     ),
-                    // Menambahkan teks di kiri dan kanan slider
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: const [
-                        Text('Tidak setuju', style: TextStyle(fontSize: 14)),
-                        Text('Sangat setuju', style: TextStyle(fontSize: 14)),
+                        Text('Sangat Tidak Setuju', style: TextStyle(fontSize: 14)),
+                        Text('Sangat Setuju', style: TextStyle(fontSize: 14)),
                       ],
                     ),
                     Center(
@@ -232,39 +227,52 @@ class _EvaluasiScreenState extends State<EvaluasiScreen> {
             const SizedBox(height: 10),
 
             // Button Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            Column(
               children: [
-                ElevatedButton(
-                  onPressed: () async {
-                    await _saveProgress();
-                    if (context.mounted) Navigator.pop(context); // kembali ke halaman sebelumnya
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                    elevation: 5,
+                SizedBox(
+                  width: double.infinity,
+                  height: 60,
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      await _saveProgress();
+                      if (context.mounted) Navigator.pop(context); // kembali ke halaman sebelumnya
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                      elevation: 5,
+                    ),
+                    icon: const Icon(Icons.save),
+                    label: const Text('Save Progress', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ),
-                  child: const Text('Save Progress', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
-                ElevatedButton(
-                  onPressed: isLoading ? null : _handleSubmit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                const SizedBox(height: 16), // Space between buttons
+                SizedBox(
+                  width: double.infinity,
+                  height: 60,
+                  child: ElevatedButton.icon(
+                    onPressed: isLoading ? null : _handleSubmit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                    ),
+                    icon:
+                        isLoading
+                            ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            )
+                            : const Icon(Icons.arrow_forward),
+                    label:
+                        isLoading
+                            ? const Text('')
+                            : const Text('Review Jawaban', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ),
-                  child:
-                      isLoading
-                          ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                          )
-                          : const Text('Review Jawaban', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),

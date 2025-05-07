@@ -1,7 +1,10 @@
 // lib/screens/login_screen.dart
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:syc/utils/app_colors.dart';
 
 import '../services/api_service.dart';
 
@@ -92,11 +95,11 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
-        centerTitle: true,
-        title: const Text('Login', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: AppColors.primary,
+      //   centerTitle: true,
+      //   title: const Text('Login', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+      // ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Center(
@@ -105,13 +108,22 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                Text(
+                  'Syc',
+                  style: TextStyle(
+                    fontFamily: "Cogley",
+                    fontSize: 64,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(height: 48),
                 TextFormField(
                   controller: usernameController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Username atau Email',
-                    prefixIcon: const Icon(Icons.person),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                    // prefixIcon: Icon(Icons.person),
+                    border: UnderlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -120,46 +132,64 @@ class _LoginScreenState extends State<LoginScreen> {
                   obscureText: _obscurePassword,
                   decoration: InputDecoration(
                     labelText: 'Password',
-                    prefixIcon: const Icon(Icons.lock),
+                    // prefixIcon: const Icon(Icons.lock),
                     suffixIcon: IconButton(
-                      icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                      icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility, color: AppColors.primary),
                       onPressed: () {
                         setState(() {
                           _obscurePassword = !_obscurePassword;
                         });
                       },
                     ),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                    border: const UnderlineInputBorder(),
+                  ),
+                ),
+
+                const SizedBox(height: 48),
+                SizedBox(
+                  width: double.infinity,
+                  height: 60,
+                  child: ElevatedButton(
+                    onPressed: isLoading ? null : _login,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                      elevation: 5,
+                    ),
+                    child:
+                        isLoading
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : const Text('Login', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: isLoading ? null : _login,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                    elevation: 5,
-                  ),
-                  child:
-                      isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text('Login', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                ),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckSecretScreen()));
-                  },
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.blueAccent,
-                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                  ),
-                  child: const Text('Belum Punya Akun? Daftar Sekarang'),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Belum Punya Akun? ',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w300, // light font
+                        fontSize: 16,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckSecretScreen()));
+                      },
+                      child: const Text(
+                        'Daftar Sekarang',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold, // bold font
+                          fontSize: 16,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

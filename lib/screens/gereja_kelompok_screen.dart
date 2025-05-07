@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syc/utils/app_colors.dart' show AppColors;
 import '../services/api_service.dart';
 
 class GerejaKelompokScreen extends StatefulWidget {
@@ -39,6 +40,7 @@ class _GerejaKelompokScreenState extends State<GerejaKelompokScreen> with Single
         gerejaList = response['gereja'];
         kelompokList = response['kelompok'];
       });
+      debugPrint('Gereja List: $gerejaList');
     } catch (e) {
       print('Error fetching data: $e');
     }
@@ -85,7 +87,7 @@ class _GerejaKelompokScreenState extends State<GerejaKelompokScreen> with Single
                           Container(
                             margin: const EdgeInsets.only(left: 8),
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(8)),
+                            decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(8)),
                             child: const Text('ANDA', style: TextStyle(color: Colors.white, fontSize: 12)),
                           ),
                       ],

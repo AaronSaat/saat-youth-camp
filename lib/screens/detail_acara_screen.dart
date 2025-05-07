@@ -1,40 +1,90 @@
 import 'package:flutter/material.dart';
+import 'package:syc/utils/app_colors.dart';
 
 class DetailAcaraScreen extends StatelessWidget {
-  final String title;
-  final String detail;
-
-  const DetailAcaraScreen({Key? key, required this.title, required this.detail}) : super(key: key);
+  const DetailAcaraScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          'Detail Acara',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        backgroundColor: Colors.blueAccent,
-        leading: BackButton(),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Deskripsi Acara:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            Text(detail, style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 24),
-            const Text('Catatan Tambahan:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            const Text(
-              'Silakan hadir tepat waktu. Siapkan hati dan catatan untuk mengikuti seluruh sesi dengan baik.',
-              style: TextStyle(fontSize: 16),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            automaticallyImplyLeading: false,
+            expandedHeight: 240,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.asset('assets/images/event.jpg', fit: BoxFit.cover),
+                  Positioned(
+                    top: MediaQuery.of(context).padding.top + 12,
+                    left: 16,
+                    child: CircleAvatar(
+                      backgroundColor: Colors.white,
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          ),
+
+          // Konten scrollable
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Judul Acara', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  const Text('Jenis Acara', style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal)),
+                  const SizedBox(height: 16),
+                  const Divider(),
+
+                  const SizedBox(height: 16),
+                  const Text('Deskripsi', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Ini adalah deskripsi lengkap mengenai acara. Penjelasan dapat mencakup latar belakang, tujuan, dan hal-hal menarik lainnya yang ingin disampaikan kepada peserta.',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  const SizedBox(height: 16),
+                  const Divider(),
+
+                  const SizedBox(height: 16),
+                  const Text('Pembicara', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 12),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.asset('assets/images/logo_stt_saat.png', width: 48, height: 48, fit: BoxFit.cover),
+                      ),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Nama Pembicara', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                            Text('Title / Jabatan Pembicara', style: TextStyle(fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

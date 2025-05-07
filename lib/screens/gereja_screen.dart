@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syc/utils/app_colors.dart' show AppColors;
 import '../services/api_service.dart';
+import '../utils/app_colors.dart';
 
 class GerejaScreen extends StatefulWidget {
   const GerejaScreen({super.key});
@@ -53,6 +55,10 @@ class _GerejaScreenState extends State<GerejaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        // title: const Text('Profil'), centerTitle: true,
+        toolbarHeight: 0,
+      ),
       body:
           anggotaGereja.isEmpty
               ? const Center(child: CircularProgressIndicator())
@@ -94,7 +100,7 @@ class _GerejaScreenState extends State<GerejaScreen> {
                                             margin: const EdgeInsets.only(left: 8),
                                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                             decoration: BoxDecoration(
-                                              color: Colors.blue,
+                                              color: AppColors.primary,
                                               borderRadius: BorderRadius.circular(8),
                                             ),
                                             child: const Text(

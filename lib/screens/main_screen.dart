@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syc/utils/app_colors.dart';
 import 'login_screen.dart';
 import 'dashboard_screen.dart';
 import 'kelompok_screen.dart';
@@ -81,15 +82,15 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          'SYC 2024 APP',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        backgroundColor: Colors.blueAccent,
-        actions: [IconButton(icon: const Icon(Icons.logout), onPressed: _logout, iconSize: 30, color: Colors.white)],
-      ),
+      // appBar: AppBar(
+      //   centerTitle: true,
+      //   title: const Text(
+      //     'SYC 2024 APP',
+      //     style: TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+      //   ),
+      //   backgroundColor: AppColors.primary,
+      //   actions: [IconButton(icon: const Icon(Icons.logout), onPressed: _logout, iconSize: 30, color: Colors.white)],
+      // ),
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
