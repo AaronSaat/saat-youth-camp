@@ -138,6 +138,24 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => const DirectToGmailScreen()),
+                        );
+                      },
+                      child: const Text(
+                        'Check Gmail',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.primary),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

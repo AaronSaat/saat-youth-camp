@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/utils/app_colors.dart';
 import 'komitmen_screen.dart';
 import 'evaluasi_screen.dart';
@@ -13,6 +14,7 @@ class DaftarAcaraScreen extends StatefulWidget {
 
 class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  String currentRole = ""; // Role akan diambil dari SharedPreferences
 
   final Map<String, List<Map<String, String>>> rundownPerHari = {
     'Day 1': [
@@ -41,6 +43,15 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> with SingleTicker
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _getRoleFromSharedPreferences(); // Ambil role dari SharedPreferences
+  }
+
+  // Fungsi untuk mengambil role dari SharedPreferences
+  Future<void> _getRoleFromSharedPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      currentRole = prefs.getString('role') ?? ''; // Ambil role dari SharedPreferences
+    });
   }
 
   Widget _buildRundownList(List<Map<String, String>> rundown) {
@@ -48,104 +59,85 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> with SingleTicker
       itemCount: rundown.length,
       itemBuilder: (context, index) {
         final item = rundown[index];
+        final title = item['title'] ?? '';
         final isKomitmen = item['title'] == 'Komitmen';
 
-        if (isKomitmen) {
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            child: InkWell(
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const KomitmenScreen()));
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                child: Row(
+        return Card(
+          elevation: 4,
+          margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                child: Image.asset(
+                  isKomitmen ? 'assets/images/komitmen.jpg' : 'assets/images/event.jpg',
+                  height: 160,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.check_circle, color: AppColors.primary),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Text('Komitmen', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    ),
-                    Column(
-                      children: const [
-                        Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.primary),
-                        SizedBox(height: 2),
+                    Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        if (title == 'Komitmen')
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (_) => const KomitmenScreen()));
+                            },
+                            icon: const Icon(Icons.check_circle_outline, color: Colors.white),
+                            label: const Text(
+                              'Isi Komitmen',
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                          ),
+                        if (item['acara']?.contains('Detail Acara') ?? false)
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (_) => const DetailAcaraScreen()));
+                            },
+                            icon: const Icon(Icons.event, color: Colors.white),
+                            label: const Text(
+                              'Detail',
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                          ),
+                        const SizedBox(width: 8),
+                        if (item['acara']?.contains('Evaluasi') ?? false)
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (_) => const EvaluasiScreen()));
+                            },
+                            icon: const Icon(Icons.assignment, color: Colors.white),
+                            label: const Text(
+                              'Evaluasi',
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                          ),
                       ],
                     ),
                   ],
                 ),
               ),
-            ),
-          );
-        }
-
-        // Untuk item selain Komitmen (tetap expandable)
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          child: ExpansionTile(
-            title: Text(item['title'] ?? ''),
-            initiallyExpanded: true,
-            children: [
-              InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) => DetailAcaraScreen(
-                            // title: item['title'] ?? 'Detail Acara',
-                            // detail:
-                            //     'Ini adalah detail dari acara ${item['title'] ?? ''}. Akan ada sesi penyampaian materi, diskusi, dan refleksi pribadi.',
-                          ),
-                    ),
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.event_note, color: AppColors.primary),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          (item['acara'] ?? '').replaceAll(', Komitmen', '').replaceAll(', Evaluasi', ''),
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
-                      ),
-                      Column(
-                        children: const [
-                          Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.primary),
-                          SizedBox(height: 2),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              if (item['acara']?.contains('Evaluasi') ?? false)
-                InkWell(
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const EvaluasiScreen()));
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.assignment, color: AppColors.primary),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Text('Evaluasi', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        ),
-                        Column(
-                          children: const [
-                            Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.primary),
-                            SizedBox(height: 2),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
             ],
           ),
         );
@@ -159,6 +151,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> with SingleTicker
 
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 0,
         bottom: TabBar(
           controller: _tabController,
           tabs: days.map((day) => Tab(child: Text(day, style: const TextStyle(fontWeight: FontWeight.bold)))).toList(),
@@ -169,6 +162,14 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> with SingleTicker
         controller: _tabController,
         children: days.map((day) => _buildRundownList(rundownPerHari[day]!)).toList(),
       ),
+      floatingActionButton:
+          currentRole == "Panitia"
+              ? FloatingActionButton(
+                onPressed: () {},
+                child: const Icon(Icons.add, color: Colors.white),
+                backgroundColor: AppColors.primary,
+              )
+              : null,
     );
   }
 }

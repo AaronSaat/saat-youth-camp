@@ -8,6 +8,10 @@ import 'gereja_screen.dart';
 import 'gereja_kelompok_screen.dart';
 import 'profil_screen.dart';
 import 'daftar_acara_screen.dart';
+import 'navigasi_screen.dart';
+import 'materi_screen.dart';
+import 'broadcast_screen.dart';
+import 'admin_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -33,33 +37,62 @@ class _MainScreenState extends State<MainScreen> {
     final prefs = await SharedPreferences.getInstance();
     role = prefs.getString('role');
 
-    if (role == 'Peserta' || role == 'Pembina Kelompok') {
-      _pages = [const DashboardScreen(), const DaftarAcaraScreen(), const KelompokScreen(), const ProfilScreen()];
+    if (role == 'Peserta') {
+      _pages = [
+        const DashboardScreen(),
+        const DaftarAcaraScreen(),
+        const NavigasiScreen(),
+        const MateriScreen(),
+        const ProfilScreen(),
+      ];
       _navItems = const [
         BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
         BottomNavigationBarItem(icon: Icon(Icons.event), label: 'Acara'),
-        BottomNavigationBarItem(icon: Icon(Icons.group), label: 'Kelompok'),
+        BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Navigasi'),
+        BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Materi'),
+        BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Profil'),
+      ];
+    } else if (role == 'Pembina Kelompok') {
+      _pages = [
+        const DashboardScreen(),
+        const DaftarAcaraScreen(),
+        const KelompokScreen(),
+        const MateriScreen(),
+        const ProfilScreen(),
+      ];
+      _navItems = const [
+        BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
+        BottomNavigationBarItem(icon: Icon(Icons.event), label: 'Acara'),
+        BottomNavigationBarItem(icon: Icon(Icons.group), label: 'Anggota'),
+        BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Materi'),
         BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Profil'),
       ];
     } else if (role == 'Pembina') {
-      _pages = [const DashboardScreen(), const DaftarAcaraScreen(), const GerejaScreen(), const ProfilScreen()];
+      _pages = [const DashboardScreen(), const GerejaScreen(), const MateriScreen(), const ProfilScreen()];
       _navItems = const [
         BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
-        BottomNavigationBarItem(icon: Icon(Icons.event), label: 'Acara'),
-        BottomNavigationBarItem(icon: Icon(Icons.church), label: 'Gereja'),
+        BottomNavigationBarItem(icon: Icon(Icons.church), label: 'Anggota'),
+        BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Materi'),
         BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Profil'),
       ];
     } else if (role == 'Panitia') {
-      _pages = [const DashboardScreen(), const DaftarAcaraScreen(), const GerejaKelompokScreen(), const ProfilScreen()];
+      _pages = [
+        const DashboardScreen(),
+        const GerejaKelompokScreen(),
+        const BroadcastScreen(),
+        const AdminScreen(),
+        const ProfilScreen(),
+      ];
       _navItems = const [
         BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
-        BottomNavigationBarItem(icon: Icon(Icons.event), label: 'Acara'),
-        BottomNavigationBarItem(icon: Icon(Icons.manage_accounts), label: 'Data User'),
+        BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Peserta'),
+        BottomNavigationBarItem(icon: Icon(Icons.campaign), label: 'Broadcast'),
+        BottomNavigationBarItem(icon: Icon(Icons.admin_panel_settings), label: 'Admin'),
         BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Profil'),
       ];
     }
 
-    setState(() {}); // Refresh tampilan setelah menentukan pages & navItems
+    setState(() {});
   }
 
   void _onItemTapped(int index) {
@@ -76,27 +109,17 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Jika belum selesai load role
     if (_pages.isEmpty || _navItems.isEmpty) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
-      // appBar: AppBar(
-      //   centerTitle: true,
-      //   title: const Text(
-      //     'SYC 2024 APP',
-      //     style: TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
-      //   ),
-      //   backgroundColor: AppColors.primary,
-      //   actions: [IconButton(icon: const Icon(Icons.logout), onPressed: _logout, iconSize: 30, color: Colors.white)],
-      // ),
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onItemTapped,
         items: _navItems,
-        type: BottomNavigationBarType.fixed, // agar semua item ditampilkan meskipun lebih dari 3
+        type: BottomNavigationBarType.fixed,
       ),
     );
   }

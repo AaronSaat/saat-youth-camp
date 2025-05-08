@@ -63,16 +63,14 @@ class _KelompokScreenState extends State<KelompokScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        // title: const Text('Profil'), centerTitle: true,
-        // toolbarHeight: 0,
-      ),
+      appBar: AppBar(toolbarHeight: 0),
       body:
           anggotaKelompok.isEmpty
               ? const Center(child: CircularProgressIndicator())
               : Padding(
                 padding: const EdgeInsets.all(10),
                 child: Card(
+                  elevation: 4,
                   child: Padding(
                     padding: const EdgeInsets.all(10),
                     child: Column(
@@ -89,24 +87,52 @@ class _KelompokScreenState extends State<KelompokScreen> {
                             itemBuilder: (context, index) {
                               final user = anggotaKelompok[index];
                               final isCurrentUser = user['email'] == currentEmail;
-                              return ListTile(
-                                title: Row(
-                                  children: [
-                                    Text(user['username']),
-                                    if (isCurrentUser)
-                                      Container(
-                                        margin: const EdgeInsets.only(left: 8),
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.primary,
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: const Text('ANDA', style: TextStyle(color: Colors.white, fontSize: 12)),
-                                      ),
-                                  ],
-                                ),
-                                subtitle: Text('${user['email']} • ${user['roles']}'),
-                                leading: Icon(getRoleIcon(user['roles'])),
+
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ListTile(
+                                    title: Row(
+                                      children: [
+                                        Text(user['username']),
+                                        if (isCurrentUser)
+                                          Container(
+                                            margin: const EdgeInsets.only(left: 8),
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.primary,
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: const Text(
+                                              'ANDA',
+                                              style: TextStyle(color: Colors.white, fontSize: 12),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                    subtitle: Text('${user['email']} • ${user['roles']}'),
+                                    leading: Icon(getRoleIcon(user['roles'])),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    child:
+                                        user['roles'] == 'Peserta'
+                                            ? Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: const [
+                                                Text('Progress: 70/100'),
+                                                SizedBox(height: 4),
+                                                LinearProgressIndicator(
+                                                  value: 0.7, // 70 dari 100
+                                                  backgroundColor: Colors.grey,
+                                                  color: Colors.green,
+                                                ),
+                                              ],
+                                            )
+                                            : SizedBox.shrink(),
+                                  ),
+                                  const Divider(),
+                                ],
                               );
                             },
                           ),

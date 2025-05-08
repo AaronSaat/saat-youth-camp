@@ -59,7 +59,32 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getAllUsers(BuildContext context) async {
+  static Future<Map<String, dynamic>> getGroupAndChurchMembers(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseUrl}getgroupandchurchmembers');
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body) as Map<String, dynamic>;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
+      // await Future.delayed(const Duration(seconds: 5));
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      throw Exception('Failed to load users');
+    }
+  }
+
+  static Future<List<dynamic>> getAllUsers(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null || token.isEmpty) {
@@ -73,10 +98,9 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return json.decode(response.body) as Map<String, dynamic>;
+      return json.decode(response.body) as List<dynamic>;
     } else if (response.statusCode == 401) {
       showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
-      // await Future.delayed(const Duration(seconds: 5));
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {

@@ -53,53 +53,71 @@ class _ProfilScreenState extends State<ProfilScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Profil Header: Profile picture dan info
-            Row(
-              children: [
-                Container(
-                  width: 130,
-                  height: 130,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.primary, width: 2),
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              margin: const EdgeInsets.only(bottom: 24),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SizedBox(
+                  width: double.infinity, // Memastikan card isi penuh lebar screen
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 130,
+                        height: 130,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: AppColors.primary, width: 2),
+                        ),
+                        child: const CircleAvatar(
+                          radius: 50,
+                          backgroundImage: AssetImage('assets/images/logo_stt_saat.png'),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('John Doe', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                const Icon(Icons.work, size: 16, color: Colors.grey),
+                                const SizedBox(width: 4),
+                                Text(role, style: const TextStyle(fontSize: 16)),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            if (gereja != 'Tidak ada gereja.') ...[
+                              Row(
+                                children: [
+                                  const Icon(Icons.church, size: 16, color: Colors.grey),
+                                  const SizedBox(width: 4),
+                                  Text(gereja, style: const TextStyle(fontSize: 16)),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                            ],
+                            if (kelompok != 'Tidak ada kelompok.') ...[
+                              Row(
+                                children: [
+                                  const Icon(Icons.group, size: 16, color: Colors.grey),
+                                  const SizedBox(width: 4),
+                                  Text(kelompok, style: const TextStyle(fontSize: 16)),
+                                ],
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  child: const CircleAvatar(radius: 50, backgroundImage: AssetImage('assets/images/logo_stt_saat.png')),
                 ),
-
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('John Doe', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.work, size: 16, color: Colors.grey),
-                        const SizedBox(width: 4),
-                        Text(role, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal)),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.church, size: 16, color: Colors.grey),
-                        const SizedBox(width: 4),
-                        Text(gereja, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal)),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.group, size: 16, color: Colors.grey),
-                        const SizedBox(width: 4),
-                        Text(kelompok, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal)),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
-            const SizedBox(height: 24),
 
             Column(
               children: [
@@ -113,7 +131,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.primary),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const Divider(height: 24, thickness: 1, color: AppColors.primary),
 
                 Row(
                   children: [
@@ -125,7 +143,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.primary),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const Divider(height: 24, thickness: 1, color: AppColors.primary),
 
                 Row(
                   children: [
@@ -135,7 +153,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.primary),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const Divider(height: 24, thickness: 1, color: AppColors.primary),
 
                 GestureDetector(
                   onTap: () => logoutUser(context),
@@ -148,6 +166,8 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     ],
                   ),
                 ),
+
+                const Divider(height: 24, thickness: 1, color: AppColors.primary),
               ],
             ),
           ],

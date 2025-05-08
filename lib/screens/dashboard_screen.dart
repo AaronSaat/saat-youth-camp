@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'daftar_acara_screen.dart';
+import 'detail_acara_screen.dart';
 import 'komitmen_screen.dart';
 import 'evaluasi_screen.dart';
 import 'profil_screen.dart';
@@ -8,6 +9,8 @@ import 'profil_screen.dart';
 import '/widgets/custom_arrow_button.dart';
 
 import 'package:syc/utils/app_colors.dart';
+
+import 'read_more_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -18,6 +21,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   String _email = '';
+  bool isPanitia = false;
   ScrollController _komitmenController = ScrollController();
   ScrollController _evaluasiController = ScrollController();
   int _currentKomitmenPage = 0;
@@ -29,7 +33,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _loadUsername();
 
     _komitmenController.addListener(() {
-      double itemWidth = 180;
+      double itemWidth = 160;
       setState(() {
         _currentKomitmenPage = (_komitmenController.offset / itemWidth).round();
       });
@@ -45,8 +49,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _loadUsername() async {
     final prefs = await SharedPreferences.getInstance();
     final email = prefs.getString('email') ?? 'No Email';
+    final role = prefs.getString('role');
     setState(() {
       _email = email;
+      isPanitia = (role == 'Panitia');
     });
   }
 
@@ -121,8 +127,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                               ),
                               onPressed: () {
-                                // aksi untuk baca lengkap
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const ReadMoreScreen()),
+                                );
                               },
+
                               child: const Text(
                                 'Read More',
                                 style: TextStyle(fontWeight: FontWeight.normal, color: Colors.white),
@@ -132,8 +142,60 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ],
                       ),
                     ),
+                  ],
+                ),
 
-                    const SizedBox(height: 16),
+                const SizedBox(height: 16),
+
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Acara Mendatang', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 12),
+
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(16)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.asset(
+                              'assets/images/event.jpg',
+                              width: double.infinity,
+                              height: 160,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'KKR Sesi 1',
+                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
+                          ),
+                          const SizedBox(height: 6),
+                          const Text('Pembicara: Pdt. John Doe', style: TextStyle(color: Colors.white)),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white.withAlpha(30),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => DetailAcaraScreen()));
+                              },
+                              child: const Text(
+                                'Lihat Detail',
+                                style: TextStyle(fontWeight: FontWeight.normal, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -297,6 +359,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildProgressRow(String name, int current, int total) {
+    double percent = current / total;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        LinearProgressIndicator(
+          value: percent,
+          backgroundColor: Colors.white24,
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          minHeight: 8,
+        ),
+        const SizedBox(height: 4),
+        Text('$current / $total', style: const TextStyle(color: Colors.white70)),
+      ],
     );
   }
 }
