@@ -16,6 +16,7 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
   String komentar = '';
   double _sliderValue = 3;
   bool isLoading = true;
+  String komitmen_status = "";
 
   @override
   void initState() {
@@ -33,18 +34,18 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
       komentar = prefs.getString('komitmen_komentar') ?? '';
       _sliderValue = prefs.getDouble('komitmen_slider') ?? 0;
       isLoading = false;
+      komitmen_status = prefs.getString('komitmen_status') ?? '';
     });
   }
 
-  void _handleFinalSubmit(BuildContext context) async {
+  void _handleFinalSubmit() async {
     final prefs = await SharedPreferences.getInstance();
-
-    // Hapus jawaban dari SharedPreferences
-    await prefs.remove('komitmen_answer1');
-    await prefs.remove('komitmen_answer2');
-    await prefs.remove('komitmen_answer3');
-    await prefs.remove('komitmen_komentar');
-    await prefs.remove('komitmen_slider');
+    await prefs.setString('komitmen_status', 'completed');
+    await prefs.setString('komitmen_answer1', answer1 ?? '');
+    await prefs.setString('komitmen_answer2', answer2 ?? '');
+    await prefs.setString('komitmen_answer3', answer3 ?? '');
+    await prefs.setString('komitmen_komentar', komentar);
+    await prefs.setDouble('komitmen_slider', _sliderValue);
 
     showDialog(
       context: context,
@@ -69,7 +70,7 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(title: const Text('Review Komitmen')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -83,27 +84,26 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
             _buildChecklistCard('Belajar untuk sungguh-sungguh mencintai Firman Tuhan.', answer3),
 
             const SizedBox(height: 16),
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Saya dapat menikmati rangkaian acara dan ibadah',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                    Row(children: [Text('$_sliderValue dari 6', style: const TextStyle(fontSize: 16)), const Spacer()]),
-                  ],
-                ),
-              ),
-            ),
 
-            const SizedBox(height: 16),
-
+            // Card(
+            //   elevation: 4,
+            //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            //   child: Padding(
+            //     padding: const EdgeInsets.all(16),
+            //     child: Column(
+            //       crossAxisAlignment: CrossAxisAlignment.start,
+            //       children: [
+            //         const Text(
+            //           'Saya dapat menikmati rangkaian acara dan ibadah',
+            //           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            //         ),
+            //         const SizedBox(height: 10),
+            //         Row(children: [Text('$_sliderValue dari 6', style: const TextStyle(fontSize: 16)), const Spacer()]),
+            //       ],
+            //     ),
+            //   ),
+            // ),
+            // const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: Card(
@@ -124,7 +124,7 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey.shade300),
                           borderRadius: BorderRadius.circular(12),
-                          color: Colors.grey.shade100,
+                          color: AppColors.primary.withAlpha(10),
                         ),
                         child: Text(komentar.isEmpty ? '(Tidak ada komentar)' : komentar),
                       ),
@@ -135,24 +135,24 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
             ),
 
             const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              height: 60,
-              child: ElevatedButton(
-                onPressed: isLoading ? null : () => _handleFinalSubmit(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                  elevation: 5,
+            if (komitmen_status != 'completed')
+              SizedBox(
+                width: double.infinity,
+                height: 60,
+                child: ElevatedButton.icon(
+                  onPressed: _handleFinalSubmit,
+                  icon: const Icon(Icons.assignment_turned_in, color: Colors.white),
+                  label: const Text('Submit Komitmen', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                  ),
                 ),
-                child:
-                    isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text('Submit Komitmen', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              ),
-            ),
+              )
+            else
+              const SizedBox.shrink(),
           ],
         ),
       ),

@@ -115,14 +115,7 @@ class _KomitmenScreenState extends State<KomitmenScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        // centerTitle: true,
-        // title: const Text(
-        //   'SYC 2024 APP',
-        //   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-        // ),
-        // backgroundColor: Colors.blueAccent,
-      ),
+      appBar: AppBar(title: const Text('Komitmen')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -162,46 +155,45 @@ class _KomitmenScreenState extends State<KomitmenScreen> {
             const SizedBox(height: 10),
 
             // Card Slider
-            Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              elevation: 4,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Seberapa besar komitmen saya untuk hidup bagi Kristus?',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    Slider(
-                      value: _sliderValue,
-                      min: 1,
-                      max: 6,
-                      divisions: 5,
-                      label: _sliderValue.toInt().toString(),
-                      onChanged: (value) => setState(() => _sliderValue = value),
-                      activeColor: AppColors.primary,
-                      inactiveColor: AppColors.primary.withAlpha(40),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
-                        Text('Sangat Tidak Setuju', style: TextStyle(fontSize: 14)),
-                        Text('Sangat Setuju', style: TextStyle(fontSize: 14)),
-                      ],
-                    ),
-                    Center(
-                      child: Text(
-                        '${tingkatKomitmenLabels[_sliderValue.toInt() - 1]}',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
+            // Card(
+            //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            //   elevation: 4,
+            //   child: Padding(
+            //     padding: const EdgeInsets.all(16),
+            //     child: Column(
+            //       crossAxisAlignment: CrossAxisAlignment.start,
+            //       children: [
+            //         const Text(
+            //           'Seberapa besar komitmen saya untuk hidup bagi Kristus?',
+            //           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            //         ),
+            //         Slider(
+            //           value: _sliderValue,
+            //           min: 1,
+            //           max: 6,
+            //           divisions: 5,
+            //           label: _sliderValue.toInt().toString(),
+            //           onChanged: (value) => setState(() => _sliderValue = value),
+            //           activeColor: AppColors.primary,
+            //           inactiveColor: AppColors.primary.withAlpha(40),
+            //         ),
+            //         Row(
+            //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //           children: const [
+            //             Text('Sangat Tidak Setuju', style: TextStyle(fontSize: 14)),
+            //             Text('Sangat Setuju', style: TextStyle(fontSize: 14)),
+            //           ],
+            //         ),
+            //         Center(
+            //           child: Text(
+            //             '${tingkatKomitmenLabels[_sliderValue.toInt() - 1]}',
+            //             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
             const SizedBox(height: 10),
 
             // Card Komentar

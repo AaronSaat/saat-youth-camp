@@ -1,17 +1,14 @@
-// lib/screens/login_screen.dart
+// lib/screens/login_screen3.dart
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:syc/utils/app_colors.dart';
-
 import '../services/api_service.dart';
-
-import 'check_secret_screen.dart';
-import 'main_screen.dart';
-
 import '../widgets/custom_snackbar.dart';
+import '../utils/app_colors.dart';
+import 'main_screen.dart';
+import 'check_secret_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -23,13 +20,10 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-
-  bool _obscurePassword = true; // untuk show password
-
+  bool _obscurePassword = true;
   bool isLoading = false;
   String errorMessage = '';
 
-  // Fungsi untuk menyimpan data di SharedPreferences
   Future<void> _saveLoginData(
     String username,
     String email,
@@ -47,7 +41,6 @@ class _LoginScreenState extends State<LoginScreen> {
     await prefs.setString('kelompok', kelompok);
   }
 
-  // Fungsi untuk login
   void _login() async {
     setState(() {
       isLoading = true;
@@ -69,132 +62,164 @@ class _LoginScreenState extends State<LoginScreen> {
 
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainScreen()));
       } else {
-        setState(() {
-          errorMessage = response['message'] ?? 'Login gagal';
-        });
-
-        Future.delayed(Duration.zero, () {
-          showCustomSnackBar(context, errorMessage);
-        });
+        setState(() => errorMessage = response['message'] ?? 'Login gagal');
+        showCustomSnackBar(context, errorMessage);
       }
     } catch (e) {
-      setState(() {
-        errorMessage = 'Terjadi kesalahan: $e';
-      });
-
-      Future.delayed(Duration.zero, () {
-        showCustomSnackBar(context, errorMessage);
-      });
+      setState(() => errorMessage = 'Terjadi kesalahan: $e');
+      showCustomSnackBar(context, errorMessage);
     }
 
-    setState(() {
-      isLoading = false;
-    });
+    setState(() => isLoading = false);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: AppColors.primary,
-      //   centerTitle: true,
-      //   title: const Text('Login', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
-      // ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  'Syc',
-                  style: TextStyle(
-                    fontFamily: "Cogley",
-                    fontSize: 64,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
-                  ),
-                ),
-                const SizedBox(height: 48),
-                TextFormField(
-                  controller: usernameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Username atau Email',
-                    // prefixIcon: Icon(Icons.person),
-                    border: UnderlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: passwordController,
-                  obscureText: _obscurePassword,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    // prefixIcon: const Icon(Icons.lock),
-                    suffixIcon: IconButton(
-                      icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility, color: AppColors.primary),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
-                    ),
-                    border: const UnderlineInputBorder(),
-                  ),
-                ),
-
-                const SizedBox(height: 48),
-                SizedBox(
-                  width: double.infinity,
-                  height: 60,
-                  child: ElevatedButton(
-                    onPressed: isLoading ? null : _login,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                      elevation: 5,
-                    ),
-                    child:
-                        isLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text('Login', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'Belum Punya Akun? ',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w300, // light font
-                        fontSize: 16,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckSecretScreen()));
-                      },
-                      child: const Text(
-                        'Daftar Sekarang',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold, // bold font
-                          fontSize: 16,
-                          color: AppColors.primary,
+      // resizeToAvoidBottomInset: false,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            'assets/images/background_login3.png',
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            fit: BoxFit.cover,
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Center(
+                child: SingleChildScrollView(
+                  // keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Image.asset('assets/logos/story_saat.png', fit: BoxFit.contain),
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 32),
+                      Image.asset('assets/logos/syc.png', height: 100),
+                      const SizedBox(height: 40),
+
+                      // Username
+                      Container(
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                        child: TextFormField(
+                          controller: usernameController,
+                          style: const TextStyle(color: AppColors.primary),
+                          decoration: InputDecoration(
+                            hintText: 'Username atau Email',
+                            hintStyle: const TextStyle(color: AppColors.primary),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            prefixIcon: SvgPicture.asset(
+                              'assets/icons/login/email.svg',
+                              width: 24,
+                              height: 24,
+                              colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Password
+                      Container(
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                        child: TextFormField(
+                          controller: passwordController,
+                          obscureText: _obscurePassword,
+                          style: const TextStyle(color: AppColors.primary),
+                          decoration: InputDecoration(
+                            hintText: 'Password',
+                            hintStyle: const TextStyle(color: AppColors.primary),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            prefixIcon: SvgPicture.asset(
+                              'assets/icons/login/password.svg',
+                              width: 24,
+                              height: 24,
+                              colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                            ),
+                            suffixIcon: IconButton(
+                              icon: SvgPicture.asset(
+                                _obscurePassword
+                                    ? 'assets/icons/login/hide_password.svg'
+                                    : 'assets/icons/login/show_password.svg',
+                                width: 24,
+                                height: 24,
+                                colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Login Button
+                      GestureDetector(
+                        onTap: isLoading ? null : _login,
+                        child: Container(
+                          width: double.infinity,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            image: const DecorationImage(
+                              image: AssetImage('assets/buttons/button1.png'),
+                              fit: BoxFit.cover,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          alignment: Alignment.center,
+                          child:
+                              isLoading
+                                  ? const CircularProgressIndicator(color: Colors.white)
+                                  : const Text(
+                                    'Login',
+                                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                                  ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Daftar sekarang
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text('Belum punya akun? ', style: TextStyle(color: Colors.white)),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (_) => const CheckSecretScreen()));
+                            },
+                            child: const Text(
+                              'Daftar sekarang',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

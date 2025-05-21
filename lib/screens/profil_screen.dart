@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'login_screen.dart';
 import 'package:syc/utils/app_colors.dart';
+
+import 'login_screen.dart';
 
 class ProfilScreen extends StatefulWidget {
   const ProfilScreen({super.key});
@@ -71,10 +72,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                           shape: BoxShape.circle,
                           border: Border.all(color: AppColors.primary, width: 2),
                         ),
-                        child: const CircleAvatar(
-                          radius: 50,
-                          backgroundImage: AssetImage('assets/images/logo_stt_saat.png'),
-                        ),
+                        child: const CircleAvatar(radius: 50, backgroundImage: AssetImage('assets/logos/stt_saat.png')),
                       ),
                       const SizedBox(width: 16),
                       Expanded(

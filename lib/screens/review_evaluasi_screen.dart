@@ -69,15 +69,12 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(title: const Text('Review Evaluasi Lainnya')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Review Evaluasi Anda:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-
             _buildChecklistCard('Proses registrasi ulang dapat dipahami dengan mudah', answer1),
             _buildChecklistCard('Kehadiran usher dan pengantar sangat membantu saya', answer2),
             _buildChecklistCard('Tim registrasi dan usher ramah dan membuat saya merasa disambut', answer3),

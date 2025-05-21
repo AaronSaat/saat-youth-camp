@@ -208,7 +208,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const Text('Komitmen', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        const Text('Konten Acara', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                         const Spacer(),
                         CircleButton(
                           onPressed: () {
@@ -232,7 +232,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         itemBuilder: (context, index) {
                           return Container(
                             margin: const EdgeInsets.symmetric(horizontal: 10),
-                            child: _komitmenCard(context, 'Komitmen ${index + 1}'),
+                            child: _komitmenCard(context, 'Konten ${index + 1}'),
                           );
                         },
                       ),
@@ -269,7 +269,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const Text('Evaluasi', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        const Text('Informasi', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                         const Spacer(),
                         CircleButton(
                           onPressed: () {
@@ -291,7 +291,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         itemBuilder: (context, index) {
                           return Container(
                             margin: const EdgeInsets.symmetric(horizontal: 10),
-                            child: _evaluasiCard(context, 'Evaluasi ${index + 1}'),
+                            child: _evaluasiCard(context, 'Informasi ${index + 1}'),
                           );
                         },
                       ),

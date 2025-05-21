@@ -116,7 +116,7 @@ class _EvaluasiScreenState extends State<EvaluasiScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(title: const Text('Evaluasi Lainnya')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

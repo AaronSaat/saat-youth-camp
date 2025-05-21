@@ -18,22 +18,87 @@ dependencies:
   smooth_page_indicator: ^1.1.0
   url_launcher: ^6.3.1
   flutter_native_splash: ^2.4.6
+  flutter_svg: ^2.0.7
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.13.1
 
   flutter_lints: ^5.0.0
 
+# icon app
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logos/story_saat.png" 
+  min_sdk_android: 21 
+
 flutter:
   assets:
-    - assets/images/logo_stt_saat.png
-    - assets/images/splash_bg.png
+    - assets/images/splash_bg4.jpg
     - assets/images/check_your_email.jpg
     - assets/images/event.jpg
+    - assets/images/event_daftar.jpg
+    - assets/images/event_new_year.jpg
+    - assets/images/event_saat_teduh.jpg
+    - assets/images/event_opening.jpg
+    - assets/images/event_drama.jpg
+    - assets/images/event_closing.jpg
+    - assets/images/event_evaluasi.jpg
     - assets/images/komitmen.jpg
     - assets/images/bible_reading.jpg
     - assets/images/book_cover.jpg
+    - assets/images/background_login3.png
+    - assets/images/background_member.png
+
+    # icons for login
+    - assets/icons/login/email.svg
+    - assets/icons/login/password.svg
+    - assets/icons/login/profile.svg
+    - assets/icons/login/secret_code.svg
+    - assets/icons/login/show_password.svg
+    - assets/icons/login/hide_password.svg
+    
+    # icons for event
+    - assets/icons/event/add_event.svg
+    - assets/icons/event/delete_event.svg
+    - assets/icons/event/edit_event.svg
+    - assets/icons/event/evaluasi.svg
+    - assets/icons/event/komitmen.svg
+
+    # icons for navigation bar
+    - assets/icons/navigation_bar/all_user.svg
+    - assets/icons/navigation_bar/dashboard.svg
+    - assets/icons/navigation_bar/gereja.svg
+    - assets/icons/navigation_bar/kelompok.svg
+    - assets/icons/navigation_bar/list_acara.svg
+    - assets/icons/navigation_bar/profile.svg
+    
+    # icons for profile
+    - assets/icons/profile/delete.svg
+    - assets/icons/profile/edit_profile.svg
+    - assets/icons/profile/ganti_bahasa.svg
+    - assets/icons/profile/login.svg
+    - assets/icons/profile/logout.svg
+    - assets/icons/profile/panitia.svg
+    - assets/icons/profile/pembina_gereja.svg
+    - assets/icons/profile/pembina_kelompok.svg
+    - assets/icons/profile/pengaturan.svg
+    - assets/icons/profile/peserta.svg
+    - assets/icons/profile/profile.svg
+    - assets/icons/profile/terms_condition.svg
+
+    # butttons
+    - assets/buttons/button1.png
+
+    # texts
+    - assets/texts/welcome_back.png
+
+    # logos
+    - assets/logos/syc.png
+    - assets/logos/story_saat.png
+    - assets/logos/stt_saat.png
 
   fonts:
     - family: Roboto

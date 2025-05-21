@@ -65,7 +65,7 @@ class DetailAcaraScreen extends StatelessWidget {
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: Image.asset('assets/images/logo_stt_saat.png', width: 48, height: 48, fit: BoxFit.cover),
+                        child: Image.asset('assets/logos/stt_saat.png', width: 48, height: 48, fit: BoxFit.cover),
                       ),
                       const SizedBox(width: 12),
                       const Expanded(
