@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:syc/screens/kelompok_gereja_list_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/direct_to_gmail_screen.dart';
+import 'screens/kelompok_gereja_list_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -23,7 +25,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const SplashScreen(),
-      // home: const LoginScreen(),
+      // home: KelompokGerejaListScreen(),
       // home: const DirectToGmailScreen(),
     );
   }

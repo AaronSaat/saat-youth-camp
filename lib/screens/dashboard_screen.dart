@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/api_service.dart';
 import 'daftar_acara_screen.dart';
 import 'detail_acara_screen.dart';
 import 'komitmen_screen.dart';
@@ -26,11 +27,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ScrollController _evaluasiController = ScrollController();
   int _currentKomitmenPage = 0;
   int _currentEvaluasiPage = 0;
+  List<dynamic> _acaraList = [];
 
   @override
   void initState() {
     super.initState();
     _loadUsername();
+    loadAcara();
 
     _komitmenController.addListener(() {
       double itemWidth = 160;
@@ -54,6 +57,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _email = email;
       isPanitia = (role == 'Panitia');
     });
+  }
+
+  void loadAcara() async {
+    try {
+      List<dynamic> acaraList = await ApiService.getAcara(context);
+      setState(() {
+        _acaraList = acaraList;
+      });
+    } catch (e) {
+      print('❌ Gagal memuat acara: $e');
+    }
   }
 
   void _navigateToKomitmen(BuildContext context) {
@@ -94,6 +108,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(height: 24),
 
+                SizedBox(
+                  height: 200,
+                  child: ListView.builder(
+                    itemCount: _acaraList.length,
+                    itemBuilder: (context, index) {
+                      final acara = _acaraList[index];
+                      return Card(
+                        child: ListTile(
+                          title: Text(acara['acara_nama']),
+                          subtitle: Text(acara['acara_deskripsi']),
+                          trailing: Text('Hari: ${acara['hari']}'),
+                        ),
+                      );
+                    },
+                  ),
+                ),
                 // BRM
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

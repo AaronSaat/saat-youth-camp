@@ -9,6 +9,7 @@ import 'kelompok_screen.dart';
 import 'gereja_screen.dart';
 import 'gereja_kelompok_screen.dart';
 import 'profil_screen.dart';
+import 'daftar_acara2_screen.dart';
 import 'daftar_acara_screen.dart';
 import 'navigasi_screen.dart';
 import 'materi_screen.dart';
@@ -41,7 +42,8 @@ class _MainScreenState extends State<MainScreen> {
     if (role == 'Peserta') {
       _pages = [
         const DashboardScreen(),
-        const DaftarAcaraScreen(),
+        const DaftarAcara2Screen(),
+        // const DaftarAcaraScreen(),
         const KelompokScreen(),
         const MateriScreen(),
         const ProfilScreen(),

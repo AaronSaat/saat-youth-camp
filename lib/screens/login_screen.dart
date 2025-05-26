@@ -23,6 +23,25 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   bool isLoading = false;
   String errorMessage = '';
+  List<dynamic> acaraList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchAcara();
+  }
+
+  void fetchAcara() async {
+    try {
+      final data = await ApiService.getAcara(context);
+      print('Data acara dari API: $data'); // <- CETAK DI TERMINAL
+      setState(() {
+        acaraList = data;
+      });
+    } catch (e) {
+      print('Error fetching acara: $e'); // <- ERROR JUGA DICETAK
+    }
+  }
 
   Future<void> _saveLoginData(
     String username,
@@ -86,6 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
             height: MediaQuery.of(context).size.height,
             fit: BoxFit.cover,
           ),
+
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(16),

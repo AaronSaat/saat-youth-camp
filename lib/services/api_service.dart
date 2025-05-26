@@ -12,6 +12,7 @@ import '../widgets/custom_snackbar.dart';
 
 class ApiService {
   static const String baseUrl = 'http://172.172.52.9:82/reg-new/api2024/';
+  static const String baseUrl2 = 'http://172.172.52.11:8080/api-syc2025/';
 
   static Future<Map<String, dynamic>> loginUser(String username, String password) async {
     final url = Uri.parse('${baseUrl}checkuser');
@@ -105,6 +106,39 @@ class ApiService {
       throw Exception('Unauthorized');
     } else {
       throw Exception('Failed to load users');
+    }
+  }
+
+  static Future<List<dynamic>> getAcara(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseUrl2}acara-by-day?hari=1');
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> decoded = json.decode(response.body);
+      final List<dynamic> dataAcara = decoded['data_acara'] ?? [];
+
+      print('✅ Data acara berhasil dimuat:');
+      for (var acara in dataAcara) {
+        print('- ${acara['acara_nama']} | Hari: ${acara['hari']}');
+      }
+
+      return dataAcara;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load acara');
     }
   }
 

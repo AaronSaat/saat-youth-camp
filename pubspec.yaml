@@ -19,6 +19,8 @@ dependencies:
   url_launcher: ^6.3.1
   flutter_native_splash: ^2.4.6
   flutter_svg: ^2.0.7
+  dropdown_button2: ^2.3.9
+  dropdown_search: ^5.0.6
 
 dev_dependencies:
   flutter_test:
@@ -50,7 +52,12 @@ flutter:
     - assets/images/bible_reading.jpg
     - assets/images/book_cover.jpg
     - assets/images/background_login3.png
+    - assets/images/background_email.png
+
+    # kelompok_gereja_all assets
     - assets/images/background_member.png
+    - assets/images/background_member2.png
+    - assets/images/background_member_list.png
 
     # icons for login
     - assets/icons/login/email.svg
@@ -91,6 +98,7 @@ flutter:
 
     # butttons
     - assets/buttons/button1.png
+    - assets/buttons/panel_acara.png
 
     # texts
     - assets/texts/welcome_back.png
