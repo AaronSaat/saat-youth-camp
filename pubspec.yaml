@@ -99,6 +99,7 @@ flutter:
     # butttons
     - assets/buttons/button1.png
     - assets/buttons/panel_acara.png
+    - assets/buttons/panel_acara.svg
 
     # texts
     - assets/texts/welcome_back.png

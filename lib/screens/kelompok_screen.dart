@@ -124,7 +124,7 @@ class _KelompokScreenState extends State<KelompokScreen> {
                             child: Column(
                               children: [
                                 Text(
-                                  'Gereja',
+                                  'Kelompok',
                                   style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white),
                                   textAlign: TextAlign.center,
                                 ),
