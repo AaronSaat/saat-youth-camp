@@ -53,6 +53,7 @@ flutter:
     - assets/images/book_cover.jpg
     - assets/images/background_login3.png
     - assets/images/background_email.png
+    - assets/images/background_kelompok.png
 
     # kelompok_gereja_all assets
     - assets/images/background_member.png

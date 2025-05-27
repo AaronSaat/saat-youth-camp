@@ -27,13 +27,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ScrollController _evaluasiController = ScrollController();
   int _currentKomitmenPage = 0;
   int _currentEvaluasiPage = 0;
-  List<dynamic> _acaraList = [];
 
   @override
   void initState() {
     super.initState();
     _loadUsername();
-    loadAcara();
 
     _komitmenController.addListener(() {
       double itemWidth = 160;
@@ -59,23 +57,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
-  void loadAcara() async {
-    try {
-      List<dynamic> acaraList = await ApiService.getAcara(context);
-      setState(() {
-        _acaraList = acaraList;
-      });
-    } catch (e) {
-      print('❌ Gagal memuat acara: $e');
-    }
-  }
-
   void _navigateToKomitmen(BuildContext context) {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => const KomitmenScreen()));
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const KomitmenScreen()),
+    );
   }
 
   void _navigateToEvaluasi(BuildContext context) {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => const EvaluasiScreen()));
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const EvaluasiScreen()),
+    );
   }
 
   @override
@@ -101,50 +94,56 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text('Hello,', style: TextStyle(fontSize: 16)),
-                        Text(_email, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        Text(
+                          _email,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
                     ),
                   ],
                 ),
                 const SizedBox(height: 24),
 
-                SizedBox(
-                  height: 200,
-                  child: ListView.builder(
-                    itemCount: _acaraList.length,
-                    itemBuilder: (context, index) {
-                      final acara = _acaraList[index];
-                      return Card(
-                        child: ListTile(
-                          title: Text(acara['acara_nama']),
-                          subtitle: Text(acara['acara_deskripsi']),
-                          trailing: Text('Hari: ${acara['hari']}'),
-                        ),
-                      );
-                    },
-                  ),
-                ),
                 // BRM
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Bible Reading Movement', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Bible Reading Movement',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 12),
 
                     Container(
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(16)),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
                             "Today's Read - Amsal 1 : 7",
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 20),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 20,
+                            ),
                           ),
                           const SizedBox(height: 8),
                           const Text(
                             "Takut akan TUHAN adalah permulaan pengetahuan, tetapi orang bodoh menghina hikmat dan didikan.",
-                            style: TextStyle(fontWeight: FontWeight.normal, color: Colors.white),
+                            style: TextStyle(
+                              fontWeight: FontWeight.normal,
+                              color: Colors.white,
+                            ),
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 12),
@@ -154,18 +153,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white.withAlpha(30),
                                 foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
                               onPressed: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => const ReadMoreScreen()),
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => const ReadMoreScreen(),
+                                  ),
                                 );
                               },
 
                               child: const Text(
                                 'Read More',
-                                style: TextStyle(fontWeight: FontWeight.normal, color: Colors.white),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
@@ -180,12 +187,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Acara Mendatang', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Acara Mendatang',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 12),
 
                     Container(
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(16)),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -201,10 +217,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           const SizedBox(height: 12),
                           const Text(
                             'KKR Sesi 1',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
                           ),
                           const SizedBox(height: 6),
-                          const Text('Pembicara: Pdt. John Doe', style: TextStyle(color: Colors.white)),
+                          const Text(
+                            'Pembicara: Pdt. John Doe',
+                            style: TextStyle(color: Colors.white),
+                          ),
                           const SizedBox(height: 12),
                           SizedBox(
                             width: double.infinity,
@@ -212,14 +235,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white.withAlpha(30),
                                 foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
                               onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => DetailAcaraScreen()));
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DetailAcaraScreen(),
+                                  ),
+                                );
                               },
                               child: const Text(
                                 'Lihat Detail',
-                                style: TextStyle(fontWeight: FontWeight.normal, color: Colors.white),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
@@ -238,11 +271,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const Text('Konten Acara', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        const Text(
+                          'Konten Acara',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const Spacer(),
                         CircleButton(
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const DaftarAcaraScreen()));
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const DaftarAcaraScreen(),
+                              ),
+                            );
                           },
                           icon: Icons.arrow_forward,
                           iconColor: Colors.black,
@@ -262,7 +306,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         itemBuilder: (context, index) {
                           return Container(
                             margin: const EdgeInsets.symmetric(horizontal: 10),
-                            child: _komitmenCard(context, 'Konten ${index + 1}'),
+                            child: _komitmenCard(
+                              context,
+                              'Konten ${index + 1}',
+                            ),
                           );
                         },
                       ),
@@ -280,7 +327,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             width: _currentKomitmenPage == index ? 12 : 8,
                             height: 8,
                             decoration: BoxDecoration(
-                              color: _currentKomitmenPage == index ? AppColors.primary : Colors.grey,
+                              color:
+                                  _currentKomitmenPage == index
+                                      ? AppColors.primary
+                                      : Colors.grey,
                               borderRadius: BorderRadius.circular(4),
                             ),
                           );
@@ -299,11 +349,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const Text('Informasi', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        const Text(
+                          'Informasi',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const Spacer(),
                         CircleButton(
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const DaftarAcaraScreen()));
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const DaftarAcaraScreen(),
+                              ),
+                            );
                           },
                           icon: Icons.arrow_forward,
                           iconColor: Colors.black,
@@ -321,7 +382,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         itemBuilder: (context, index) {
                           return Container(
                             margin: const EdgeInsets.symmetric(horizontal: 10),
-                            child: _evaluasiCard(context, 'Informasi ${index + 1}'),
+                            child: _evaluasiCard(
+                              context,
+                              'Informasi ${index + 1}',
+                            ),
                           );
                         },
                       ),
@@ -337,7 +401,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             width: _currentEvaluasiPage == index ? 12 : 8,
                             height: 8,
                             decoration: BoxDecoration(
-                              color: _currentEvaluasiPage == index ? AppColors.primary : Colors.grey,
+                              color:
+                                  _currentEvaluasiPage == index
+                                      ? AppColors.primary
+                                      : Colors.grey,
                               borderRadius: BorderRadius.circular(4),
                             ),
                           );
@@ -361,13 +428,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
       onTap: () => _navigateToKomitmen(context),
       child: Container(
         width: 180,
-        decoration: BoxDecoration(color: AppColors.primary.withAlpha(20), borderRadius: BorderRadius.circular(16)),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withAlpha(20),
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.assignment, size: 40, color: AppColors.primary),
             const SizedBox(height: 10),
-            Text(title, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
           ],
         ),
       ),
@@ -379,13 +453,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
       onTap: () => _navigateToEvaluasi(context),
       child: Container(
         width: 180,
-        decoration: BoxDecoration(color: AppColors.primary.withAlpha(20), borderRadius: BorderRadius.circular(16)),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withAlpha(20),
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.assignment, size: 40, color: AppColors.primary),
             const SizedBox(height: 10),
-            Text(title, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
           ],
         ),
       ),
@@ -397,7 +478,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        Text(
+          name,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         const SizedBox(height: 4),
         LinearProgressIndicator(
           value: percent,
@@ -406,7 +493,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           minHeight: 8,
         ),
         const SizedBox(height: 4),
-        Text('$current / $total', style: const TextStyle(color: Colors.white70)),
+        Text(
+          '$current / $total',
+          style: const TextStyle(color: Colors.white70),
+        ),
       ],
     );
   }

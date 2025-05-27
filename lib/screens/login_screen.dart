@@ -23,24 +23,10 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   bool isLoading = false;
   String errorMessage = '';
-  List<dynamic> acaraList = [];
 
   @override
   void initState() {
     super.initState();
-    fetchAcara();
-  }
-
-  void fetchAcara() async {
-    try {
-      final data = await ApiService.getAcara(context);
-      print('Data acara dari API: $data'); // <- CETAK DI TERMINAL
-      setState(() {
-        acaraList = data;
-      });
-    } catch (e) {
-      print('Error fetching acara: $e'); // <- ERROR JUGA DICETAK
-    }
   }
 
   Future<void> _saveLoginData(
@@ -67,7 +53,10 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      final response = await ApiService.loginUser(usernameController.text, passwordController.text);
+      final response = await ApiService.loginUser(
+        usernameController.text,
+        passwordController.text,
+      );
 
       if (response['status'] == 'success') {
         await _saveLoginData(
@@ -79,7 +68,10 @@ class _LoginScreenState extends State<LoginScreen> {
           response['user']['kelompok'],
         );
 
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainScreen()));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainScreen()),
+        );
       } else {
         setState(() => errorMessage = response['message'] ?? 'Login gagal');
         showCustomSnackBar(context, errorMessage);
@@ -118,10 +110,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       Container(
                         width: 100,
                         height: 100,
-                        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.all(12),
-                          child: Image.asset('assets/logos/story_saat.png', fit: BoxFit.contain),
+                          child: Image.asset(
+                            'assets/logos/story_saat.png',
+                            fit: BoxFit.contain,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 32),
@@ -130,20 +128,31 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       // Username
                       Container(
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         child: TextFormField(
                           controller: usernameController,
                           style: const TextStyle(color: AppColors.primary),
                           decoration: InputDecoration(
                             hintText: 'Username atau Email',
-                            hintStyle: const TextStyle(color: AppColors.primary),
+                            hintStyle: const TextStyle(
+                              color: AppColors.primary,
+                            ),
                             border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
                             prefixIcon: SvgPicture.asset(
                               'assets/icons/login/email.svg',
                               width: 24,
                               height: 24,
-                              colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.primary,
+                                BlendMode.srcIn,
+                              ),
                             ),
                           ),
                         ),
@@ -152,21 +161,32 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       // Password
                       Container(
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         child: TextFormField(
                           controller: passwordController,
                           obscureText: _obscurePassword,
                           style: const TextStyle(color: AppColors.primary),
                           decoration: InputDecoration(
                             hintText: 'Password',
-                            hintStyle: const TextStyle(color: AppColors.primary),
+                            hintStyle: const TextStyle(
+                              color: AppColors.primary,
+                            ),
                             border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
                             prefixIcon: SvgPicture.asset(
                               'assets/icons/login/password.svg',
                               width: 24,
                               height: 24,
-                              colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.primary,
+                                BlendMode.srcIn,
+                              ),
                             ),
                             suffixIcon: IconButton(
                               icon: SvgPicture.asset(
@@ -175,7 +195,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                     : 'assets/icons/login/show_password.svg',
                                 width: 24,
                                 height: 24,
-                                colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                                colorFilter: const ColorFilter.mode(
+                                  AppColors.primary,
+                                  BlendMode.srcIn,
+                                ),
                               ),
                               onPressed: () {
                                 setState(() {
@@ -204,10 +227,16 @@ class _LoginScreenState extends State<LoginScreen> {
                           alignment: Alignment.center,
                           child:
                               isLoading
-                                  ? const CircularProgressIndicator(color: Colors.white)
+                                  ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
                                   : const Text(
                                     'Login',
-                                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                         ),
                       ),
@@ -217,10 +246,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text('Belum punya akun? ', style: TextStyle(color: Colors.white)),
+                          const Text(
+                            'Belum punya akun? ',
+                            style: TextStyle(color: Colors.white),
+                          ),
                           GestureDetector(
                             onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (_) => const CheckSecretScreen()));
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const CheckSecretScreen(),
+                                ),
+                              );
                             },
                             child: const Text(
                               'Daftar sekarang',

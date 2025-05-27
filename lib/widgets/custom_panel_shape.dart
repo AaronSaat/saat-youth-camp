@@ -8,8 +8,13 @@ class CustomPanelShape extends StatefulWidget {
   final Color? color;
   final ImageProvider? imageProvider;
 
-  const CustomPanelShape({Key? key, required this.width, required this.height, this.color, this.imageProvider})
-    : super(key: key);
+  const CustomPanelShape({
+    Key? key,
+    required this.width,
+    required this.height,
+    this.color,
+    this.imageProvider,
+  }) : super(key: key);
 
   @override
   State<CustomPanelShape> createState() => _CustomPanelShapeState();
@@ -65,25 +70,49 @@ class _PanelShapePainter extends CustomPainter {
     path.quadraticBezierTo(size.width, 0, size.width, radius);
 
     path.lineTo(size.width, size.height - radius - 30);
-    path.quadraticBezierTo(size.width, size.height - 30, size.width - radius, size.height - 30);
+    path.quadraticBezierTo(
+      size.width,
+      size.height - 30,
+      size.width - radius,
+      size.height - 30,
+    );
 
     // Pindah cekungan ke kiri bawah
     // Jadi dari kanan bawah pindah ke kiri bawah
-    path.lineTo(size.width * 0.55, size.height - 30);
+    path.lineTo(size.width * 0.62, size.height - 30);
 
-    // cekungan kiri bawah
+    // Cekungan kiri bawah — dibuat lebih lebar dan halus
     path.quadraticBezierTo(
-      size.width * 0.50,
-      size.height - 30, // titik kontrol kiri atas cekungan
-      size.width * 0.48,
-      size.height - 10, // titik akhir cekungan (ke atas)
+      size.width * 0.57,
+      size.height -
+          30, // Titik kontrol pertama (lebih ke kanan & naik), mengatur awal lekukan
+      size.width * 0.55,
+      size.height - 10, // Titik akhir pertama, bagian atas dari lekukan "gigit"
     );
     path.quadraticBezierTo(
-      size.width * 0.46,
-      size.height, // titik kontrol cekungan bawah
-      size.width * 0.38,
-      size.height, // titik akhir cekungan di bawah
+      size.width * 0.54,
+      size.height, // Titik kontrol kedua, memberi efek "turun" ke dalam
+      size.width * 0.5,
+      size.height, // Titik akhir kedua, kembali ke tepi bawah panel
     );
+
+    // Pindah cekungan ke kiri bawah
+    // Jadi dari kanan bawah pindah ke kiri bawah
+    // path.lineTo(size.width * 0.55, size.height - 30);
+
+    // // cekungan kiri bawah
+    // path.quadraticBezierTo(
+    //   size.width * 0.50,
+    //   size.height - 30, // titik kontrol kiri atas cekungan
+    //   size.width * 0.48,
+    //   size.height - 10, // titik akhir cekungan (ke atas)
+    // );
+    // path.quadraticBezierTo(
+    //   size.width * 0.46,
+    //   size.height, // titik kontrol cekungan bawah
+    //   size.width * 0.44,
+    //   size.height, // titik akhir cekungan di bawah
+    // );
 
     path.lineTo(radius, size.height);
     path.quadraticBezierTo(0, size.height, 0, size.height - radius);

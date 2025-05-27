@@ -83,8 +83,7 @@ class _KelompokScreenState extends State<KelompokScreen> {
           style: const TextStyle(color: Colors.white, fontSize: 16),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          Flexible(
             child: ToggleButtons(
               borderRadius: BorderRadius.circular(32),
               borderWidth: 1,
@@ -129,11 +128,11 @@ class _KelompokScreenState extends State<KelompokScreen> {
               ? const Center(child: CircularProgressIndicator())
               : Stack(
                 children: [
-                  Positioned.fill(
-                    child: Image.asset(
-                      'assets/images/background_member2.png',
-                      fit: BoxFit.cover,
-                    ),
+                  Image.asset(
+                    'assets/images/background_member2.png',
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    fit: BoxFit.cover,
                   ),
                   // Positioned.fill(child: Image.asset('assets/images/background_member2.png', fit: BoxFit.cover)),
                   SafeArea(

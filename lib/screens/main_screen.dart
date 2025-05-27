@@ -77,13 +77,20 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {});
   }
 
-  BottomNavigationBarItem buildSvgNavItem(String asset, String label, int index) {
+  BottomNavigationBarItem buildSvgNavItem(
+    String asset,
+    String label,
+    int index,
+  ) {
     return BottomNavigationBarItem(
       icon: SvgPicture.asset(
         asset,
         height: 28,
         width: 28,
-        colorFilter: ColorFilter.mode(_currentIndex == index ? AppColors.primary : Colors.grey, BlendMode.srcIn),
+        colorFilter: ColorFilter.mode(
+          _currentIndex == index ? AppColors.primary : Colors.grey,
+          BlendMode.srcIn,
+        ),
       ),
       label: label,
     );
@@ -92,26 +99,60 @@ class _MainScreenState extends State<MainScreen> {
   List<BottomNavigationBarItem> _buildNavItems() {
     if (role == 'Peserta' || role == 'Pembina Kelompok') {
       return [
-        buildSvgNavItem('assets/icons/navigation_bar/dashboard.svg', 'Dashboard', 0),
-        buildSvgNavItem('assets/icons/navigation_bar/list_acara.svg', 'Acara', 1),
-        buildSvgNavItem('assets/icons/navigation_bar/kelompok.svg', 'Kelompok', 2),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/dashboard.svg',
+          'Dashboard',
+          0,
+        ),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/list_acara.svg',
+          'Acara',
+          1,
+        ),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/kelompok.svg',
+          'Kelompok',
+          2,
+        ),
         const BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Materi'),
         buildSvgNavItem('assets/icons/navigation_bar/profile.svg', 'Profil', 4),
       ];
     } else if (role == 'Pembina') {
       return [
-        buildSvgNavItem('assets/icons/navigation_bar/dashboard.svg', 'Dashboard', 0),
-        buildSvgNavItem('assets/icons/navigation_bar/list_acara.svg', 'Acara', 1),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/dashboard.svg',
+          'Dashboard',
+          0,
+        ),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/list_acara.svg',
+          'Acara',
+          1,
+        ),
         buildSvgNavItem('assets/icons/navigation_bar/gereja.svg', 'Gereja', 2),
         const BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Materi'),
         buildSvgNavItem('assets/icons/navigation_bar/profile.svg', 'Profil', 4),
       ];
     } else if (role == 'Panitia') {
       return [
-        buildSvgNavItem('assets/icons/navigation_bar/dashboard.svg', 'Dashboard', 0),
-        buildSvgNavItem('assets/icons/navigation_bar/all_user.svg', 'Peserta', 1),
-        const BottomNavigationBarItem(icon: Icon(Icons.campaign), label: 'Broadcast'),
-        const BottomNavigationBarItem(icon: Icon(Icons.admin_panel_settings), label: 'Admin'),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/dashboard.svg',
+          'Dashboard',
+          0,
+        ),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/all_user.svg',
+          'Peserta',
+          1,
+        ),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.campaign),
+          label: 'Broadcast',
+        ),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.admin_panel_settings),
+          label: 'Admin',
+        ),
         buildSvgNavItem('assets/icons/navigation_bar/profile.svg', 'Profil', 4),
       ];
     }
@@ -136,29 +177,40 @@ class _MainScreenState extends State<MainScreen> {
         children: [
           _pages[_currentIndex],
           Positioned(
-            left: MediaQuery.of(context).size.width * 0.1,
-            right: MediaQuery.of(context).size.width * 0.1,
-            bottom: MediaQuery.of(context).size.height * 0.03,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(30),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4)),
-                  ],
-                ),
-                child: BottomNavigationBar(
-                  currentIndex: _currentIndex,
-                  onTap: _onItemTapped,
-                  items: _buildNavItems(),
-                  type: BottomNavigationBarType.fixed,
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  selectedItemColor: AppColors.primary,
-                  unselectedItemColor: Colors.grey,
-                  showUnselectedLabels: true,
+            left: MediaQuery.of(context).size.width * 0.05,
+            right: MediaQuery.of(context).size.width * 0.05,
+            bottom: MediaQuery.of(context).size.height * 0.01,
+            child: SafeArea(
+              top: false,
+              child: SizedBox(
+                // width: MediaQuery.of(context).size.width * 0.8,
+                height: kBottomNavigationBarHeight + 12,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(30),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: BottomNavigationBar(
+                      currentIndex: _currentIndex,
+                      onTap: _onItemTapped,
+                      items: _buildNavItems(),
+                      type: BottomNavigationBarType.shifting,
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      selectedItemColor: AppColors.primary,
+                      unselectedItemColor: Colors.grey,
+                      showUnselectedLabels: true,
+                    ),
+                  ),
                 ),
               ),
             ),
