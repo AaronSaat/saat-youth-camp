@@ -10,7 +10,8 @@ class GerejaKelompokScreen extends StatefulWidget {
   State<GerejaKelompokScreen> createState() => _GerejaKelompokScreenState();
 }
 
-class _GerejaKelompokScreenState extends State<GerejaKelompokScreen> with SingleTickerProviderStateMixin {
+class _GerejaKelompokScreenState extends State<GerejaKelompokScreen>
+    with SingleTickerProviderStateMixin {
   String? role;
   String? currentEmail;
   List<dynamic> gerejaList = [];
@@ -21,10 +22,13 @@ class _GerejaKelompokScreenState extends State<GerejaKelompokScreen> with Single
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this); // Menambahkan 1 tab lagi
+    _tabController = TabController(
+      length: 3,
+      vsync: this,
+    ); // Menambahkan 1 tab lagi
     _loadUserData();
-    _fetchGroupAndChurch();
-    _fetchAllUsers();
+    // _fetchGroupAndChurch();
+    // _fetchAllUsers();
   }
 
   Future<void> _loadUserData() async {
@@ -35,29 +39,29 @@ class _GerejaKelompokScreenState extends State<GerejaKelompokScreen> with Single
     });
   }
 
-  Future<void> _fetchGroupAndChurch() async {
-    try {
-      final response = await ApiService.getGroupAndChurchMembers(context);
-      setState(() {
-        gerejaList = response['gereja'];
-        kelompokList = response['kelompok'];
-      });
-      debugPrint('Gereja List: $gerejaList');
-    } catch (e) {
-      print('Error fetching group/church data: $e');
-    }
-  }
+  // Future<void> _fetchGroupAndChurch() async {
+  //   try {
+  //     final response = await ApiService.getGroupAndChurchMembers(context);
+  //     setState(() {
+  //       gerejaList = response['gereja'];
+  //       kelompokList = response['kelompok'];
+  //     });
+  //     debugPrint('Gereja List: $gerejaList');
+  //   } catch (e) {
+  //     print('Error fetching group/church data: $e');
+  //   }
+  // }
 
-  Future<void> _fetchAllUsers() async {
-    try {
-      final response = await ApiService.getAllUsers(context);
-      setState(() {
-        allUsersList = response;
-      });
-    } catch (e) {
-      print('Error fetching all users: $e');
-    }
-  }
+  // Future<void> _fetchAllUsers() async {
+  //   try {
+  //     final response = await ApiService.getAllUsers(context);
+  //     setState(() {
+  //       allUsersList = response;
+  //     });
+  //   } catch (e) {
+  //     print('Error fetching all users: $e');
+  //   }
+  // }
 
   IconData getRoleIcon(String role) {
     switch (role) {
@@ -65,7 +69,7 @@ class _GerejaKelompokScreenState extends State<GerejaKelompokScreen> with Single
         return Icons.church;
       case 'Panitia':
         return Icons.admin_panel_settings;
-      case 'Pembina Kelompok':
+      case 'Pembimbing Kelompok':
         return Icons.boy;
       case 'Peserta':
         return Icons.badge;
@@ -89,7 +93,13 @@ class _GerejaKelompokScreenState extends State<GerejaKelompokScreen> with Single
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(gereja['gereja_nama'], style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(
+                  gereja['gereja_nama'],
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 ...anggota.map((user) {
                   final isCurrentUser = user['email'] == currentEmail;
@@ -99,18 +109,37 @@ class _GerejaKelompokScreenState extends State<GerejaKelompokScreen> with Single
                     children: [
                       Row(
                         children: [
-                          Icon(getRoleIcon(user['roles']), size: 28, color: Colors.blueGrey),
+                          Icon(
+                            getRoleIcon(user['roles']),
+                            size: 28,
+                            color: Colors.blueGrey,
+                          ),
                           const SizedBox(width: 8),
-                          Text(user['username'], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                          Text(
+                            user['username'],
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                           if (isCurrentUser)
                             Container(
                               margin: const EdgeInsets.only(left: 8),
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.primary,
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Text('ANDA', style: TextStyle(color: Colors.white, fontSize: 12)),
+                              child: const Text(
+                                'ANDA',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                              ),
                             ),
                         ],
                       ),
@@ -119,15 +148,25 @@ class _GerejaKelompokScreenState extends State<GerejaKelompokScreen> with Single
                         children: [
                           const Icon(Icons.email, size: 20, color: Colors.grey),
                           const SizedBox(width: 6),
-                          Text(user['email'] ?? '-', style: const TextStyle(fontSize: 14)),
+                          Text(
+                            user['email'] ?? '-',
+                            style: const TextStyle(fontSize: 14),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 6),
                       Row(
                         children: [
-                          const Icon(Icons.verified_user, size: 20, color: Colors.grey),
+                          const Icon(
+                            Icons.verified_user,
+                            size: 20,
+                            color: Colors.grey,
+                          ),
                           const SizedBox(width: 6),
-                          Text(user['roles'] ?? '-', style: const TextStyle(fontSize: 14)),
+                          Text(
+                            user['roles'] ?? '-',
+                            style: const TextStyle(fontSize: 14),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 6),
@@ -135,7 +174,10 @@ class _GerejaKelompokScreenState extends State<GerejaKelompokScreen> with Single
                         children: [
                           Icon(Icons.male, size: 20, color: Colors.blue),
                           const SizedBox(width: 6),
-                          const Text('Laki-laki', style: TextStyle(fontSize: 14)),
+                          const Text(
+                            'Laki-laki',
+                            style: TextStyle(fontSize: 14),
+                          ),
                           const SizedBox(width: 16),
                         ],
                       ),
@@ -144,13 +186,20 @@ class _GerejaKelompokScreenState extends State<GerejaKelompokScreen> with Single
                         children: [
                           Icon(Icons.cake, size: 20, color: Colors.orange),
                           const SizedBox(width: 6),
-                          const Text('20 Tahun', style: TextStyle(fontSize: 14)),
+                          const Text(
+                            '20 Tahun',
+                            style: TextStyle(fontSize: 14),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 6),
                       const Text('Progress: 70/100'),
                       const SizedBox(height: 4),
-                      const LinearProgressIndicator(value: 0.7, backgroundColor: Colors.grey, color: Colors.green),
+                      const LinearProgressIndicator(
+                        value: 0.7,
+                        backgroundColor: Colors.grey,
+                        color: Colors.green,
+                      ),
                       const Divider(height: 20, color: AppColors.primary),
                     ],
                   );
@@ -178,7 +227,13 @@ class _GerejaKelompokScreenState extends State<GerejaKelompokScreen> with Single
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(kelompok['nama_kelompok'], style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(
+                  kelompok['nama_kelompok'],
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 ...anggota.map((user) {
                   final isCurrentUser = user['email'] == currentEmail;
@@ -188,18 +243,37 @@ class _GerejaKelompokScreenState extends State<GerejaKelompokScreen> with Single
                     children: [
                       Row(
                         children: [
-                          Icon(getRoleIcon(user['roles']), size: 28, color: Colors.blueGrey),
+                          Icon(
+                            getRoleIcon(user['roles']),
+                            size: 28,
+                            color: Colors.blueGrey,
+                          ),
                           const SizedBox(width: 8),
-                          Text(user['username'], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                          Text(
+                            user['username'],
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                           if (isCurrentUser)
                             Container(
                               margin: const EdgeInsets.only(left: 8),
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.primary,
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Text('ANDA', style: TextStyle(color: Colors.white, fontSize: 12)),
+                              child: const Text(
+                                'ANDA',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                              ),
                             ),
                         ],
                       ),
@@ -208,15 +282,25 @@ class _GerejaKelompokScreenState extends State<GerejaKelompokScreen> with Single
                         children: [
                           const Icon(Icons.email, size: 20, color: Colors.grey),
                           const SizedBox(width: 6),
-                          Text(user['email'] ?? '-', style: const TextStyle(fontSize: 14)),
+                          Text(
+                            user['email'] ?? '-',
+                            style: const TextStyle(fontSize: 14),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 6),
                       Row(
                         children: [
-                          const Icon(Icons.verified_user, size: 20, color: Colors.grey),
+                          const Icon(
+                            Icons.verified_user,
+                            size: 20,
+                            color: Colors.grey,
+                          ),
                           const SizedBox(width: 6),
-                          Text(user['roles'] ?? '-', style: const TextStyle(fontSize: 14)),
+                          Text(
+                            user['roles'] ?? '-',
+                            style: const TextStyle(fontSize: 14),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 6),
@@ -224,7 +308,10 @@ class _GerejaKelompokScreenState extends State<GerejaKelompokScreen> with Single
                         children: [
                           Icon(Icons.female, size: 20, color: Colors.pink),
                           const SizedBox(width: 6),
-                          const Text('Perempuan', style: TextStyle(fontSize: 14)),
+                          const Text(
+                            'Perempuan',
+                            style: TextStyle(fontSize: 14),
+                          ),
                         ],
                       ),
                       const SizedBox(width: 6),
@@ -232,13 +319,20 @@ class _GerejaKelompokScreenState extends State<GerejaKelompokScreen> with Single
                         children: [
                           Icon(Icons.cake, size: 20, color: Colors.orange),
                           const SizedBox(width: 6),
-                          const Text('20 Tahun', style: TextStyle(fontSize: 14)),
+                          const Text(
+                            '20 Tahun',
+                            style: TextStyle(fontSize: 14),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 6),
                       const Text('Progress: 70/100'),
                       const SizedBox(height: 4),
-                      const LinearProgressIndicator(value: 0.7, backgroundColor: Colors.grey, color: Colors.green),
+                      const LinearProgressIndicator(
+                        value: 0.7,
+                        backgroundColor: Colors.grey,
+                        color: Colors.green,
+                      ),
                       const Divider(height: 20, color: AppColors.primary),
                     ],
                   );
@@ -270,13 +364,28 @@ class _GerejaKelompokScreenState extends State<GerejaKelompokScreen> with Single
                   children: [
                     Icon(getRoleIcon(user['roles']), color: Colors.blueGrey),
                     const SizedBox(width: 8),
-                    Text(user['username'], style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(
+                      user['username'],
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     if (isCurrentUser)
                       Container(
                         margin: const EdgeInsets.only(left: 10),
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(8)),
-                        child: const Text('ANDA', style: TextStyle(color: Colors.white, fontSize: 12)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          'ANDA',
+                          style: TextStyle(color: Colors.white, fontSize: 12),
+                        ),
                       ),
                   ],
                 ),
@@ -285,24 +394,41 @@ class _GerejaKelompokScreenState extends State<GerejaKelompokScreen> with Single
                   children: [
                     const Icon(Icons.email, size: 20, color: Colors.grey),
                     const SizedBox(width: 6),
-                    Text(user['email'] ?? '-', style: const TextStyle(fontSize: 14)),
+                    Text(
+                      user['email'] ?? '-',
+                      style: const TextStyle(fontSize: 14),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    Icon(getRoleIcon(user['roles']), size: 20, color: Colors.grey),
+                    Icon(
+                      getRoleIcon(user['roles']),
+                      size: 20,
+                      color: Colors.grey,
+                    ),
                     const SizedBox(width: 6),
-                    Text(user['roles'] ?? '-', style: const TextStyle(fontSize: 14)),
+                    Text(
+                      user['roles'] ?? '-',
+                      style: const TextStyle(fontSize: 14),
+                    ),
                   ],
                 ),
                 if (user['gereja'] != null) ...[
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.location_city, size: 20, color: Colors.grey),
+                      const Icon(
+                        Icons.location_city,
+                        size: 20,
+                        color: Colors.grey,
+                      ),
                       const SizedBox(width: 6),
-                      Text(user['gereja'], style: const TextStyle(fontSize: 14)),
+                      Text(
+                        user['gereja'],
+                        style: const TextStyle(fontSize: 14),
+                      ),
                     ],
                   ),
                 ],
@@ -312,7 +438,10 @@ class _GerejaKelompokScreenState extends State<GerejaKelompokScreen> with Single
                     children: [
                       const Icon(Icons.group, size: 20, color: Colors.grey),
                       const SizedBox(width: 6),
-                      Text(user['kelompok'], style: const TextStyle(fontSize: 14)),
+                      Text(
+                        user['kelompok'],
+                        style: const TextStyle(fontSize: 14),
+                      ),
                     ],
                   ),
                 ],
@@ -327,7 +456,9 @@ class _GerejaKelompokScreenState extends State<GerejaKelompokScreen> with Single
   @override
   Widget build(BuildContext context) {
     if (role != 'Panitia') {
-      return const Scaffold(body: Center(child: Text('Akses ditolak. Hanya untuk admin.')));
+      return const Scaffold(
+        body: Center(child: Text('Akses ditolak. Hanya untuk admin.')),
+      );
     }
 
     return Scaffold(
@@ -346,12 +477,20 @@ class _GerejaKelompokScreenState extends State<GerejaKelompokScreen> with Single
         ),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [Tab(text: 'Gereja'), Tab(text: 'Kelompok'), Tab(text: 'Semua User')],
+          tabs: const [
+            Tab(text: 'Gereja'),
+            Tab(text: 'Kelompok'),
+            Tab(text: 'Semua User'),
+          ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [_buildGerejaList(), _buildKelompokList(), _buildAllUsersList()],
+        children: [
+          _buildGerejaList(),
+          _buildKelompokList(),
+          _buildAllUsersList(),
+        ],
       ),
     );
   }

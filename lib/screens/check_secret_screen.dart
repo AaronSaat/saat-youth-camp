@@ -29,10 +29,16 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
     });
 
     try {
-      final response = await ApiService.checkSecret(emailController.text, secretCodeController.text);
+      final response = await ApiService.checkSecret(
+        emailController.text,
+        secretCodeController.text,
+      );
 
       if (response['status'] == 'success') {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const DirectToGmailScreen()));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const DirectToGmailScreen()),
+        );
       } else {
         setState(() {
           resultMessage = response['message'] ?? 'Secret code tidak valid';
@@ -50,7 +56,12 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                   TextButton(
                     onPressed: () {
                       Navigator.pop(context);
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => DirectToGmailScreen()));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DirectToGmailScreen(),
+                        ),
+                      );
                     },
                     child: const Text('Lanjut'),
                   ),
@@ -92,10 +103,16 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                       Container(
                         width: 100,
                         height: 100,
-                        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.all(12),
-                          child: Image.asset('assets/logos/story_saat.png', fit: BoxFit.contain),
+                          child: Image.asset(
+                            'assets/logos/story_saat.png',
+                            fit: BoxFit.contain,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 32),
@@ -103,20 +120,31 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                       const SizedBox(height: 40),
                       // Email
                       Container(
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         child: TextFormField(
                           controller: emailController,
                           style: const TextStyle(color: AppColors.primary),
                           decoration: InputDecoration(
                             hintText: 'Email',
-                            hintStyle: const TextStyle(color: AppColors.primary),
+                            hintStyle: const TextStyle(
+                              color: AppColors.primary,
+                            ),
                             border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
                             prefixIcon: SvgPicture.asset(
                               'assets/icons/login/email.svg',
                               width: 24,
                               height: 24,
-                              colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.primary,
+                                BlendMode.srcIn,
+                              ),
                             ),
                           ),
                         ),
@@ -125,20 +153,31 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
 
                       // Secret Code
                       Container(
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         child: TextFormField(
                           controller: secretCodeController,
                           style: const TextStyle(color: AppColors.primary),
                           decoration: InputDecoration(
                             hintText: 'Kode Rahasia',
-                            hintStyle: const TextStyle(color: AppColors.primary),
+                            hintStyle: const TextStyle(
+                              color: AppColors.primary,
+                            ),
                             border: const UnderlineInputBorder(),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
                             prefixIcon: SvgPicture.asset(
                               'assets/icons/login/secret_code.svg',
                               width: 24,
                               height: 24,
-                              colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.primary,
+                                BlendMode.srcIn,
+                              ),
                             ),
                           ),
                         ),
@@ -160,10 +199,16 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                           alignment: Alignment.center,
                           child:
                               isLoading
-                                  ? const CircularProgressIndicator(color: Colors.white)
+                                  ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
                                   : const Text(
                                     'Check Secret',
-                                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                         ),
                       ),
@@ -174,18 +219,28 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                         children: [
                           const Text(
                             'Sudah Punya Akun? ',
-                            style: TextStyle(fontWeight: FontWeight.w300, fontSize: 16, color: Colors.white),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w300,
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
                           ),
                           GestureDetector(
                             onTap: () {
                               Navigator.pushReplacement(
                                 context,
-                                MaterialPageRoute(builder: (context) => const LoginScreen()),
+                                MaterialPageRoute(
+                                  builder: (context) => const LoginScreen(),
+                                ),
                               );
                             },
                             child: const Text(
                               'Login',
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ],

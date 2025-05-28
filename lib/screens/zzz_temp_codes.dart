@@ -4,7 +4,7 @@ import 'package:syc/utils/app_colors.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import '../services/api_service.dart';
-import 'kelompok_list_screen.dart';
+import 'gereja_kelompok_list_screen.dart';
 
 class KelompokScreen extends StatefulWidget {
   const KelompokScreen({super.key});
@@ -25,29 +25,29 @@ class _KelompokScreenState extends State<KelompokScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchMyGroup();
+    // _fetchMyGroup();
     _loadUserData();
   }
 
-  Future<void> _fetchMyGroup() async {
-    final prefs = await SharedPreferences.getInstance();
-    final email = prefs.getString('email');
-    if (email == null) return;
+  // Future<void> _fetchMyGroup() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final email = prefs.getString('email');
+  //   if (email == null) return;
 
-    try {
-      final response = await ApiService.getMyGroupMembers(context, email);
-      setState(() {
-        namaKelompok = response['nama_kelompok'];
-        anggotaKelompok = response['anggota'];
-        selectedUser = response['anggota'].firstWhere(
-          (u) => u['email'] == email,
-          orElse: () => null,
-        );
-      });
-    } catch (e) {
-      print('Gagal mengambil data kelompok: $e');
-    }
-  }
+  //   try {
+  //     final response = await ApiService.getMyGroupMembers(context, email);
+  //     setState(() {
+  //       namaKelompok = response['nama_kelompok'];
+  //       anggotaKelompok = response['anggota'];
+  //       selectedUser = response['anggota'].firstWhere(
+  //         (u) => u['email'] == email,
+  //         orElse: () => null,
+  //       );
+  //     });
+  //   } catch (e) {
+  //     print('Gagal mengambil data kelompok: $e');
+  //   }
+  // }
 
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
@@ -62,7 +62,7 @@ class _KelompokScreenState extends State<KelompokScreen> {
         return Icons.church;
       case 'Panitia':
         return Icons.admin_panel_settings;
-      case 'Pembina Kelompok':
+      case 'Pembimbing Kelompok':
         return Icons.boy;
       case 'Peserta':
         return Icons.badge;
@@ -104,7 +104,8 @@ class _KelompokScreenState extends State<KelompokScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => KelompokListScreen(type: 'Gereja'),
+                      builder:
+                          (context) => GerejaKelompokListScreen(type: 'Gereja'),
                     ),
                   );
                 } else if (index == 1) {
@@ -112,7 +113,8 @@ class _KelompokScreenState extends State<KelompokScreen> {
                     context,
                     MaterialPageRoute(
                       builder:
-                          (context) => KelompokListScreen(type: 'Kelompok'),
+                          (context) =>
+                              GerejaKelompokListScreen(type: 'Kelompok'),
                     ),
                   );
                 }

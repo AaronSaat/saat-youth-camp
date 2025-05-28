@@ -28,8 +28,8 @@ class _ProfilScreenState extends State<ProfilScreen> {
     setState(() {
       email = prefs.getString('email') ?? 'No email found';
       role = prefs.getString('role') ?? 'No role found';
-      gereja = prefs.getString('gereja') ?? 'No gereja found';
-      kelompok = prefs.getString('kelompok') ?? 'No kelompok found';
+      gereja = prefs.getString('gereja_nama') ?? 'No gereja found';
+      kelompok = prefs.getString('kelompok_nama') ?? 'No kelompok found';
     });
   }
 
@@ -37,7 +37,10 @@ class _ProfilScreenState extends State<ProfilScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
     if (!context.mounted) return;
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+    );
   }
 
   @override
@@ -56,12 +59,14 @@ class _ProfilScreenState extends State<ProfilScreen> {
             // Profil Header: Profile picture dan info
             Card(
               elevation: 2,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               margin: const EdgeInsets.only(bottom: 24),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: SizedBox(
-                  width: double.infinity, // Memastikan card isi penuh lebar screen
+                  width: double.infinity,
                   child: Row(
                     children: [
                       Container(
@@ -70,44 +75,79 @@ class _ProfilScreenState extends State<ProfilScreen> {
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.primary, width: 2),
+                          border: Border.all(
+                            color: AppColors.primary,
+                            width: 2,
+                          ),
                         ),
-                        child: const CircleAvatar(radius: 50, backgroundImage: AssetImage('assets/logos/stt_saat.png')),
+                        child: const CircleAvatar(
+                          radius: 50,
+                          backgroundImage: AssetImage(
+                            'assets/logos/stt_saat.png',
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('John Doe', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                            const Text(
+                              'John Doe',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             const SizedBox(height: 4),
                             Row(
                               children: [
-                                const Icon(Icons.work, size: 16, color: Colors.grey),
+                                const Icon(
+                                  Icons.work,
+                                  size: 16,
+                                  color: Colors.grey,
+                                ),
                                 const SizedBox(width: 4),
-                                Text(role, style: const TextStyle(fontSize: 16)),
+                                Text(
+                                  role,
+                                  style: const TextStyle(fontSize: 16),
+                                ),
                               ],
                             ),
                             const SizedBox(height: 4),
-                            if (gereja != 'Tidak ada gereja.') ...[
+                            if (gereja.isNotEmpty && gereja != 'Null')
                               Row(
                                 children: [
-                                  const Icon(Icons.church, size: 16, color: Colors.grey),
+                                  const Icon(
+                                    Icons.church,
+                                    size: 16,
+                                    color: Colors.grey,
+                                  ),
                                   const SizedBox(width: 4),
-                                  Text(gereja, style: const TextStyle(fontSize: 16)),
+                                  Text(
+                                    gereja,
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
                                 ],
                               ),
-                              const SizedBox(height: 4),
-                            ],
-                            if (kelompok != 'Tidak ada kelompok.') ...[
-                              Row(
-                                children: [
-                                  const Icon(Icons.group, size: 16, color: Colors.grey),
-                                  const SizedBox(width: 4),
-                                  Text(kelompok, style: const TextStyle(fontSize: 16)),
-                                ],
+                            if (kelompok.isNotEmpty && kelompok != 'Null')
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4.0),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.group,
+                                      size: 16,
+                                      color: Colors.grey,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      kelompok,
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ],
                           ],
                         ),
                       ),
@@ -124,34 +164,78 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     const Icon(Icons.edit, color: AppColors.primary),
                     const SizedBox(width: 12),
                     const Expanded(
-                      child: Text('Edit Profile', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      child: Text(
+                        'Edit Profile',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
-                    const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.primary),
+                    const Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: AppColors.primary,
+                    ),
                   ],
                 ),
-                const Divider(height: 24, thickness: 1, color: AppColors.primary),
+                const Divider(
+                  height: 24,
+                  thickness: 1,
+                  color: AppColors.primary,
+                ),
 
                 Row(
                   children: [
                     const Icon(Icons.settings, color: AppColors.primary),
                     const SizedBox(width: 12),
                     const Expanded(
-                      child: Text('View Settings', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      child: Text(
+                        'View Settings',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
-                    const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.primary),
+                    const Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: AppColors.primary,
+                    ),
                   ],
                 ),
-                const Divider(height: 24, thickness: 1, color: AppColors.primary),
+                const Divider(
+                  height: 24,
+                  thickness: 1,
+                  color: AppColors.primary,
+                ),
 
                 Row(
                   children: [
                     const Icon(Icons.help, color: AppColors.primary),
                     const SizedBox(width: 12),
-                    const Expanded(child: Text('Help', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
-                    const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.primary),
+                    const Expanded(
+                      child: Text(
+                        'Help',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    const Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: AppColors.primary,
+                    ),
                   ],
                 ),
-                const Divider(height: 24, thickness: 1, color: AppColors.primary),
+                const Divider(
+                  height: 24,
+                  thickness: 1,
+                  color: AppColors.primary,
+                ),
 
                 GestureDetector(
                   onTap: () => logoutUser(context),
@@ -159,13 +243,29 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     children: const [
                       Icon(Icons.logout, color: AppColors.accent),
                       SizedBox(width: 12),
-                      Expanded(child: Text('Log Out', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
-                      Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.primary),
+                      Expanded(
+                        child: Text(
+                          'Log Out',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                        color: AppColors.primary,
+                      ),
                     ],
                   ),
                 ),
 
-                const Divider(height: 24, thickness: 1, color: AppColors.primary),
+                const Divider(
+                  height: 24,
+                  thickness: 1,
+                  color: AppColors.primary,
+                ),
               ],
             ),
           ],

@@ -5,11 +5,10 @@ import 'package:syc/utils/app_colors.dart';
 
 import 'login_screen.dart';
 import 'dashboard_screen.dart';
-import 'kelompok_screen.dart';
-import 'gereja_screen.dart';
-import 'gereja_kelompok_screen.dart';
+import 'gereja_kelompok_anggota_screen.dart';
+import 'zzz_gereja_kelompok_screen.dart';
 import 'profil_screen.dart';
-import 'daftar_acara2_screen.dart';
+import 'daftar_acara_screen.dart';
 import 'daftar_acara_screen.dart';
 import 'navigasi_screen.dart';
 import 'materi_screen.dart';
@@ -42,17 +41,23 @@ class _MainScreenState extends State<MainScreen> {
     if (role == 'Peserta') {
       _pages = [
         const DashboardScreen(),
-        const DaftarAcara2Screen(),
+        const DaftarAcaraScreen(),
         // const DaftarAcaraScreen(),
-        const KelompokScreen(),
+        GerejaKelompokAnggotaScreen(
+          type: 'Peserta',
+          id: '1',
+        ), //nanti masukkan parameter gerejanya
         const MateriScreen(),
         const ProfilScreen(),
       ];
-    } else if (role == 'Pembina Kelompok') {
+    } else if (role == 'Pembimbing Kelompok') {
       _pages = [
         const DashboardScreen(),
         const DaftarAcaraScreen(),
-        const KelompokScreen(),
+        const GerejaKelompokAnggotaScreen(
+          type: 'Pembimbing Kelompok',
+          id: '1',
+        ), //nantt masukkan parameter kelompoknya
         const MateriScreen(),
         const ProfilScreen(),
       ];
@@ -60,14 +65,20 @@ class _MainScreenState extends State<MainScreen> {
       _pages = [
         const DashboardScreen(),
         const DaftarAcaraScreen(),
-        const GerejaScreen(),
+        const GerejaKelompokAnggotaScreen(
+          type: 'Pembina Gereja',
+          id: '80',
+        ), //nanti masukkan parameter gerejanya
         const MateriScreen(),
         const ProfilScreen(),
       ];
     } else if (role == 'Panitia') {
       _pages = [
         const DashboardScreen(),
-        const GerejaKelompokScreen(),
+        const GerejaKelompokAnggotaScreen(
+          type: 'Panitia Gereja',
+          id: '80',
+        ), //nanti masukkan parameter gereja pertama supaya tidak null
         const BroadcastScreen(),
         const AdminScreen(),
         const ProfilScreen(),
@@ -97,7 +108,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   List<BottomNavigationBarItem> _buildNavItems() {
-    if (role == 'Peserta' || role == 'Pembina Kelompok') {
+    if (role == 'Peserta' || role == 'Pembimbing Kelompok') {
       return [
         buildSvgNavItem(
           'assets/icons/navigation_bar/dashboard.svg',

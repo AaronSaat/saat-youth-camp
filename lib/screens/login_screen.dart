@@ -30,20 +30,26 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _saveLoginData(
+    String id,
     String username,
     String email,
     String role,
     String token,
-    String gereja,
-    String kelompok,
+    String gereja_id,
+    String gereja_nama,
+    String kelompok_id,
+    String kelompok_nama,
   ) async {
     final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('id', id);
     await prefs.setString('username', username);
     await prefs.setString('email', email);
     await prefs.setString('role', role);
     await prefs.setString('token', token);
-    await prefs.setString('gereja', gereja);
-    await prefs.setString('kelompok', kelompok);
+    await prefs.setString('gereja_id', gereja_id);
+    await prefs.setString('gereja_nama', gereja_nama);
+    await prefs.setString('kelompok_id', kelompok_id);
+    await prefs.setString('kelompok_nama', kelompok_nama);
   }
 
   void _login() async {
@@ -60,12 +66,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (response['status'] == 'success') {
         await _saveLoginData(
+          response['user']['id'].toString(),
           response['user']['username'],
           response['user']['email'],
           response['user']['role'],
           response['token'],
-          response['user']['gereja'],
-          response['user']['kelompok'],
+          response['user']['gereja']?['gereja_id']?.toString() ?? 'Null',
+          response['user']['gereja']?['gereja_nama'] ?? 'Null',
+          response['user']['kelompok']?['id']?.toString() ?? 'Null',
+          response['user']['kelompok']?['nama_kelompok'] ?? 'Null',
         );
 
         Navigator.pushReplacement(

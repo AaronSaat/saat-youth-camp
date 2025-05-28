@@ -11,14 +11,14 @@ import '/utils/debug_log.dart';
 import '../widgets/custom_snackbar.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://172.172.52.9:82/reg-new/api2024/';
-  static const String baseUrl2 = 'http://172.172.52.11:8080/api-syc2025/';
+  // static const String baseUrl = 'http://172.172.52.9:82/reg-new/api2024/';
+  static const String baseurl = 'http://172.172.52.11:8080/api-syc2025/';
 
   static Future<Map<String, dynamic>> loginUser(
     String username,
     String password,
   ) async {
-    final url = Uri.parse('${baseUrl}checkuser');
+    final url = Uri.parse('${baseurl}check-user');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -36,7 +36,7 @@ class ApiService {
     String email,
     String secretCode,
   ) async {
-    final url = Uri.parse('${baseUrl}checksecret');
+    final url = Uri.parse('${baseurl}checksecret');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -50,40 +50,14 @@ class ApiService {
     }
   }
 
-  // ga dipake, register dari web
-  static Future<Map<String, dynamic>> registerUser(
-    String email,
-    String username,
-    String password,
-  ) async {
-    final url = Uri.parse('${baseUrl}registeruser');
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'email': email,
-        'username': username,
-        'password': password,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Registrasi gagal');
-    }
-  }
-
-  static Future<Map<String, dynamic>> getGroupAndChurchMembers(
-    BuildContext context,
-  ) async {
+  static Future<List<dynamic>> getAcara(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
 
-    final url = Uri.parse('${baseUrl}getgroupandchurchmembers');
+    final url = Uri.parse('${baseurl}acara');
     final response = await http.get(
       url,
       headers: {
@@ -93,28 +67,36 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return json.decode(response.body) as Map<String, dynamic>;
+      final Map<String, dynamic> decoded = json.decode(response.body);
+      final List<dynamic> dataAcara = decoded['data_acara'] ?? [];
+
+      print('✅ Data list acara berhasil dimuat:');
+      for (var acara in dataAcara) {
+        print('- ${acara['acara_nama']} | Hari: ${acara['hari']}');
+      }
+
+      return dataAcara;
     } else if (response.statusCode == 401) {
       showCustomSnackBar(
         context,
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
-      // await Future.delayed(const Duration(seconds: 5));
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {
-      throw Exception('Failed to load users');
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load list acara');
     }
   }
 
-  static Future<List<dynamic>> getAllUsers(BuildContext context) async {
+  static Future<int> getAcaraCount(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
 
-    final url = Uri.parse('${baseUrl}getallusers');
+    final url = Uri.parse('${baseurl}acara-count');
     final response = await http.get(
       url,
       headers: {
@@ -124,7 +106,13 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return json.decode(response.body) as List<dynamic>;
+      final Map<String, dynamic> decoded = json.decode(response.body);
+      final int countAcara = int.tryParse(decoded['count'].toString()) ?? 0;
+
+      print('✅ Data list acara berhasil dimuat:');
+      print('Count Acara: $countAcara');
+
+      return countAcara;
     } else if (response.statusCode == 401) {
       showCustomSnackBar(
         context,
@@ -133,18 +121,19 @@ class ApiService {
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {
-      throw Exception('Failed to load users');
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load count acara');
     }
   }
 
-  static Future<List<dynamic>> getAcara(BuildContext context, day) async {
+  static Future<List<dynamic>> getAcaraByDay(BuildContext context, day) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
 
-    final url = Uri.parse('${baseUrl2}acara-by-day?hari=$day');
+    final url = Uri.parse('${baseurl}acara-by-day?hari=$day');
     final response = await http.get(
       url,
       headers: {
@@ -176,14 +165,53 @@ class ApiService {
     }
   }
 
-  static Future<List<dynamic>> getAllGereja(BuildContext context) async {
+  static Future<List<dynamic>> getKomitmen(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
 
-    final url = Uri.parse('${baseUrl2}all-gereja');
+    final url = Uri.parse('${baseurl}komitmen');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> decoded = json.decode(response.body);
+      final List<dynamic> dataKomitmen = decoded['data_komitmen'] ?? [];
+
+      print('✅ Data list komitmen berhasil dimuat:');
+      for (var acara in dataKomitmen) {
+        print('- Hari: ${acara['hari']}');
+      }
+
+      return dataKomitmen;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load list komitmen');
+    }
+  }
+
+  static Future<List<dynamic>> getGereja(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}gereja');
     final response = await http.get(
       url,
       headers: {
@@ -198,7 +226,7 @@ class ApiService {
 
       print('✅ Data gereja berhasil dimuat:');
       for (var gereja in dataGereja) {
-        print('${gereja['gereja_nama']}');
+        print('${gereja['nama_gereja']}');
       }
 
       return dataGereja;
@@ -215,28 +243,32 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getMyChurchMembers(
-    BuildContext context,
-    String email,
-  ) async {
+  static Future<List<dynamic>> getKelompok(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
 
-    final url = Uri.parse('${baseUrl}getmychurchmembers');
-    final response = await http.post(
+    final url = Uri.parse('${baseurl}kelompok');
+    final response = await http.get(
       url,
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       },
-      body: jsonEncode({'email': email}),
     );
 
     if (response.statusCode == 200) {
-      return json.decode(response.body) as Map<String, dynamic>;
+      final Map<String, dynamic> decoded = json.decode(response.body);
+      final List<dynamic> dataKelompok = decoded['data_kelompok'] ?? [];
+
+      print('✅ Data kelompok berhasil dimuat:');
+      for (var kelompok in dataKelompok) {
+        print('${kelompok['data_kelompok']}');
+      }
+
+      return dataKelompok;
     } else if (response.statusCode == 401) {
       showCustomSnackBar(
         context,
@@ -245,13 +277,14 @@ class ApiService {
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {
-      throw Exception('Failed to load church members');
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load kelompok');
     }
   }
 
-  static Future<Map<String, dynamic>> getMyGroupMembers(
+  static Future<Map<String, dynamic>> getAnggotaGereja(
     BuildContext context,
-    String email,
+    String gerejaId,
   ) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -259,17 +292,19 @@ class ApiService {
       throw Exception('Token not found in SharedPreferences');
     }
 
-    final url = Uri.parse('${baseUrl}getmygroupmembers');
+    final url = Uri.parse('${baseurl}anggota-gereja?gereja_id=$gerejaId');
     final response = await http.post(
       url,
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       },
-      body: jsonEncode({'email': email}),
     );
 
     if (response.statusCode == 200) {
+      final Map<String, dynamic> decoded = json.decode(response.body);
+      final dataAnggotaGereja = decoded['data_anggota_gereja'];
+      print(dataAnggotaGereja);
       return json.decode(response.body) as Map<String, dynamic>;
     } else if (response.statusCode == 401) {
       showCustomSnackBar(
@@ -279,7 +314,43 @@ class ApiService {
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {
-      throw Exception('Failed to load group members');
+      throw Exception('Failed to load anggota gereja');
+    }
+  }
+
+  static Future<Map<String, dynamic>> getAnggotaKelompok(
+    BuildContext context,
+    String kelompokId,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}anggota-kelompok?kelompok_id=$kelompokId');
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> decoded = json.decode(response.body);
+      final dataAnggotaKelompok = decoded['data_anggota_kelompok'];
+      print(dataAnggotaKelompok);
+      return json.decode(response.body) as Map<String, dynamic>;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      throw Exception('Failed to load anggota kelompok');
     }
   }
 }

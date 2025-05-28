@@ -1,23 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:syc/screens/zzz_temp_codes.dart';
 
 import '../services/api_service.dart';
+import 'gereja_kelompok_anggota_screen.dart';
 
-class KelompokListScreen extends StatefulWidget {
+class GerejaKelompokListScreen extends StatefulWidget {
   final String type;
 
-  const KelompokListScreen({Key? key, required this.type}) : super(key: key);
+  const GerejaKelompokListScreen({Key? key, required this.type})
+    : super(key: key);
 
   @override
-  _KelompokListScreenState createState() => _KelompokListScreenState();
+  _GerejaKelompokListScreenState createState() =>
+      _GerejaKelompokListScreenState();
 }
 
-class _KelompokListScreenState extends State<KelompokListScreen> {
-  final List<String> dummyKelompok = [
-    'Kelompok 1 - Paulus',
-    'Kelompok 2 - Petrus',
-    'Kelompok 3 - Yohanes',
-    'Kelompok 4 - Markus',
-  ];
+class _GerejaKelompokListScreenState extends State<GerejaKelompokListScreen> {
   List<dynamic> _kelompokList = [];
   List<dynamic> _gerejaList = [];
   bool _isLoading = true;
@@ -27,7 +25,8 @@ class _KelompokListScreenState extends State<KelompokListScreen> {
     super.initState();
     if (widget.type == 'Gereja') {
       loadGereja();
-    } else {
+    } else if (widget.type == 'Kelompok') {
+      loadKelompok();
       _isLoading = false;
     }
   }
@@ -37,13 +36,31 @@ class _KelompokListScreenState extends State<KelompokListScreen> {
       _isLoading = true;
     });
     try {
-      final gerejaList = await ApiService.getAllGereja(context);
+      final gerejaList = await ApiService.getGereja(context);
       setState(() {
         _gerejaList = gerejaList ?? [];
         _isLoading = false;
       });
     } catch (e) {
       print('❌ Gagal memuat gereja: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void loadKelompok() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final kelompokList = await ApiService.getKelompok(context);
+      setState(() {
+        _kelompokList = kelompokList ?? [];
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('❌ Gagal memuat kelompok: $e');
       setState(() {
         _isLoading = false;
       });
@@ -75,9 +92,13 @@ class _KelompokListScreenState extends State<KelompokListScreen> {
                     : CustomScrollView(
                       slivers: [
                         SliverAppBar(
+                          pinned: true,
                           backgroundColor: Colors.transparent,
                           elevation: 0,
-                          leading: BackButton(color: Colors.white),
+                          leading:
+                              Navigator.canPop(context)
+                                  ? BackButton(color: Colors.white)
+                                  : null,
                           title: Text(
                             widget.type == 'Kelompok'
                                 ? 'Daftar Kelompok'
@@ -107,7 +128,7 @@ class _KelompokListScreenState extends State<KelompokListScreen> {
                                             vertical: 8,
                                           ),
                                       title: Text(
-                                        gereja['nama_gereja'] ?? 'Gereja',
+                                        gereja['nama_gereja'] ?? 'Gereja???',
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 16,
@@ -118,10 +139,27 @@ class _KelompokListScreenState extends State<KelompokListScreen> {
                                         color: Colors.white,
                                         size: 48,
                                       ),
-                                      onTap: () {},
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (
+                                                  context,
+                                                ) => GerejaKelompokAnggotaScreen(
+                                                  type:
+                                                      'Pembina Gereja', //nanti ganti sesuai role
+                                                  id:
+                                                      gereja['gereja_id'] ??
+                                                      'Gereja???',
+                                                ),
+                                          ),
+                                        );
+                                      },
                                     ),
                                   );
                                 } else {
+                                  final kelompok = _kelompokList[index];
                                   return Container(
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(32),
@@ -137,7 +175,8 @@ class _KelompokListScreenState extends State<KelompokListScreen> {
                                             vertical: 8,
                                           ),
                                       title: Text(
-                                        dummyKelompok[index],
+                                        kelompok['nama_kelompok'] ??
+                                            'Kelompok???',
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 16,
@@ -148,7 +187,22 @@ class _KelompokListScreenState extends State<KelompokListScreen> {
                                         color: Colors.white,
                                         size: 48,
                                       ),
-                                      onTap: () {},
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (
+                                                  context,
+                                                ) => GerejaKelompokAnggotaScreen(
+                                                  type:
+                                                      'Peserta', //nanti ganti sesuai role
+                                                  id:
+                                                      '${kelompok['id'] ?? 'Kelompok???'}',
+                                                ),
+                                          ),
+                                        );
+                                      },
                                     ),
                                   );
                                 }
@@ -156,7 +210,7 @@ class _KelompokListScreenState extends State<KelompokListScreen> {
                               childCount:
                                   widget.type == 'Gereja'
                                       ? _gerejaList.length
-                                      : dummyKelompok.length,
+                                      : _kelompokList.length,
                             ),
                           ),
                         ),
