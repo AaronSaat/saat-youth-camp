@@ -110,6 +110,10 @@ flutter:
     - assets/logos/story_saat.png
     - assets/logos/stt_saat.png
 
+    #widgets
+    - assets/images/komitmen.png
+    - assets/images/komitmen2.png
+
   fonts:
     - family: Roboto
       fonts:

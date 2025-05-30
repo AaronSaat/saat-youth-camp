@@ -36,7 +36,7 @@ class ApiService {
     String email,
     String secretCode,
   ) async {
-    final url = Uri.parse('${baseurl}checksecret');
+    final url = Uri.parse('${baseurl}check-secret');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -123,6 +123,43 @@ class ApiService {
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load count acara');
+    }
+  }
+
+  static Future<int> getAcaraCountAll(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}acara-count-all');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> decoded = json.decode(response.body);
+      final int countAcara = int.tryParse(decoded['count'].toString()) ?? 0;
+
+      print('✅ Data list acara berhasil dimuat:');
+      print('Count Acara All: $countAcara');
+
+      return countAcara;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load count acara all');
     }
   }
 

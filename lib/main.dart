@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:syc/screens/test_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 
 import 'screens/splash_screen.dart';
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const SplashScreen(),
-      // home: KelompokGerejaListScreen(),
+      // home: TestScreen(),
       // home: const DirectToGmailScreen(),
     );
   }

@@ -58,7 +58,10 @@ class _KomitmenScreenState extends State<KomitmenScreen> {
     await Future.delayed(const Duration(seconds: 1));
     setState(() => isLoading = false);
 
-    Navigator.push(context, MaterialPageRoute(builder: (_) => ReviewKomitmenScreen()));
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => ReviewKomitmenScreen()),
+    );
   }
 
   Widget _buildYesNoQuestion({
@@ -69,7 +72,10 @@ class _KomitmenScreenState extends State<KomitmenScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+        Text(
+          title,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
         Row(
           children: [
             Expanded(
@@ -123,17 +129,26 @@ class _KomitmenScreenState extends State<KomitmenScreen> {
           children: [
             // Card Checklist
             Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               elevation: 4,
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Checklist Komitmen', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Checklist Komitmen',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 10),
                     _buildChecklistQuestion(
-                      title: 'Percaya kepada Tuhan Yesus Kristus sebagai Juruselamat saya pribadi.',
+                      title:
+                          'Percaya kepada Tuhan Yesus Kristus sebagai Juruselamat saya pribadi.',
                       selectedValue: answer1,
                       onChanged: (val) => setState(() => answer1 = val),
                     ),
@@ -143,7 +158,8 @@ class _KomitmenScreenState extends State<KomitmenScreen> {
                       onChanged: (val) => setState(() => answer2 = val),
                     ),
                     _buildChecklistQuestion(
-                      title: 'Belajar untuk sungguh-sungguh mencintai Firman Tuhan.',
+                      title:
+                          'Belajar untuk sungguh-sungguh mencintai Firman Tuhan.',
                       selectedValue: answer3,
                       onChanged: (val) => setState(() => answer3 = val),
                     ),
@@ -198,7 +214,9 @@ class _KomitmenScreenState extends State<KomitmenScreen> {
 
             // Card Komentar
             Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               elevation: 4,
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -207,15 +225,21 @@ class _KomitmenScreenState extends State<KomitmenScreen> {
                   children: [
                     const Text(
                       'Tuliskan komitmen lainnya',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     TextField(
                       controller: _textController,
                       maxLines: 5,
                       decoration: InputDecoration(
-                        hintText: 'Tuliskan komitmen lainnya terkait dengan pesan dari KKR malam ini...',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        hintText:
+                            'Tuliskan komitmen lainnya terkait dengan pesan dari KKR malam ini...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                   ],
@@ -234,17 +258,29 @@ class _KomitmenScreenState extends State<KomitmenScreen> {
                   child: ElevatedButton.icon(
                     onPressed: () async {
                       await _saveProgress();
-                      if (context.mounted) Navigator.pop(context); // kembali ke halaman sebelumnya
+                      if (context.mounted)
+                        Navigator.pop(context); // kembali ke halaman sebelumnya
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 12,
+                      ),
                       elevation: 5,
                     ),
                     icon: const Icon(Icons.save),
-                    label: const Text('Save Progress', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    label: const Text(
+                      'Save Progress',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16), // Space between buttons
@@ -256,21 +292,35 @@ class _KomitmenScreenState extends State<KomitmenScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 12,
+                      ),
                     ),
                     icon:
                         isLoading
                             ? const SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
                             )
                             : const Icon(Icons.arrow_forward),
                     label:
                         isLoading
                             ? const Text('')
-                            : const Text('Review Jawaban', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            : const Text(
+                              'Review Jawaban',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                   ),
                 ),
               ],

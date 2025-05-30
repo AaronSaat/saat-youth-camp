@@ -78,7 +78,8 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                     child: Container(
                       height: 48,
                       decoration: BoxDecoration(
-                        color: selected ? AppColors.primary : Colors.white,
+                        color:
+                            selected ? AppColors.primary : Colors.transparent,
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(color: AppColors.primary, width: 2),
                       ),
@@ -126,8 +127,11 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                               child: Stack(
                                 children: [
                                   CustomPanelShape(
-                                    width: 350,
-                                    height: 180,
+                                    // set width height
+                                    width: MediaQuery.of(context).size.width,
+                                    height:
+                                        MediaQuery.of(context).size.height *
+                                        0.2,
                                     imageProvider:
                                         Image.asset(
                                           'assets/images/event.jpg',
@@ -174,8 +178,11 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                                     ),
                                   ),
                                   Positioned(
-                                    right: 45,
-                                    top: 155,
+                                    right:
+                                        MediaQuery.of(context).size.width * 0.1,
+                                    bottom:
+                                        MediaQuery.of(context).size.height *
+                                        0.007,
                                     child: Text(
                                       'Tap for More',
                                       style: const TextStyle(
