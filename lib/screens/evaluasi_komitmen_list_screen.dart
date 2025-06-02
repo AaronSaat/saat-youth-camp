@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/api_service.dart';
 import '../utils/app_colors.dart';
+import 'evaluasi_komitmen_form_screen.dart';
+import 'evaluasi_komitmen_review_screen.dart';
 
 class EvaluasiKomitmenListScreen extends StatefulWidget {
   final String type;
@@ -22,6 +25,10 @@ class _EvaluasiKomitmenListScreenState
     extends State<EvaluasiKomitmenListScreen> {
   List<dynamic> _acaraList = [];
   List<dynamic> _komitmenList = [];
+  List<dynamic> _komitmenDoneList = [];
+  List<dynamic> _evaluasiDoneList = [];
+  List<dynamic> _acaraIdList =
+      []; // untuk menyimpan acara ID supaya di listnya tau selesai atau belum
   bool _isLoading = true;
   int day = 1; // default day
   int _countAcara = 1;
@@ -30,6 +37,7 @@ class _EvaluasiKomitmenListScreenState
   @override
   void initState() {
     super.initState();
+
     if (widget.type == 'Evaluasi') {
       loadAcara();
       loadCountAcara();
@@ -46,6 +54,23 @@ class _EvaluasiKomitmenListScreenState
     });
     try {
       final acaraList = await ApiService.getAcaraByDay(context, day);
+      _acaraIdList = acaraList.map((acara) => acara['id']).toList();
+      print('test Acara ID List: $_acaraIdList');
+      _evaluasiDoneList = List.filled(acaraList.length ?? 0, false);
+      for (int i = 0; i < _evaluasiDoneList.length; i++) {
+        try {
+          final result = await ApiService.getEvaluasiByPesertaByAcara(
+            context,
+            widget.userId,
+            _acaraIdList[i],
+          );
+          if (result != null && result['success'] == true) {
+            _evaluasiDoneList[i] = true;
+          }
+        } catch (e) {
+          // ignore error, keep as false
+        }
+      }
       setState(() {
         _acaraList = acaraList ?? [];
         _isLoading = false;
@@ -64,6 +89,22 @@ class _EvaluasiKomitmenListScreenState
     });
     try {
       final komitmenList = await ApiService.getKomitmen(context);
+      _komitmenDoneList = List.filled(komitmenList.length ?? 0, false);
+      for (int i = 0; i < _komitmenDoneList.length; i++) {
+        try {
+          final result = await ApiService.getKomitmenByPesertaByDay(
+            context,
+            widget.userId,
+            i + 1,
+          );
+          if (result != null && result['success'] == true) {
+            _komitmenDoneList[i] = true;
+          }
+        } catch (e) {
+          // ignore error, keep as false
+        }
+      }
+      print('test Komitmen Done List: $_komitmenDoneList');
       setState(() {
         _komitmenList = komitmenList ?? [];
         _isLoading = false;
@@ -89,40 +130,6 @@ class _EvaluasiKomitmenListScreenState
       print('❌ Gagal memuat acara count dan acara count all: $e');
     }
   }
-  // void loadEvaluasi(userId, acaraId) async {
-  //   setState(() {
-  //     _isLoading = true;
-  //   });
-  //   try {
-  //     final evaluasiList = await ApiService.getEvaluasiByPesertaByDay(context, userId, acaraId);
-  //     setState(() {
-  //       _evaluasiList = evaluasiList ?? [];
-  //       _isLoading = false;
-  //     });
-  //   } catch (e) {
-  //     print('❌ Gagal memuat evaluasi oleh user $userId pada hari $acaraId: $e');
-  //     setState(() {
-  //       _isLoading = false;
-  //     });
-  //   }
-  // }
-  // void loadKomitmen(userId, acaraId) async {
-  //   setState(() {
-  //     _isLoading = true;
-  //   });
-  //   try {
-  //     final komitmenList = await ApiService.getKomitmenByPesertaByDay(context, userId, acaraId);
-  //     setState(() {
-  //       _komitmenList = komitmenList ?? [];
-  //       _isLoading = false;
-  //     });
-  //   } catch (e) {
-  //     print('❌ Gagal memuat komitmen oleh user $userId pada hari $acaraId: $e');
-  //     setState(() {
-  //       _isLoading = false;
-  //     });
-  //   }
-  // }
 
   Widget _buildDaySelector() {
     List<int> days = List.generate(_countAcara, (index) => index + 1);
@@ -239,14 +246,17 @@ class _EvaluasiKomitmenListScreenState
                                         : _komitmenList;
 
                                 String item;
+                                bool? status;
                                 if (widget.type == 'Evaluasi') {
                                   final acara = items[index];
                                   item =
                                       '${acara['acara_nama'] ?? '-'} (Hari ${acara['hari'] ?? '-'})';
+                                  status = _evaluasiDoneList[index];
                                 } else {
                                   final komitmen = items[index];
                                   item =
                                       'Komitmen Hari ${komitmen['hari'] ?? '-'}';
+                                  status = _komitmenDoneList[index];
                                 }
                                 return Container(
                                   decoration: BoxDecoration(
@@ -268,12 +278,56 @@ class _EvaluasiKomitmenListScreenState
                                         fontSize: 16,
                                       ),
                                     ),
-                                    trailing: const Icon(
-                                      Icons.arrow_right_sharp,
-                                      color: Colors.white,
-                                      size: 48,
-                                    ),
-                                    onTap: () {},
+                                    trailing:
+                                        status == true
+                                            ? const Icon(
+                                              Icons.check_circle,
+                                              color: Colors.green,
+                                              size: 32,
+                                            )
+                                            : const Icon(
+                                              Icons.arrow_right_sharp,
+                                              color: Colors.white,
+                                              size: 48,
+                                            ),
+                                    onTap: () {
+                                      String type = widget.type;
+                                      String userId = widget.userId;
+                                      int acaraHariId;
+                                      if (type == 'Evaluasi') {
+                                        acaraHariId = _acaraList[index]['id'];
+                                      } else {
+                                        acaraHariId =
+                                            _komitmenList[index]['hari'];
+                                      }
+                                      if (status == true) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) =>
+                                                    EvaluasiKomitmenReviewScreen(
+                                                      type: type,
+                                                      userId: userId,
+                                                      acaraHariId: acaraHariId,
+                                                    ),
+                                          ),
+                                        );
+                                      } else {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) =>
+                                                    EvaluasiKomitmenFormScreen(
+                                                      type: type,
+                                                      userId: userId,
+                                                      acaraHariId: acaraHariId,
+                                                    ),
+                                          ),
+                                        );
+                                      }
+                                    },
                                   ),
                                 );
                               },

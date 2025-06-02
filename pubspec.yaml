@@ -101,6 +101,7 @@ flutter:
     - assets/buttons/button1.png
     - assets/buttons/panel_acara.png
     - assets/buttons/panel_acara.svg
+    - assets/buttons/icon_slider.png
 
     # texts
     - assets/texts/welcome_back.png

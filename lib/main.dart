@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:syc/screens/detail_acara_screen.dart';
+import 'package:syc/screens/evaluasi_komitmen_form_screen.dart';
+import 'package:syc/screens/evaluasi_komitmen_review_screen.dart';
+import 'package:syc/screens/read_more_screen.dart';
 import 'package:syc/screens/test_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 
@@ -24,8 +28,12 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const SplashScreen(),
-      // home: TestScreen(),
-      // home: const DirectToGmailScreen(),
+      // home: KomitmenScreen(userId: 2, day: 1),
+      // home: EvaluasiKomitmenFormScreen(
+      //   type: 'Evaluasi',
+      //   userId: '1',
+      //   acaraHariId: 1,
+      // ),
     );
   }
 }

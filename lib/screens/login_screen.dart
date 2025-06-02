@@ -50,6 +50,16 @@ class _LoginScreenState extends State<LoginScreen> {
     await prefs.setString('gereja_nama', gereja_nama);
     await prefs.setString('kelompok_id', kelompok_id);
     await prefs.setString('kelompok_nama', kelompok_nama);
+    print('Login data saved:');
+    print('id: $id');
+    print('username: $username');
+    print('email: $email');
+    print('role: $role');
+    print('token: $token');
+    print('gereja_id: $gereja_id');
+    print('gereja_nama: $gereja_nama');
+    print('kelompok_id: $kelompok_id');
+    print('kelompok_nama: $kelompok_nama');
   }
 
   void _login() async {
@@ -64,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
         passwordController.text,
       );
 
-      if (response['status'] == 'success') {
+      if (response['success'] == true) {
         await _saveLoginData(
           response['user']['id'].toString(),
           response['user']['username'],

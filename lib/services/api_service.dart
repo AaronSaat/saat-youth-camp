@@ -202,6 +202,99 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>> getEvaluasiByAcara(
+    BuildContext context,
+    acaraId,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}evaluasi-by-acara?acara_id=$acaraId');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> dataEvaluasi = json.decode(response.body);
+
+      print('✅ Data pertanyaan evaluasi acaraId-$acaraId  berhasil dimuat:');
+      for (var evaluasi in dataEvaluasi['data_evaluasi']) {
+        print(
+          '- Evaluasi: ${evaluasi['id']} | Status: ${evaluasi['hari']} | ${evaluasi['type']}',
+        );
+      }
+
+      return dataEvaluasi;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      print('❌ Error test: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load pertanyaan evaluasi acaraId-$acaraId');
+    }
+  }
+
+  static Future<Map<String, dynamic>> getEvaluasiByPesertaByAcara(
+    BuildContext context,
+    userId,
+    acaraId,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse(
+      '${baseurl}evaluasi-by-peserta-by-acara?user_id=$userId&acara_id=$acaraId',
+    );
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> dataEvaluasi = json.decode(response.body);
+
+      print(
+        '✅ Data jawaban evaluasi acaraId-$acaraId oleh user id $userId berhasil dimuat:',
+      );
+      for (var evaluasi in dataEvaluasi['data_evaluasi']) {
+        print(
+          '- Evaluasi: ${evaluasi['id']} | Status: ${evaluasi['hari']} | ${evaluasi['type']}',
+        );
+      }
+
+      return dataEvaluasi;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      print('❌ Error test: ${response.statusCode} - ${response.body}');
+      throw Exception(
+        'Failed to load jawaban evaluasi acaraId-$acaraId oleh user id $userId',
+      );
+    }
+  }
+
   static Future<List<dynamic>> getKomitmen(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -238,6 +331,100 @@ class ApiService {
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load list komitmen');
+    }
+  }
+
+  static Future<Map<String, dynamic>> getKomitmenByDay(
+    BuildContext context,
+    day,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}komitmen-by-day?hari=$day');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> dataKomitmen = json.decode(response.body);
+
+      print('✅ Data pertanyaan komitmen hari-$day  berhasil dimuat:');
+      for (var komitmen in dataKomitmen['data_komitmen']) {
+        print(
+          '- komitmen: ${komitmen['id']} | Status: ${komitmen['hari']} | ${komitmen['type']}',
+        );
+      }
+
+      return dataKomitmen;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      print('❌ Error test: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load pertanyaan komitmen hari-$day');
+    }
+  }
+
+  static Future<Map<String, dynamic>> getKomitmenByPesertaByDay(
+    BuildContext context,
+    userId,
+    day,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse(
+      '${baseurl}komitmen-by-peserta-by-day?user_id=$userId&hari=$day',
+    );
+    print('URL: $url');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> dataKomitmen = json.decode(response.body);
+
+      print(
+        '✅ Data jawaban komitmen hari-$day oleh user id $userId berhasil dimuat:',
+      );
+      for (var komitmen in dataKomitmen['data_komitmen']) {
+        print(
+          '- Komitmen: ${komitmen['id']} | Status: ${komitmen['hari']} | ${komitmen['type']}',
+        );
+      }
+
+      return dataKomitmen;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception(
+        'Failed to load jawaban komitmen hari-$day oleh user id $userId',
+      );
     }
   }
 

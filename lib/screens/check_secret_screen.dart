@@ -34,7 +34,7 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
         secretCodeController.text,
       );
 
-      if (response['status'] == 'success') {
+      if (response['success'] == true) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const DirectToGmailScreen()),

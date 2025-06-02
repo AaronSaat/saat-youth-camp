@@ -3,8 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import 'daftar_acara_screen.dart';
 import 'detail_acara_screen.dart';
-import 'komitmen_screen.dart';
-import 'evaluasi_screen.dart';
+import 'evaluasi_komitmen_form_screen.dart';
 import 'profil_screen.dart';
 
 import '/widgets/custom_arrow_button.dart';
@@ -58,17 +57,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _navigateToKomitmen(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const KomitmenScreen()),
-    );
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(builder: (_) => const EvaluasiKomitmenFormScreen()),
+    // );
   }
 
   void _navigateToEvaluasi(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const EvaluasiScreen()),
-    );
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(builder: (_) => const EvaluasiKomitmenFormScreen()),
+    // );
   }
 
   @override
