@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import 'daftar_acara_screen.dart';
 import 'detail_acara_screen.dart';
-import 'evaluasi_komitmen_form_screen.dart';
+import 'form_komitmen_screen.dart';
 import 'profil_screen.dart';
 
 import '/widgets/custom_arrow_button.dart';

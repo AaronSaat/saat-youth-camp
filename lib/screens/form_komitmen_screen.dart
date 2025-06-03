@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syc/screens/review_komitmen_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 import '../services/api_service.dart';
 import '../widgets/custom_checkbox.dart';
@@ -7,78 +8,33 @@ import '../widgets/custom_slider.dart';
 import '../widgets/custom_text_field.dart';
 import 'review_evaluasi_screen.dart';
 import '../widgets/custom_not_found.dart';
-import 'review_komitmen_screen.dart';
 
-class EvaluasiKomitmenFormScreen extends StatefulWidget {
-  final String type;
+class FormKomitmenScreen extends StatefulWidget {
   final String userId;
   final int acaraHariId;
 
-  const EvaluasiKomitmenFormScreen({
+  const FormKomitmenScreen({
     super.key,
-    required this.type,
     required this.userId,
     required this.acaraHariId,
   });
 
   @override
-  State<EvaluasiKomitmenFormScreen> createState() =>
-      _EvaluasiKomitmenFormScreenState();
+  State<FormKomitmenScreen> createState() => _FormKomitmenScreenState();
 }
 
-class _EvaluasiKomitmenFormScreenState
-    extends State<EvaluasiKomitmenFormScreen> {
+class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
   final Map<String, bool> _checkbox_answer = {};
   final Map<String, TextEditingController> _text_answer = {};
-  final Map<String, double> _slider_answer = {};
   bool isLoading = false;
   Map<String, dynamic> _acara = {};
   List<Map<String, dynamic>> _dataKomitmen = [];
-  List<Map<String, dynamic>> _dataEvaluasi = [];
   bool _isLoading = true;
-
-  final List<String> tingkatEvaluasiLabels = [
-    'Sangat Tidak Setuju',
-    'Tidak Setuju',
-    'Cukup Tidak Setuju',
-    'Cukup Setuju',
-    'Setuju',
-    'Sangat Setuju',
-  ];
 
   @override
   void initState() {
     super.initState();
-    if (widget.type == 'Evaluasi') {
-      loadEvaluasi();
-    } else if (widget.type == 'Komitmen') {
-      loadKomitmen();
-    } else {
-      _isLoading = false;
-    }
-  }
-
-  void loadEvaluasi() async {
-    setState(() => _isLoading = true);
-    try {
-      final evaluasi = await ApiService.getEvaluasiByAcara(
-        context,
-        widget.acaraHariId,
-      );
-      setState(() {
-        _acara = evaluasi['acara'] ?? {};
-        _dataEvaluasi =
-            (evaluasi['data_evaluasi'] as List<dynamic>?)
-                ?.map((e) => e as Map<String, dynamic>)
-                .toList() ??
-            [];
-        _isLoading = false;
-      });
-      print('Data Evaluasi: $_dataEvaluasi');
-      await _loadSavedProgress();
-    } catch (e) {
-      setState(() => _isLoading = false);
-    }
+    loadKomitmen();
   }
 
   void loadKomitmen() async {
@@ -104,22 +60,19 @@ class _EvaluasiKomitmenFormScreenState
 
   Future<void> _loadSavedProgress() async {
     final prefs = await SharedPreferences.getInstance();
-    final data = widget.type == 'Evaluasi' ? _dataEvaluasi : _dataKomitmen;
-    final typeKey = widget.type.toLowerCase();
+    final data = _dataKomitmen;
+    final typeKey = "Komitmen";
     for (var item in data) {
       final key = '${typeKey}_answer_${item['id']}';
-      if (item['type'] == 1) {
+      if (item['type'] == "1") {
         // Text
         final controller = TextEditingController(
           text: prefs.getString(key) ?? '',
         );
         _text_answer[item['id'].toString()] = controller;
-      } else if (item['type'] == 2) {
+      } else if (item['type'] == "2") {
         // Checkbox
         _checkbox_answer[item['id'].toString()] = prefs.getBool(key) ?? false;
-      } else if (item['type'] == 3) {
-        // Slider
-        _slider_answer[item['id'].toString()] = prefs.getDouble(key) ?? 3.0;
       }
     }
     setState(() {});
@@ -127,28 +80,25 @@ class _EvaluasiKomitmenFormScreenState
 
   Future<void> _saveProgress() async {
     final prefs = await SharedPreferences.getInstance();
-    final data = widget.type == 'Evaluasi' ? _dataEvaluasi : _dataKomitmen;
-    final typeKey = widget.type.toLowerCase();
+    final data = _dataKomitmen;
+    final typeKey = "Komitmen";
     List<String> savedIds = [];
     for (var item in data) {
       final idStr = item['id'].toString();
       final key = '${typeKey}_answer_$idStr';
       savedIds.add(idStr);
-      if (item['type'] == 1) {
+      if (item['type'] == "1") {
         await prefs.setString(key, _text_answer[idStr]?.text ?? '');
-      } else if (item['type'] == 2) {
+      } else if (item['type'] == "2") {
         await prefs.setBool(key, _checkbox_answer[idStr] == true);
-      } else if (item['type'] == 3) {
-        await prefs.setDouble(key, _slider_answer[idStr] ?? 3.0);
       }
     }
     // Simpan list id pertanyaan untuk tipe ini
     await prefs.setStringList('${typeKey}_answer_ids', savedIds);
 
-    // print semua isi shared preferences
     final allKeys = prefs.getKeys();
     for (var key in allKeys) {
-      print('SharedPreferences: $key = ${prefs.get(key)}');
+      print('Print SharedPref [$key]: ${prefs.get(key)}');
     }
   }
 
@@ -158,39 +108,23 @@ class _EvaluasiKomitmenFormScreenState
     await Future.delayed(const Duration(seconds: 1));
     setState(() => isLoading = false);
 
-    if (widget.type == 'Evaluasi') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder:
-              (_) => ReviewEvaluasiScreen(
-                userId: widget.userId,
-                acaraHariId: widget.acaraHariId,
-              ),
-        ),
-      );
-    } else if (widget.type == 'Komitmen') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder:
-              (_) => ReviewKomitmenScreen(
-                userId: widget.userId,
-                acaraHariId: widget.acaraHariId,
-              ),
-        ),
-      );
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => ReviewKomitmenScreen(
+              userId: widget.userId,
+              acaraHariId: widget.acaraHariId,
+            ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    String titleImage =
-        widget.type == 'Evaluasi'
-            ? 'assets/texts/evaluasi.png'
-            : 'assets/texts/komitmen.png';
+    String titleImage = 'assets/texts/komitmen.png';
 
-    final data = widget.type == 'Evaluasi' ? _dataEvaluasi : _dataKomitmen;
+    final data = _dataKomitmen;
 
     return Scaffold(
       body: Stack(
@@ -207,10 +141,10 @@ class _EvaluasiKomitmenFormScreenState
             child:
                 _isLoading
                     ? const Center(child: CircularProgressIndicator())
-                    : (_dataKomitmen.isEmpty && _dataEvaluasi.isEmpty)
+                    : (_dataKomitmen.isEmpty)
                     ? CustomNotFound(
                       text:
-                          'Data tidak ditemukan.\nSilakan kembali dan coba lagi nanti.',
+                          'Data komitmen tidak ditemukan.\nSilakan kembali dan coba lagi nanti.',
                       textColor: Colors.white,
                       imagePath: 'assets/images/data_not_found.png',
                     )
@@ -310,123 +244,6 @@ class _EvaluasiKomitmenFormScreenState
                                                     _checkbox_answer[id] = val;
                                                   }),
                                               label: question,
-                                            ),
-                                            const Divider(
-                                              color: Colors.white,
-                                              thickness: 1,
-                                            ),
-                                            const SizedBox(height: 16),
-                                          ],
-                                        );
-                                      } else if (item['type'] == "3") {
-                                        // Slider with dynamic settings
-                                        _slider_answer.putIfAbsent(
-                                          id,
-                                          () => 3.0,
-                                        );
-                                        // Get slider settings from questionType
-                                        final questionType =
-                                            item['questionType'] ?? {};
-                                        print('TEST $questionType');
-                                        final int scaleRange =
-                                            int.tryParse(
-                                              questionType['scale_range']
-                                                      ?.toString() ??
-                                                  '',
-                                            ) ??
-                                            6;
-                                        final String minValue =
-                                            questionType['min_value']
-                                                ?.toString()
-                                                .trim() ??
-                                            'Sangat Tidak Setuju';
-                                        final String maxValue =
-                                            questionType['max_value']
-                                                ?.toString()
-                                                .trim() ??
-                                            'Sangat Setuju';
-
-                                        // Build dynamic labels if available, else fallback
-                                        List<String> labels =
-                                            tingkatEvaluasiLabels;
-                                        if (scaleRange == 6 &&
-                                            minValue == 'Sangat Tidak Setuju' &&
-                                            maxValue == 'Sangat Setuju') {
-                                          labels = tingkatEvaluasiLabels;
-                                        } else {
-                                          // Generate labels: only min/max, or custom if needed
-                                          labels = List.generate(scaleRange, (
-                                            i,
-                                          ) {
-                                            if (i == 0) return minValue;
-                                            if (i == scaleRange - 1)
-                                              return maxValue;
-                                            return '';
-                                          });
-                                        }
-
-                                        return Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              question,
-                                              style: const TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 10),
-                                            CustomStepperSlider(
-                                              value: _slider_answer[id]!,
-                                              min: 1,
-                                              max: scaleRange.toDouble(),
-                                              divisions: scaleRange - 1,
-                                              onChanged: (val) {
-                                                setState(() {
-                                                  _slider_answer[id] = val;
-                                                });
-                                              },
-                                            ),
-                                            const SizedBox(height: 10),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Text(
-                                                  minValue,
-                                                  style: const TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  maxValue,
-                                                  style: const TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 10),
-                                            Center(
-                                              child: Text(
-                                                labels[(_slider_answer[id]!
-                                                            .toInt() -
-                                                        1)
-                                                    .clamp(
-                                                      0,
-                                                      labels.length - 1,
-                                                    )],
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
                                             ),
                                             const Divider(
                                               color: Colors.white,

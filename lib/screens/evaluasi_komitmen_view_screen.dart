@@ -4,12 +4,12 @@ import 'package:syc/utils/app_colors.dart';
 
 import '../services/api_service.dart';
 
-class EvaluasiKomitmenReviewScreen extends StatefulWidget {
+class EvaluasiKomitmenViewScreen extends StatefulWidget {
   final String type;
   final String userId;
   final int acaraHariId;
 
-  const EvaluasiKomitmenReviewScreen({
+  const EvaluasiKomitmenViewScreen({
     super.key,
     required this.type,
     required this.userId,
@@ -17,12 +17,12 @@ class EvaluasiKomitmenReviewScreen extends StatefulWidget {
   });
 
   @override
-  State<EvaluasiKomitmenReviewScreen> createState() =>
-      _EvaluasiKomitmenReviewScreenState();
+  State<EvaluasiKomitmenViewScreen> createState() =>
+      _EvaluasiKomitmenViewScreenState();
 }
 
-class _EvaluasiKomitmenReviewScreenState
-    extends State<EvaluasiKomitmenReviewScreen> {
+class _EvaluasiKomitmenViewScreenState
+    extends State<EvaluasiKomitmenViewScreen> {
   String? answer1;
   String? answer2;
   String? answer3;

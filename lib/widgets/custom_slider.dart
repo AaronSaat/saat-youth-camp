@@ -23,9 +23,9 @@ class CustomStepperSlider extends StatelessWidget {
         trackHeight: 4,
         inactiveTrackColor: Colors.grey,
         activeTrackColor: Colors.white,
-        thumbShape: CustomSliderThumbImage(
-          imagePath: 'assets/buttons/icon_slider.png',
-        ),
+        // thumbShape: CustomSliderThumbImage(
+        //   imagePath: 'assets/buttons/icon_slider.png',
+        // ),
         overlayColor: Colors.transparent,
         overlayShape: SliderComponentShape.noOverlay,
         activeTickMarkColor: Colors.transparent,

@@ -295,6 +295,45 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>> postEvaluasiAnswer(
+    BuildContext context,
+    List<Map<String, dynamic>> evaluasiAnswers,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}evaluasi-answer');
+    final body = json.encode({'evaluasi_answer': evaluasiAnswers});
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: body,
+    );
+
+    if (response.statusCode == 201) {
+      final Map<String, dynamic> result = json.decode(response.body);
+      print('✅ Evaluasi answer berhasil dikirim: $result');
+      return result;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to post evaluasi answer');
+    }
+  }
+
   static Future<List<dynamic>> getKomitmen(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -428,6 +467,45 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>> postKomitmenAnswer(
+    BuildContext context,
+    List<Map<String, dynamic>> komitmenAnswers,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}komitmen-answer');
+    final body = json.encode({'komitmen_answer': komitmenAnswers});
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: body,
+    );
+
+    if (response.statusCode == 201) {
+      final Map<String, dynamic> result = json.decode(response.body);
+      print('✅ Komitmen answer berhasil dikirim: $result');
+      return result;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to post komitmen answer');
+    }
+  }
+
   static Future<List<dynamic>> getGereja(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -515,8 +593,11 @@ class ApiService {
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
+    // sebagai parameter gerejaId berupa string, tapi di link API-nya berupa integer / string (tanpa "")
+    final parsed = int.tryParse(gerejaId) ?? gerejaId;
+    print('Parsed gerejaId: $parsed');
 
-    final url = Uri.parse('${baseurl}anggota-gereja?gereja_id=$gerejaId');
+    final url = Uri.parse('${baseurl}anggota-gereja?gereja_id=$parsed');
     final response = await http.post(
       url,
       headers: {
@@ -551,8 +632,11 @@ class ApiService {
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
+    // sebagai parameter kelompokId berupa string, tapi di link API-nya berupa integer
+    final parsed = int.tryParse(kelompokId) ?? kelompokId;
+    print('Parsed kelompokId: $parsed');
 
-    final url = Uri.parse('${baseurl}anggota-kelompok?kelompok_id=$kelompokId');
+    final url = Uri.parse('${baseurl}anggota-kelompok?kelompok_id=$parsed');
     final response = await http.post(
       url,
       headers: {

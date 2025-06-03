@@ -111,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
         fit: StackFit.expand,
         children: [
           Image.asset(
-            'assets/images/background_login3.png',
+            'assets/images/background_login4.jpg',
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
             fit: BoxFit.cover,
@@ -141,89 +141,93 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
+
                       const SizedBox(height: 32),
-                      Image.asset('assets/logos/syc.png', height: 100),
+                      Image.asset('assets/logos/syc2.png', height: 100),
                       const SizedBox(height: 40),
 
                       // Username
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: TextFormField(
-                          controller: usernameController,
-                          style: const TextStyle(color: AppColors.primary),
-                          decoration: InputDecoration(
-                            hintText: 'Username atau Email',
-                            hintStyle: const TextStyle(
-                              color: AppColors.primary,
-                            ),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
-                            ),
-                            prefixIcon: SvgPicture.asset(
-                              'assets/icons/login/email.svg',
-                              width: 24,
-                              height: 24,
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.primary,
-                                BlendMode.srcIn,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(32),
+                            border: Border.all(color: Colors.brown, width: 2),
+                          ),
+                          child: TextFormField(
+                            controller: usernameController,
+                            style: const TextStyle(color: AppColors.primary),
+                            decoration: InputDecoration(
+                              hintText: 'Username atau Email',
+                              hintStyle: const TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w300,
                               ),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
+                              // prefixIcon: SvgPicture.asset(
+                              //   'assets/icons/login/email.svg',
+                              //   width: 24,
+                              //   height: 24,
+                              //   colorFilter: const ColorFilter.mode(
+                              //     AppColors.primary,
+                              //     BlendMode.srcIn,
+                              //   ),
+                              // ),
                             ),
                           ),
                         ),
                       ),
                       const SizedBox(height: 16),
-
                       // Password
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: TextFormField(
-                          controller: passwordController,
-                          obscureText: _obscurePassword,
-                          style: const TextStyle(color: AppColors.primary),
-                          decoration: InputDecoration(
-                            hintText: 'Password',
-                            hintStyle: const TextStyle(
-                              color: AppColors.primary,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(32),
+                            border: Border.all(
+                              color: Colors.brown, // Outline cokelat
+                              width: 2,
                             ),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
-                            ),
-                            prefixIcon: SvgPicture.asset(
-                              'assets/icons/login/password.svg',
-                              width: 24,
-                              height: 24,
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.primary,
-                                BlendMode.srcIn,
+                          ),
+                          child: TextFormField(
+                            controller: passwordController,
+                            obscureText: _obscurePassword,
+                            style: const TextStyle(color: AppColors.primary),
+                            decoration: InputDecoration(
+                              hintText: 'Password',
+                              hintStyle: const TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w300,
                               ),
-                            ),
-                            suffixIcon: IconButton(
-                              icon: SvgPicture.asset(
-                                _obscurePassword
-                                    ? 'assets/icons/login/hide_password.svg'
-                                    : 'assets/icons/login/show_password.svg',
-                                width: 24,
-                                height: 24,
-                                colorFilter: const ColorFilter.mode(
-                                  AppColors.primary,
-                                  BlendMode.srcIn,
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
+                              suffixIcon: IconButton(
+                                icon: SvgPicture.asset(
+                                  _obscurePassword
+                                      ? 'assets/icons/login/hide_password.svg'
+                                      : 'assets/icons/login/show_password.svg',
+                                  width: 24,
+                                  height: 24,
+                                  colorFilter: const ColorFilter.mode(
+                                    AppColors.primary,
+                                    BlendMode.srcIn,
+                                  ),
                                 ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
                             ),
                           ),
                         ),
@@ -231,32 +235,32 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 32),
 
                       // Login Button
-                      GestureDetector(
-                        onTap: isLoading ? null : _login,
-                        child: Container(
-                          width: double.infinity,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            image: const DecorationImage(
-                              image: AssetImage('assets/buttons/button1.png'),
-                              fit: BoxFit.cover,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: GestureDetector(
+                          onTap: isLoading ? null : _login,
+                          child: Container(
+                            width: double.infinity,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: AppColors.brown1,
+                              borderRadius: BorderRadius.circular(32),
                             ),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          alignment: Alignment.center,
-                          child:
-                              isLoading
-                                  ? const CircularProgressIndicator(
-                                    color: Colors.white,
-                                  )
-                                  : const Text(
-                                    'Login',
-                                    style: TextStyle(
+                            alignment: Alignment.center,
+                            child:
+                                isLoading
+                                    ? const CircularProgressIndicator(
                                       color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
+                                    )
+                                    : const Text(
+                                      'Login',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -267,7 +271,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: [
                           const Text(
                             'Belum punya akun? ',
-                            style: TextStyle(color: Colors.white),
+                            style: TextStyle(color: AppColors.primary),
                           ),
                           GestureDetector(
                             onTap: () {
@@ -281,7 +285,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: const Text(
                               'Daftar sekarang',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: AppColors.primary,
                                 fontWeight: FontWeight.bold,
                                 decoration: TextDecoration.underline,
                               ),

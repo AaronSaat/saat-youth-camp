@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/utils/app_colors.dart';
 
+import '../services/api_service.dart';
 import 'login_screen.dart';
 import 'dashboard_screen.dart';
 import 'gereja_kelompok_anggota_screen.dart';
@@ -24,19 +25,58 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  String? id;
   String? role;
+  List<dynamic> _kelompokList = [];
+  bool _isLoading = true;
 
   List<Widget> _pages = [];
 
   @override
   void initState() {
     super.initState();
-    _loadRoleAndSetup();
+    loadRoleAndSetup();
   }
 
-  Future<void> _loadRoleAndSetup() async {
+  Future<String?> loadKelompok() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final kelompokList = await ApiService.getKelompok(context);
+      setState(() {
+        _kelompokList = kelompokList ?? [];
+        _isLoading = false;
+      });
+      if (_kelompokList.isNotEmpty && _kelompokList[0]['id'] != null) {
+        return _kelompokList[0]['id'].toString();
+      }
+      return null;
+    } catch (e) {
+      print(
+        '❌ Gagal memuat kelompok pada bottom navigation bar untuk panitia: $e',
+      );
+      setState(() {
+        _isLoading = false;
+      });
+      return null;
+    }
+  }
+
+  Future<void> loadRoleAndSetup() async {
     final prefs = await SharedPreferences.getInstance();
+    id = prefs.getString('id');
     role = prefs.getString('role');
+
+    if (role == 'Peserta') {
+      id = prefs.getString('kelompok_id');
+    } else if (role == 'Pembimbing Kelompok') {
+      id = prefs.getString('kelompok_id');
+    } else if (role == 'Pembina') {
+      id = prefs.getString('gereja_id');
+    } else if (role == 'Panitia') {
+      id = await loadKelompok();
+    }
 
     if (role == 'Peserta') {
       _pages = [
@@ -45,7 +85,7 @@ class _MainScreenState extends State<MainScreen> {
         // const DaftarAcaraScreen(),
         GerejaKelompokAnggotaScreen(
           type: 'Peserta',
-          id: '1',
+          id: id,
         ), //nanti masukkan parameter gerejanya
         const MateriScreen(),
         const ProfilScreen(),
@@ -54,9 +94,9 @@ class _MainScreenState extends State<MainScreen> {
       _pages = [
         const DashboardScreen(),
         const DaftarAcaraScreen(),
-        const GerejaKelompokAnggotaScreen(
+        GerejaKelompokAnggotaScreen(
           type: 'Pembimbing Kelompok',
-          id: '1',
+          id: id,
         ), //nantt masukkan parameter kelompoknya
         const MateriScreen(),
         const ProfilScreen(),
@@ -65,9 +105,9 @@ class _MainScreenState extends State<MainScreen> {
       _pages = [
         const DashboardScreen(),
         const DaftarAcaraScreen(),
-        const GerejaKelompokAnggotaScreen(
+        GerejaKelompokAnggotaScreen(
           type: 'Pembina Gereja',
-          id: '80',
+          id: id,
         ), //nanti masukkan parameter gerejanya
         const MateriScreen(),
         const ProfilScreen(),
@@ -75,9 +115,9 @@ class _MainScreenState extends State<MainScreen> {
     } else if (role == 'Panitia') {
       _pages = [
         const DashboardScreen(),
-        const GerejaKelompokAnggotaScreen(
-          type: 'Panitia Gereja',
-          id: '80',
+        GerejaKelompokAnggotaScreen(
+          type: 'Panitia Kelompok',
+          id: id,
         ), //nanti masukkan parameter gereja pertama supaya tidak null
         const BroadcastScreen(),
         const AdminScreen(),

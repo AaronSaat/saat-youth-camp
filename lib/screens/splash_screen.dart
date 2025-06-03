@@ -39,14 +39,14 @@ class _SplashScreenState extends State<SplashScreen>
     // Posisi terakhir logo diatur di sini:
     _logoPositionAnimation = Tween<Offset>(
       begin: Offset.zero,
-      end: const Offset(0, -1.1), // <-- posisi terakhir logo
+      end: const Offset(0, -1.25), // <-- posisi terakhir logo
     ).animate(
       CurvedAnimation(parent: _logoMoveController, curve: Curves.easeInOut),
     );
     // Animasi scale down logo
     _logoScaleAnimation = Tween<double>(
       begin: 1.0,
-      end: 0.53, // scale down ke 60%
+      end: 0.55, // scale down ke 60%
     ).animate(
       CurvedAnimation(parent: _logoMoveController, curve: Curves.easeInOut),
     );
@@ -102,14 +102,7 @@ class _SplashScreenState extends State<SplashScreen>
         children: [
           FadeTransition(
             opacity: _bgFadeAnimation,
-            child: Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/splash_bg4.jpg'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
+            child: Container(color: AppColors.primary),
           ),
           Center(
             child: Column(
@@ -129,22 +122,19 @@ class _SplashScreenState extends State<SplashScreen>
                           image: AssetImage('assets/logos/story_saat.png'),
                           fit: BoxFit.cover,
                         ),
+                        // boxShadow: [
+                        //   BoxShadow(
+                        //     color: Colors.black26,
+                        //     blurRadius: 8,
+                        //     offset: const Offset(0, 8),
+                        //     blurStyle: BlurStyle.normal,
+                        //   ),
+                        // ],
                       ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
-                FadeTransition(
-                  opacity: _textFadeAnimation,
-                  child: const Text(
-                    'SYC App 2025',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ),
               ],
             ),
           ),

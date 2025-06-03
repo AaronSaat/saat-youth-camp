@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:syc/screens/detail_acara_screen.dart';
-import 'package:syc/screens/evaluasi_komitmen_form_screen.dart';
-import 'package:syc/screens/evaluasi_komitmen_review_screen.dart';
+import 'package:syc/screens/form_komitmen_screen.dart';
+import 'package:syc/screens/review_evaluasi_screen.dart';
 import 'package:syc/screens/read_more_screen.dart';
 import 'package:syc/screens/test_screen.dart';
 import 'package:syc/utils/app_colors.dart';

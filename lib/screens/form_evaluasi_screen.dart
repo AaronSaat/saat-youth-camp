@@ -7,33 +7,27 @@ import '../widgets/custom_slider.dart';
 import '../widgets/custom_text_field.dart';
 import 'review_evaluasi_screen.dart';
 import '../widgets/custom_not_found.dart';
-import 'review_komitmen_screen.dart';
 
-class EvaluasiKomitmenFormScreen extends StatefulWidget {
-  final String type;
+class FormEvaluasiScreen extends StatefulWidget {
   final String userId;
   final int acaraHariId;
 
-  const EvaluasiKomitmenFormScreen({
+  const FormEvaluasiScreen({
     super.key,
-    required this.type,
     required this.userId,
     required this.acaraHariId,
   });
 
   @override
-  State<EvaluasiKomitmenFormScreen> createState() =>
-      _EvaluasiKomitmenFormScreenState();
+  State<FormEvaluasiScreen> createState() => _FormEvaluasiScreenState();
 }
 
-class _EvaluasiKomitmenFormScreenState
-    extends State<EvaluasiKomitmenFormScreen> {
+class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
   final Map<String, bool> _checkbox_answer = {};
   final Map<String, TextEditingController> _text_answer = {};
   final Map<String, double> _slider_answer = {};
   bool isLoading = false;
   Map<String, dynamic> _acara = {};
-  List<Map<String, dynamic>> _dataKomitmen = [];
   List<Map<String, dynamic>> _dataEvaluasi = [];
   bool _isLoading = true;
 
@@ -49,13 +43,7 @@ class _EvaluasiKomitmenFormScreenState
   @override
   void initState() {
     super.initState();
-    if (widget.type == 'Evaluasi') {
-      loadEvaluasi();
-    } else if (widget.type == 'Komitmen') {
-      loadKomitmen();
-    } else {
-      _isLoading = false;
-    }
+    loadEvaluasi();
   }
 
   void loadEvaluasi() async {
@@ -81,43 +69,22 @@ class _EvaluasiKomitmenFormScreenState
     }
   }
 
-  void loadKomitmen() async {
-    setState(() => _isLoading = true);
-    try {
-      final komitmen = await ApiService.getKomitmenByDay(
-        context,
-        widget.acaraHariId,
-      );
-      setState(() {
-        _dataKomitmen =
-            (komitmen['data_komitmen'] as List<dynamic>?)
-                ?.map((e) => e as Map<String, dynamic>)
-                .toList() ??
-            [];
-        _isLoading = false;
-      });
-      await _loadSavedProgress();
-    } catch (e) {
-      setState(() => _isLoading = false);
-    }
-  }
-
   Future<void> _loadSavedProgress() async {
     final prefs = await SharedPreferences.getInstance();
-    final data = widget.type == 'Evaluasi' ? _dataEvaluasi : _dataKomitmen;
-    final typeKey = widget.type.toLowerCase();
+    final data = _dataEvaluasi;
+    final typeKey = "Evaluasi";
     for (var item in data) {
       final key = '${typeKey}_answer_${item['id']}';
-      if (item['type'] == 1) {
+      if (item['type'] == "1") {
         // Text
         final controller = TextEditingController(
           text: prefs.getString(key) ?? '',
         );
         _text_answer[item['id'].toString()] = controller;
-      } else if (item['type'] == 2) {
+      } else if (item['type'] == "2") {
         // Checkbox
         _checkbox_answer[item['id'].toString()] = prefs.getBool(key) ?? false;
-      } else if (item['type'] == 3) {
+      } else if (item['type'] == "3") {
         // Slider
         _slider_answer[item['id'].toString()] = prefs.getDouble(key) ?? 3.0;
       }
@@ -127,18 +94,18 @@ class _EvaluasiKomitmenFormScreenState
 
   Future<void> _saveProgress() async {
     final prefs = await SharedPreferences.getInstance();
-    final data = widget.type == 'Evaluasi' ? _dataEvaluasi : _dataKomitmen;
-    final typeKey = widget.type.toLowerCase();
+    final data = _dataEvaluasi;
+    final typeKey = "Evaluasi";
     List<String> savedIds = [];
     for (var item in data) {
       final idStr = item['id'].toString();
       final key = '${typeKey}_answer_$idStr';
       savedIds.add(idStr);
-      if (item['type'] == 1) {
+      if (item['type'] == "1") {
         await prefs.setString(key, _text_answer[idStr]?.text ?? '');
-      } else if (item['type'] == 2) {
+      } else if (item['type'] == "2") {
         await prefs.setBool(key, _checkbox_answer[idStr] == true);
-      } else if (item['type'] == 3) {
+      } else if (item['type'] == "3") {
         await prefs.setDouble(key, _slider_answer[idStr] ?? 3.0);
       }
     }
@@ -158,39 +125,23 @@ class _EvaluasiKomitmenFormScreenState
     await Future.delayed(const Duration(seconds: 1));
     setState(() => isLoading = false);
 
-    if (widget.type == 'Evaluasi') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder:
-              (_) => ReviewEvaluasiScreen(
-                userId: widget.userId,
-                acaraHariId: widget.acaraHariId,
-              ),
-        ),
-      );
-    } else if (widget.type == 'Komitmen') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder:
-              (_) => ReviewKomitmenScreen(
-                userId: widget.userId,
-                acaraHariId: widget.acaraHariId,
-              ),
-        ),
-      );
-    }
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder:
+    //         (_) => EvaluasiKomitmenReviewScreen(
+    //           userId: widget.userId,
+    //           acaraHariId: widget.acaraHariId,
+    //         ),
+    //   ),
+    // );
   }
 
   @override
   Widget build(BuildContext context) {
-    String titleImage =
-        widget.type == 'Evaluasi'
-            ? 'assets/texts/evaluasi.png'
-            : 'assets/texts/komitmen.png';
+    String titleImage = 'assets/texts/evaluasi.png';
 
-    final data = widget.type == 'Evaluasi' ? _dataEvaluasi : _dataKomitmen;
+    final data = _dataEvaluasi;
 
     return Scaffold(
       body: Stack(
@@ -207,10 +158,10 @@ class _EvaluasiKomitmenFormScreenState
             child:
                 _isLoading
                     ? const Center(child: CircularProgressIndicator())
-                    : (_dataKomitmen.isEmpty && _dataEvaluasi.isEmpty)
+                    : _dataEvaluasi.isEmpty
                     ? CustomNotFound(
                       text:
-                          'Data tidak ditemukan.\nSilakan kembali dan coba lagi nanti.',
+                          'Data evaluasi tidak ditemukan.\nSilakan kembali dan coba lagi nanti.',
                       textColor: Colors.white,
                       imagePath: 'assets/images/data_not_found.png',
                     )
@@ -251,6 +202,7 @@ class _EvaluasiKomitmenFormScreenState
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     ...data.map<Widget>((item) {
+                                      print(': $item');
                                       final String question =
                                           item['question'] ?? '';
                                       final String id = item['id'].toString();

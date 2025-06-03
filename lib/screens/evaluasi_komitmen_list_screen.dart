@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syc/screens/form_evaluasi_screen.dart';
 
 import '../services/api_service.dart';
 import '../utils/app_colors.dart';
-import 'evaluasi_komitmen_form_screen.dart';
-import 'evaluasi_komitmen_review_screen.dart';
+import 'form_komitmen_screen.dart';
+import 'review_evaluasi_screen.dart';
+import 'evaluasi_komitmen_view_screen.dart';
 
 class EvaluasiKomitmenListScreen extends StatefulWidget {
   final String type;
@@ -306,7 +308,7 @@ class _EvaluasiKomitmenListScreenState
                                           MaterialPageRoute(
                                             builder:
                                                 (context) =>
-                                                    EvaluasiKomitmenReviewScreen(
+                                                    EvaluasiKomitmenViewScreen(
                                                       type: type,
                                                       userId: userId,
                                                       acaraHariId: acaraHariId,
@@ -314,18 +316,33 @@ class _EvaluasiKomitmenListScreenState
                                           ),
                                         );
                                       } else {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder:
-                                                (context) =>
-                                                    EvaluasiKomitmenFormScreen(
-                                                      type: type,
-                                                      userId: userId,
-                                                      acaraHariId: acaraHariId,
-                                                    ),
-                                          ),
-                                        );
+                                        if (type == 'Evaluasi') {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      FormEvaluasiScreen(
+                                                        userId: userId,
+                                                        acaraHariId:
+                                                            acaraHariId,
+                                                      ),
+                                            ),
+                                          );
+                                        } else {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      FormKomitmenScreen(
+                                                        userId: userId,
+                                                        acaraHariId:
+                                                            acaraHariId,
+                                                      ),
+                                            ),
+                                          );
+                                        }
                                       }
                                     },
                                   ),

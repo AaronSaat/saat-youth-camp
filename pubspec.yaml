@@ -39,7 +39,6 @@ flutter_launcher_icons:
 flutter:
   assets:
     - assets/images/splash_bg4.jpg
-    - assets/images/check_your_email.jpg
     - assets/images/event.jpg
     - assets/images/event_daftar.jpg
     - assets/images/event_new_year.jpg
@@ -52,8 +51,12 @@ flutter:
     - assets/images/bible_reading.jpg
     - assets/images/book_cover.jpg
     - assets/images/background_login3.png
+    - assets/images/background_login4.jpg
     - assets/images/background_email.png
     - assets/images/background_kelompok.png
+    - assets/images/background_form.jpg
+    - assets/images/background_form.png
+    - assets/images/data_not_found.png
 
     # kelompok_gereja_all assets
     - assets/images/background_member.png
@@ -105,9 +108,12 @@ flutter:
 
     # texts
     - assets/texts/welcome_back.png
+    - assets/texts/evaluasi.png
+    - assets/texts/komitmen.png
 
     # logos
     - assets/logos/syc.png
+    - assets/logos/syc2.png
     - assets/logos/story_saat.png
     - assets/logos/stt_saat.png
 
