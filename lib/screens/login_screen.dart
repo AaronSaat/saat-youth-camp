@@ -73,6 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
         usernameController.text,
         passwordController.text,
       );
+      print('Login response: $response');
 
       if (response['success'] == true) {
         await _saveLoginData(

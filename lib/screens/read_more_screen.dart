@@ -28,18 +28,18 @@ class _ReadMoreScreenState extends State<ReadMoreScreen> {
       final response = await ApiService.getBrmToday(context);
 
       setState(() {
-        // Pastikan data-brm adalah List<Map<String, dynamic>>
-        if (response['data-brm'] is List) {
-          _dataBrm = List<Map<String, dynamic>>.from(response['data-brm']);
-        } else if (response['data-brm'] is Map<String, dynamic>) {
-          _dataBrm = [response['data-brm'] as Map<String, dynamic>];
+        // Pastikan data_brm adalah List<Map<String, dynamic>>
+        if (response['data_brm'] is List) {
+          _dataBrm = List<Map<String, dynamic>>.from(response['data_brm']);
+        } else if (response['data_brm'] is Map<String, dynamic>) {
+          _dataBrm = [response['data_brm'] as Map<String, dynamic>];
         } else {
           _dataBrm = null;
         }
 
-        // data-bible harus Map<String, dynamic>
-        if (response['data-bible'] is Map<String, dynamic>) {
-          _dataBible = response['data-bible'] as Map<String, dynamic>;
+        // data_bible harus Map<String, dynamic>
+        if (response['data_bible'] is Map<String, dynamic>) {
+          _dataBible = response['data_bible'] as Map<String, dynamic>;
         } else {
           _dataBible = null;
         }
@@ -68,7 +68,9 @@ class _ReadMoreScreenState extends State<ReadMoreScreen> {
             content: const Text('Evaluasi berhasil dikirim!'),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -80,7 +82,9 @@ class _ReadMoreScreenState extends State<ReadMoreScreen> {
             content: const Text('Evaluasi gagal dikirim!'),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -100,7 +104,9 @@ class _ReadMoreScreenState extends State<ReadMoreScreen> {
       }
 
       final title = _dataBible?['title'] ?? '';
-      final books = _dataBible?['book'] as List<dynamic>? ?? (_dataBible?['book'] != null ? [_dataBible?['book']] : []);
+      final books =
+          _dataBible?['book'] as List<dynamic>? ??
+          (_dataBible?['book'] != null ? [_dataBible?['book']] : []);
 
       return ListView(
         padding: const EdgeInsets.all(24),
@@ -123,14 +129,20 @@ class _ReadMoreScreenState extends State<ReadMoreScreen> {
             final chapterNum = chapter?['chap'] ?? '';
             final verses =
                 chapter?['verses']?['verse'] as List<dynamic>? ??
-                (chapter?['verses']?['verse'] != null ? [chapter?['verses']?['verse']] : []);
+                (chapter?['verses']?['verse'] != null
+                    ? [chapter?['verses']?['verse']]
+                    : []);
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '$bookName $bookTitle',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.primary),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 ...verses.map<Widget>((verse) {
@@ -141,16 +153,26 @@ class _ReadMoreScreenState extends State<ReadMoreScreen> {
                     padding: const EdgeInsets.only(bottom: 8),
                     child: RichText(
                       text: TextSpan(
-                        style: const TextStyle(fontSize: 16, color: Colors.black87, height: 1.5),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black87,
+                          height: 1.5,
+                        ),
                         children: [
                           TextSpan(
                             text: '$number. ',
-                            style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primary,
+                            ),
                           ),
                           if (verseTitle != null)
                             TextSpan(
                               text: '$verseTitle. ',
-                              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
                             ),
                           TextSpan(text: text),
                         ],
@@ -177,14 +199,20 @@ class _ReadMoreScreenState extends State<ReadMoreScreen> {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.asset('assets/images/bible_reading.jpg', fit: BoxFit.cover),
+                  Image.asset(
+                    'assets/images/bible_reading.jpg',
+                    fit: BoxFit.cover,
+                  ),
                   Positioned(
                     top: MediaQuery.of(context).padding.top + 12,
                     left: 16,
                     child: CircleAvatar(
                       backgroundColor: Colors.white,
                       child: IconButton(
-                        icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+                        icon: const Icon(
+                          Icons.arrow_back,
+                          color: AppColors.primary,
+                        ),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ),
@@ -202,7 +230,11 @@ class _ReadMoreScreenState extends State<ReadMoreScreen> {
                   const Text(
                     'Bacaan Alkitab',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontFamily: 'Roboto', fontSize: 24, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontFamily: 'Roboto',
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const Divider(),
                   const SizedBox(height: 16),
@@ -221,13 +253,22 @@ class _ReadMoreScreenState extends State<ReadMoreScreen> {
                         icon: const Icon(Icons.check, color: Colors.white),
                         label: const Text(
                           'Selesai Membaca',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.brown1,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 16,
+                            horizontal: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                           elevation: 5,
                         ),
                       ),

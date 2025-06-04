@@ -9,15 +9,22 @@ import 'gereja_kelompok_list_screen.dart';
 import '../widgets/custom_snackbar.dart';
 
 class GerejaKelompokAnggotaScreen extends StatefulWidget {
-  final String? type; // Panitia Gereja / Panitia Kelompok / Peserta / Pembimbing Kelompok / Pembina Gereja
+  final String?
+  type; // Panitia Gereja / Panitia Kelompok / Peserta / Pembimbing Kelompok / Pembina Gereja
   final String? id;
-  const GerejaKelompokAnggotaScreen({Key? key, required this.type, required this.id}) : super(key: key);
+  const GerejaKelompokAnggotaScreen({
+    Key? key,
+    required this.type,
+    required this.id,
+  }) : super(key: key);
 
   @override
-  State<GerejaKelompokAnggotaScreen> createState() => _GerejaKelompokAnggotaScreenState();
+  State<GerejaKelompokAnggotaScreen> createState() =>
+      _GerejaKelompokAnggotaScreenState();
 }
 
-class _GerejaKelompokAnggotaScreenState extends State<GerejaKelompokAnggotaScreen> {
+class _GerejaKelompokAnggotaScreenState
+    extends State<GerejaKelompokAnggotaScreen> {
   List<dynamic> anggota = [];
   String? nama;
   dynamic selectedUser;
@@ -86,13 +93,13 @@ class _GerejaKelompokAnggotaScreenState extends State<GerejaKelompokAnggotaScree
   IconData getRoleIcon(String role) {
     // type: Panitia Gereja / Panitia Kelompok / Peserta / Pembimbing Kelompok / Pembina Gereja
     // role: Panitia, Pembina, Peserta, etc.
-    if (gereja_atau_kelompok == 'Gereja' || role == 'Pembina') {
+    if (gereja_atau_kelompok == 'Gereja' && role == 'Pembina') {
       return Icons.church;
-    } else if (gereja_atau_kelompok == 'Gereja' || role == 'Peserta') {
+    } else if (gereja_atau_kelompok == 'Gereja' && role == 'Peserta') {
       return Icons.person_2;
-    } else if (gereja_atau_kelompok == 'Kelompok' || role == 'Pembimbing') {
+    } else if (gereja_atau_kelompok == 'Kelompok' && role == 'Pembimbing') {
       return Icons.leaderboard;
-    } else if (gereja_atau_kelompok == 'Kelompok' || role == 'Anggota') {
+    } else if (gereja_atau_kelompok == 'Kelompok' && role == 'Anggota') {
       return Icons.person;
     } else {
       return Icons.error;
@@ -106,13 +113,17 @@ class _GerejaKelompokAnggotaScreenState extends State<GerejaKelompokAnggotaScree
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: Navigator.canPop(context) ? BackButton(color: Colors.white) : null,
+        leading:
+            Navigator.canPop(context) ? BackButton(color: Colors.white) : null,
         title: Text(
-          gereja_atau_kelompok == 'Kelompok' ? 'Kelompok ${nama ?? ''}' : nama ?? 'Nama Gereja/Kelompok???',
+          gereja_atau_kelompok == 'Kelompok'
+              ? 'Kelompok ${nama ?? ''}'
+              : nama ?? 'Nama Gereja/Kelompok???',
           style: const TextStyle(color: Colors.white, fontSize: 16),
         ),
         actions:
-            (widget.type == 'Panitia Kelompok' || widget.type == 'Panitia Gereja')
+            (widget.type == 'Panitia Kelompok' ||
+                    widget.type == 'Panitia Gereja')
                 ? [
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -124,7 +135,10 @@ class _GerejaKelompokAnggotaScreenState extends State<GerejaKelompokAnggotaScree
                       selectedColor: Colors.black,
                       fillColor: Colors.white70,
                       color: Colors.white,
-                      constraints: const BoxConstraints(minHeight: 40, minWidth: 90),
+                      constraints: const BoxConstraints(
+                        minHeight: 40,
+                        minWidth: 90,
+                      ),
                       isSelected: isSelected,
                       onPressed: (int index) {
                         setState(() {
@@ -135,12 +149,21 @@ class _GerejaKelompokAnggotaScreenState extends State<GerejaKelompokAnggotaScree
                         if (index == 0) {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => GerejaKelompokListScreen(type: 'Gereja')),
+                            MaterialPageRoute(
+                              builder:
+                                  (context) =>
+                                      GerejaKelompokListScreen(type: 'Gereja'),
+                            ),
                           );
                         } else if (index == 1) {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => GerejaKelompokListScreen(type: 'Kelompok')),
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => GerejaKelompokListScreen(
+                                    type: 'Kelompok',
+                                  ),
+                            ),
                           );
                         }
                       },
@@ -156,11 +179,23 @@ class _GerejaKelompokAnggotaScreenState extends State<GerejaKelompokAnggotaScree
               ? const Center(child: CircularProgressIndicator())
               : Stack(
                 children: [
-                  Positioned.fill(child: Image.asset('assets/images/background_member2.png', fit: BoxFit.cover)),
+                  Positioned.fill(
+                    child: Image.asset(
+                      'assets/images/background_member2.png',
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      fit: BoxFit.fill,
+                    ),
+                  ),
                   // Positioned.fill(child: Image.asset('assets/images/background_member2.png', fit: BoxFit.cover)),
                   SafeArea(
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 150, left: 16, right: 16, bottom: 16),
+                      padding: const EdgeInsets.only(
+                        top: 150,
+                        left: 16,
+                        right: 16,
+                        bottom: 16,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -177,7 +212,8 @@ class _GerejaKelompokAnggotaScreenState extends State<GerejaKelompokAnggotaScree
                                           final text =
                                               gereja_atau_kelompok == 'Kelompok'
                                                   ? 'Kelompok ${nama ?? ''}'
-                                                  : nama ?? 'Nama Gereja/Kelompok???';
+                                                  : nama ??
+                                                      'Nama Gereja/Kelompok???';
                                           if (text.length > 60) {
                                             return 16.0;
                                           } else if (text.length > 30) {
@@ -208,7 +244,8 @@ class _GerejaKelompokAnggotaScreenState extends State<GerejaKelompokAnggotaScree
                                 final isSelected = selectedUser == user;
 
                                 return GestureDetector(
-                                  onTap: () => setState(() => selectedUser = user),
+                                  onTap:
+                                      () => setState(() => selectedUser = user),
                                   child: Container(
                                     width: 160,
                                     margin: const EdgeInsets.only(right: 12),
@@ -216,12 +253,18 @@ class _GerejaKelompokAnggotaScreenState extends State<GerejaKelompokAnggotaScree
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(16),
                                         side: BorderSide(
-                                          color: isSelected ? AppColors.primary : Colors.grey.shade300,
+                                          color:
+                                              isSelected
+                                                  ? AppColors.primary
+                                                  : Colors.grey.shade300,
                                           width: isSelected ? 2 : 1,
                                         ),
                                       ),
                                       elevation: isSelected ? 15 : 7,
-                                      shadowColor: isSelected ? Colors.black45 : Colors.black45,
+                                      shadowColor:
+                                          isSelected
+                                              ? Colors.black45
+                                              : Colors.black45,
                                       child: Stack(
                                         children: [
                                           // Lingkaran + Icon (tengah atas)
@@ -231,13 +274,21 @@ class _GerejaKelompokAnggotaScreenState extends State<GerejaKelompokAnggotaScree
                                             right: 0,
                                             child: Center(
                                               child: Container(
-                                                padding: const EdgeInsets.all(6),
+                                                padding: const EdgeInsets.all(
+                                                  6,
+                                                ),
                                                 decoration: BoxDecoration(
                                                   shape: BoxShape.circle,
-                                                  border: Border.all(color: AppColors.primary, width: 2),
+                                                  border: Border.all(
+                                                    color: AppColors.primary,
+                                                    width: 2,
+                                                  ),
                                                 ),
                                                 child: Icon(
-                                                  getRoleIcon(user['role'] ?? 'Jabatan???'),
+                                                  getRoleIcon(
+                                                    user['role'] ??
+                                                        'Jabatan???',
+                                                  ),
                                                   size: 50,
                                                   color: AppColors.primary,
                                                 ),
@@ -251,23 +302,41 @@ class _GerejaKelompokAnggotaScreenState extends State<GerejaKelompokAnggotaScree
                                             left: 0,
                                             right: 0,
                                             child: AnimatedContainer(
-                                              duration: Duration(milliseconds: 300),
+                                              duration: Duration(
+                                                milliseconds: 300,
+                                              ),
                                               height: isSelected ? 100 : 50,
-                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 8,
+                                                    vertical: 6,
+                                                  ),
                                               decoration: BoxDecoration(
-                                                color: isSelected ? AppColors.primary : AppColors.primary.withAlpha(40),
-                                                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+                                                color:
+                                                    isSelected
+                                                        ? AppColors.primary
+                                                        : AppColors.primary
+                                                            .withAlpha(40),
+                                                borderRadius:
+                                                    const BorderRadius.vertical(
+                                                      bottom: Radius.circular(
+                                                        16,
+                                                      ),
+                                                    ),
                                               ),
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
                                                 children: [
                                                   Text(
                                                     user['nama'] ?? '',
                                                     style: const TextStyle(
                                                       color: Colors.white,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       fontSize: 12,
                                                     ),
                                                     textAlign: TextAlign.center,
@@ -277,9 +346,15 @@ class _GerejaKelompokAnggotaScreenState extends State<GerejaKelompokAnggotaScree
                                                     Flexible(
                                                       child: Text(
                                                         user['email'] ?? '',
-                                                        style: const TextStyle(color: Colors.white, fontSize: 10),
-                                                        textAlign: TextAlign.center,
-                                                        overflow: TextOverflow.ellipsis,
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 10,
+                                                        ),
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        overflow:
+                                                            TextOverflow
+                                                                .ellipsis,
                                                       ),
                                                     ),
                                                     // Flexible(
@@ -348,7 +423,10 @@ class _GerejaKelompokAnggotaScreenState extends State<GerejaKelompokAnggotaScree
                                 child: GestureDetector(
                                   onTap: () {
                                     if (selectedUser == null) {
-                                      showCustomSnackBar(context, 'Pilih anggota terlebih dahulu!');
+                                      showCustomSnackBar(
+                                        context,
+                                        'Pilih anggota terlebih dahulu!',
+                                      );
                                       return;
                                     }
                                     setState(() => selectedTab = 'Komitmen');
@@ -356,19 +434,30 @@ class _GerejaKelompokAnggotaScreenState extends State<GerejaKelompokAnggotaScree
                                       context,
                                       MaterialPageRoute(
                                         builder:
-                                            (context) => EvaluasiKomitmenListScreen(
-                                              type: selectedTab,
-                                              userId: selectedUser['id'].toString(),
-                                            ),
+                                            (context) =>
+                                                EvaluasiKomitmenListScreen(
+                                                  type: selectedTab,
+                                                  userId:
+                                                      selectedUser['id']
+                                                          .toString(),
+                                                ),
                                       ),
                                     );
                                   },
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      color: selectedTab == 'Komitmen' ? AppColors.primary : Colors.transparent,
+                                      color:
+                                          selectedTab == 'Komitmen'
+                                              ? AppColors.primary
+                                              : Colors.transparent,
                                       borderRadius: BorderRadius.circular(24),
                                       border:
-                                          selectedTab == 'Komitmen' ? null : Border.all(color: Colors.white, width: 1),
+                                          selectedTab == 'Komitmen'
+                                              ? null
+                                              : Border.all(
+                                                color: Colors.white,
+                                                width: 1,
+                                              ),
                                     ),
                                     child: Stack(
                                       alignment: Alignment.center,
@@ -385,7 +474,11 @@ class _GerejaKelompokAnggotaScreenState extends State<GerejaKelompokAnggotaScree
                                         ),
                                         const Positioned(
                                           right: 4,
-                                          child: Icon(Icons.arrow_right_sharp, size: 24, color: Colors.white),
+                                          child: Icon(
+                                            Icons.arrow_right_sharp,
+                                            size: 24,
+                                            color: Colors.white,
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -399,7 +492,10 @@ class _GerejaKelompokAnggotaScreenState extends State<GerejaKelompokAnggotaScree
                                 child: GestureDetector(
                                   onTap: () {
                                     if (selectedUser == null) {
-                                      showCustomSnackBar(context, 'Pilih anggota terlebih dahulu!');
+                                      showCustomSnackBar(
+                                        context,
+                                        'Pilih anggota terlebih dahulu!',
+                                      );
                                       return;
                                     }
                                     setState(() => selectedTab = 'Evaluasi');
@@ -407,19 +503,30 @@ class _GerejaKelompokAnggotaScreenState extends State<GerejaKelompokAnggotaScree
                                       context,
                                       MaterialPageRoute(
                                         builder:
-                                            (context) => EvaluasiKomitmenListScreen(
-                                              type: selectedTab,
-                                              userId: selectedUser['id'].toString(),
-                                            ),
+                                            (context) =>
+                                                EvaluasiKomitmenListScreen(
+                                                  type: selectedTab,
+                                                  userId:
+                                                      selectedUser['id']
+                                                          .toString(),
+                                                ),
                                       ),
                                     );
                                   },
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      color: selectedTab == 'Evaluasi' ? AppColors.primary : Colors.transparent,
+                                      color:
+                                          selectedTab == 'Evaluasi'
+                                              ? AppColors.primary
+                                              : Colors.transparent,
                                       borderRadius: BorderRadius.circular(24),
                                       border:
-                                          selectedTab == 'Evaluasi' ? null : Border.all(color: Colors.white, width: 1),
+                                          selectedTab == 'Evaluasi'
+                                              ? null
+                                              : Border.all(
+                                                color: Colors.white,
+                                                width: 1,
+                                              ),
                                     ),
                                     child: Stack(
                                       alignment: Alignment.center,
@@ -436,7 +543,11 @@ class _GerejaKelompokAnggotaScreenState extends State<GerejaKelompokAnggotaScree
                                         ),
                                         const Positioned(
                                           right: 4,
-                                          child: Icon(Icons.arrow_right_sharp, size: 24, color: Colors.white),
+                                          child: Icon(
+                                            Icons.arrow_right_sharp,
+                                            size: 24,
+                                            color: Colors.white,
+                                          ),
                                         ),
                                       ],
                                     ),

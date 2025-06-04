@@ -12,7 +12,11 @@ class FormEvaluasiScreen extends StatefulWidget {
   final String userId;
   final int acaraHariId;
 
-  const FormEvaluasiScreen({super.key, required this.userId, required this.acaraHariId});
+  const FormEvaluasiScreen({
+    super.key,
+    required this.userId,
+    required this.acaraHariId,
+  });
 
   @override
   State<FormEvaluasiScreen> createState() => _FormEvaluasiScreenState();
@@ -45,11 +49,17 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
   void loadEvaluasi() async {
     setState(() => _isLoading = true);
     try {
-      final evaluasi = await ApiService.getEvaluasiByAcara(context, widget.acaraHariId);
+      final evaluasi = await ApiService.getEvaluasiByAcara(
+        context,
+        widget.acaraHariId,
+      );
       setState(() {
         _acara = evaluasi['acara'] ?? {};
         _dataEvaluasi =
-            (evaluasi['data_evaluasi'] as List<dynamic>?)?.map((e) => e as Map<String, dynamic>).toList() ?? [];
+            (evaluasi['data_evaluasi'] as List<dynamic>?)
+                ?.map((e) => e as Map<String, dynamic>)
+                .toList() ??
+            [];
         _isLoading = false;
       });
       print('Data Evaluasi: $_dataEvaluasi');
@@ -67,7 +77,9 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
       final key = '${typeKey}_answer_${item['id']}';
       if (item['type'] == "1") {
         // Text
-        final controller = TextEditingController(text: prefs.getString(key) ?? '');
+        final controller = TextEditingController(
+          text: prefs.getString(key) ?? '',
+        );
         _text_answer[item['id'].toString()] = controller;
       } else if (item['type'] == "2") {
         // Checkbox
@@ -115,7 +127,13 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => ReviewEvaluasiScreen(userId: widget.userId, acaraHariId: widget.acaraHariId)),
+      MaterialPageRoute(
+        builder:
+            (_) => ReviewEvaluasiScreen(
+              userId: widget.userId,
+              acaraHariId: widget.acaraHariId,
+            ),
+      ),
     );
   }
 
@@ -142,7 +160,8 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                     ? const Center(child: CircularProgressIndicator())
                     : _dataEvaluasi.isEmpty
                     ? CustomNotFound(
-                      text: 'Data evaluasi tidak ditemukan.\nSilakan kembali dan coba lagi nanti.',
+                      text:
+                          'Data evaluasi tidak ditemukan.\nSilakan kembali dan coba lagi nanti.',
                       textColor: Colors.white,
                       imagePath: 'assets/images/data_not_found.png',
                     )
@@ -152,20 +171,30 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                           backgroundColor: AppColors.brown1,
                           elevation: 0,
                           pinned: true,
-                          leading: Navigator.canPop(context) ? BackButton(color: Colors.white) : null,
+                          leading:
+                              Navigator.canPop(context)
+                                  ? BackButton(color: Colors.white)
+                                  : null,
                           expandedHeight: 100,
                           flexibleSpace: FlexibleSpaceBar(
                             background: Center(
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 36.0),
-                                child: Image.asset(titleImage, height: 90, fit: BoxFit.contain),
+                                child: Image.asset(
+                                  titleImage,
+                                  height: 90,
+                                  fit: BoxFit.contain,
+                                ),
                               ),
                             ),
                           ),
                         ),
                         SliverToBoxAdapter(
                           child: ConstrainedBox(
-                            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.73),
+                            constraints: BoxConstraints(
+                              maxHeight:
+                                  MediaQuery.of(context).size.height * 0.73,
+                            ),
                             child: SingleChildScrollView(
                               child: Padding(
                                 padding: const EdgeInsets.all(24),
@@ -174,19 +203,28 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                   children: [
                                     ...data.map<Widget>((item) {
                                       print(': $item');
-                                      final String question = item['question'] ?? '';
+                                      final String question =
+                                          item['question'] ?? '';
                                       final String id = item['id'].toString();
 
                                       if (item['type'] == "1") {
                                         // TextField
-                                        _text_answer.putIfAbsent(id, () => TextEditingController());
+                                        _text_answer.putIfAbsent(
+                                          id,
+                                          () => TextEditingController(),
+                                        );
                                         return Column(
                                           children: [
                                             Card(
-                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                              ),
                                               color: Colors.white,
                                               child: Padding(
-                                                padding: const EdgeInsets.all(16),
+                                                padding: const EdgeInsets.all(
+                                                  16,
+                                                ),
                                                 child: CustomTextField(
                                                   controller: _text_answer[id]!,
                                                   label: question,
@@ -196,8 +234,15 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                                   textColor: Colors.black,
                                                   fillColor: Colors.white,
                                                   suffixIcon: IconButton(
-                                                    icon: const Icon(Icons.keyboard_hide, color: Colors.black),
-                                                    onPressed: () => FocusScope.of(context).unfocus(),
+                                                    icon: const Icon(
+                                                      Icons.keyboard_hide,
+                                                      color: Colors.black,
+                                                    ),
+                                                    onPressed:
+                                                        () =>
+                                                            FocusScope.of(
+                                                              context,
+                                                            ).unfocus(),
                                                   ),
                                                 ),
                                               ),
@@ -210,47 +255,71 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                         return Column(
                                           children: [
                                             CustomCheckbox(
-                                              value: _checkbox_answer[id] == true,
+                                              value:
+                                                  _checkbox_answer[id] == true,
                                               onChanged:
                                                   (val) => setState(() {
                                                     _checkbox_answer[id] = val;
                                                   }),
                                               label: question,
                                             ),
-                                            const Divider(color: Colors.white, thickness: 1),
+                                            const Divider(
+                                              color: Colors.white,
+                                              thickness: 1,
+                                            ),
                                             const SizedBox(height: 16),
                                           ],
                                         );
                                       } else if (item['type'] == "3") {
                                         // Slider with dynamic settings
-                                        _slider_answer.putIfAbsent(id, () => 3.0);
+                                        _slider_answer.putIfAbsent(
+                                          id,
+                                          () => 3.0,
+                                        );
                                         // Get slider settings from questionType
-                                        final questionType = item['questionType'] ?? {};
+                                        final questionType =
+                                            item['questionType'] ?? {};
                                         print('TEST $questionType');
                                         final int scaleRange =
-                                            int.tryParse(questionType['scale_range']?.toString() ?? '') ?? 6;
+                                            int.tryParse(
+                                              questionType['scale_range']
+                                                      ?.toString() ??
+                                                  '',
+                                            ) ??
+                                            6;
                                         final String minValue =
-                                            questionType['min_value']?.toString().trim() ?? 'Sangat Tidak Setuju';
+                                            questionType['min_value']
+                                                ?.toString()
+                                                .trim() ??
+                                            'Sangat Tidak Setuju';
                                         final String maxValue =
-                                            questionType['max_value']?.toString().trim() ?? 'Sangat Setuju';
+                                            questionType['max_value']
+                                                ?.toString()
+                                                .trim() ??
+                                            'Sangat Setuju';
 
                                         // Build dynamic labels if available, else fallback
-                                        List<String> labels = tingkatEvaluasiLabels;
+                                        List<String> labels =
+                                            tingkatEvaluasiLabels;
                                         if (scaleRange == 6 &&
                                             minValue == 'Sangat Tidak Setuju' &&
                                             maxValue == 'Sangat Setuju') {
                                           labels = tingkatEvaluasiLabels;
                                         } else {
                                           // Generate labels: only min/max, or custom if needed
-                                          labels = List.generate(scaleRange, (i) {
+                                          labels = List.generate(scaleRange, (
+                                            i,
+                                          ) {
                                             if (i == 0) return minValue;
-                                            if (i == scaleRange - 1) return maxValue;
+                                            if (i == scaleRange - 1)
+                                              return maxValue;
                                             return '';
                                           });
                                         }
 
                                         return Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               question,
@@ -274,22 +343,36 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                             ),
                                             const SizedBox(height: 10),
                                             Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
                                                 Text(
                                                   minValue,
-                                                  style: const TextStyle(fontSize: 14, color: Colors.white),
+                                                  style: const TextStyle(
+                                                    fontSize: 14,
+                                                    color: Colors.white,
+                                                  ),
                                                 ),
                                                 Text(
                                                   maxValue,
-                                                  style: const TextStyle(fontSize: 14, color: Colors.white),
+                                                  style: const TextStyle(
+                                                    fontSize: 14,
+                                                    color: Colors.white,
+                                                  ),
                                                 ),
                                               ],
                                             ),
                                             const SizedBox(height: 10),
                                             Center(
                                               child: Text(
-                                                labels[(_slider_answer[id]!.toInt() - 1).clamp(0, labels.length - 1)],
+                                                labels[(_slider_answer[id]!
+                                                            .toInt() -
+                                                        1)
+                                                    .clamp(
+                                                      0,
+                                                      labels.length - 1,
+                                                    )],
                                                 style: const TextStyle(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.bold,
@@ -297,7 +380,10 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                                 ),
                                               ),
                                             ),
-                                            const Divider(color: Colors.white, thickness: 1),
+                                            const Divider(
+                                              color: Colors.white,
+                                              thickness: 1,
+                                            ),
                                             const SizedBox(height: 16),
                                           ],
                                         );
@@ -309,32 +395,44 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                     Column(
                                       children: [
                                         Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0,
+                                          ),
                                           child: GestureDetector(
                                             onTap: () async {
                                               await _saveProgress();
-                                              if (context.mounted) Navigator.pop(context);
+                                              if (context.mounted)
+                                                Navigator.pop(context);
                                             },
                                             child: Container(
                                               width: double.infinity,
                                               height: 50,
                                               decoration: BoxDecoration(
                                                 color: AppColors.brown1,
-                                                borderRadius: BorderRadius.circular(32),
-                                                border: Border.all(color: Colors.white, width: 2),
+                                                borderRadius:
+                                                    BorderRadius.circular(32),
+                                                border: Border.all(
+                                                  color: Colors.white,
+                                                  width: 2,
+                                                ),
                                               ),
                                               alignment: Alignment.center,
                                               child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
                                                 children: const [
-                                                  Icon(Icons.save, color: Colors.white),
+                                                  Icon(
+                                                    Icons.save,
+                                                    color: Colors.white,
+                                                  ),
                                                   SizedBox(width: 8),
                                                   Text(
                                                     'Save Progress',
                                                     style: TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 16,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                     ),
                                                   ),
                                                 ],
@@ -344,32 +442,51 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                         ),
                                         const SizedBox(height: 16),
                                         Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0,
+                                          ),
                                           child: GestureDetector(
-                                            onTap: isLoading ? null : _handleSubmit,
+                                            onTap:
+                                                isLoading
+                                                    ? null
+                                                    : _handleSubmit,
                                             child: Container(
                                               width: double.infinity,
                                               height: 50,
                                               decoration: BoxDecoration(
                                                 color: AppColors.brown1,
-                                                borderRadius: BorderRadius.circular(32),
-                                                border: Border.all(color: Colors.white, width: 2),
+                                                borderRadius:
+                                                    BorderRadius.circular(32),
+                                                border: Border.all(
+                                                  color: Colors.white,
+                                                  width: 2,
+                                                ),
                                               ),
                                               alignment: Alignment.center,
                                               child:
                                                   isLoading
-                                                      ? const CircularProgressIndicator(color: Colors.white)
+                                                      ? const CircularProgressIndicator(
+                                                        color: Colors.white,
+                                                      )
                                                       : Row(
-                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
                                                         children: const [
-                                                          Icon(Icons.arrow_forward, color: Colors.white),
+                                                          Icon(
+                                                            Icons.arrow_forward,
+                                                            color: Colors.white,
+                                                          ),
                                                           SizedBox(width: 8),
                                                           Text(
                                                             'Review Jawaban',
                                                             style: TextStyle(
-                                                              color: Colors.white,
+                                                              color:
+                                                                  Colors.white,
                                                               fontSize: 16,
-                                                              fontWeight: FontWeight.bold,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
                                                             ),
                                                           ),
                                                         ],

@@ -200,7 +200,7 @@ class _EvaluasiKomitmenFormScreenState
               'assets/images/background_form.png',
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
-              fit: BoxFit.cover,
+              fit: BoxFit.fill,
             ),
           ),
           SafeArea(

@@ -13,7 +13,11 @@ class FormKomitmenScreen extends StatefulWidget {
   final String userId;
   final int acaraHariId;
 
-  const FormKomitmenScreen({super.key, required this.userId, required this.acaraHariId});
+  const FormKomitmenScreen({
+    super.key,
+    required this.userId,
+    required this.acaraHariId,
+  });
 
   @override
   State<FormKomitmenScreen> createState() => _FormKomitmenScreenState();
@@ -36,10 +40,16 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
   void loadKomitmen() async {
     setState(() => _isLoading = true);
     try {
-      final komitmen = await ApiService.getKomitmenByDay(context, widget.acaraHariId);
+      final komitmen = await ApiService.getKomitmenByDay(
+        context,
+        widget.acaraHariId,
+      );
       setState(() {
         _dataKomitmen =
-            (komitmen['data_komitmen'] as List<dynamic>?)?.map((e) => e as Map<String, dynamic>).toList() ?? [];
+            (komitmen['data_komitmen'] as List<dynamic>?)
+                ?.map((e) => e as Map<String, dynamic>)
+                .toList() ??
+            [];
         _isLoading = false;
       });
       await _loadSavedProgress();
@@ -56,7 +66,9 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
       final key = '${typeKey}_answer_${item['id']}';
       if (item['type'] == "1") {
         // Text
-        final controller = TextEditingController(text: prefs.getString(key) ?? '');
+        final controller = TextEditingController(
+          text: prefs.getString(key) ?? '',
+        );
         _text_answer[item['id'].toString()] = controller;
       } else if (item['type'] == "2") {
         // Checkbox
@@ -98,7 +110,13 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => ReviewKomitmenScreen(userId: widget.userId, acaraHariId: widget.acaraHariId)),
+      MaterialPageRoute(
+        builder:
+            (_) => ReviewKomitmenScreen(
+              userId: widget.userId,
+              acaraHariId: widget.acaraHariId,
+            ),
+      ),
     );
   }
 
@@ -116,7 +134,7 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
               'assets/images/background_form.png',
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
-              fit: BoxFit.cover,
+              fit: BoxFit.fill,
             ),
           ),
           SafeArea(
@@ -125,7 +143,8 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                     ? const Center(child: CircularProgressIndicator())
                     : (_dataKomitmen.isEmpty)
                     ? CustomNotFound(
-                      text: 'Data komitmen tidak ditemukan.\nSilakan kembali dan coba lagi nanti.',
+                      text:
+                          'Data komitmen tidak ditemukan.\nSilakan kembali dan coba lagi nanti.',
                       textColor: Colors.white,
                       imagePath: 'assets/images/data_not_found.png',
                     )
@@ -135,20 +154,30 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                           backgroundColor: AppColors.brown1,
                           elevation: 0,
                           pinned: true,
-                          leading: Navigator.canPop(context) ? BackButton(color: Colors.white) : null,
+                          leading:
+                              Navigator.canPop(context)
+                                  ? BackButton(color: Colors.white)
+                                  : null,
                           expandedHeight: 100,
                           flexibleSpace: FlexibleSpaceBar(
                             background: Center(
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 36.0),
-                                child: Image.asset(titleImage, height: 90, fit: BoxFit.contain),
+                                child: Image.asset(
+                                  titleImage,
+                                  height: 90,
+                                  fit: BoxFit.contain,
+                                ),
                               ),
                             ),
                           ),
                         ),
                         SliverToBoxAdapter(
                           child: ConstrainedBox(
-                            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.73),
+                            constraints: BoxConstraints(
+                              maxHeight:
+                                  MediaQuery.of(context).size.height * 0.73,
+                            ),
                             child: SingleChildScrollView(
                               child: Padding(
                                 padding: const EdgeInsets.all(24),
@@ -156,19 +185,28 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     ...data.map<Widget>((item) {
-                                      final String question = item['question'] ?? '';
+                                      final String question =
+                                          item['question'] ?? '';
                                       final String id = item['id'].toString();
 
                                       if (item['type'] == "1") {
                                         // TextField
-                                        _text_answer.putIfAbsent(id, () => TextEditingController());
+                                        _text_answer.putIfAbsent(
+                                          id,
+                                          () => TextEditingController(),
+                                        );
                                         return Column(
                                           children: [
                                             Card(
-                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                              ),
                                               color: Colors.white,
                                               child: Padding(
-                                                padding: const EdgeInsets.all(16),
+                                                padding: const EdgeInsets.all(
+                                                  16,
+                                                ),
                                                 child: CustomTextField(
                                                   controller: _text_answer[id]!,
                                                   label: question,
@@ -178,8 +216,15 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                                                   textColor: Colors.black,
                                                   fillColor: Colors.white,
                                                   suffixIcon: IconButton(
-                                                    icon: const Icon(Icons.keyboard_hide, color: Colors.black),
-                                                    onPressed: () => FocusScope.of(context).unfocus(),
+                                                    icon: const Icon(
+                                                      Icons.keyboard_hide,
+                                                      color: Colors.black,
+                                                    ),
+                                                    onPressed:
+                                                        () =>
+                                                            FocusScope.of(
+                                                              context,
+                                                            ).unfocus(),
                                                   ),
                                                 ),
                                               ),
@@ -192,14 +237,18 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                                         return Column(
                                           children: [
                                             CustomCheckbox(
-                                              value: _checkbox_answer[id] == true,
+                                              value:
+                                                  _checkbox_answer[id] == true,
                                               onChanged:
                                                   (val) => setState(() {
                                                     _checkbox_answer[id] = val;
                                                   }),
                                               label: question,
                                             ),
-                                            const Divider(color: Colors.white, thickness: 1),
+                                            const Divider(
+                                              color: Colors.white,
+                                              thickness: 1,
+                                            ),
                                             const SizedBox(height: 16),
                                           ],
                                         );
@@ -211,32 +260,44 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                                     Column(
                                       children: [
                                         Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0,
+                                          ),
                                           child: GestureDetector(
                                             onTap: () async {
                                               await _saveProgress();
-                                              if (context.mounted) Navigator.pop(context);
+                                              if (context.mounted)
+                                                Navigator.pop(context);
                                             },
                                             child: Container(
                                               width: double.infinity,
                                               height: 50,
                                               decoration: BoxDecoration(
                                                 color: AppColors.brown1,
-                                                borderRadius: BorderRadius.circular(32),
-                                                border: Border.all(color: Colors.white, width: 2),
+                                                borderRadius:
+                                                    BorderRadius.circular(32),
+                                                border: Border.all(
+                                                  color: Colors.white,
+                                                  width: 2,
+                                                ),
                                               ),
                                               alignment: Alignment.center,
                                               child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
                                                 children: const [
-                                                  Icon(Icons.save, color: Colors.white),
+                                                  Icon(
+                                                    Icons.save,
+                                                    color: Colors.white,
+                                                  ),
                                                   SizedBox(width: 8),
                                                   Text(
                                                     'Save Progress',
                                                     style: TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 16,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                     ),
                                                   ),
                                                 ],
@@ -246,32 +307,51 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                                         ),
                                         const SizedBox(height: 16),
                                         Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0,
+                                          ),
                                           child: GestureDetector(
-                                            onTap: isLoading ? null : _handleSubmit,
+                                            onTap:
+                                                isLoading
+                                                    ? null
+                                                    : _handleSubmit,
                                             child: Container(
                                               width: double.infinity,
                                               height: 50,
                                               decoration: BoxDecoration(
                                                 color: AppColors.brown1,
-                                                borderRadius: BorderRadius.circular(32),
-                                                border: Border.all(color: Colors.white, width: 2),
+                                                borderRadius:
+                                                    BorderRadius.circular(32),
+                                                border: Border.all(
+                                                  color: Colors.white,
+                                                  width: 2,
+                                                ),
                                               ),
                                               alignment: Alignment.center,
                                               child:
                                                   isLoading
-                                                      ? const CircularProgressIndicator(color: Colors.white)
+                                                      ? const CircularProgressIndicator(
+                                                        color: Colors.white,
+                                                      )
                                                       : Row(
-                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
                                                         children: const [
-                                                          Icon(Icons.arrow_forward, color: Colors.white),
+                                                          Icon(
+                                                            Icons.arrow_forward,
+                                                            color: Colors.white,
+                                                          ),
                                                           SizedBox(width: 8),
                                                           Text(
                                                             'Review Jawaban',
                                                             style: TextStyle(
-                                                              color: Colors.white,
+                                                              color:
+                                                                  Colors.white,
                                                               fontSize: 16,
-                                                              fontWeight: FontWeight.bold,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
                                                             ),
                                                           ),
                                                         ],
