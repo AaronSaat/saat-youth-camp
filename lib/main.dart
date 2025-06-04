@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:syc/screens/dashboard_screen.dart';
 import 'package:syc/screens/detail_acara_screen.dart';
 import 'package:syc/screens/form_komitmen_screen.dart';
 import 'package:syc/screens/review_evaluasi_screen.dart';
@@ -23,11 +24,12 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'SYC 2024 APP',
       theme: ThemeData(
-        fontFamily: 'Roboto',
+        fontFamily: 'Geist',
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
         useMaterial3: true,
       ),
-      home: const SplashScreen(),
+      // home: const SplashScreen(),
+      home: LoginScreen(),
       // home: KomitmenScreen(userId: 2, day: 1),
       // home: EvaluasiKomitmenFormScreen(
       //   type: 'Evaluasi',

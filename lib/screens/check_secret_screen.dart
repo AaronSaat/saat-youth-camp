@@ -87,7 +87,7 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
         fit: StackFit.expand,
         children: [
           Image.asset(
-            'assets/images/background_login3.png',
+            'assets/images/background_login4.jpg',
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
             fit: BoxFit.cover,
@@ -116,35 +116,40 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                         ),
                       ),
                       const SizedBox(height: 32),
-                      Image.asset('assets/logos/syc.png', height: 100),
+                      Image.asset('assets/logos/syc2.png', height: 100),
                       const SizedBox(height: 40),
                       // Email
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: TextFormField(
-                          controller: emailController,
-                          style: const TextStyle(color: AppColors.primary),
-                          decoration: InputDecoration(
-                            hintText: 'Email',
-                            hintStyle: const TextStyle(
-                              color: AppColors.primary,
-                            ),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
-                            ),
-                            prefixIcon: SvgPicture.asset(
-                              'assets/icons/login/email.svg',
-                              width: 24,
-                              height: 24,
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.primary,
-                                BlendMode.srcIn,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(32),
+                            border: Border.all(color: Colors.brown, width: 2),
+                          ),
+                          child: TextFormField(
+                            controller: emailController,
+                            style: const TextStyle(color: AppColors.primary),
+                            decoration: InputDecoration(
+                              hintText: 'Email',
+                              hintStyle: const TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w300,
                               ),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
+                              // prefixIcon: SvgPicture.asset(
+                              //   'assets/icons/login/email.svg',
+                              //   width: 24,
+                              //   height: 24,
+                              //   colorFilter: const ColorFilter.mode(
+                              //     AppColors.primary,
+                              //     BlendMode.srcIn,
+                              //   ),
+                              // ),
                             ),
                           ),
                         ),
@@ -152,64 +157,69 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                       const SizedBox(height: 16),
 
                       // Secret Code
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: TextFormField(
-                          controller: secretCodeController,
-                          style: const TextStyle(color: AppColors.primary),
-                          decoration: InputDecoration(
-                            hintText: 'Kode Rahasia',
-                            hintStyle: const TextStyle(
-                              color: AppColors.primary,
-                            ),
-                            border: const UnderlineInputBorder(),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
-                            ),
-                            prefixIcon: SvgPicture.asset(
-                              'assets/icons/login/secret_code.svg',
-                              width: 24,
-                              height: 24,
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.primary,
-                                BlendMode.srcIn,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(32),
+                            border: Border.all(color: Colors.brown, width: 2),
+                          ),
+                          child: TextFormField(
+                            controller: secretCodeController,
+                            style: const TextStyle(color: AppColors.primary),
+                            decoration: InputDecoration(
+                              hintText: 'Kode Rahasia',
+                              hintStyle: const TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w300,
                               ),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
+                              // prefixIcon: SvgPicture.asset(
+                              //   'assets/icons/login/secret_code.svg',
+                              //   width: 24,
+                              //   height: 24,
+                              //   colorFilter: const ColorFilter.mode(
+                              //     AppColors.primary,
+                              //     BlendMode.srcIn,
+                              //   ),
+                              // ),
                             ),
                           ),
                         ),
                       ),
                       const SizedBox(height: 32),
                       // Login Button
-                      GestureDetector(
-                        onTap: isLoading ? null : _checkSecret,
-                        child: Container(
-                          width: double.infinity,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            image: const DecorationImage(
-                              image: AssetImage('assets/buttons/button1.png'),
-                              fit: BoxFit.cover,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: GestureDetector(
+                          onTap: isLoading ? null : _checkSecret,
+                          child: Container(
+                            width: double.infinity,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: AppColors.brown1,
+                              borderRadius: BorderRadius.circular(32),
                             ),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          alignment: Alignment.center,
-                          child:
-                              isLoading
-                                  ? const CircularProgressIndicator(
-                                    color: Colors.white,
-                                  )
-                                  : const Text(
-                                    'Check Secret',
-                                    style: TextStyle(
+                            alignment: Alignment.center,
+                            child:
+                                isLoading
+                                    ? const CircularProgressIndicator(
                                       color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
+                                    )
+                                    : const Text(
+                                      'Check Secret',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
-                                  ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -222,7 +232,7 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                             style: TextStyle(
                               fontWeight: FontWeight.w300,
                               fontSize: 16,
-                              color: Colors.white,
+                              color: AppColors.primary,
                             ),
                           ),
                           GestureDetector(
@@ -239,7 +249,7 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
-                                color: Colors.white,
+                                color: AppColors.primary,
                               ),
                             ),
                           ),

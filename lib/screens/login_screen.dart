@@ -69,6 +69,8 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
+      print(usernameController.text);
+      print(passwordController.text);
       final response = await ApiService.loginUser(
         usernameController.text,
         passwordController.text,
@@ -258,7 +260,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 18,
-                                        fontWeight: FontWeight.bold,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                           ),

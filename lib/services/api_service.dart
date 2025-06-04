@@ -18,15 +18,27 @@ class ApiService {
     String username,
     String password,
   ) async {
+    print('Attempting to login with username: $username');
     final url = Uri.parse('${baseurl}check-user');
+    print('Login URL: $url');
+
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: json.encode({'username': username, 'password': password}),
     );
-
-    print('Login URL: $url');
-    print('Login Response: ${response.statusCode} - ${response.body}');
+    // http.Response response;
+    // try {
+    //   response = await http.post(
+    //     url,
+    //     headers: {'Content-Type': 'application/json'},
+    //     body: json.encode({'username': username, 'password': password}),
+    //   );
+    // } catch (e) {
+    //   print('Login request error: $e');
+    //   throw Exception('Failed to connect to the server');
+    // }
+    print('Login response status: ${response.statusCode}');
 
     if (response.statusCode == 200) {
       return json.decode(response.body);
