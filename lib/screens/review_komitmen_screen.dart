@@ -3,16 +3,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/utils/app_colors.dart';
 
 import '../services/api_service.dart';
+import '../widgets/custom_checkbox_card.dart';
+import '../widgets/custom_text_card.dart';
+import 'evaluasi_komitmen_success_screen.dart';
 
 class ReviewKomitmenScreen extends StatefulWidget {
   final String userId;
   final int acaraHariId;
 
-  const ReviewKomitmenScreen({
-    super.key,
-    required this.userId,
-    required this.acaraHariId,
-  });
+  const ReviewKomitmenScreen({super.key, required this.userId, required this.acaraHariId});
 
   @override
   State<ReviewKomitmenScreen> createState() => _ReviewKomitmenScreenState();
@@ -34,16 +33,10 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
   void loadKomitmen() async {
     setState(() => _isLoading = true);
     try {
-      final komitmen = await ApiService.getKomitmenByDay(
-        context,
-        widget.acaraHariId,
-      );
+      final komitmen = await ApiService.getKomitmenByDay(context, widget.acaraHariId);
       setState(() {
         _dataKomitmen =
-            (komitmen['data_komitmen'] as List<dynamic>?)
-                ?.map((e) => e as Map<String, dynamic>)
-                .toList() ??
-            [];
+            (komitmen['data_komitmen'] as List<dynamic>?)?.map((e) => e as Map<String, dynamic>).toList() ?? [];
         _isLoading = false;
       });
       await _loadSavedProgress();
@@ -76,19 +69,12 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
     // Siapkan list jawaban
     List<Map<String, dynamic>> komitmenAnswer = [];
     for (var id in _localAnswerIds) {
-      final item = _dataKomitmen.firstWhere(
-        (e) => e['id'].toString() == id.toString(),
-        orElse: () => {},
-      );
+      final item = _dataKomitmen.firstWhere((e) => e['id'].toString() == id.toString(), orElse: () => {});
       if (item.isEmpty) continue;
       final type = item['type']?.toString();
       final answer = _localAnswers[id];
       if (type == "1") {
-        komitmenAnswer.add({
-          "komitmen_question_id": int.tryParse(id) ?? id,
-          "user_id": userId,
-          "answer": answer ?? '',
-        });
+        komitmenAnswer.add({"komitmen_question_id": int.tryParse(id) ?? id, "user_id": userId, "answer": answer ?? ''});
       } else if (type == "2") {
         komitmenAnswer.add({
           "komitmen_question_id": int.tryParse(id) ?? id,
@@ -101,17 +87,22 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
     // Kirim ke API
     try {
       await ApiService.postKomitmenAnswer(context, komitmenAnswer);
-      // Sukses, bisa tampilkan snackbar atau navigasi
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Jawaban berhasil dikirim!')),
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder:
+                (context) => EvaluasiKomitmenSuccessScreen(userId: widget.userId, type: 'Komitmen', isSuccess: true),
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Gagal mengirim jawaban: $e')));
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder:
+                (context) => EvaluasiKomitmenSuccessScreen(userId: widget.userId, type: 'Komitmen', isSuccess: false),
+          ),
+        );
       }
     }
     setState(() => _isLoading = false);
@@ -131,9 +122,7 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
       ),
       body:
           _isLoading
-              ? Center(
-                child: CircularProgressIndicator(color: AppColors.brown1),
-              )
+              ? Center(child: CircularProgressIndicator(color: AppColors.brown1))
               : SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -144,19 +133,12 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
                       width: double.infinity,
                       child: Card(
                         color: AppColors.brown1,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Nama: ${widget.userId}',
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            ],
+                            children: [Text('Nama: ${widget.userId}', style: const TextStyle(color: Colors.white))],
                           ),
                         ),
                       ),
@@ -172,14 +154,12 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
                       final type = item['type']?.toString();
                       final answer = _localAnswers[id];
                       if (type == "1") {
-                        return _buildTextCard(
-                          question,
-                          answer?.toString() ?? '',
-                        );
+                        return CustomTextCard(text: question, value: answer?.toString() ?? '');
                       } else if (type == "2") {
-                        return _buildChecklistCard(
-                          question,
-                          answer == true ? 'Ya' : 'Tidak',
+                        return CustomCheckboxCard(
+                          text: question,
+                          value: answer == true ? 'Ya' : 'Tidak', // atau 'tidak'
+                          textStyle: TextStyle(fontSize: 18, color: Colors.white), // opsional
                         );
                       } else {
                         return const SizedBox.shrink();
@@ -195,113 +175,16 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
                             backgroundColor: AppColors.brown1,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
                           onPressed: _isLoading ? null : _handleSubmit,
-                          child: const Text(
-                            'Submit',
-                            style: TextStyle(fontSize: 16),
-                          ),
+                          child: const Text('Submit', style: TextStyle(fontSize: 16)),
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-    );
-  }
-
-  Widget _buildChecklistCard(String text, String? value) {
-    bool isYes = (value?.toLowerCase() == 'ya');
-
-    return Card(
-      color: AppColors.brown1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Text(
-                text,
-                style: const TextStyle(fontSize: 16, color: Colors.white),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Icon(
-              isYes ? Icons.check_circle : Icons.cancel,
-              color: isYes ? Colors.green : Colors.red,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSliderCard(String text, double value) {
-    return Card(
-      color: AppColors.brown1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              text,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Text(
-                  '$value dari 6',
-                  style: const TextStyle(fontSize: 16, color: Colors.white),
-                ),
-                const Spacer(),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextCard(String text, String value) {
-    return SizedBox(
-      width: double.infinity,
-      child: Card(
-        color: AppColors.brown1,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                text,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                value.isEmpty ? '(Tidak ada komentar)' : value,
-                style: const TextStyle(fontSize: 16, color: Colors.white),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
