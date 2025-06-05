@@ -21,6 +21,7 @@ dependencies:
   flutter_svg: ^2.0.7
   dropdown_button2: ^2.3.9
   dropdown_search: ^5.0.6
+  dio: ^5.2.0
 
 dev_dependencies:
   flutter_test:
@@ -57,8 +58,13 @@ flutter:
     - assets/images/background_form.jpg
     - assets/images/background_form.png
     - assets/images/data_not_found.png
+    - assets/images/answer_saved.png
     - assets/images/megaphone.png
     - assets/images/background_dashboard.jpg
+    - assets/images/background_dashboard.png
+    - assets/images/background_fade.jpg
+    - assets/images/background_anggota.jpg
+    - assets/images/background_read_more.jpg
 
     # kelompok_gereja_all assets
     - assets/images/background_member.png

@@ -1,6 +1,7 @@
 // lib/services/api_service.dart
 
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,14 +12,16 @@ import '/utils/debug_log.dart';
 import '../widgets/custom_snackbar.dart';
 
 class ApiService {
-  // static const String baseUrl = 'http://172.172.52.9:82/reg-new/api2024/';
-  static const String baseurl = 'http://172.172.52.11:8080/api-syc2025/';
+  // static const String baseurl = 'http://172.172.52.9:82/reg-new/api-syc2025/';
+  // static const String baseurl = 'http://172.172.52.11:8080/api-syc2025/';
+  static const String baseurl = 'http://172.172.52.11:8888/api-syc2025/';
 
   static Future<Map<String, dynamic>> loginUser(
     String username,
     String password,
   ) async {
     print('Attempting to login with username: $username');
+    print('Attempting to login with password: $password');
     final url = Uri.parse('${baseurl}check-user');
     print('Login URL: $url');
 
@@ -35,8 +38,8 @@ class ApiService {
     //     body: json.encode({'username': username, 'password': password}),
     //   );
     // } catch (e) {
-    //   print('Login request error: $e');
-    //   throw Exception('Failed to connect to the server');
+    //   print('Network error: $e');
+    //   throw Exception('Network error: $e');
     // }
     print('Login response status: ${response.statusCode}');
 
@@ -47,10 +50,36 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>> loginUserDio(
+    String username,
+    String password,
+  ) async {
+    final dio = Dio();
+    final url = '${baseurl}check-user';
+    print('Login URL (Dio): $url');
+    try {
+      final response = await dio.post(
+        url,
+        data: {'username': username, 'password': password},
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
+      print('Login response status (Dio): ${response.statusCode}');
+      if (response.statusCode == 200) {
+        return response.data;
+      } else {
+        throw Exception('Login failed');
+      }
+    } on DioException catch (e) {
+      print('Dio error: $e');
+      throw Exception('Network error: $e');
+    }
+  }
+
   static Future<Map<String, dynamic>> checkSecret(
     String email,
     String secretCode,
   ) async {
+    print('Checking secret for email: $email with code: $secretCode');
     final url = Uri.parse('${baseurl}check-secret');
     final response = await http.post(
       url,
@@ -58,6 +87,8 @@ class ApiService {
       body: json.encode({'email': email, 'random_id': secretCode}),
     );
 
+    print(response.statusCode);
+    print(response.body);
     if (response.statusCode == 200) {
       return json.decode(response.body);
     } else {
@@ -81,6 +112,8 @@ class ApiService {
       },
     );
 
+    print('test url: $url');
+    print('test response: ${response.statusCode} - ${response.body}');
     if (response.statusCode == 200) {
       final Map<String, dynamic> dataBacaan = json.decode(response.body);
 

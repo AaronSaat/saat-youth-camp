@@ -208,18 +208,19 @@ class _EvaluasiKomitmenListScreenState
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: BackButton(color: Colors.white),
-        title: Text(widget.type, style: const TextStyle(color: Colors.white)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: Stack(
         children: [
           Positioned.fill(
             child: Image.asset(
-              'assets/images/background_member_list.png',
+              'assets/images/background_fade.jpg',
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
-              fit: BoxFit.cover,
+              fit: BoxFit.fill,
             ),
           ),
           SafeArea(
@@ -230,13 +231,28 @@ class _EvaluasiKomitmenListScreenState
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
-                    : Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Column(
-                        children: [
-                          if (widget.type == 'Evaluasi') _buildDaySelector(),
-                          Expanded(
-                            child: ListView.builder(
+                    : SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Column(
+                              children: [
+                                Image.asset(
+                                  widget.type == 'Evaluasi'
+                                      ? 'assets/texts/evaluasi.png'
+                                      : 'assets/texts/komitmen.png',
+                                  height: 96,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            if (widget.type == 'Evaluasi') _buildDaySelector(),
+                            const SizedBox(height: 16),
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
                               itemCount:
                                   widget.type == 'Evaluasi'
                                       ? _acaraList.length
@@ -246,7 +262,6 @@ class _EvaluasiKomitmenListScreenState
                                     widget.type == 'Evaluasi'
                                         ? _acaraList
                                         : _komitmenList;
-
                                 String item;
                                 bool? status;
                                 if (widget.type == 'Evaluasi') {
@@ -260,97 +275,126 @@ class _EvaluasiKomitmenListScreenState
                                       'Komitmen Hari ${komitmen['hari'] ?? '-'}';
                                   status = _komitmenDoneList[index];
                                 }
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(32),
-                                    border: Border.all(color: Colors.white),
-                                  ),
-                                  margin: const EdgeInsets.symmetric(
-                                    vertical: 8,
-                                  ),
-                                  child: ListTile(
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 8,
-                                    ),
-                                    title: Text(
-                                      item,
-                                      style: const TextStyle(
+                                return Stack(
+                                  children: [
+                                    Container(
+                                      height: 70,
+                                      decoration: BoxDecoration(
                                         color: Colors.white,
-                                        fontSize: 16,
+                                        borderRadius: BorderRadius.circular(32),
+                                        border: Border.all(
+                                          color: AppColors.brown1,
+                                        ),
+                                      ),
+                                      margin: const EdgeInsets.symmetric(
+                                        vertical: 8,
+                                      ),
+                                      child: ListTile(
+                                        contentPadding: const EdgeInsets.only(
+                                          left: 96,
+                                          right: 8,
+                                          top: 8,
+                                          bottom: 8,
+                                        ),
+                                        title: Text(
+                                          item,
+                                          style: const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        onTap: () {
+                                          String type = widget.type;
+                                          String userId = widget.userId;
+                                          int acaraHariId;
+                                          if (type == 'Evaluasi') {
+                                            acaraHariId =
+                                                _acaraList[index]['id'];
+                                          } else {
+                                            acaraHariId =
+                                                _komitmenList[index]['hari'];
+                                          }
+                                          if (status == true) {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (context) =>
+                                                        EvaluasiKomitmenViewScreen(
+                                                          type: type,
+                                                          userId: userId,
+                                                          acaraHariId:
+                                                              acaraHariId,
+                                                        ),
+                                              ),
+                                            );
+                                          } else {
+                                            if (type == 'Evaluasi') {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (context) =>
+                                                          FormEvaluasiScreen(
+                                                            userId: userId,
+                                                            acaraHariId:
+                                                                acaraHariId,
+                                                          ),
+                                                ),
+                                              );
+                                            } else {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (context) =>
+                                                          FormKomitmenScreen(
+                                                            userId: userId,
+                                                            acaraHariId:
+                                                                acaraHariId,
+                                                          ),
+                                                ),
+                                              );
+                                            }
+                                          }
+                                        },
                                       ),
                                     ),
-                                    trailing:
-                                        status == true
-                                            ? const Icon(
-                                              Icons.check_circle,
-                                              color: Colors.green,
-                                              size: 32,
-                                            )
-                                            : const Icon(
-                                              Icons.arrow_right_sharp,
-                                              color: Colors.white,
-                                              size: 48,
-                                            ),
-                                    onTap: () {
-                                      String type = widget.type;
-                                      String userId = widget.userId;
-                                      int acaraHariId;
-                                      if (type == 'Evaluasi') {
-                                        acaraHariId = _acaraList[index]['id'];
-                                      } else {
-                                        acaraHariId =
-                                            _komitmenList[index]['hari'];
-                                      }
-                                      if (status == true) {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder:
-                                                (context) =>
-                                                    EvaluasiKomitmenViewScreen(
-                                                      type: type,
-                                                      userId: userId,
-                                                      acaraHariId: acaraHariId,
-                                                    ),
-                                          ),
-                                        );
-                                      } else {
-                                        if (type == 'Evaluasi') {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (context) =>
-                                                      FormEvaluasiScreen(
-                                                        userId: userId,
-                                                        acaraHariId:
-                                                            acaraHariId,
-                                                      ),
-                                            ),
-                                          );
-                                        } else {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (context) =>
-                                                      FormKomitmenScreen(
-                                                        userId: userId,
-                                                        acaraHariId:
-                                                            acaraHariId,
-                                                      ),
-                                            ),
-                                          );
-                                        }
-                                      }
-                                    },
-                                  ),
+                                    Positioned(
+                                      left: 0,
+                                      top: 0,
+                                      bottom: 0,
+                                      child: Center(
+                                        child:
+                                            status == true
+                                                ? CircleAvatar(
+                                                  radius: 40,
+                                                  backgroundColor:
+                                                      AppColors.brown1,
+                                                  child: const Icon(
+                                                    Icons.check,
+                                                    color: Colors.white,
+                                                    size: 64,
+                                                  ),
+                                                )
+                                                : CircleAvatar(
+                                                  radius: 40,
+                                                  backgroundColor:
+                                                      AppColors.brown1,
+                                                  child: const Icon(
+                                                    Icons.arrow_outward_rounded,
+                                                    color: Colors.white,
+                                                    size: 64,
+                                                  ),
+                                                ),
+                                      ),
+                                    ),
+                                  ],
                                 );
                               },
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
           ),

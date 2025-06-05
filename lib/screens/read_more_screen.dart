@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:syc/utils/app_colors.dart';
 
 import '../services/api_service.dart';
+import '../utils/date_formatter.dart';
+import '../widgets/custom_alert_dialog.dart';
+import '../widgets/custom_snackbar.dart';
 
 class ReadMoreScreen extends StatefulWidget {
   final String userId;
@@ -54,43 +57,49 @@ class _ReadMoreScreenState extends State<ReadMoreScreen> {
   }
 
   Future<void> _handleSubmit() async {
-    setState(() => _isLoading = true);
-    final userId = int.tryParse(widget.userId.toString()) ?? widget.userId;
-    // Ambil id dari data BRM pertama
-    final brmId = _dataBrm![0]['id'];
-    Map<String, dynamic> brmDoneRead = {"brm_id": brmId, "user_id": userId};
+    showDialog(
+      context: context,
+      builder:
+          (context) => CustomAlertDialog(
+            title: 'Konfirmasi',
+            content: 'Apakah Anda yakin sudah selesai membaca?',
+            cancelText: 'Belum',
+            confirmText: 'Ya',
+            onCancel: () => Navigator.of(context).pop(),
+            onConfirm: () async {
+              Navigator.of(context).pop();
+              setState(() => _isLoading = true);
+              final userId =
+                  int.tryParse(widget.userId.toString()) ?? widget.userId;
+              final brmId = _dataBrm![0]['id'];
+              Map<String, dynamic> brmDoneRead = {
+                "brm_id": brmId,
+                "user_id": userId,
+              };
 
-    try {
-      await ApiService.postBrmDoneRead(context, brmDoneRead);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Evaluasi berhasil dikirim!'),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            duration: const Duration(seconds: 2),
+              try {
+                await ApiService.postBrmDoneRead(context, brmDoneRead);
+                if (mounted) {
+                  Navigator.of(context).pushReplacementNamed('/doneread');
+                }
+              } catch (e) {
+                if (mounted) {
+                  showCustomSnackBar(
+                    context,
+                    'Terjadi kesalahan',
+                    isSuccess: false,
+                  );
+                }
+              }
+              setState(() => _isLoading = false);
+            },
           ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Evaluasi gagal dikirim!'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
-    }
-    setState(() => _isLoading = false);
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -109,18 +118,16 @@ class _ReadMoreScreenState extends State<ReadMoreScreen> {
           (_dataBible?['book'] != null ? [_dataBible?['book']] : []);
 
       return ListView(
-        padding: const EdgeInsets.all(24),
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontFamily: 'Roboto',
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-            ),
-            textAlign: TextAlign.center,
-          ),
+          // Text(
+          //   title,
+          //   style: const TextStyle(
+          //     fontSize: 22,
+          //     fontWeight: FontWeight.bold,
+          //     color: Colors.white,
+          //   ),
+          //   textAlign: TextAlign.center,
+          // ),
           const SizedBox(height: 16),
           ...books.map<Widget>((book) {
             final bookName = book['@attributes']?['name'] ?? '';
@@ -137,13 +144,14 @@ class _ReadMoreScreenState extends State<ReadMoreScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '$bookName $bookTitle',
+                  '$bookName $chapterNum',
                   style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
                 ),
+
                 const SizedBox(height: 8),
                 ...verses.map<Widget>((verse) {
                   final number = verse['number'] ?? '';
@@ -152,29 +160,50 @@ class _ReadMoreScreenState extends State<ReadMoreScreen> {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: RichText(
+                      textAlign: TextAlign.left,
                       text: TextSpan(
                         style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black87,
+                          color: Colors.white,
                           height: 1.5,
                         ),
                         children: [
-                          TextSpan(
-                            text: '$number. ',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                          if (verseTitle != null)
+                          if (number == "1" && verseTitle != null) ...[
                             TextSpan(
-                              text: '$verseTitle. ',
+                              text: '$verseTitle. \n\n',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black87,
+                                fontStyle: FontStyle.italic,
+                                color: Colors.white,
+                                fontSize: 18,
                               ),
                             ),
-                          TextSpan(text: text),
+
+                            TextSpan(
+                              text: '$number. ',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w400,
+                                color: Colors.white,
+                                fontSize: 10,
+                              ),
+                            ),
+                            TextSpan(
+                              text: text,
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          ] else ...[
+                            TextSpan(
+                              text: '$number. ',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w400,
+                                color: Colors.white,
+                                fontSize: 10,
+                              ),
+                            ),
+                            TextSpan(
+                              text: text,
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -189,90 +218,110 @@ class _ReadMoreScreenState extends State<ReadMoreScreen> {
     }
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            automaticallyImplyLeading: false,
-            expandedHeight: 240,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.asset(
-                    'assets/images/bible_reading.jpg',
-                    fit: BoxFit.cover,
-                  ),
-                  Positioned(
-                    top: MediaQuery.of(context).padding.top + 12,
-                    left: 16,
-                    child: CircleAvatar(
-                      backgroundColor: Colors.white,
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.arrow_back,
-                          color: AppColors.primary,
-                        ),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Set background color using a Container
+          Container(
+            decoration: const BoxDecoration(
+              color:
+                  AppColors.primary, // Set your desired background color here
             ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
+            child: SafeArea(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Text(
-                    'Bacaan Alkitab',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'Roboto',
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Divider(),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    height: 400, // adjust as needed
-                    child: buildBibleContent(),
-                  ),
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 60,
-                      child: ElevatedButton.icon(
-                        onPressed: _isLoading ? null : _handleSubmit,
-                        icon: const Icon(Icons.check, color: Colors.white),
-                        label: const Text(
-                          'Selesai Membaca',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.brown1,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 16,
-                            horizontal: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 5,
-                        ),
+                  AppBar(
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                    iconTheme: const IconThemeData(color: Colors.white),
+                    title: const Text(
+                      'Bacaan Hari Ini',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
                       ),
                     ),
+                    automaticallyImplyLeading: true,
+                    actions: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.secondary,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(8),
+                          ),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        child: Text(
+                          _dataBrm != null && _dataBrm!.isNotEmpty
+                              ? DateFormatter.ubahTanggal(
+                                _dataBrm![0]['tanggal'],
+                              )
+                              : '',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      //             Positioned.fill(
+                      //   child: Image.asset(
+                      //     'assets/images/background_read_more.jpg',
+                      //     width: MediaQuery.of(context).size.width,
+                      //     height: MediaQuery.of(context).size.height,
+                      //     fit: BoxFit.fill,
+                      //   ),
+                      // ),
+                      Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.66,
+                              child: buildBibleContent(),
+                            ),
+                            const SizedBox(height: 16),
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.4,
+                                height: 40,
+                                child: ElevatedButton.icon(
+                                  onPressed: _isLoading ? null : _handleSubmit,
+                                  label: const Text(
+                                    'Selesai Membaca',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w300,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.brown1,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.all(12),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(24),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
