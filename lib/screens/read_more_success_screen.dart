@@ -1,19 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../utils/app_colors.dart';
-import 'evaluasi_komitmen_list_screen.dart';
 
-class EvaluasiKomitmenSuccessScreen extends StatelessWidget {
-  final String userId;
-  final String type;
-  final bool isSuccess;
-
-  const EvaluasiKomitmenSuccessScreen({
-    super.key,
-    required this.userId,
-    required this.type,
-    required this.isSuccess,
-  });
+class ReadMoreSuccessScreen extends StatelessWidget {
+  const ReadMoreSuccessScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,17 +21,15 @@ class EvaluasiKomitmenSuccessScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Image.asset(
-                      'assets/images/answer_saved.png',
+                      'assets/images/read_saved.png',
                       width: size.width * 0.6,
                       fit: BoxFit.contain,
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      isSuccess
-                          ? '$type berhasil disimpan!'
-                          : '$type gagal disimpan.',
+                      'Progress bacaan hari ini berhasil disimpan!',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 16,
                         fontWeight: FontWeight.w400,
                         color: AppColors.black1,
                       ),
@@ -50,17 +38,7 @@ class EvaluasiKomitmenSuccessScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (_) => EvaluasiKomitmenListScreen(
-                                  type: type,
-                                  userId: userId,
-                                ),
-                          ),
-                          (route) => false,
-                        );
+                        Navigator.pop(context);
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 32.0),
@@ -73,10 +51,10 @@ class EvaluasiKomitmenSuccessScreen extends StatelessWidget {
                           ),
                           alignment: Alignment.center,
                           child: const Text(
-                            'Kembali ke List',
+                            'Kembali ke Dashboard',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 16,
+                              fontSize: 14,
                               fontWeight: FontWeight.w400,
                             ),
                           ),

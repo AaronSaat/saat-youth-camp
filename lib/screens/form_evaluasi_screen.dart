@@ -147,11 +147,13 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(
-              'assets/images/background_form.png',
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              fit: BoxFit.cover,
+            child: Positioned(
+              child: Image.asset(
+                'assets/images/background_form.png',
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                fit: BoxFit.fill,
+              ),
             ),
           ),
           SafeArea(

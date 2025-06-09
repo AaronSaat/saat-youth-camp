@@ -29,11 +29,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _currentEvaluasiPage = 0;
   bool _isLoading = true;
   List<Map<String, dynamic>> _dataBrm = [];
+  Map<String, String> _dataUser = {};
 
   @override
   void initState() {
+    _isLoading = true;
     super.initState();
-    loadUsername();
+    loadUserData();
     loadBrm();
 
     _komitmenController.addListener(() {
@@ -50,20 +52,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
-  Future<void> loadUsername() async {
+  Future<void> loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
-    final email = prefs.getString('email') ?? 'No Email';
-    final role = prefs.getString('role');
+    final keys = [
+      'id',
+      'username',
+      'email',
+      'role',
+      'token',
+      'gereja_id',
+      'gereja_nama',
+      'kelompok_id',
+      'kelompok_nama',
+    ];
+    final Map<String, String> userData = {};
+    for (final key in keys) {
+      userData[key] = prefs.getString(key) ?? '';
+    }
+    if (!mounted) return;
     setState(() {
-      _email = email;
-      isPanitia = (role == 'Panitia');
+      _dataUser = userData;
     });
   }
 
   Future<void> loadBrm() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
     try {
       final brm = await ApiService.getBrmToday(context);
+      if (!mounted) return;
       setState(() {
         final dataBrm = brm['data_brm'];
         if (dataBrm != null && dataBrm is Map<String, dynamic>) {
@@ -75,18 +92,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
     }
   }
 
   void _navigateToKomitmen(BuildContext context) {
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(builder: (_) => const EvaluasiKomitmenFormScreen()),
-    // );
-  }
-
-  void _navigateToEvaluasi(BuildContext context) {
     // Navigator.push(
     //   context,
     //   MaterialPageRoute(builder: (_) => const EvaluasiKomitmenFormScreen()),
@@ -102,12 +113,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final userId = _dataUser['id'] ?? '-';
+    final email = _dataUser['email'] ?? '-';
+    final username = _dataUser['username'] ?? '-';
+
     final data = _dataBrm;
     print('Data BRM Test: $data');
     return Scaffold(
       body: Stack(
         children: [
-          Positioned.fill(
+          Positioned(
             child: Image.asset(
               'assets/images/background_dashboard.png',
               width: MediaQuery.of(context).size.width,
@@ -140,22 +155,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Image.asset('assets/texts/hello.png', height: 72),
-                              Text(
-                                _email,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
+                          Image.asset('assets/texts/hello.png', height: 72),
                         ],
                       ),
                     ),
@@ -207,9 +210,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     context,
                                     MaterialPageRoute(
                                       builder:
-                                          (context) => const ReadMoreScreen(
-                                            userId: '80',
-                                          ),
+                                          (context) =>
+                                              ReadMoreScreen(userId: userId),
                                     ),
                                   );
                                 },
@@ -511,12 +513,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
                         Positioned(
-                          bottom: -45,
-                          right: -15,
+                          bottom: -15,
+                          right: -12,
                           child: Image.asset(
                             'assets/images/megaphone.png',
-                            width: 220,
-                            height: 220,
+                            width: 180,
+                            height: 180,
                             fit: BoxFit.contain,
                           ),
                         ),

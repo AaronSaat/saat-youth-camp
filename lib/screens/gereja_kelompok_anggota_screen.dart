@@ -37,7 +37,6 @@ class _GerejaKelompokAnggotaScreenState
   @override
   void initState() {
     super.initState();
-    // loadUserData();
     if (widget.type == 'Peserta') {
       isSelected = [false, true];
       loadAnggotaKelompok(widget.id);
@@ -54,52 +53,58 @@ class _GerejaKelompokAnggotaScreenState
       isSelected = [true, false];
       loadAnggotaGereja(widget.id);
     }
-    // set current user email untuk 'anda'
   }
 
   Future<void> loadAnggotaGereja(gerejaId) async {
+    setState(() {
+      _isLoading = true;
+    });
     try {
       final response = await ApiService.getAnggotaGereja(context, gerejaId);
       setState(() {
         gereja_atau_kelompok = 'Gereja';
         nama = response['nama_gereja'];
         anggota = response['data_anggota_gereja'];
+        _isLoading = false;
       });
+      print('Gereja atau kelompok?: $gereja_atau_kelompok');
     } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
       print('Gagal mengambil data gereja: $e');
     }
   }
 
   Future<void> loadAnggotaKelompok(kelompokId) async {
+    setState(() {
+      _isLoading = true;
+    });
     try {
       final response = await ApiService.getAnggotaKelompok(context, kelompokId);
       setState(() {
         gereja_atau_kelompok = 'Kelompok';
         nama = response['nama_kelompok'];
         anggota = response['data_anggota_kelompok'];
+        _isLoading = false;
       });
     } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
       print('Gagal mengambil data kelompok: $e');
     }
   }
 
-  // Future<void> loadUserData() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   setState(() {
-  //     currentEmail = prefs.getString('email');
-  //   });
-  // }
-
   IconData getRoleIcon(String role) {
-    // type: Panitia Gereja / Panitia Kelompok / Peserta / Pembimbing Kelompok / Pembina Gereja
-    // role: Panitia, Pembina, Peserta, etc.
-    if (gereja_atau_kelompok == 'Gereja' && role == 'Pembina') {
+    print('Role: $role, Gereja atau Kelompok: $gereja_atau_kelompok');
+    if (gereja_atau_kelompok == "Gereja" && role == "Pembina") {
       return Icons.church;
-    } else if (gereja_atau_kelompok == 'Gereja' && role == 'Peserta') {
+    } else if (gereja_atau_kelompok == "Gereja" && role == "Anggota") {
       return Icons.person_2;
-    } else if (gereja_atau_kelompok == 'Kelompok' && role == 'Pembimbing') {
+    } else if (gereja_atau_kelompok == "Kelompok" && role == "Pembimbing") {
       return Icons.leaderboard;
-    } else if (gereja_atau_kelompok == 'Kelompok' && role == 'Anggota') {
+    } else if (gereja_atau_kelompok == "Kelompok" && role == "Anggota") {
       return Icons.person;
     } else {
       return Icons.error;
@@ -114,27 +119,22 @@ class _GerejaKelompokAnggotaScreenState
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading:
-            Navigator.canPop(context) ? BackButton(color: Colors.white) : null,
-        title: Text(
-          gereja_atau_kelompok == 'Kelompok'
-              ? 'Kelompok ${nama ?? ''}'
-              : nama ?? 'Nama Gereja/Kelompok???',
-          style: const TextStyle(color: Colors.white, fontSize: 16),
-        ),
+            Navigator.canPop(context)
+                ? BackButton(color: AppColors.primary)
+                : null,
         actions:
             (widget.type == 'Panitia Kelompok' ||
                     widget.type == 'Panitia Gereja')
                 ? [
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    padding: const EdgeInsets.only(right: 16.0),
                     child: ToggleButtons(
                       borderRadius: BorderRadius.circular(32),
                       borderWidth: 1,
-                      borderColor: Colors.white54,
-                      selectedBorderColor: Colors.white,
-                      selectedColor: Colors.black,
-                      fillColor: Colors.white70,
-                      color: Colors.white,
+                      selectedBorderColor: AppColors.primary,
+                      selectedColor: Colors.white,
+                      fillColor: AppColors.primary,
+                      color: AppColors.primary,
                       constraints: const BoxConstraints(
                         minHeight: 40,
                         minWidth: 90,
@@ -173,395 +173,342 @@ class _GerejaKelompokAnggotaScreenState
                 ]
                 : null,
       ),
-
-      body:
-          anggota.isEmpty
+      body: Stack(
+        children: [
+          Positioned(
+            child: Image.asset(
+              'assets/images/background_anggota.jpg',
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              fit: BoxFit.fill,
+            ),
+          ),
+          _isLoading
               ? const Center(child: CircularProgressIndicator())
-              : Stack(
-                children: [
-                  Positioned.fill(
-                    child: Image.asset(
-                      'assets/images/background_member2.png',
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                  // Positioned.fill(child: Image.asset('assets/images/background_member2.png', fit: BoxFit.cover)),
-                  SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        top: 150,
-                        left: 16,
-                        right: 16,
-                        bottom: 16,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Center(
-                            child: Column(
-                              children: [
-                                Text(
-                                  gereja_atau_kelompok == 'Kelompok'
-                                      ? 'Kelompok ${nama ?? ''}'
-                                      : nama ?? 'Nama Gereja/Kelompok???',
-                                  style: TextStyle(
-                                    fontSize:
-                                        (() {
-                                          final text =
-                                              gereja_atau_kelompok == 'Kelompok'
-                                                  ? 'Kelompok ${nama ?? ''}'
-                                                  : nama ??
-                                                      'Nama Gereja/Kelompok???';
-                                          if (text.length > 60) {
-                                            return 16.0;
-                                          } else if (text.length > 30) {
-                                            return 24.0;
-                                          } else {
-                                            return 36.0;
-                                          }
-                                        })(),
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
+              : SafeArea(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Text(
+                          '${gereja_atau_kelompok ?? ''} ${nama ?? ''}',
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
                           ),
-                          SizedBox(height: 120),
-                          // card anggota kelompok
-                          SizedBox(
-                            height: 200,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: anggota.length,
-                              itemBuilder: (context, index) {
-                                final user = anggota[index];
-                                // final isCurrentUser =
-                                //     user['email'] == currentEmail;
-                                final isSelected = selectedUser == user;
-
-                                return GestureDetector(
-                                  onTap:
-                                      () => setState(() => selectedUser = user),
-                                  child: Container(
-                                    width: 160,
-                                    margin: const EdgeInsets.only(right: 12),
-                                    child: Card(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        side: BorderSide(
-                                          color:
-                                              isSelected
-                                                  ? AppColors.primary
-                                                  : Colors.grey.shade300,
-                                          width: isSelected ? 2 : 1,
-                                        ),
-                                      ),
-                                      elevation: isSelected ? 15 : 7,
-                                      shadowColor:
-                                          isSelected
-                                              ? Colors.black45
-                                              : Colors.black45,
-                                      child: Stack(
+                          textAlign: TextAlign.center,
+                        ),
+                        anggota.isEmpty
+                            ? const Center(child: Text('Tidak ada anggota'))
+                            : SizedBox(
+                              height: MediaQuery.of(context).size.height,
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: anggota.length,
+                                itemBuilder: (context, index) {
+                                  final user = anggota[index];
+                                  return Card(
+                                    elevation: 0,
+                                    color: Colors.grey[200],
+                                    margin: const EdgeInsets.only(
+                                      left: 16,
+                                      right: 16,
+                                      top: 16,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(24),
+                                    ),
+                                    child: SizedBox(
+                                      height: 170,
+                                      child: Row(
                                         children: [
-                                          // Lingkaran + Icon (tengah atas)
-                                          Positioned(
-                                            top: 24,
-                                            left: 0,
-                                            right: 0,
-                                            child: Center(
-                                              child: Container(
-                                                padding: const EdgeInsets.all(
-                                                  6,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  border: Border.all(
-                                                    color: AppColors.primary,
-                                                    width: 2,
+                                          Padding(
+                                            padding: const EdgeInsets.all(16.0),
+                                            child: Stack(
+                                              children: [
+                                                Container(
+                                                  height: 140,
+                                                  width: 140,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        const BorderRadius.only(
+                                                          topRight:
+                                                              Radius.circular(
+                                                                16,
+                                                              ),
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                16,
+                                                              ),
+                                                          bottomLeft:
+                                                              Radius.circular(
+                                                                16,
+                                                              ),
+                                                          bottomRight:
+                                                              Radius.circular(
+                                                                16,
+                                                              ),
+                                                        ),
                                                   ),
-                                                ),
-                                                child: Icon(
-                                                  getRoleIcon(
-                                                    user['role'] ??
-                                                        'Jabatan???',
-                                                  ),
-                                                  size: 50,
-                                                  color: AppColors.primary,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-
-                                          // Info pribadi (tengah bawah)
-                                          Positioned(
-                                            bottom: 0,
-                                            left: 0,
-                                            right: 0,
-                                            child: AnimatedContainer(
-                                              duration: Duration(
-                                                milliseconds: 300,
-                                              ),
-                                              height: isSelected ? 100 : 50,
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 8,
-                                                    vertical: 6,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    isSelected
-                                                        ? AppColors.primary
-                                                        : AppColors.primary
-                                                            .withAlpha(40),
-                                                borderRadius:
-                                                    const BorderRadius.vertical(
-                                                      bottom: Radius.circular(
-                                                        16,
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Icon(
+                                                        getRoleIcon(
+                                                          user['role'] ?? '',
+                                                        ),
+                                                        color:
+                                                            AppColors.primary,
+                                                        size: 48,
                                                       ),
-                                                    ),
-                                              ),
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  Text(
-                                                    user['nama'] ?? '',
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 12,
-                                                    ),
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                  if (isSelected) ...[
-                                                    const SizedBox(height: 2),
-                                                    Flexible(
-                                                      child: Text(
-                                                        user['email'] ?? '',
+                                                      Text(
+                                                        user['role'] ?? '',
                                                         style: const TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 10,
+                                                          color:
+                                                              AppColors.primary,
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.w600,
                                                         ),
                                                         textAlign:
                                                             TextAlign.center,
-                                                        overflow:
-                                                            TextOverflow
-                                                                .ellipsis,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                if ((user['gender'] == "P" ||
+                                                        user['gender'] == "L" ||
+                                                        user['gender'] ==
+                                                            null) &&
+                                                    user['role'] !=
+                                                        "Pembimbing")
+                                                  Positioned(
+                                                    top: -5,
+                                                    right: -5,
+                                                    child: Card(
+                                                      color:
+                                                          user['gender'] == "P"
+                                                              ? Colors.pink
+                                                              : user['gender'] ==
+                                                                  "L"
+                                                              ? Colors.blue
+                                                              : Colors.grey,
+                                                      shape: const RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                              bottomLeft:
+                                                                  Radius.circular(
+                                                                    16,
+                                                                  ),
+                                                            ),
+                                                      ),
+                                                      elevation: 0,
+                                                      child: SizedBox(
+                                                        width: 48,
+                                                        height: 36,
+                                                        child: Icon(
+                                                          user['gender'] == "P"
+                                                              ? Icons.female
+                                                              : user['gender'] ==
+                                                                  "L"
+                                                              ? Icons.male
+                                                              : Icons
+                                                                  .help_outline,
+                                                          color: Colors.white,
+                                                        ),
                                                       ),
                                                     ),
-                                                    // Flexible(
-                                                    //   child: Text(
-                                                    //     user['roles'] ?? '',
-                                                    //     style: const TextStyle(
-                                                    //       color: Colors.white,
-                                                    //       fontSize: 10,
-                                                    //     ),
-                                                    //     textAlign:
-                                                    //         TextAlign.center,
-                                                    //     overflow:
-                                                    //         TextOverflow
-                                                    //             .ellipsis,
-                                                    //   ),
-                                                    // ),
-                                                  ],
+                                                  ),
+                                                if (user['role'] == "Pembina" ||
+                                                    user['role'] ==
+                                                        "Pembimbing")
+                                                  Positioned(
+                                                    right: -5,
+                                                    bottom: -5,
+                                                    child: Card(
+                                                      color: Colors.yellow[700],
+                                                      shape: const RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                              topLeft:
+                                                                  Radius.circular(
+                                                                    16,
+                                                                  ),
+                                                            ),
+                                                      ),
+                                                      elevation: 0,
+                                                      child: const SizedBox(
+                                                        width: 48,
+                                                        height: 36,
+                                                        child: Icon(
+                                                          Icons.star,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 16,
+                                            ),
+                                            child: SizedBox(
+                                              width:
+                                                  MediaQuery.of(
+                                                    context,
+                                                  ).size.width *
+                                                  0.35,
+                                              height: 170,
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        user['nama'] ?? '',
+                                                        style: TextStyle(
+                                                          color:
+                                                              AppColors.primary,
+                                                          fontSize:
+                                                              (user['nama'] !=
+                                                                          null &&
+                                                                      user['nama']
+                                                                              .length >
+                                                                          15)
+                                                                  ? 14
+                                                                  : 18,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                        textAlign:
+                                                            TextAlign.left,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    children: [
+                                                      SizedBox(
+                                                        width: 210,
+                                                        height: 30,
+                                                        child: ElevatedButton(
+                                                          style: ElevatedButton.styleFrom(
+                                                            backgroundColor:
+                                                                AppColors
+                                                                    .brown1,
+                                                            shape: RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    32,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                          onPressed: () {
+                                                            Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                builder:
+                                                                    (
+                                                                      context,
+                                                                    ) => EvaluasiKomitmenListScreen(
+                                                                      type:
+                                                                          'Komitmen',
+                                                                      userId:
+                                                                          user['id']
+                                                                              .toString(),
+                                                                    ),
+                                                              ),
+                                                            );
+                                                          },
+                                                          child: const Text(
+                                                            'KOMITMEN',
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontSize: 12,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      SizedBox(height: 8),
+                                                      SizedBox(
+                                                        width: 210,
+                                                        height: 30,
+                                                        child: ElevatedButton(
+                                                          style: ElevatedButton.styleFrom(
+                                                            backgroundColor:
+                                                                AppColors
+                                                                    .brown1,
+                                                            shape: RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    32,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                          onPressed: () {
+                                                            Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                builder:
+                                                                    (
+                                                                      context,
+                                                                    ) => EvaluasiKomitmenListScreen(
+                                                                      type:
+                                                                          'Evaluasi',
+                                                                      userId:
+                                                                          user['id']
+                                                                              .toString(),
+                                                                    ),
+                                                              ),
+                                                            );
+                                                          },
+                                                          child: const Text(
+                                                            'EVALUASI',
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontSize: 12,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ],
                                               ),
                                             ),
                                           ),
-
-                                          // Label ANDA (kanan atas)
-                                          // if (isCurrentUser)
-                                          //   Positioned(
-                                          //     top: 8,
-                                          //     right: 8,
-                                          //     child: Container(
-                                          //       width: 40,
-                                          //       height: 20,
-                                          //       padding:
-                                          //           const EdgeInsets.symmetric(
-                                          //             horizontal: 6,
-                                          //             vertical: 2,
-                                          //           ),
-                                          //       decoration: BoxDecoration(
-                                          //         color: AppColors.accent,
-                                          //         borderRadius:
-                                          //             BorderRadius.circular(8),
-                                          //       ),
-                                          //       child: const Text(
-                                          //         'ANDA',
-                                          //         style: TextStyle(
-                                          //           color: Colors.white,
-                                          //           fontSize: 10,
-                                          //         ),
-                                          //       ),
-                                          //     ),
-                                          //   ),
                                         ],
                                       ),
                                     ),
-                                  ),
-                                );
-                              },
+                                  );
+                                },
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          // Scrollable content
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: 120,
-                                height: 40,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    if (selectedUser == null) {
-                                      showCustomSnackBar(
-                                        context,
-                                        'Pilih anggota terlebih dahulu!',
-                                      );
-                                      return;
-                                    }
-                                    setState(() => selectedTab = 'Komitmen');
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) =>
-                                                EvaluasiKomitmenListScreen(
-                                                  type: selectedTab,
-                                                  userId:
-                                                      selectedUser['id']
-                                                          .toString(),
-                                                ),
-                                      ),
-                                    );
-                                  },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color:
-                                          selectedTab == 'Komitmen'
-                                              ? AppColors.primary
-                                              : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(24),
-                                      border:
-                                          selectedTab == 'Komitmen'
-                                              ? null
-                                              : Border.all(
-                                                color: Colors.white,
-                                                width: 1,
-                                              ),
-                                    ),
-                                    child: Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        Center(
-                                          child: Text(
-                                            'KOMITMEN',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 10,
-                                            ),
-                                          ),
-                                        ),
-                                        const Positioned(
-                                          right: 4,
-                                          child: Icon(
-                                            Icons.arrow_right_sharp,
-                                            size: 24,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              SizedBox(
-                                width: 120,
-                                height: 40,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    if (selectedUser == null) {
-                                      showCustomSnackBar(
-                                        context,
-                                        'Pilih anggota terlebih dahulu!',
-                                      );
-                                      return;
-                                    }
-                                    setState(() => selectedTab = 'Evaluasi');
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) =>
-                                                EvaluasiKomitmenListScreen(
-                                                  type: selectedTab,
-                                                  userId:
-                                                      selectedUser['id']
-                                                          .toString(),
-                                                ),
-                                      ),
-                                    );
-                                  },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color:
-                                          selectedTab == 'Evaluasi'
-                                              ? AppColors.primary
-                                              : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(24),
-                                      border:
-                                          selectedTab == 'Evaluasi'
-                                              ? null
-                                              : Border.all(
-                                                color: Colors.white,
-                                                width: 1,
-                                              ),
-                                    ),
-                                    child: Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        Center(
-                                          child: Text(
-                                            'EVALUASI',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 10,
-                                            ),
-                                          ),
-                                        ),
-                                        const Positioned(
-                                          right: 4,
-                                          child: Icon(
-                                            Icons.arrow_right_sharp,
-                                            size: 24,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
+        ],
+      ),
     );
   }
 }

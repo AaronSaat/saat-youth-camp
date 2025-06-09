@@ -20,6 +20,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
 
   @override
   void initState() {
+    _isLoading = true;
     super.initState();
     loadAcara();
     loadCountAcara();
@@ -76,20 +77,18 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                       }
                     },
                     child: Container(
-                      height: 48,
+                      height: 36,
                       decoration: BoxDecoration(
-                        color:
-                            selected ? AppColors.primary : Colors.transparent,
+                        color: selected ? AppColors.primary : Colors.white,
                         borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: AppColors.primary, width: 2),
                       ),
                       alignment: Alignment.center,
                       child: Text(
                         'Day $d',
                         style: TextStyle(
                           color: selected ? Colors.white : AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 14,
                         ),
                       ),
                     ),
@@ -104,103 +103,157 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Daftar Acara')),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildDaySelector(),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.65,
-              child:
-                  _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : _acaraList.isEmpty
-                      ? const Center(child: Text('Tidak ada acara.'))
-                      : ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _acaraList.length,
-                        itemBuilder: (context, index) {
-                          final acara = _acaraList[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: SizedBox(
-                              child: Stack(
-                                children: [
-                                  CustomPanelShape(
-                                    // set width height
-                                    width: MediaQuery.of(context).size.width,
-                                    height:
-                                        MediaQuery.of(context).size.height *
-                                        0.2,
-                                    imageProvider:
-                                        Image.asset(
-                                          'assets/images/event.jpg',
-                                        ).image,
-                                  ),
-                                  Positioned(
-                                    left: 24,
-                                    bottom: 20,
-                                    right: 16,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          acara['acara_nama']?.toString() ?? '',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        RichText(
-                                          text: TextSpan(
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 10,
-                                            ),
-                                            text: () {
-                                              final desc =
-                                                  acara['acara_deskripsi']
-                                                      ?.toString() ??
-                                                  '';
-                                              if (desc.length > 30) {
-                                                return desc.substring(0, 30) +
-                                                    '...';
-                                              }
-                                              return desc;
-                                            }(),
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Positioned(
-                                    right:
-                                        MediaQuery.of(context).size.width * 0.1,
-                                    bottom:
-                                        MediaQuery.of(context).size.height *
-                                        0.007,
-                                    child: Text(
-                                      'Tap for More',
-                                      style: const TextStyle(
-                                        color: Color(0xFF606060),
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+      body: Stack(
+        children: [
+          Positioned(
+            child: Image.asset(
+              'assets/images/background_fade.jpg',
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              fit: BoxFit.fill,
+            ),
+          ),
+          SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.only(top: 24.0, bottom: 64),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 16),
+                      child: Column(
+                        children: [
+                          Align(
+                            alignment: Alignment.topRight,
+                            child: Container(
+                              height: 48,
+                              width: 48,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Icon(
+                                Icons.search,
+                                color: AppColors.primary,
+                                size: 32,
                               ),
                             ),
-                          );
-                        },
+                          ),
+                        ],
                       ),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Image.asset(
+                              'assets/texts/events.png',
+                              height: 72,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildDaySelector(),
+                    _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : _acaraList.isEmpty
+                        ? const Center(child: Text('Tidak ada acara.'))
+                        : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: const EdgeInsets.all(16),
+                          itemCount: _acaraList.length,
+                          itemBuilder: (context, index) {
+                            final acara = _acaraList[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: SizedBox(
+                                child: Stack(
+                                  children: [
+                                    CustomPanelShape(
+                                      width: MediaQuery.of(context).size.width,
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                          0.2,
+                                      imageProvider:
+                                          Image.asset(
+                                            'assets/images/event.jpg',
+                                          ).image,
+                                    ),
+                                    Positioned(
+                                      left: 24,
+                                      bottom: 20,
+                                      right: 16,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            acara['acara_nama']?.toString() ??
+                                                '',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          RichText(
+                                            text: TextSpan(
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 10,
+                                              ),
+                                              text: () {
+                                                final desc =
+                                                    acara['acara_deskripsi']
+                                                        ?.toString() ??
+                                                    '';
+                                                if (desc.length > 30) {
+                                                  return desc.substring(0, 30) +
+                                                      '...';
+                                                }
+                                                return desc;
+                                              }(),
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Positioned(
+                                      right:
+                                          MediaQuery.of(context).size.width *
+                                          0.1,
+                                      bottom:
+                                          MediaQuery.of(context).size.height *
+                                          0.007,
+                                      child: Text(
+                                        'Tap for More',
+                                        style: const TextStyle(
+                                          color: Color(0xFF606060),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                  ],
+                ),
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -14,7 +14,7 @@ import '../widgets/custom_snackbar.dart';
 class ApiService {
   // static const String baseurl = 'http://172.172.52.9:82/reg-new/api-syc2025/';
   // static const String baseurl = 'http://172.172.52.11:8080/api-syc2025/';
-  static const String baseurl = 'http://172.172.52.11:8888/api-syc2025/';
+  static const String baseurl = 'http://172.172.52.11:8080/api-syc2025/';
 
   static Future<Map<String, dynamic>> loginUser(
     String username,

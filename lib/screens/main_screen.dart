@@ -119,8 +119,8 @@ class _MainScreenState extends State<MainScreen> {
           type: 'Panitia Kelompok',
           id: id,
         ), //nanti masukkan parameter gereja pertama supaya tidak null
-        const BroadcastScreen(),
-        const AdminScreen(),
+        // const BroadcastScreen(),
+        // const AdminScreen(),
         const ProfilScreen(),
       ];
     }
@@ -196,14 +196,14 @@ class _MainScreenState extends State<MainScreen> {
           'Peserta',
           1,
         ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.campaign),
-          label: 'Broadcast',
-        ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.admin_panel_settings),
-          label: 'Admin',
-        ),
+        // const BottomNavigationBarItem(
+        //   icon: Icon(Icons.campaign),
+        //   label: 'Broadcast',
+        // ),
+        // const BottomNavigationBarItem(
+        //   icon: Icon(Icons.admin_panel_settings),
+        //   label: 'Admin',
+        // ),
         buildSvgNavItem('assets/icons/navigation_bar/profile.svg', 'Profil', 4),
       ];
     }

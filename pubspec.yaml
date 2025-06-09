@@ -34,7 +34,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/logos/story_saat.png" 
+  image_path: "assets/logos/appicon.png" 
   min_sdk_android: 21 
 
 flutter:
@@ -59,10 +59,12 @@ flutter:
     - assets/images/background_form.png
     - assets/images/data_not_found.png
     - assets/images/answer_saved.png
+    - assets/images/read_saved.png
     - assets/images/megaphone.png
     - assets/images/background_dashboard.jpg
     - assets/images/background_dashboard.png
-    - assets/images/background_fade.jpg
+    - assets/images/background_fade.jpg #pakai ini
+    - assets/images/background_fade.png
     - assets/images/background_anggota.jpg
     - assets/images/background_read_more.jpg
 
@@ -122,8 +124,14 @@ flutter:
     - assets/texts/evaluasi.png
     - assets/texts/komitmen.png
     - assets/texts/hello.png
+    - assets/texts/events.png
+    - assets/texts/gereja.png
+    - assets/texts/kelompok.png
+    - assets/texts/daftar_gereja.png
+    - assets/texts/daftar_kelompok.png
 
     # logos
+    - assets/logos/appicon.png
     - assets/logos/syc.png
     - assets/logos/syc2.png
     - assets/logos/story_saat.png

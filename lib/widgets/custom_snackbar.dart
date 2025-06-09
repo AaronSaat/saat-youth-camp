@@ -7,7 +7,6 @@ void showCustomSnackBar(
   String message, {
   bool isSuccess = false,
 }) {
-  final theme = Theme.of(context);
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Text(

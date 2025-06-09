@@ -5,6 +5,7 @@ import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
 import '../widgets/custom_alert_dialog.dart';
 import '../widgets/custom_snackbar.dart';
+import 'read_more_success_screen.dart';
 
 class ReadMoreScreen extends StatefulWidget {
   final String userId;
@@ -80,7 +81,11 @@ class _ReadMoreScreenState extends State<ReadMoreScreen> {
               try {
                 await ApiService.postBrmDoneRead(context, brmDoneRead);
                 if (mounted) {
-                  Navigator.of(context).pushReplacementNamed('/doneread');
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => ReadMoreSuccessScreen(),
+                    ),
+                  );
                 }
               } catch (e) {
                 if (mounted) {

@@ -129,7 +129,7 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          Positioned.fill(
+          Positioned(
             child: Image.asset(
               'assets/images/background_form.png',
               width: MediaQuery.of(context).size.width,

@@ -3,8 +3,8 @@ import 'package:syc/utils/app_colors.dart';
 
 import 'login_screen.dart';
 
-class DirectToGmailScreen extends StatelessWidget {
-  const DirectToGmailScreen({super.key});
+class CheckSecretSuccessScreen extends StatelessWidget {
+  const CheckSecretSuccessScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,16 +15,18 @@ class DirectToGmailScreen extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           // Background image
-          Image.asset(
-            'assets/images/background_email.png',
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            fit: BoxFit.cover,
+          Positioned(
+            child: Image.asset(
+              'assets/images/background_email.png',
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              fit: BoxFit.cover,
+            ),
           ),
 
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(24),
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -32,22 +34,28 @@ class DirectToGmailScreen extends StatelessWidget {
                     const Spacer(),
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const LoginScreen(),
+                          ),
+                        );
                       },
                       child: Container(
                         width: double.infinity,
-                        height: 60,
+                        height: 50,
                         decoration: BoxDecoration(
-                          image: const DecorationImage(
-                            image: AssetImage('assets/buttons/button1.png'),
-                            fit: BoxFit.cover,
-                          ),
-                          borderRadius: BorderRadius.circular(16),
+                          color: AppColors.brown1,
+                          borderRadius: BorderRadius.circular(32),
                         ),
                         alignment: Alignment.center,
                         child: const Text(
                           'Login',
-                          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),

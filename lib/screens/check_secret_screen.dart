@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
-import 'direct_to_gmail_screen.dart';
+import 'check_secret_success_screen.dart.dart';
 import '../utils/app_colors.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -37,7 +37,7 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
       if (response['success'] == true) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const DirectToGmailScreen()),
+          MaterialPageRoute(builder: (_) => const CheckSecretSuccessScreen()),
         );
       } else {
         setState(() {
@@ -59,7 +59,7 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => DirectToGmailScreen(),
+                          builder: (context) => CheckSecretSuccessScreen(),
                         ),
                       );
                     },
@@ -86,11 +86,13 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset(
-            'assets/images/background_login4.jpg',
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            fit: BoxFit.cover,
+          Positioned(
+            child: Image.asset(
+              'assets/images/background_login4.jpg',
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              fit: BoxFit.fill,
+            ),
           ),
           SafeArea(
             child: Padding(
@@ -250,6 +252,7 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                                 color: AppColors.primary,
+                                decoration: TextDecoration.underline,
                               ),
                             ),
                           ),
