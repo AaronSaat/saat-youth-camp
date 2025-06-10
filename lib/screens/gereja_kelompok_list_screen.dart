@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syc/screens/zzz_temp_codes.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:syc/utils/app_colors.dart';
 
 import '../services/api_service.dart';
@@ -25,44 +25,31 @@ class _GerejaKelompokListScreenState extends State<GerejaKelompokListScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.type == 'Gereja') {
-      loadGereja();
-    } else if (widget.type == 'Kelompok') {
-      loadKelompok();
-      _isLoading = false;
-    }
+    initAll();
   }
 
-  void loadGereja() async {
+  Future<void> initAll() async {
     setState(() {
       _isLoading = true;
     });
     try {
-      final gerejaList = await ApiService.getGereja(context);
-      setState(() {
-        _gerejaList = gerejaList ?? [];
-        _isLoading = false;
-      });
+      if (widget.type == 'Gereja') {
+        final gerejaList = await ApiService.getGereja(context);
+        if (!mounted) return;
+        setState(() {
+          _gerejaList = gerejaList;
+          _isLoading = false;
+        });
+      } else if (widget.type == 'Kelompok') {
+        final kelompokList = await ApiService.getKelompok(context);
+        if (!mounted) return;
+        setState(() {
+          _kelompokList = kelompokList;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      print('❌ Gagal memuat gereja: $e');
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  void loadKelompok() async {
-    setState(() {
-      _isLoading = true;
-    });
-    try {
-      final kelompokList = await ApiService.getKelompok(context);
-      setState(() {
-        _kelompokList = kelompokList ?? [];
-        _isLoading = false;
-      });
-    } catch (e) {
-      print('❌ Gagal memuat kelompok: $e');
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
@@ -93,36 +80,57 @@ class _GerejaKelompokListScreenState extends State<GerejaKelompokListScreen> {
               fit: BoxFit.fill,
             ),
           ),
-          _isLoading
-              ? const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: 24.0,
+                  right: 24.0,
+                  bottom: 24.0,
                 ),
-              )
-              : SafeArea(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      left: 24.0,
-                      right: 24.0,
-                      bottom: 24.0,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
                       children: [
-                        Column(
-                          children: [
-                            Image.asset(
-                              widget.type == 'Gereja'
-                                  ? 'assets/texts/daftar_gereja.png'
-                                  : 'assets/texts/daftar_kelompok.png',
-                              height: 128,
-                            ),
-                          ],
+                        Image.asset(
+                          widget.type == 'Gereja'
+                              ? 'assets/texts/daftar_gereja.png'
+                              : 'assets/texts/daftar_kelompok.png',
+                          height: 128,
                         ),
-                        // Tidak ada day selector di desain ini
-                        const SizedBox(height: 8),
-                        ListView.builder(
+                      ],
+                    ),
+                    // Tidak ada day selector di desain ini
+                    const SizedBox(height: 8),
+                    _isLoading
+                        ? buildListShimmer(context)
+                        : (widget.type == 'Gereja'
+                            ? _gerejaList.isEmpty
+                            : _kelompokList.isEmpty)
+                        ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                'assets/images/data_not_found.png',
+                                height: 100,
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                widget.type == 'Gereja'
+                                    ? "Gagal memuat daftar gereja :("
+                                    : "Gagal memuat daftar kelompok :(",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  color: AppColors.brown1,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                        : ListView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount:
@@ -178,13 +186,43 @@ class _GerejaKelompokListScreenState extends State<GerejaKelompokListScreen> {
                             }
                           },
                         ),
-                      ],
-                    ),
-                  ),
+                  ],
                 ),
               ),
+            ),
+          ),
         ],
       ),
     );
   }
+}
+
+Widget buildListShimmer(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: SizedBox(
+      height: 7 * 86.0, // 7 item x tinggi item + padding
+      child: ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 7,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Shimmer.fromColors(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                height: 70,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    ),
+  );
 }

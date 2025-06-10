@@ -42,7 +42,7 @@ class _EvaluasiKomitmenListScreenState
     super.initState();
 
     if (widget.type == 'Evaluasi') {
-      loadAcara();
+      loadEvaluasiAcara();
       loadCountAcara();
     } else if (widget.type == 'Komitmen') {
       loadKomitmen();
@@ -51,7 +51,7 @@ class _EvaluasiKomitmenListScreenState
     }
   }
 
-  void loadAcara() async {
+  void loadEvaluasiAcara() async {
     setState(() {
       _isLoading = true;
     });
@@ -175,7 +175,7 @@ class _EvaluasiKomitmenListScreenState
                   setState(() {
                     day = d;
                   });
-                  loadAcara();
+                  loadEvaluasiAcara();
                 }
               },
               child: Container(

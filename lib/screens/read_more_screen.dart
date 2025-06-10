@@ -19,20 +19,34 @@ class _ReadMoreScreenState extends State<ReadMoreScreen> {
   bool _isLoading = true;
   List<Map<String, dynamic>>? _dataBrm;
   Map<String, dynamic>? _dataBible;
+  List<dynamic> _books = [];
 
   @override
   void initState() {
     super.initState();
-    loadBrm();
+    initAll();
+  }
+
+  Future<void> initAll() async {
+    setState(() => _isLoading = true);
+    try {
+      await loadBrm();
+    } catch (e) {
+      // handle error jika perlu
+    }
+    if (!mounted) return;
+    setState(() => _isLoading = false);
   }
 
   Future<void> loadBrm() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
     try {
       final response = await ApiService.getBrmToday(context);
-
+      if (!mounted) return;
       setState(() {
-        // Pastikan data_brm adalah List<Map<String, dynamic>>
+        _dataBible = response['data_bible'] as Map<String, dynamic>?;
+        _books = parseBooks(_dataBible);
         if (response['data_brm'] is List) {
           _dataBrm = List<Map<String, dynamic>>.from(response['data_brm']);
         } else if (response['data_brm'] is Map<String, dynamic>) {
@@ -40,21 +54,27 @@ class _ReadMoreScreenState extends State<ReadMoreScreen> {
         } else {
           _dataBrm = null;
         }
-
-        // data_bible harus Map<String, dynamic>
         if (response['data_bible'] is Map<String, dynamic>) {
           _dataBible = response['data_bible'] as Map<String, dynamic>;
         } else {
           _dataBible = null;
         }
-
         _isLoading = false;
-        print('Data BRM: $_dataBrm');
-        print('Data Bible: $_dataBible');
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
     }
+  }
+
+  List<dynamic> parseBooks(Map<String, dynamic>? dataBible) {
+    if (dataBible == null) return [];
+    if (dataBible['book'] is List) {
+      return dataBible['book'] as List<dynamic>;
+    } else if (dataBible['book'] != null) {
+      return [dataBible['book']];
+    }
+    return [];
   }
 
   Future<void> _handleSubmit() async {
@@ -117,24 +137,28 @@ class _ReadMoreScreenState extends State<ReadMoreScreen> {
         return const Center(child: Text('Tidak ada data Alkitab.'));
       }
 
-      final title = _dataBible?['title'] ?? '';
-      final books =
-          _dataBible?['book'] as List<dynamic>? ??
-          (_dataBible?['book'] != null ? [_dataBible?['book']] : []);
+      // final List<dynamic> books = [];
+      // // final books = _dataBible?['book'] != null ? [_dataBible?['book']] : [];
+      // // final books = <Map<String, dynamic>>[];
+      // if (_dataBible?['book'] is List) {
+      //   // book lebih dari satu
+      //   print('Jumlah book: ${_dataBible?['book'].length}');
+      //   final books = _dataBible?['book'] as List<dynamic>? ?? [];
+      // } else if (_dataBible?['book'] != null) {
+      //   // book hanya satu
+      //   print('Book satu: ${_dataBible?['book'].length}');
+      //   final books = _dataBible?['book'] != null ? [_dataBible?['book']] : [];
+      // }
+
+      // final books =
+      //     _dataBible?['book'] as List<dynamic>? ??
+      //     (_dataBible?['book'] != null ? [_dataBible?['book']] : []);
 
       return ListView(
         children: [
-          // Text(
-          //   title,
-          //   style: const TextStyle(
-          //     fontSize: 22,
-          //     fontWeight: FontWeight.bold,
-          //     color: Colors.white,
-          //   ),
-          //   textAlign: TextAlign.center,
-          // ),
           const SizedBox(height: 16),
-          ...books.map<Widget>((book) {
+          // ...books.map<Widget>((book) {
+          ..._books.map<Widget>((book) {
             final bookName = book['@attributes']?['name'] ?? '';
             final bookTitle = book['title'] ?? '';
             final chapter = book['chapter'];

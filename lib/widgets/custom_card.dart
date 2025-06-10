@@ -14,9 +14,13 @@ class CustomCard extends StatelessWidget {
     required this.text,
     required this.icon,
     required this.onTap,
-    this.iconBackgroundColor = AppColors.brown1,
+    Color? iconBackgroundColor,
     this.showCheckIcon = false,
-  }) : super(key: key);
+  }) : iconBackgroundColor =
+           showCheckIcon
+               ? Colors.green
+               : (iconBackgroundColor ?? AppColors.brown1),
+       super(key: key);
 
   @override
   Widget build(BuildContext context) {

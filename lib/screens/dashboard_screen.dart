@@ -3,11 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
 import 'daftar_acara_screen.dart';
-import 'detail_acara_screen.dart';
-import 'form_komitmen_screen.dart';
-import 'profil_screen.dart';
-
-import '/widgets/custom_arrow_button.dart';
+import 'package:shimmer/shimmer.dart';
 
 import 'package:syc/utils/app_colors.dart';
 
@@ -23,33 +19,45 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   String _email = '';
   bool isPanitia = false;
-  ScrollController _komitmenController = ScrollController();
-  ScrollController _evaluasiController = ScrollController();
-  int _currentKomitmenPage = 0;
-  int _currentEvaluasiPage = 0;
+  ScrollController _acaraController = ScrollController();
+  int _currentAcaraPage = 0;
+  List<dynamic> _acaraList = [];
+  int day = 1;
+  int countAcara = 5;
   bool _isLoading = true;
   List<Map<String, dynamic>> _dataBrm = [];
   Map<String, String> _dataUser = {};
 
   @override
   void initState() {
-    _isLoading = true;
     super.initState();
-    loadUserData();
-    loadBrm();
+    initAll();
+    _acaraController.addListener(() {
+      double itemWidth;
+      if (countAcara <= 2) {
+        itemWidth = 40;
+      } else if (countAcara == 3) {
+        itemWidth = 120;
+      } else {
+        itemWidth = 160;
+      }
+      setState(() {
+        _currentAcaraPage = (_acaraController.offset / itemWidth).round();
+      });
+    });
+  }
 
-    _komitmenController.addListener(() {
-      double itemWidth = 160;
-      setState(() {
-        _currentKomitmenPage = (_komitmenController.offset / itemWidth).round();
-      });
-    });
-    _evaluasiController.addListener(() {
-      double itemWidth = 110;
-      setState(() {
-        _currentEvaluasiPage = (_evaluasiController.offset / itemWidth).round();
-      });
-    });
+  Future<void> initAll() async {
+    setState(() => _isLoading = true);
+    try {
+      await loadUserData();
+      await loadBrm();
+      await loadAcara();
+    } catch (e) {
+      // handle error jika perlu
+    }
+    if (!mounted) return;
+    setState(() => _isLoading = false);
   }
 
   Future<void> loadUserData() async {
@@ -88,7 +96,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         } else {
           _dataBrm = [];
         }
-        print('Data BRM: $_dataBrm');
+        // print('Data BRM: $_dataBrm');
         _isLoading = false;
       });
     } catch (e) {
@@ -97,7 +105,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  void _navigateToKomitmen(BuildContext context) {
+  Future<void> loadAcara() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final acaraList = await ApiService.getAcaraByDay(context, day);
+      if (!mounted) return;
+      setState(() {
+        _acaraList = acaraList;
+        _isLoading = false;
+        countAcara = _acaraList.length;
+        print('Acara List: \n$_acaraList');
+        print('Jumlah Acara: ${_acaraList.length}');
+      });
+    } catch (e) {
+      print('❌ Gagal memuat acara: $e');
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _navigateToDetailAcara(BuildContext context) {
     // Navigator.push(
     //   context,
     //   MaterialPageRoute(builder: (_) => const EvaluasiKomitmenFormScreen()),
@@ -106,19 +138,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   void dispose() {
-    _komitmenController.dispose();
-    _evaluasiController.dispose();
+    _acaraController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final userId = _dataUser['id'] ?? '-';
-    final email = _dataUser['email'] ?? '-';
-    final username = _dataUser['username'] ?? '-';
 
     final data = _dataBrm;
-    print('Data BRM Test: $data');
+    // print('Data BRM Test: $data');
     return Scaffold(
       body: Stack(
         children: [
@@ -171,18 +200,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _isLoading
-                              ? Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 32,
-                                  ),
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      AppColors.primary,
-                                    ),
-                                  ),
-                                ),
-                              )
+                              ? buildBrmShimmer()
                               : _dataBrm.isEmpty
                               ? Center(
                                 child: Column(
@@ -226,8 +244,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         bottom: 16,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: AppColors.primary,
+                                        color: AppColors.primary.withAlpha(70),
                                         borderRadius: BorderRadius.circular(16),
+                                        image: const DecorationImage(
+                                          image: AssetImage(
+                                            'assets/mockups/bible_reading.jpg',
+                                          ),
+                                          fit: BoxFit.cover,
+                                        ),
                                       ),
                                       child: Align(
                                         alignment: Alignment.bottomLeft,
@@ -308,104 +332,264 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                     const SizedBox(height: 24),
 
-                    // Komitmen
-                    Padding(
-                      padding: const EdgeInsets.only(left: 24),
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          color: AppColors.grey1, // abu-abu muda
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(24),
-                            bottomLeft: Radius.circular(24),
+                    // Acara Hari Ini
+                    _isLoading
+                        ? buildAcaraShimmer()
+                        : _acaraList.isEmpty
+                        ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                'assets/images/data_not_found.png',
+                                height: 100,
+                              ),
+                              const SizedBox(height: 12),
+                              const Text(
+                                "Gagal memuat data acara hari ini :(",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  color: AppColors.brown1,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 8.0),
-                                  child: Text(
-                                    'Acara Hari Ini',
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w900,
-                                      color: AppColors.brown1,
-                                    ),
-                                  ),
-                                ),
-                                const Spacer(),
-                                IconButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) =>
-                                                const DaftarAcaraScreen(),
-                                      ),
-                                    );
-                                  },
-                                  icon: const Icon(
-                                    Icons.arrow_forward_ios,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ],
+                        )
+                        : Padding(
+                          padding: const EdgeInsets.only(left: 24),
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              color: AppColors.grey1, // abu-abu muda
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(24),
+                                bottomLeft: Radius.circular(24),
+                              ),
                             ),
-                            SizedBox(
-                              height: 160,
-                              child: ListView.builder(
-                                controller: _komitmenController,
-                                scrollDirection: Axis.horizontal,
-                                itemCount: 5,
-                                itemBuilder: (context, index) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(right: 8.0),
-                                    child: GestureDetector(
-                                      onTap: () => _navigateToKomitmen(context),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Stack(
-                                          clipBehavior: Clip.none,
-                                          children: [
-                                            Container(
-                                              height: 160,
-                                              width: 160,
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius:
-                                                    const BorderRadius.only(
-                                                      bottomRight:
-                                                          Radius.circular(16),
-                                                      topLeft: Radius.circular(
-                                                        16,
-                                                      ),
-                                                      bottomLeft:
-                                                          Radius.circular(16),
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 8.0),
+                                      child: Text(
+                                        'Acara Hari Ini',
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w900,
+                                          color: AppColors.brown1,
+                                        ),
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    IconButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) =>
+                                                    const DaftarAcaraScreen(),
+                                          ),
+                                        );
+                                      },
+                                      icon: const Icon(
+                                        Icons.arrow_forward_ios,
+                                        color: AppColors.black1,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 160,
+                                  child: ListView.builder(
+                                    controller: _acaraController,
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: countAcara,
+                                    itemBuilder: (context, index) {
+                                      return Padding(
+                                        padding: const EdgeInsets.only(
+                                          right: 8.0,
+                                        ),
+                                        child: GestureDetector(
+                                          onTap:
+                                              () => _navigateToDetailAcara(
+                                                context,
+                                              ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Stack(
+                                              clipBehavior: Clip.none,
+                                              children: [
+                                                Container(
+                                                  height: 160,
+                                                  width: 160,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        const BorderRadius.only(
+                                                          bottomRight:
+                                                              Radius.circular(
+                                                                16,
+                                                              ),
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                16,
+                                                              ),
+                                                          bottomLeft:
+                                                              Radius.circular(
+                                                                16,
+                                                              ),
+                                                        ),
+                                                    image: DecorationImage(
+                                                      image: () {
+                                                        final acara =
+                                                            _acaraList[index];
+                                                        final nama =
+                                                            acara['acara_nama']
+                                                                ?.toString() ??
+                                                            '';
+                                                        if (nama ==
+                                                            'Pendaftaran Ulang dan Kedatangan') {
+                                                          return Image.asset(
+                                                            'assets/mockups/daftar.jpg',
+                                                          ).image;
+                                                        } else if (nama ==
+                                                            'Opening') {
+                                                          return Image.asset(
+                                                            'assets/mockups/opening.jpg',
+                                                          ).image;
+                                                        } else if (nama ==
+                                                            'KKR 1') {
+                                                          return Image.asset(
+                                                            'assets/mockups/kkr1.jpg',
+                                                          ).image;
+                                                        } else if (nama ==
+                                                            'KKR 2') {
+                                                          return Image.asset(
+                                                            'assets/mockups/kkr2.jpg',
+                                                          ).image;
+                                                        } else if (nama ==
+                                                            'KKR 3') {
+                                                          return Image.asset(
+                                                            'assets/mockups/kkr3.jpg',
+                                                          ).image;
+                                                        } else if (nama ==
+                                                            'Saat Teduh') {
+                                                          return Image.asset(
+                                                            'assets/mockups/saat_teduh1.jpg',
+                                                          ).image;
+                                                        } else if (nama ==
+                                                            'Drama Musikal') {
+                                                          return Image.asset(
+                                                            'assets/mockups/drama_musikal.jpg',
+                                                          ).image;
+                                                        } else if (nama ==
+                                                            'New Year Countdown') {
+                                                          return Image.asset(
+                                                            'assets/mockups/new_year.jpg',
+                                                          ).image;
+                                                        } else if (nama ==
+                                                            'Closing') {
+                                                          return Image.asset(
+                                                            'assets/mockups/closing.jpg',
+                                                          ).image;
+                                                        } else {
+                                                          return Image.asset(
+                                                            'assets/images/event.jpg',
+                                                          ).image;
+                                                        }
+                                                      }(),
+                                                      fit: BoxFit.cover,
                                                     ),
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                  'Konten ${index + 1}',
-                                                  textAlign: TextAlign.center,
-                                                  style: const TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.black,
                                                   ),
+                                                  // child: Padding(
+                                                  //   padding:
+                                                  //       const EdgeInsets.only(
+                                                  //         left: 8,
+                                                  //         right: 8,
+                                                  //         bottom: 8,
+                                                  //       ),
+                                                  //   child: Align(
+                                                  //     alignment:
+                                                  //         Alignment.bottomLeft,
+                                                  //     child: Column(
+                                                  //       crossAxisAlignment:
+                                                  //           CrossAxisAlignment
+                                                  //               .start,
+                                                  //       mainAxisAlignment:
+                                                  //           MainAxisAlignment
+                                                  //               .end,
+                                                  //       children: [
+                                                  //         Flexible(
+                                                  //           child: Text(
+                                                  //             _acaraList[index]['acara_nama'] ??
+                                                  //                 'Acara ${index + 1}???',
+                                                  //             textAlign:
+                                                  //                 TextAlign
+                                                  //                     .left,
+                                                  //             style: const TextStyle(
+                                                  //               fontSize: 18,
+                                                  //               fontWeight:
+                                                  //                   FontWeight
+                                                  //                       .w900,
+                                                  //               color:
+                                                  //                   AppColors
+                                                  //                       .primary,
+                                                  //               overflow:
+                                                  //                   TextOverflow
+                                                  //                       .ellipsis,
+                                                  //             ),
+                                                  //           ),
+                                                  //         ),
+                                                  //         Row(
+                                                  //           children: [
+                                                  //             const Icon(
+                                                  //               Icons
+                                                  //                   .location_on,
+                                                  //               color:
+                                                  //                   AppColors
+                                                  //                       .primary,
+                                                  //               size: 12,
+                                                  //             ),
+                                                  //             const SizedBox(
+                                                  //               width: 4,
+                                                  //             ),
+                                                  //             Flexible(
+                                                  //               child: Text(
+                                                  //                 _acaraList[index]['tempat'] ??
+                                                  //                     '',
+                                                  //                 style: const TextStyle(
+                                                  //                   fontSize:
+                                                  //                       14,
+                                                  //                   color:
+                                                  //                       AppColors
+                                                  //                           .primary,
+                                                  //                   fontWeight:
+                                                  //                       FontWeight
+                                                  //                           .w300,
+                                                  //                 ),
+                                                  //                 overflow:
+                                                  //                     TextOverflow
+                                                  //                         .ellipsis,
+                                                  //               ),
+                                                  //             ),
+                                                  //           ],
+                                                  //         ),
+                                                  //       ],
+                                                  //     ),
+                                                  //   ),
+                                                  // ),
                                                 ),
-                                              ),
-                                            ),
-                                            Positioned(
-                                              top: -5,
-                                              right: -5,
-                                              child: Card(
-                                                color: AppColors.secondary,
-                                                shape:
-                                                    const RoundedRectangleBorder(
+                                                // text waktu
+                                                Positioned(
+                                                  top: -5,
+                                                  right: -5,
+                                                  child: Card(
+                                                    color: AppColors.secondary,
+                                                    shape: const RoundedRectangleBorder(
                                                       borderRadius:
                                                           BorderRadius.only(
                                                             bottomLeft:
@@ -414,53 +598,199 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                                 ),
                                                           ),
                                                     ),
-                                                elevation: 0,
-                                                child: const SizedBox(
-                                                  width: 48,
-                                                  height: 36,
-                                                  child: Icon(
-                                                    Icons.star,
-                                                    color: Colors.white,
+                                                    elevation: 0,
+                                                    child: SizedBox(
+                                                      width: 72,
+                                                      height: 36,
+                                                      child: Center(
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            const Icon(
+                                                              Icons
+                                                                  .access_time_filled_rounded,
+                                                              color:
+                                                                  AppColors
+                                                                      .primary,
+                                                              size: 16,
+                                                            ),
+                                                            const SizedBox(
+                                                              width: 4,
+                                                            ),
+                                                            Text(
+                                                              _acaraList[index]['waktu'] ??
+                                                                  '',
+                                                              style: const TextStyle(
+                                                                color:
+                                                                    AppColors
+                                                                        .primary,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 12,
+                                                              ),
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
+                                                // text nama acara dan tempat
+                                                Positioned(
+                                                  bottom: -5,
+                                                  right: -5,
+                                                  left: -5,
+                                                  child: Card(
+                                                    color: Colors.white,
+                                                    shape: const RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.only(
+                                                            bottomLeft:
+                                                                Radius.circular(
+                                                                  16,
+                                                                ),
+                                                            bottomRight:
+                                                                Radius.circular(
+                                                                  16,
+                                                                ),
+                                                          ),
+                                                    ),
+                                                    elevation: 0,
+                                                    child: SizedBox(
+                                                      width: 72,
+                                                      height: 48,
+                                                      child: Center(
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets.all(
+                                                                8.0,
+                                                              ),
+                                                          child: Align(
+                                                            alignment:
+                                                                Alignment
+                                                                    .bottomLeft,
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .end,
+                                                              children: [
+                                                                Flexible(
+                                                                  child: Text(
+                                                                    _acaraList[index]['acara_nama'] ??
+                                                                        'Acara ${index + 1}???',
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .left,
+                                                                    style: const TextStyle(
+                                                                      fontSize:
+                                                                          12,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w900,
+                                                                      color:
+                                                                          AppColors
+                                                                              .primary,
+                                                                      overflow:
+                                                                          TextOverflow
+                                                                              .ellipsis,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                Row(
+                                                                  children: [
+                                                                    const Icon(
+                                                                      Icons
+                                                                          .location_on,
+                                                                      color:
+                                                                          AppColors
+                                                                              .primary,
+                                                                      size: 10,
+                                                                    ),
+                                                                    const SizedBox(
+                                                                      width: 4,
+                                                                    ),
+                                                                    Flexible(
+                                                                      child: Text(
+                                                                        _acaraList[index]['tempat'] ??
+                                                                            '',
+                                                                        style: const TextStyle(
+                                                                          fontSize:
+                                                                              10,
+                                                                          color:
+                                                                              AppColors.primary,
+                                                                          fontWeight:
+                                                                              FontWeight.w300,
+                                                                        ),
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                          ],
+                                          ),
                                         ),
-                                      ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+
+                                if (countAcara > 1)
+                                  Center(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: List.generate(countAcara, (
+                                        index,
+                                      ) {
+                                        return AnimatedContainer(
+                                          duration: const Duration(
+                                            milliseconds: 300,
+                                          ),
+                                          margin: const EdgeInsets.symmetric(
+                                            horizontal: 4,
+                                          ),
+                                          width:
+                                              _currentAcaraPage == index
+                                                  ? 16
+                                                  : 8,
+                                          height: 8,
+                                          decoration: BoxDecoration(
+                                            color:
+                                                _currentAcaraPage == index
+                                                    ? AppColors.primary
+                                                    : Colors.grey,
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                          ),
+                                        );
+                                      }),
                                     ),
-                                  );
-                                },
-                              ),
+                                  ),
+                              ],
                             ),
-                            const SizedBox(height: 16),
-                            Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: List.generate(5, (index) {
-                                  return AnimatedContainer(
-                                    duration: const Duration(milliseconds: 300),
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 4,
-                                    ),
-                                    width:
-                                        _currentKomitmenPage == index ? 12 : 8,
-                                    height: 8,
-                                    decoration: BoxDecoration(
-                                      color:
-                                          _currentKomitmenPage == index
-                                              ? AppColors.primary
-                                              : Colors.grey,
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                  );
-                                }),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
 
                     const SizedBox(height: 32),
 
@@ -534,57 +864,96 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
+}
 
-  Widget _komitmenCard(BuildContext context, String title) {
-    return GestureDetector(
-      onTap: () => _navigateToKomitmen(context),
-      child: Container(
-        width: 180,
-        decoration: BoxDecoration(
-          color: AppColors.primary.withAlpha(20),
-          borderRadius: BorderRadius.circular(16),
-        ),
+Widget buildBrmShimmer() {
+  return Shimmer.fromColors(
+    baseColor: Colors.grey[300]!,
+    highlightColor: Colors.grey[100]!,
+    period: const Duration(milliseconds: 800),
+    child: Container(
+      height: 180,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            const Icon(Icons.assignment, size: 40, color: AppColors.primary),
-            const SizedBox(height: 10),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+            Container(width: 120, height: 24, color: Colors.white),
+            const SizedBox(height: 8),
+            Container(width: 200, height: 16, color: Colors.white),
+            const SizedBox(height: 8),
+            Container(width: 80, height: 16, color: Colors.white),
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
-  Widget _buildProgressRow(String name, int current, int total) {
-    double percent = current / total;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          name,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+Widget buildAcaraShimmer() {
+  return Padding(
+    padding: const EdgeInsets.only(left: 24.0),
+    child: Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      period: const Duration(milliseconds: 800),
+      child: Container(
+        decoration: const BoxDecoration(
+          color: AppColors.grey1, // abu-abu muda
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24),
+            bottomLeft: Radius.circular(24),
           ),
         ),
-        const SizedBox(height: 4),
-        LinearProgressIndicator(
-          value: percent,
-          backgroundColor: Colors.white24,
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-          minHeight: 8,
+        padding: const EdgeInsets.all(16.0),
+        child: SizedBox(
+          height: 220,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: 3,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.only(
+                  left: 16.0,
+                  right: 16.0,
+                  top: 84.0,
+                  bottom: 8.0,
+                ),
+                child: Container(
+                  height: 100,
+                  width: 100,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.only(
+                      bottomRight: Radius.circular(16),
+                      topLeft: Radius.circular(16),
+                      bottomLeft: Radius.circular(16),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(width: 80, height: 16, color: Colors.white),
+                        const SizedBox(height: 8),
+                        Container(width: 60, height: 12, color: Colors.white),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
         ),
-        const SizedBox(height: 4),
-        Text(
-          '$current / $total',
-          style: const TextStyle(color: Colors.white70),
-        ),
-      ],
-    );
-  }
+      ),
+    ),
+  );
 }

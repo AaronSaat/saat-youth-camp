@@ -22,6 +22,7 @@ dependencies:
   dropdown_button2: ^2.3.9
   dropdown_search: ^5.0.6
   dio: ^5.2.0
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -41,15 +42,6 @@ flutter:
   assets:
     - assets/images/splash_bg4.jpg
     - assets/images/event.jpg
-    - assets/images/event_daftar.jpg
-    - assets/images/event_new_year.jpg
-    - assets/images/event_saat_teduh.jpg
-    - assets/images/event_opening.jpg
-    - assets/images/event_drama.jpg
-    - assets/images/event_closing.jpg
-    - assets/images/event_evaluasi.jpg
-    - assets/images/komitmen.jpg
-    - assets/images/bible_reading.jpg
     - assets/images/book_cover.jpg
     - assets/images/background_login3.png
     - assets/images/background_login4.jpg
@@ -140,6 +132,26 @@ flutter:
     #widgets
     - assets/images/komitmen.png
     - assets/images/komitmen2.png
+
+    #mockups
+    - assets/mockups/reading.jpg
+    - assets/mockups/bible_reading.jpg 
+    - assets/mockups/kkr1.jpg 
+    - assets/mockups/kkr2.jpg 
+    - assets/mockups/kkr3.jpg 
+    - assets/mockups/drama_musikal.jpg 
+    - assets/mockups/opening.jpg 
+    - assets/mockups/closing.jpg 
+    - assets/mockups/new_year.jpg 
+    - assets/mockups/daftar.jpg 
+    - assets/mockups/saat_teduh1.jpg 
+    - assets/mockups/saat_teduh2.jpg 
+    - assets/mockups/saat_teduh3.jpg 
+    - assets/mockups/saat_teduh4.jpg 
+    - assets/mockups/peserta.jpg 
+    - assets/mockups/pembina.jpg 
+    - assets/mockups/pembimbing.jpg 
+    - assets/mockups/panitia.jpg 
 
   fonts:
     - family: Roboto

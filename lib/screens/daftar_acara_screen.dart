@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:syc/utils/app_colors.dart';
 import 'package:syc/widgets/custom_panel_shape.dart';
 
@@ -20,35 +21,53 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
 
   @override
   void initState() {
-    _isLoading = true;
     super.initState();
-    loadAcara();
-    loadCountAcara();
+    initAll();
   }
 
-  void loadAcara() async {
+  Future<void> initAll() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      await loadCountAcara();
+      await loadAcara();
+    } catch (e) {
+      // handle error jika perlu
+    }
+    if (!mounted) return;
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Future<void> loadAcara() async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
     });
     try {
       final acaraList = await ApiService.getAcaraByDay(context, day);
+      if (!mounted) return;
       setState(() {
-        _acaraList = acaraList ?? [];
+        _acaraList = acaraList;
         _isLoading = false;
       });
     } catch (e) {
       print('❌ Gagal memuat acara: $e');
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
     }
   }
 
-  void loadCountAcara() async {
+  Future<void> loadCountAcara() async {
     try {
       final countAcara = await ApiService.getAcaraCount(context);
+      if (!mounted) return;
       setState(() {
-        _countAcara = countAcara ?? 0;
+        _countAcara = countAcara;
       });
     } catch (e) {
       print('❌ Gagal memuat acara count: $e');
@@ -160,9 +179,28 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                     const SizedBox(height: 16),
                     _buildDaySelector(),
                     _isLoading
-                        ? const Center(child: CircularProgressIndicator())
+                        ? buildAcaraShimmer(context)
                         : _acaraList.isEmpty
-                        ? const Center(child: Text('Tidak ada acara.'))
+                        ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                'assets/images/data_not_found.png',
+                                height: 100,
+                              ),
+                              const SizedBox(height: 12),
+                              const Text(
+                                "Gagal memuat daftar acara :(",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  color: AppColors.brown1,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
                         : ListView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -180,10 +218,54 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                                       height:
                                           MediaQuery.of(context).size.height *
                                           0.2,
-                                      imageProvider:
-                                          Image.asset(
+                                      imageProvider: () {
+                                        final nama =
+                                            acara['acara_nama']?.toString() ??
+                                            '';
+                                        if (nama ==
+                                            'Pendaftaran Ulang dan Kedatangan') {
+                                          return Image.asset(
+                                            'assets/mockups/daftar.jpg',
+                                          ).image;
+                                        } else if (nama == 'Opening') {
+                                          return Image.asset(
+                                            'assets/mockups/opening.jpg',
+                                          ).image;
+                                        } else if (nama == 'KKR 1') {
+                                          return Image.asset(
+                                            'assets/mockups/kkr1.jpg',
+                                          ).image;
+                                        } else if (nama == 'KKR 2') {
+                                          return Image.asset(
+                                            'assets/mockups/kkr2.jpg',
+                                          ).image;
+                                        } else if (nama == 'KKR 3') {
+                                          return Image.asset(
+                                            'assets/mockups/kkr3.jpg',
+                                          ).image;
+                                        } else if (nama == 'Saat Teduh') {
+                                          return Image.asset(
+                                            'assets/mockups/saat_teduh1.jpg',
+                                          ).image;
+                                        } else if (nama == 'Drama Musikal') {
+                                          return Image.asset(
+                                            'assets/mockups/drama_musikal.jpg',
+                                          ).image;
+                                        } else if (nama ==
+                                            'New Year Countdown') {
+                                          return Image.asset(
+                                            'assets/mockups/new_year.jpg',
+                                          ).image;
+                                        } else if (nama == 'Closing') {
+                                          return Image.asset(
+                                            'assets/mockups/closing.jpg',
+                                          ).image;
+                                        } else {
+                                          return Image.asset(
                                             'assets/images/event.jpg',
-                                          ).image,
+                                          ).image;
+                                        }
+                                      }(),
                                     ),
                                     Positioned(
                                       left: 24,
@@ -255,6 +337,81 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  // Shimmer loading untuk daftar acara
+  Widget buildAcaraShimmer(BuildContext context, {int itemCount = 3}) {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(16),
+      itemCount: itemCount,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: SizedBox(
+            child: Stack(
+              children: [
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height * 0.2,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 24,
+                  bottom: 20,
+                  right: 16,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          width: 120,
+                          height: 20,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          width: 180,
+                          height: 10,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  right: MediaQuery.of(context).size.width * 0.1,
+                  bottom: MediaQuery.of(context).size.height * 0.007,
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      width: 80,
+                      height: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

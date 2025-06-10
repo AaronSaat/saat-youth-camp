@@ -7,7 +7,8 @@ void showCustomSnackBar(
   String message, {
   bool isSuccess = false,
 }) {
-  ScaffoldMessenger.of(context).showSnackBar(
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  scaffoldMessenger.showSnackBar(
     SnackBar(
       content: Text(
         message,
@@ -25,7 +26,7 @@ void showCustomSnackBar(
         label: 'Dismiss',
         textColor: AppColors.brown1,
         onPressed: () {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          scaffoldMessenger.hideCurrentSnackBar();
         },
       ),
     ),

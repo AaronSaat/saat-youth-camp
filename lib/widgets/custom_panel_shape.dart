@@ -38,9 +38,11 @@ class _CustomPanelShapeState extends State<CustomPanelShape> {
       });
       stream.addListener(listener);
       final image = await completer.future;
-      setState(() {
-        _image = image;
-      });
+      if (mounted) {
+        setState(() {
+          _image = image;
+        });
+      }
     }
   }
 

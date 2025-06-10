@@ -34,24 +34,40 @@ class _GerejaKelompokAnggotaScreenState
   bool _isLoading = true;
   String gereja_atau_kelompok = '';
 
+  // progress
+  Map<String, List<bool>> _komitmenDoneMap = {};
+  Map<String, Map<String, int>> _komitmenSummaryMap = {};
+  Map<String, List<bool>> _evaluasiDoneMap = {};
+  Map<String, Map<String, int>> _evaluasiSummaryMap = {};
+
   @override
   void initState() {
     super.initState();
-    if (widget.type == 'Peserta') {
-      isSelected = [false, true];
-      loadAnggotaKelompok(widget.id);
-    } else if (widget.type == 'Pembimbing Kelompok') {
-      isSelected = [false, true];
-      loadAnggotaKelompok(widget.id);
-    } else if (widget.type == 'Pembina Gereja') {
-      isSelected = [true, false];
-      loadAnggotaGereja(widget.id);
-    } else if (widget.type == 'Panitia Kelompok') {
-      isSelected = [false, true];
-      loadAnggotaKelompok(widget.id);
-    } else if (widget.type == 'Panitia Gereja') {
-      isSelected = [true, false];
-      loadAnggotaGereja(widget.id);
+    _initAll();
+  }
+
+  Future<void> _initAll() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      if (widget.type == 'Peserta' ||
+          widget.type == 'Pembimbing Kelompok' ||
+          widget.type == 'Panitia Kelompok') {
+        await loadAnggotaKelompok(widget.id);
+      } else if (widget.type == 'Pembina Gereja' ||
+          widget.type == 'Panitia Gereja') {
+        await loadAnggotaGereja(widget.id);
+      }
+      await loadProgresKomitmenAnggota();
+      await loadProgresEvaluasiAnggota();
+    } catch (e) {
+      // handle error jika perlu
+    }
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -93,6 +109,93 @@ class _GerejaKelompokAnggotaScreenState
         _isLoading = false;
       });
       print('Gagal mengambil data kelompok: $e');
+    }
+  }
+
+  Future<void> loadProgresKomitmenAnggota() async {
+    try {
+      final komitmenList = await ApiService.getKomitmen(context);
+      _komitmenDoneMap = {};
+      _komitmenSummaryMap = {};
+      for (var user in anggota) {
+        final userId = user['id'].toString();
+        List<bool> progress = List.filled(komitmenList.length, false);
+        for (int i = 0; i < progress.length; i++) {
+          try {
+            final result = await ApiService.getKomitmenByPesertaByDay(
+              context,
+              userId,
+              i + 1,
+            );
+            if (result['success'] == true) {
+              progress[i] = true;
+            }
+          } catch (e) {
+            // ignore error, keep as false
+          }
+        }
+        _komitmenDoneMap[userId] = progress;
+        // Hitung jumlah true/false
+        int done = progress.where((e) => e).length;
+        int notDone = progress.length - done;
+        _komitmenSummaryMap[userId] = {'done': done, 'notDone': notDone};
+      }
+      print('Progress Komitmen Map: \n$_komitmenDoneMap');
+      print('Summary Komitmen Map: \n$_komitmenSummaryMap');
+    } catch (e) {
+      print('❌ Gagal memuat progress komitmen: $e');
+    }
+  }
+
+  Future<void> loadProgresEvaluasiAnggota() async {
+    if (!mounted) return;
+    try {
+      final acaraList = await ApiService.getAcara(context);
+      _evaluasiDoneMap = {};
+      _evaluasiSummaryMap = {};
+      for (var user in anggota) {
+        final userId = user['id'].toString();
+        List<bool> progress = List.filled(acaraList.length, false);
+        for (int i = 0; i < progress.length; i++) {
+          try {
+            final result = await ApiService.getEvaluasiByPesertaByAcara(
+              context,
+              userId,
+              i + 1,
+            );
+            if (result['success'] == true) {
+              progress[i] = true;
+            }
+          } catch (e) {
+            // ignore error, keep as false
+          }
+        }
+        _evaluasiDoneMap[userId] = progress;
+        // Hitung jumlah true/false
+        int done = progress.where((e) => e).length;
+        int notDone = progress.length - done;
+        _evaluasiSummaryMap[userId] = {'done': done, 'notDone': notDone};
+      }
+      print('Progress evaluasi Map: \n$_evaluasiDoneMap');
+      print('Summary evaluasi Map: \n$_evaluasiSummaryMap');
+    } catch (e) {
+      // Use a logging framework or handle error appropriately
+      if (!mounted) return;
+    }
+  }
+
+  String getRoleImage(String role) {
+    print('Role: $role, Gereja atau Kelompok: $gereja_atau_kelompok');
+    if (gereja_atau_kelompok == "Gereja" && role == "Pembina") {
+      return 'assets/mockups/pembina.jpg';
+    } else if (gereja_atau_kelompok == "Gereja" && role == "Anggota") {
+      return 'assets/mockups/peserta.jpg';
+    } else if (gereja_atau_kelompok == "Kelompok" && role == "Pembimbing") {
+      return 'assets/mockups/pembimbing.jpg';
+    } else if (gereja_atau_kelompok == "Kelompok" && role == "Anggota") {
+      return 'assets/mockups/peserta.jpg';
+    } else {
+      return 'assets/mockups/panitia.jpg';
     }
   }
 
@@ -192,7 +295,7 @@ class _GerejaKelompokAnggotaScreenState
                     child: Column(
                       children: [
                         Text(
-                          '${gereja_atau_kelompok ?? ''} ${nama ?? ''}',
+                          '${gereja_atau_kelompok} ${nama}',
                           style: const TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -253,35 +356,44 @@ class _GerejaKelompokAnggotaScreenState
                                                                 16,
                                                               ),
                                                         ),
-                                                  ),
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Icon(
-                                                        getRoleIcon(
+                                                    image: DecorationImage(
+                                                      image: AssetImage(
+                                                        getRoleImage(
                                                           user['role'] ?? '',
                                                         ),
-                                                        color:
-                                                            AppColors.primary,
-                                                        size: 48,
                                                       ),
-                                                      Text(
-                                                        user['role'] ?? '',
-                                                        style: const TextStyle(
-                                                          color:
-                                                              AppColors.primary,
-                                                          fontSize: 12,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                        ),
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                      ),
-                                                    ],
+                                                      fit: BoxFit.cover,
+                                                    ),
                                                   ),
                                                 ),
+                                                //   child: Column(
+                                                //     mainAxisAlignment:
+                                                //         MainAxisAlignment
+                                                //             .center,
+                                                //     children: [
+                                                //       Icon(
+                                                //         getRoleIcon(
+                                                //           user['role'] ?? '',
+                                                //         ),
+                                                //         color:
+                                                //             AppColors.primary,
+                                                //         size: 48,
+                                                //       ),
+                                                //       Text(
+                                                //         user['role'] ?? '',
+                                                //         style: const TextStyle(
+                                                //           color:
+                                                //               AppColors.primary,
+                                                //           fontSize: 12,
+                                                //           fontWeight:
+                                                //               FontWeight.w600,
+                                                //         ),
+                                                //         textAlign:
+                                                //             TextAlign.center,
+                                                //       ),
+                                                //     ],
+                                                //   ),
+                                                // ),
                                                 if ((user['gender'] == "P" ||
                                                         user['gender'] == "L" ||
                                                         user['gender'] ==
@@ -303,6 +415,10 @@ class _GerejaKelompokAnggotaScreenState
                                                         borderRadius:
                                                             BorderRadius.only(
                                                               bottomLeft:
+                                                                  Radius.circular(
+                                                                    16,
+                                                                  ),
+                                                              topRight:
                                                                   Radius.circular(
                                                                     16,
                                                                   ),
@@ -340,6 +456,10 @@ class _GerejaKelompokAnggotaScreenState
                                                                   Radius.circular(
                                                                     16,
                                                                   ),
+                                                              bottomRight:
+                                                                  Radius.circular(
+                                                                    16,
+                                                                  ),
                                                             ),
                                                       ),
                                                       elevation: 0,
@@ -349,6 +469,169 @@ class _GerejaKelompokAnggotaScreenState
                                                         child: Icon(
                                                           Icons.star,
                                                           color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                // show komitmen progress
+                                                if (user['role'] == "Anggota")
+                                                  Positioned(
+                                                    bottom: -5,
+                                                    left: -5,
+                                                    child: Card(
+                                                      color: AppColors.brown1,
+                                                      shape: const RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                              topRight:
+                                                                  Radius.circular(
+                                                                    16,
+                                                                  ),
+                                                              bottomLeft:
+                                                                  Radius.circular(
+                                                                    16,
+                                                                  ),
+                                                            ),
+                                                      ),
+                                                      elevation: 0,
+                                                      child: SizedBox(
+                                                        width: 72,
+                                                        height: 36,
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Icon(
+                                                              Icons.checklist,
+                                                              color:
+                                                                  Colors.white,
+                                                              size: 18,
+                                                            ),
+                                                            const SizedBox(
+                                                              width: 4,
+                                                            ),
+                                                            Builder(
+                                                              builder: (
+                                                                context,
+                                                              ) {
+                                                                final summary =
+                                                                    _komitmenSummaryMap[user['id']
+                                                                        .toString()];
+                                                                if (summary ==
+                                                                    null) {
+                                                                  return const Text(
+                                                                    '-',
+                                                                    style: TextStyle(
+                                                                      fontSize:
+                                                                          12,
+                                                                      color:
+                                                                          Colors
+                                                                              .white,
+                                                                    ),
+                                                                  );
+                                                                }
+                                                                return Text(
+                                                                  '${summary['done']}/${summary['done']! + summary['notDone']!}',
+                                                                  style: const TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color:
+                                                                        Colors
+                                                                            .white,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  ),
+                                                                );
+                                                              },
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                // show evaluasi progress
+                                                if (user['role'] == "Anggota")
+                                                  Positioned(
+                                                    top: -5,
+                                                    left: -5,
+                                                    child: Card(
+                                                      color: AppColors.brown1,
+                                                      shape: const RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                              bottomRight:
+                                                                  Radius.circular(
+                                                                    16,
+                                                                  ),
+                                                              topLeft:
+                                                                  Radius.circular(
+                                                                    16,
+                                                                  ),
+                                                            ),
+                                                      ),
+                                                      elevation: 0,
+                                                      child: SizedBox(
+                                                        width: 72,
+                                                        height: 36,
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Icon(
+                                                              Icons
+                                                                  .assignment_turned_in,
+                                                              color:
+                                                                  Colors.white,
+                                                              size: 18,
+                                                            ),
+                                                            const SizedBox(
+                                                              width: 4,
+                                                            ),
+                                                            Builder(
+                                                              builder: (
+                                                                context,
+                                                              ) {
+                                                                final summary =
+                                                                    _evaluasiSummaryMap[user['id']
+                                                                        .toString()];
+                                                                if (summary ==
+                                                                    null) {
+                                                                  return const Text(
+                                                                    '-',
+                                                                    style: TextStyle(
+                                                                      fontSize:
+                                                                          12,
+                                                                      color:
+                                                                          Colors
+                                                                              .white,
+                                                                    ),
+                                                                  );
+                                                                }
+                                                                return Text(
+                                                                  '${summary['done']}/${summary['done']! + summary['notDone']!}',
+                                                                  style: const TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color:
+                                                                        Colors
+                                                                            .white,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  ),
+                                                                );
+                                                              },
+                                                            ),
+                                                          ],
                                                         ),
                                                       ),
                                                     ),
@@ -398,6 +681,7 @@ class _GerejaKelompokAnggotaScreenState
                                                         textAlign:
                                                             TextAlign.left,
                                                       ),
+                                                      const SizedBox(height: 4),
                                                     ],
                                                   ),
                                                   Column(
