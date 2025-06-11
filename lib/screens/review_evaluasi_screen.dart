@@ -11,7 +11,11 @@ class ReviewEvaluasiScreen extends StatefulWidget {
   final String userId;
   final int acaraHariId;
 
-  const ReviewEvaluasiScreen({super.key, required this.userId, required this.acaraHariId});
+  const ReviewEvaluasiScreen({
+    super.key,
+    required this.userId,
+    required this.acaraHariId,
+  });
 
   @override
   State<ReviewEvaluasiScreen> createState() => _ReviewEvaluasiScreenState();
@@ -20,6 +24,7 @@ class ReviewEvaluasiScreen extends StatefulWidget {
 class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
   List<Map<String, dynamic>> _dataEvaluasi = [];
   bool _isLoading = true;
+  String _userName = '';
 
   // Simpan jawaban lokal
   Map<String, dynamic> _localAnswers = {};
@@ -27,16 +32,23 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
   @override
   void initState() {
     super.initState();
-    loadEvaluasi();
+    _loadEvaluasi();
+    _loadUserData();
   }
 
-  void loadEvaluasi() async {
+  void _loadEvaluasi() async {
     setState(() => _isLoading = true);
     try {
-      final evaluasi = await ApiService.getEvaluasiByAcara(context, widget.acaraHariId);
+      final evaluasi = await ApiService.getEvaluasiByAcara(
+        context,
+        widget.acaraHariId,
+      );
       setState(() {
         _dataEvaluasi =
-            (evaluasi['data_evaluasi'] as List<dynamic>?)?.map((e) => e as Map<String, dynamic>).toList() ?? [];
+            (evaluasi['data_evaluasi'] as List<dynamic>?)
+                ?.map((e) => e as Map<String, dynamic>)
+                .toList() ??
+            [];
         _isLoading = false;
       });
       await _loadSavedProgress();
@@ -62,6 +74,13 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
     });
   }
 
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userName = prefs.getString('username') ?? 'User';
+    });
+  }
+
   Future<void> _handleSubmit() async {
     setState(() => _isLoading = true);
     // Ambil user_id
@@ -69,17 +88,56 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
     // Siapkan list jawaban
     List<Map<String, dynamic>> evaluasiAnswer = [];
     for (var id in _localAnswerIds) {
-      final item = _dataEvaluasi.firstWhere((e) => e['id'].toString() == id.toString(), orElse: () => {});
+      final item = _dataEvaluasi.firstWhere(
+        (e) => e['id'].toString() == id.toString(),
+        orElse: () => {},
+      );
       if (item.isEmpty) continue;
       final type = item['type']?.toString();
       final answer = _localAnswers[id];
       if (type == "1") {
-        evaluasiAnswer.add({"eval_question_id": int.tryParse(id) ?? id, "user_id": userId, "answer": answer ?? ''});
+        evaluasiAnswer.add({
+          "eval_question_id": int.tryParse(id) ?? id,
+          "user_id": userId,
+          "answer": answer ?? '',
+        });
       } else if (type == "2") {
         evaluasiAnswer.add({
           "eval_question_id": int.tryParse(id) ?? id,
           "user_id": userId,
           "answer": (answer == true || answer == 'Ya') ? 1 : 0,
+        });
+      } else if ([
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+      ].contains(type)) {
+        evaluasiAnswer.add({
+          "eval_question_id": int.tryParse(id) ?? id,
+          "user_id": userId,
+          "answer": answer ?? '',
+        });
+      } else if (type == "18" || type == "19") {
+        evaluasiAnswer.add({
+          "eval_question_id": int.tryParse(id) ?? id,
+          "user_id": userId,
+          "answer": answer ?? '',
+        });
+      } else if (type == "16") {
+        evaluasiAnswer.add({
+          "eval_question_id": int.tryParse(id) ?? id,
+          "user_id": userId,
+          "answer": answer ?? '',
         });
       }
     }
@@ -91,7 +149,11 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder:
-                (context) => EvaluasiKomitmenSuccessScreen(userId: widget.userId, type: 'Evaluasi', isSuccess: true),
+                (context) => EvaluasiKomitmenSuccessScreen(
+                  userId: widget.userId,
+                  type: 'Evaluasi',
+                  isSuccess: true,
+                ),
           ),
         );
       }
@@ -100,7 +162,11 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder:
-                (context) => EvaluasiKomitmenSuccessScreen(userId: widget.userId, type: 'Evaluasi', isSuccess: false),
+                (context) => EvaluasiKomitmenSuccessScreen(
+                  userId: widget.userId,
+                  type: 'Evaluasi',
+                  isSuccess: false,
+                ),
           ),
         );
       }
@@ -122,23 +188,35 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
       ),
       body:
           _isLoading
-              ? Center(child: CircularProgressIndicator(color: AppColors.brown1))
+              ? Center(
+                child: CircularProgressIndicator(color: AppColors.brown1),
+              )
               : SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Contoh akses user
                     SizedBox(
                       width: double.infinity,
                       child: Card(
                         color: AppColors.brown1,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [Text('Nama: ${widget.userId}', style: const TextStyle(color: Colors.white))],
+                            children: [
+                              Text(
+                                'Form Evaluasi Acara ke-${widget.acaraHariId}\nNama: $_userName',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -152,19 +230,52 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
                       if (item.isEmpty) return const SizedBox.shrink();
                       final question = item['question'] ?? 'Pertanyaan';
                       final type = item['type']?.toString();
+                      final scale = item['scale']?.toString() ?? '';
                       final answer = _localAnswers[id];
-                      if (type == "1") {
-                        return CustomTextCard(text: question, value: answer?.toString() ?? '');
+                      if (["1", "18", "19"].contains(type)) {
+                        return CustomTextCard(
+                          text: question,
+                          value: answer?.toString() ?? '',
+                        );
                       } else if (type == "2") {
                         return CustomCheckboxCard(
                           text: question,
-                          value: answer == true ? 'Ya' : 'Tidak', // atau 'tidak'
-                          textStyle: TextStyle(fontSize: 18, color: Colors.white), // opsional
+                          value:
+                              answer == true ? 'Ya' : 'Tidak', // atau 'tidak'
+                          textStyle: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                          ), // opsional
                         );
-                      } else if (type == "3") {
+                      } else if ([
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9",
+                        "10",
+                        "11",
+                        "12",
+                        "13",
+                        "14",
+                        "15",
+                      ].contains(type)) {
                         return CustomTextCard(
                           text: question,
-                          value: answer?.toString() ?? '0',
+                          value: '${answer?.toString() ?? '0'} dari ${scale}',
+                          backgroundColor: AppColors.brown1, // opsional
+                        );
+                      } else if (type == "16") {
+                        final raw = answer?.toString() ?? '';
+                        final displayValue =
+                            raw.isEmpty
+                                ? ''
+                                : '- ' + raw.replaceAll(';', '\n- ');
+                        return CustomTextCard(
+                          text: question,
+                          value: displayValue,
                           backgroundColor: AppColors.brown1, // opsional
                         );
                       } else {
@@ -181,10 +292,15 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
                             backgroundColor: AppColors.brown1,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(32),
+                            ),
                           ),
                           onPressed: _isLoading ? null : _handleSubmit,
-                          child: const Text('Submit', style: TextStyle(fontSize: 16)),
+                          child: const Text(
+                            'Submit',
+                            style: TextStyle(fontSize: 16),
+                          ),
                         ),
                       ),
                     ),

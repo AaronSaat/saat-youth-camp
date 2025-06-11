@@ -184,6 +184,31 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                        side: const BorderSide(
+                                          color: Colors.white,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      color: Colors.transparent,
+                                      elevation: 0,
+                                      margin: const EdgeInsets.only(
+                                        bottom: 16.0,
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          'Form Komitmen Hari ke-${widget.acaraHariId}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                     ...data.map<Widget>((item) {
                                       final String question =
                                           item['question'] ?? '';

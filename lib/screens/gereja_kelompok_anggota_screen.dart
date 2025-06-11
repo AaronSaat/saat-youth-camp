@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:syc/utils/app_colors.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:dropdown_search/dropdown_search.dart';
 import '../services/api_service.dart';
+import '../widgets/custom_not_found.dart';
 import 'evaluasi_komitmen_list_screen.dart';
 import 'gereja_kelompok_list_screen.dart';
-import '../widgets/custom_snackbar.dart';
 
 class GerejaKelompokAnggotaScreen extends StatefulWidget {
   final String?
@@ -286,28 +284,44 @@ class _GerejaKelompokAnggotaScreenState
               fit: BoxFit.fill,
             ),
           ),
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : SafeArea(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        Text(
-                          '${gereja_atau_kelompok} ${nama}',
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        anggota.isEmpty
-                            ? const Center(child: Text('Tidak ada anggota'))
-                            : SizedBox(
-                              height: MediaQuery.of(context).size.height,
-                              child: ListView.builder(
+          SafeArea(
+            child: RefreshIndicator(
+              onRefresh: () => _initAll(),
+              color: AppColors.brown1,
+              backgroundColor: Colors.white,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 8,
+                    right: 8,
+                    top: 8,
+                    bottom: 96,
+                  ),
+                  child:
+                      _isLoading
+                          ? buildAnggotaShimmer()
+                          : anggota.isEmpty
+                          ? Center(
+                            child: CustomNotFound(
+                              text: "Gagal memuat anggota gereja / kelompok :(",
+                              textColor: AppColors.brown1,
+                              imagePath: 'assets/images/data_not_found.png',
+                              onBack: _initAll,
+                              backText: 'Reload Anggota',
+                            ),
+                          )
+                          : Column(
+                            children: [
+                              Text(
+                                '${gereja_atau_kelompok.isNotEmpty ? gereja_atau_kelompok : ''} ${nama ?? ''}',
+                                style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              ListView.builder(
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemCount: anggota.length,
@@ -366,34 +380,6 @@ class _GerejaKelompokAnggotaScreenState
                                                     ),
                                                   ),
                                                 ),
-                                                //   child: Column(
-                                                //     mainAxisAlignment:
-                                                //         MainAxisAlignment
-                                                //             .center,
-                                                //     children: [
-                                                //       Icon(
-                                                //         getRoleIcon(
-                                                //           user['role'] ?? '',
-                                                //         ),
-                                                //         color:
-                                                //             AppColors.primary,
-                                                //         size: 48,
-                                                //       ),
-                                                //       Text(
-                                                //         user['role'] ?? '',
-                                                //         style: const TextStyle(
-                                                //           color:
-                                                //               AppColors.primary,
-                                                //           fontSize: 12,
-                                                //           fontWeight:
-                                                //               FontWeight.w600,
-                                                //         ),
-                                                //         textAlign:
-                                                //             TextAlign.center,
-                                                //       ),
-                                                //     ],
-                                                //   ),
-                                                // ),
                                                 if ((user['gender'] == "P" ||
                                                         user['gender'] == "L" ||
                                                         user['gender'] ==
@@ -785,14 +771,117 @@ class _GerejaKelompokAnggotaScreenState
                                   );
                                 },
                               ),
-                            ),
-                      ],
-                    ),
-                  ),
+                            ],
+                          ),
                 ),
               ),
+            ),
+          ),
         ],
       ),
     );
   }
+}
+
+Widget buildAnggotaShimmer() {
+  return Padding(
+    padding: const EdgeInsets.only(left: 8, right: 8),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: 4,
+          itemBuilder: (context, index) {
+            return Card(
+              elevation: 0,
+              color: Colors.grey[200],
+              margin: const EdgeInsets.only(left: 16, right: 16, top: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: SizedBox(
+                height: 170,
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          height: 140,
+                          width: 140,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: SizedBox(
+                        width: 120,
+                        height: 170,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                width: 90,
+                                height: 18,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            ),
+                            Column(
+                              children: [
+                                Shimmer.fromColors(
+                                  baseColor: Colors.grey[300]!,
+                                  highlightColor: Colors.grey[100]!,
+                                  child: Container(
+                                    width: 90,
+                                    height: 28,
+                                    margin: const EdgeInsets.only(bottom: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(32),
+                                    ),
+                                  ),
+                                ),
+                                Shimmer.fromColors(
+                                  baseColor: Colors.grey[300]!,
+                                  highlightColor: Colors.grey[100]!,
+                                  child: Container(
+                                    width: 90,
+                                    height: 28,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(32),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ],
+    ),
+  );
 }

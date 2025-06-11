@@ -49,18 +49,9 @@ class EvaluasiKomitmenSuccessScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     GestureDetector(
-                      onTap: () {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (_) => EvaluasiKomitmenListScreen(
-                                  type: type,
-                                  userId: userId,
-                                ),
-                          ),
-                          (route) => false,
-                        );
+                      onTap: () async {
+                        Navigator.pop(context);
+                        Navigator.pop(context);
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 32.0),

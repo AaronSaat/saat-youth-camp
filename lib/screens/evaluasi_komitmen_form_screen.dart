@@ -378,7 +378,7 @@ class _EvaluasiKomitmenFormScreenState
                                               ),
                                             ),
                                             const SizedBox(height: 10),
-                                            CustomStepperSlider(
+                                            CustomSlider(
                                               value: _slider_answer[id]!,
                                               min: 1,
                                               max: scaleRange.toDouble(),

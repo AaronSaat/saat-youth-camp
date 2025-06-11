@@ -22,7 +22,7 @@ class CustomCheckboxCard extends StatelessWidget {
 
     return Card(
       color: backgroundColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
@@ -30,15 +30,23 @@ class CustomCheckboxCard extends StatelessWidget {
           children: [
             // Custom checkbox style icon
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 32.0),
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Container(
                 width: 24,
                 height: 24,
-                margin: const EdgeInsets.only(right: 12),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
-                child: isYes ? const Icon(Icons.check, size: 20, color: Colors.black) : null,
+                margin: const EdgeInsets.only(right: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child:
+                    isYes
+                        ? const Icon(Icons.check, size: 20, color: Colors.black)
+                        : null,
               ),
             ),
+            // Gunakan Expanded/Flexible hanya jika ingin teks mengambil sisa ruang.
+            // Jika ingin teks hanya selebar kontennya, gunakan widget Text biasa.
             Expanded(child: Text(text, style: textStyle)),
           ],
         ),

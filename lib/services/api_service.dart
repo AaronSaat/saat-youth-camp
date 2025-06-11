@@ -14,7 +14,8 @@ import '../widgets/custom_snackbar.dart';
 class ApiService {
   // static const String baseurl = 'http://172.172.52.9:82/reg-new/api-syc2025/';
   // static const String baseurl = 'http://172.172.52.11:8080/api-syc2025/';
-  static const String baseurl = 'http://172.172.52.11:8888/syc2025/';
+  static const String baseurl = 'http://172.172.52.11:8888/api-syc2025/';
+  // static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
 
   static Future<Map<String, dynamic>> loginUser(
     String username,
@@ -123,6 +124,48 @@ class ApiService {
       // }
 
       return dataBacaan;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      print('❌ Error test: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load bacaan harian');
+    }
+  }
+
+  static Future<int> getBrmReportByPesertaByDay(
+    BuildContext context,
+    String userId,
+    String day,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse(
+      '${baseurl}brm-report-by-peserta-by-day?user_id=$userId&day=$day',
+    );
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('test url brm report pribadi: $url');
+    // print('test response: ${response.statusCode} - ${response.body}');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> dataBacaan = json.decode(response.body);
+      final int countRead = dataBacaan['count_read'];
+
+      return countRead;
     } else if (response.statusCode == 401) {
       showCustomSnackBar(
         context,
@@ -331,6 +374,46 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>> getAcaraById(
+    BuildContext context,
+    id,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}acara-by-id?id=$id');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('url $url');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> dataAcara = json.decode(response.body);
+      // final List<dynamic> dataAcara = decoded['data_acara'] ?? [];
+
+      print('✅ Data acara by id berhasil dimuat: $dataAcara');
+
+      return dataAcara;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load acara by id');
+    }
+  }
+
   static Future<Map<String, dynamic>> getEvaluasiByAcara(
     BuildContext context,
     acaraId,
@@ -396,18 +479,18 @@ class ApiService {
         'Content-Type': 'application/json',
       },
     );
-
+    print('URL: $url');
     if (response.statusCode == 200) {
       final Map<String, dynamic> dataEvaluasi = json.decode(response.body);
 
       print(
         '✅ Data jawaban evaluasi acaraId-$acaraId oleh user id $userId berhasil dimuat:',
       );
-      for (var evaluasi in dataEvaluasi['data_evaluasi']) {
-        print(
-          '- Evaluasi: ${evaluasi['id']} | Status: ${evaluasi['hari']} | ${evaluasi['type']}',
-        );
-      }
+      // for (var evaluasi in dataEvaluasi['data_evaluasi']) {
+      //   print(
+      //     '- Evaluasi: ${evaluasi['id']} | Status: ${evaluasi['hari']} | ${evaluasi['type']}',
+      //   );
+      // }
 
       return dataEvaluasi;
     } else if (response.statusCode == 401) {

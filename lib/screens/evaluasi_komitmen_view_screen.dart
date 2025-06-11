@@ -3,24 +3,32 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/utils/app_colors.dart';
 
 import '../services/api_service.dart';
+import '../widgets/custom_checkbox_card.dart';
+import '../widgets/custom_text_card.dart';
 
 class EvaluasiKomitmenViewScreen extends StatefulWidget {
   final String type;
   final String userId;
   final int acaraHariId;
 
-  const EvaluasiKomitmenViewScreen({super.key, required this.type, required this.userId, required this.acaraHariId});
+  const EvaluasiKomitmenViewScreen({
+    super.key,
+    required this.type,
+    required this.userId,
+    required this.acaraHariId,
+  });
 
   @override
-  State<EvaluasiKomitmenViewScreen> createState() => _EvaluasiKomitmenViewScreenState();
+  State<EvaluasiKomitmenViewScreen> createState() =>
+      _EvaluasiKomitmenViewScreenState();
 }
 
-class _EvaluasiKomitmenViewScreenState extends State<EvaluasiKomitmenViewScreen> {
+class _EvaluasiKomitmenViewScreenState
+    extends State<EvaluasiKomitmenViewScreen> {
   String? answer1;
   String? answer2;
   String? answer3;
   String komentar = '';
-  double _sliderValue = 3;
   Map<String, dynamic> _user = {};
   Map<String, dynamic> _acara = {};
   List<Map<String, dynamic>> _dataKomitmen = [];
@@ -45,13 +53,22 @@ class _EvaluasiKomitmenViewScreenState extends State<EvaluasiKomitmenViewScreen>
       _isLoading = true;
     });
     try {
-      final evaluasi = await ApiService.getEvaluasiByPesertaByAcara(context, widget.userId, widget.acaraHariId);
+      final evaluasi = await ApiService.getEvaluasiByPesertaByAcara(
+        context,
+        widget.userId,
+        widget.acaraHariId,
+      );
       setState(() {
         _user = evaluasi['user'] ?? {};
         _acara = evaluasi['acara'] ?? {};
         _dataEvaluasi =
-            (evaluasi['data_evaluasi'] as List<dynamic>?)?.map((e) => e as Map<String, dynamic>).toList() ?? [];
+            (evaluasi['data_evaluasi'] as List<dynamic>?)
+                ?.map((e) => e as Map<String, dynamic>)
+                .toList() ??
+            [];
         _isLoading = false;
+        print('Data Evaluasi: $_dataEvaluasi');
+        print('Widget type: ${widget.type}');
       });
     } catch (e) {
       setState(() {
@@ -65,11 +82,18 @@ class _EvaluasiKomitmenViewScreenState extends State<EvaluasiKomitmenViewScreen>
       _isLoading = true;
     });
     try {
-      final komitmen = await ApiService.getKomitmenByPesertaByDay(context, widget.userId, widget.acaraHariId);
+      final komitmen = await ApiService.getKomitmenByPesertaByDay(
+        context,
+        widget.userId,
+        widget.acaraHariId,
+      );
       setState(() {
         _user = komitmen['user'] ?? {};
         _dataKomitmen =
-            (komitmen['data_komitmen'] as List<dynamic>?)?.map((e) => e as Map<String, dynamic>).toList() ?? [];
+            (komitmen['data_komitmen'] as List<dynamic>?)
+                ?.map((e) => e as Map<String, dynamic>)
+                .toList() ??
+            [];
         _isLoading = false;
         print('Data Komitmen: $_dataKomitmen');
         print('Widget type: ${widget.type}');
@@ -83,6 +107,8 @@ class _EvaluasiKomitmenViewScreenState extends State<EvaluasiKomitmenViewScreen>
 
   @override
   Widget build(BuildContext context) {
+    final List<Map<String, dynamic>> dataList =
+        widget.type == 'Evaluasi' ? _dataEvaluasi : _dataKomitmen;
     if (_isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
@@ -122,13 +148,18 @@ class _EvaluasiKomitmenViewScreenState extends State<EvaluasiKomitmenViewScreen>
                       width: double.infinity,
                       child: Card(
                         color: AppColors.brown1,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Nama: ${_user['nama'] ?? '-'}', style: const TextStyle(color: Colors.white)),
+                              Text(
+                                'Nama: ${_user['nama'] ?? '-'}',
+                                style: const TextStyle(color: Colors.white),
+                              ),
                               const SizedBox(height: 8),
                               if (widget.type == 'Evaluasi')
                                 Text(
@@ -146,31 +177,71 @@ class _EvaluasiKomitmenViewScreenState extends State<EvaluasiKomitmenViewScreen>
                       ),
                     ),
                     const SizedBox(height: 16),
-                    for (var item in (widget.type == 'Evaluasi' ? _dataEvaluasi : _dataKomitmen))
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: () {
-                          final answerKey = widget.type == 'Evaluasi' ? 'evaluasiAnswer' : 'komitmenAnswer';
-                          final answers = (item[answerKey] is List) ? item[answerKey] : [];
-                          final answerValue = (answers.isNotEmpty) ? answers[0]['answer'] : null;
+                    // Tampilkan hasil jawaban
+                    ...dataList.map((item) {
+                      final question = item['question'] ?? '';
+                      final type = item['type']?.toString();
+                      final answerList =
+                          (item['komitmenAnswer'] ?? item['evaluasiAnswer'])
+                              as List?;
+                      final answer =
+                          (answerList != null && answerList.isNotEmpty)
+                              ? answerList[0]['answer']
+                              : null;
 
-                          if (item['type'] == 1) {
-                            return _buildTextCard(item['question'] ?? '', answerValue?.toString() ?? '');
-                          } else if (item['type'] == 2) {
-                            return _buildChecklistCard(item['question'] ?? '', answerValue == "1" ? "Ya" : "Tidak");
-                          } else if (item['type'] == 3) {
-                            double sliderValue = 0;
-                            if (answerValue != null) {
-                              try {
-                                sliderValue = double.tryParse(answerValue.toString()) ?? 0;
-                              } catch (_) {}
-                            }
-                            return _buildSliderCard(item['question'] ?? '', sliderValue);
-                          } else {
-                            return const SizedBox.shrink();
-                          }
-                        }(),
-                      ),
+                      if (["1", "18", "19"].contains(type)) {
+                        // Text answer
+                        return CustomTextCard(
+                          text: question,
+                          value: answer?.toString() ?? '',
+                          backgroundColor: AppColors.brown1,
+                        );
+                      } else if (type == "2") {
+                        // Checkbox answer
+                        return CustomCheckboxCard(
+                          text: question,
+                          value: answer == "1" ? "Ya" : "Tidak",
+                          textStyle: const TextStyle(color: Colors.white),
+                          backgroundColor: AppColors.brown1,
+                        );
+                      } else if ([
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9",
+                        "10",
+                        "11",
+                        "12",
+                        "13",
+                        "14",
+                        "15",
+                      ].contains(type)) {
+                        final scale =
+                            item['questionType']['scale_range']?.toString() ??
+                            '';
+                        return CustomTextCard(
+                          text: question,
+                          value: '${answer?.toString() ?? '0'} dari ${scale}',
+                          backgroundColor: AppColors.brown1, // opsional
+                        );
+                      } else if (type == "16") {
+                        final raw = answer?.toString() ?? '';
+                        final displayValue =
+                            raw.isEmpty
+                                ? ''
+                                : '- ' + raw.replaceAll(';', '\n- ');
+                        return CustomTextCard(
+                          text: question,
+                          value: displayValue,
+                          backgroundColor: AppColors.brown1, // opsional
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    }).toList(),
                   ],
                 ),
               ),
@@ -188,9 +259,17 @@ class _EvaluasiKomitmenViewScreenState extends State<EvaluasiKomitmenViewScreen>
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(child: Text(text, style: const TextStyle(fontSize: 16, color: Colors.white))),
+            Expanded(
+              child: Text(
+                text,
+                style: const TextStyle(fontSize: 16, color: Colors.white),
+              ),
+            ),
             const SizedBox(width: 8),
-            Icon(isYes ? Icons.check_circle : Icons.cancel, color: isYes ? Colors.green : Colors.red),
+            Icon(
+              isYes ? Icons.check_circle : Icons.cancel,
+              color: isYes ? Colors.green : Colors.red,
+            ),
           ],
         ),
       ),
@@ -206,11 +285,21 @@ class _EvaluasiKomitmenViewScreenState extends State<EvaluasiKomitmenViewScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(text, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+            Text(
+              text,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
             const SizedBox(height: 10),
             Row(
               children: [
-                Text('$value dari 6', style: const TextStyle(fontSize: 16, color: Colors.white)),
+                Text(
+                  '$value dari 6',
+                  style: const TextStyle(fontSize: 16, color: Colors.white),
+                ),
                 const Spacer(),
               ],
             ),
@@ -231,7 +320,14 @@ class _EvaluasiKomitmenViewScreenState extends State<EvaluasiKomitmenViewScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(text, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+              Text(
+                text,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
               const SizedBox(height: 10),
               Text(
                 value.isEmpty ? '(Tidak ada komentar)' : value,

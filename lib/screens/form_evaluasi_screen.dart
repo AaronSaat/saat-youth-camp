@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/utils/app_colors.dart';
+import 'package:syc/widgets/custom_multiple_choice.dart';
 import '../services/api_service.dart';
 import '../widgets/custom_checkbox.dart';
+import '../widgets/custom_single_choice.dart';
 import '../widgets/custom_slider.dart';
 import '../widgets/custom_text_field.dart';
 import 'review_evaluasi_screen.dart';
@@ -26,6 +28,8 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
   final Map<String, bool> _checkbox_answer = {};
   final Map<String, TextEditingController> _text_answer = {};
   final Map<String, double> _slider_answer = {};
+  final Map<String, String> _single_choice_answer = {};
+  final Map<String, String> _multiple_choice_answer = {};
   bool isLoading = false;
   Map<String, dynamic> _acara = {};
   List<Map<String, dynamic>> _dataEvaluasi = [];
@@ -76,17 +80,34 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
     for (var item in data) {
       final key = '${typeKey}_answer_${item['id']}';
       if (item['type'] == "1") {
-        // Text
         final controller = TextEditingController(
           text: prefs.getString(key) ?? '',
         );
         _text_answer[item['id'].toString()] = controller;
       } else if (item['type'] == "2") {
-        // Checkbox
         _checkbox_answer[item['id'].toString()] = prefs.getBool(key) ?? false;
-      } else if (item['type'] == "3") {
-        // Slider
-        _slider_answer[item['id'].toString()] = prefs.getDouble(key) ?? 3.0;
+      } else if ([
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+      ].contains(item['type'])) {
+        _slider_answer[item['id'].toString()] = prefs.getDouble(key) ?? 1.0;
+      } else if (item['type'] == "18" || item['type'] == "19") {
+        _single_choice_answer[item['id'].toString()] =
+            prefs.getString(key) ?? '';
+      } else if (item['type'] == "16") {
+        _multiple_choice_answer[item['id'].toString()] =
+            prefs.getString(key) ?? '';
       }
     }
     setState(() {});
@@ -105,8 +126,26 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
         await prefs.setString(key, _text_answer[idStr]?.text ?? '');
       } else if (item['type'] == "2") {
         await prefs.setBool(key, _checkbox_answer[idStr] == true);
-      } else if (item['type'] == "3") {
-        await prefs.setDouble(key, _slider_answer[idStr] ?? 3.0);
+      } else if ([
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+      ].contains(item['type'])) {
+        await prefs.setDouble(key, _slider_answer[idStr] ?? 1.0);
+      } else if (item['type'] == "18" || item['type'] == "19") {
+        await prefs.setString(key, _single_choice_answer[idStr] ?? '');
+      } else if (item['type'] == "16") {
+        await prefs.setString(key, _multiple_choice_answer[idStr] ?? '');
       }
     }
     // Simpan list id pertanyaan untuk tipe ini
@@ -203,6 +242,31 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                        side: const BorderSide(
+                                          color: Colors.white,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      color: Colors.transparent,
+                                      elevation: 0,
+                                      margin: const EdgeInsets.only(
+                                        bottom: 16.0,
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          'Form Evaluasi Hari ke-${_acara['hari']}\nNama Acara: ${_acara['acara_nama'] ?? 'Nama Acara???'}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                     ...data.map<Widget>((item) {
                                       print(': $item');
                                       final String question =
@@ -272,16 +336,29 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                             const SizedBox(height: 16),
                                           ],
                                         );
-                                      } else if (item['type'] == "3") {
+                                      } else if ([
+                                        "3",
+                                        "4",
+                                        "5",
+                                        "6",
+                                        "7",
+                                        "8",
+                                        "9",
+                                        "10",
+                                        "11",
+                                        "12",
+                                        "13",
+                                        "14",
+                                        "15",
+                                      ].contains(item['type'])) {
                                         // Slider with dynamic settings
                                         _slider_answer.putIfAbsent(
                                           id,
-                                          () => 3.0,
+                                          () => 1.0,
                                         );
                                         // Get slider settings from questionType
                                         final questionType =
                                             item['questionType'] ?? {};
-                                        print('TEST $questionType');
                                         final int scaleRange =
                                             int.tryParse(
                                               questionType['scale_range']
@@ -293,31 +370,31 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                             questionType['min_value']
                                                 ?.toString()
                                                 .trim() ??
-                                            'Sangat Tidak Setuju';
+                                            'Sangat Tidak ???';
                                         final String maxValue =
                                             questionType['max_value']
                                                 ?.toString()
                                                 .trim() ??
-                                            'Sangat Setuju';
+                                            'Sangat ???';
 
-                                        // Build dynamic labels if available, else fallback
-                                        List<String> labels =
-                                            tingkatEvaluasiLabels;
-                                        if (scaleRange == 6 &&
-                                            minValue == 'Sangat Tidak Setuju' &&
-                                            maxValue == 'Sangat Setuju') {
-                                          labels = tingkatEvaluasiLabels;
-                                        } else {
-                                          // Generate labels: only min/max, or custom if needed
-                                          labels = List.generate(scaleRange, (
-                                            i,
-                                          ) {
-                                            if (i == 0) return minValue;
-                                            if (i == scaleRange - 1)
-                                              return maxValue;
-                                            return '';
-                                          });
-                                        }
+                                        // Label on change di tengah (ga dipake)
+                                        // List<String> labels =
+                                        //     tingkatEvaluasiLabels;
+                                        // if (scaleRange == 6 &&
+                                        //     minValue == 'Sangat Tidak Setuju' &&
+                                        //     maxValue == 'Sangat Setuju') {
+                                        //   labels = tingkatEvaluasiLabels;
+                                        // } else {
+                                        //   // Generate labels: only min/max, or custom if needed
+                                        //   labels = List.generate(scaleRange, (
+                                        //     i,
+                                        //   ) {
+                                        //     if (i == 0) return minValue;
+                                        //     if (i == scaleRange - 1)
+                                        //       return maxValue;
+                                        //     return '';
+                                        //   });
+                                        // }
 
                                         return Column(
                                           crossAxisAlignment:
@@ -326,13 +403,13 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                             Text(
                                               question,
                                               style: const TextStyle(
-                                                fontSize: 18,
+                                                fontSize: 16,
                                                 fontWeight: FontWeight.bold,
                                                 color: Colors.white,
                                               ),
                                             ),
                                             const SizedBox(height: 10),
-                                            CustomStepperSlider(
+                                            CustomSlider(
                                               value: _slider_answer[id]!,
                                               min: 1,
                                               max: scaleRange.toDouble(),
@@ -343,7 +420,7 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                                 });
                                               },
                                             ),
-                                            const SizedBox(height: 10),
+                                            const SizedBox(height: 16),
                                             Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment
@@ -365,28 +442,139 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                                 ),
                                               ],
                                             ),
-                                            const SizedBox(height: 10),
-                                            Center(
-                                              child: Text(
-                                                labels[(_slider_answer[id]!
-                                                            .toInt() -
-                                                        1)
-                                                    .clamp(
-                                                      0,
-                                                      labels.length - 1,
-                                                    )],
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ),
+                                            const SizedBox(height: 16),
+                                            // Center(
+                                            //   child: Text(
+                                            //     labels[(_slider_answer[id]!
+                                            //                 .toInt() -
+                                            //             1)
+                                            //         .clamp(
+                                            //           0,
+                                            //           labels.length - 1,
+                                            //         )],
+                                            //     style: const TextStyle(
+                                            //       fontSize: 16,
+                                            //       fontWeight: FontWeight.bold,
+                                            //       color: Colors.white,
+                                            //     ),
+                                            //   ),
+                                            // ),
                                             const Divider(
                                               color: Colors.white,
                                               thickness: 1,
                                             ),
                                             const SizedBox(height: 16),
+                                          ],
+                                        );
+                                      } else if (item['type'] == "18" ||
+                                          item['type'] == "19") {
+                                        final selectedValue =
+                                            _single_choice_answer[id] ?? '';
+                                        final options =
+                                            (item['questionType']?['choices']
+                                                    as String?)
+                                                ?.split(';')
+                                                .map((e) => e.trim())
+                                                .where((e) => e.isNotEmpty)
+                                                .toList() ??
+                                            [];
+                                        return Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              question,
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 10),
+                                            CustomSingleChoice(
+                                              options: options,
+                                              selectedValue: selectedValue,
+                                              onSelected: (val) async {
+                                                setState(() {
+                                                  _single_choice_answer[id] =
+                                                      val.toString();
+                                                });
+                                                // Simpan langsung ke SharedPreferences
+                                                final prefs =
+                                                    await SharedPreferences.getInstance();
+                                                final key =
+                                                    'Evaluasi_answer_$id';
+                                                await prefs.setString(
+                                                  key,
+                                                  val.toString(),
+                                                );
+                                              },
+                                            ),
+                                            const SizedBox(height: 16),
+                                            const Divider(
+                                              color: Colors.white,
+                                              thickness: 1,
+                                            ),
+                                          ],
+                                        );
+                                      } else if (item['type'] == "16") {
+                                        final selectedString =
+                                            _multiple_choice_answer[id] ?? '';
+                                        final selectedValues =
+                                            selectedString.isEmpty
+                                                ? <String>[]
+                                                : selectedString
+                                                    .split(';')
+                                                    .map((e) => e.trim())
+                                                    .where((e) => e.isNotEmpty)
+                                                    .toList();
+                                        final options =
+                                            (item['questionType']?['choices']
+                                                    as String?)
+                                                ?.split(';')
+                                                .map((e) => e.trim())
+                                                .where((e) => e.isNotEmpty)
+                                                .toList() ??
+                                            [];
+                                        return Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              question,
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 10),
+                                            CustomMultipleChoice(
+                                              options: options,
+                                              selectedValues: selectedValues,
+                                              onSelected: (vals) async {
+                                                final answerString = vals.join(
+                                                  ';',
+                                                );
+                                                setState(() {
+                                                  _multiple_choice_answer[id] =
+                                                      answerString;
+                                                });
+                                                final prefs =
+                                                    await SharedPreferences.getInstance();
+                                                final key =
+                                                    'Evaluasi_answer_$id';
+                                                await prefs.setString(
+                                                  key,
+                                                  answerString,
+                                                );
+                                              },
+                                            ),
+                                            const SizedBox(height: 16),
+                                            const Divider(
+                                              color: Colors.white,
+                                              thickness: 1,
+                                            ),
                                           ],
                                         );
                                       } else {

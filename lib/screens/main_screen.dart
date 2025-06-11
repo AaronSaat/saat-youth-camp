@@ -115,6 +115,7 @@ class _MainScreenState extends State<MainScreen> {
     } else if (role == 'Panitia') {
       _pages = [
         const DashboardScreen(),
+        const DaftarAcaraScreen(),
         GerejaKelompokAnggotaScreen(
           type: 'Panitia Kelompok',
           id: id,
@@ -190,6 +191,11 @@ class _MainScreenState extends State<MainScreen> {
           'assets/icons/navigation_bar/dashboard.svg',
           'Dashboard',
           0,
+        ),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/list_acara.svg',
+          'Acara',
+          1,
         ),
         buildSvgNavItem(
           'assets/icons/navigation_bar/all_user.svg',

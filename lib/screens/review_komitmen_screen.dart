@@ -11,7 +11,11 @@ class ReviewKomitmenScreen extends StatefulWidget {
   final String userId;
   final int acaraHariId;
 
-  const ReviewKomitmenScreen({super.key, required this.userId, required this.acaraHariId});
+  const ReviewKomitmenScreen({
+    super.key,
+    required this.userId,
+    required this.acaraHariId,
+  });
 
   @override
   State<ReviewKomitmenScreen> createState() => _ReviewKomitmenScreenState();
@@ -20,6 +24,7 @@ class ReviewKomitmenScreen extends StatefulWidget {
 class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
   List<Map<String, dynamic>> _dataKomitmen = [];
   bool _isLoading = true;
+  String _userName = '';
 
   // Simpan jawaban lokal
   Map<String, dynamic> _localAnswers = {};
@@ -27,16 +32,23 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
   @override
   void initState() {
     super.initState();
-    loadKomitmen();
+    _loadKomitmen();
+    _loadUserData();
   }
 
-  void loadKomitmen() async {
+  void _loadKomitmen() async {
     setState(() => _isLoading = true);
     try {
-      final komitmen = await ApiService.getKomitmenByDay(context, widget.acaraHariId);
+      final komitmen = await ApiService.getKomitmenByDay(
+        context,
+        widget.acaraHariId,
+      );
       setState(() {
         _dataKomitmen =
-            (komitmen['data_komitmen'] as List<dynamic>?)?.map((e) => e as Map<String, dynamic>).toList() ?? [];
+            (komitmen['data_komitmen'] as List<dynamic>?)
+                ?.map((e) => e as Map<String, dynamic>)
+                .toList() ??
+            [];
         _isLoading = false;
       });
       await _loadSavedProgress();
@@ -62,6 +74,13 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
     });
   }
 
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userName = prefs.getString('username') ?? 'User';
+    });
+  }
+
   Future<void> _handleSubmit() async {
     setState(() => _isLoading = true);
     // Ambil user_id
@@ -69,12 +88,19 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
     // Siapkan list jawaban
     List<Map<String, dynamic>> komitmenAnswer = [];
     for (var id in _localAnswerIds) {
-      final item = _dataKomitmen.firstWhere((e) => e['id'].toString() == id.toString(), orElse: () => {});
+      final item = _dataKomitmen.firstWhere(
+        (e) => e['id'].toString() == id.toString(),
+        orElse: () => {},
+      );
       if (item.isEmpty) continue;
       final type = item['type']?.toString();
       final answer = _localAnswers[id];
       if (type == "1") {
-        komitmenAnswer.add({"komitmen_question_id": int.tryParse(id) ?? id, "user_id": userId, "answer": answer ?? ''});
+        komitmenAnswer.add({
+          "komitmen_question_id": int.tryParse(id) ?? id,
+          "user_id": userId,
+          "answer": answer ?? '',
+        });
       } else if (type == "2") {
         komitmenAnswer.add({
           "komitmen_question_id": int.tryParse(id) ?? id,
@@ -91,7 +117,11 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder:
-                (context) => EvaluasiKomitmenSuccessScreen(userId: widget.userId, type: 'Komitmen', isSuccess: true),
+                (context) => EvaluasiKomitmenSuccessScreen(
+                  userId: widget.userId,
+                  type: 'Komitmen',
+                  isSuccess: true,
+                ),
           ),
         );
       }
@@ -100,7 +130,11 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder:
-                (context) => EvaluasiKomitmenSuccessScreen(userId: widget.userId, type: 'Komitmen', isSuccess: false),
+                (context) => EvaluasiKomitmenSuccessScreen(
+                  userId: widget.userId,
+                  type: 'Komitmen',
+                  isSuccess: false,
+                ),
           ),
         );
       }
@@ -122,23 +156,35 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
       ),
       body:
           _isLoading
-              ? Center(child: CircularProgressIndicator(color: AppColors.brown1))
+              ? Center(
+                child: CircularProgressIndicator(color: AppColors.brown1),
+              )
               : SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Contoh akses user
                     SizedBox(
                       width: double.infinity,
                       child: Card(
                         color: AppColors.brown1,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [Text('Nama: ${widget.userId}', style: const TextStyle(color: Colors.white))],
+                            children: [
+                              Text(
+                                'Form Komitmen Hari ke-${widget.acaraHariId}\nNama: $_userName',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -154,12 +200,19 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
                       final type = item['type']?.toString();
                       final answer = _localAnswers[id];
                       if (type == "1") {
-                        return CustomTextCard(text: question, value: answer?.toString() ?? '');
+                        return CustomTextCard(
+                          text: question,
+                          value: answer?.toString() ?? '',
+                        );
                       } else if (type == "2") {
                         return CustomCheckboxCard(
                           text: question,
-                          value: answer == true ? 'Ya' : 'Tidak', // atau 'tidak'
-                          textStyle: TextStyle(fontSize: 18, color: Colors.white), // opsional
+                          value:
+                              answer == true ? 'Ya' : 'Tidak', // atau 'tidak'
+                          textStyle: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                          ), // opsional
                         );
                       } else {
                         return const SizedBox.shrink();
@@ -167,7 +220,7 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
                     }).toList(),
                     const SizedBox(height: 16),
                     Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -175,10 +228,15 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
                             backgroundColor: AppColors.brown1,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(32),
+                            ),
                           ),
                           onPressed: _isLoading ? null : _handleSubmit,
-                          child: const Text('Submit', style: TextStyle(fontSize: 16)),
+                          child: const Text(
+                            'Submit',
+                            style: TextStyle(fontSize: 16),
+                          ),
                         ),
                       ),
                     ),

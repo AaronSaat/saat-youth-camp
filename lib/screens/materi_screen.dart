@@ -1,8 +1,12 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:syc/utils/app_colors.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:syc/widgets/custom_panel_shape.dart';
+
+import '../services/api_service.dart';
+import '../widgets/custom_not_found.dart';
+import 'detail_acara_screen.dart';
 
 class MateriScreen extends StatefulWidget {
   const MateriScreen({super.key});
@@ -12,153 +16,345 @@ class MateriScreen extends StatefulWidget {
 }
 
 class _MateriScreenState extends State<MateriScreen> {
-  String _role = '';
+  List<dynamic> _acaraList = [];
+  int _countAcara = 0;
+  bool _isLoading = true;
+  int day = 1;
 
   @override
   void initState() {
     super.initState();
-    loadUser();
+    initAll();
   }
 
-  Future<void> loadUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userString = prefs.getString('user');
-    if (userString != null) {
-      final userData = json.decode(userString);
+  Future<void> initAll() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      await loadCountAcara();
+      await loadAcara();
+    } catch (e) {
+      // handle error jika perlu
+    }
+    if (!mounted) return;
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Future<void> loadAcara() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final acaraList = await ApiService.getAcaraByDay(context, day);
+      if (!mounted) return;
       setState(() {
-        _role = userData['role'] ?? '';
-        print('Role: $_role');
+        _acaraList = acaraList;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('❌ Gagal memuat acara: $e');
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
       });
     }
+  }
+
+  Future<void> loadCountAcara() async {
+    try {
+      final countAcara = await ApiService.getAcaraCount(context);
+      if (!mounted) return;
+      setState(() {
+        _countAcara = countAcara;
+      });
+    } catch (e) {
+      print('❌ Gagal memuat acara count: $e');
+    }
+  }
+
+  Widget _buildDaySelector() {
+    final List<int> days = List.generate(_countAcara, (index) => index + 1);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children:
+            days.map((d) {
+              final bool selected = day == d;
+              return Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      if (day != d) {
+                        setState(() {
+                          day = d;
+                        });
+                        loadAcara();
+                      }
+                    },
+                    child: Container(
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: selected ? AppColors.primary : Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Day $d',
+                        style: TextStyle(
+                          color: selected ? Colors.white : AppColors.primary,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(toolbarHeight: 0),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Card Buku
-            _buildBookCard(),
-
-            // Card Video
-            _buildVideoCard(),
-
-            // Card Evaluasi (hanya untuk Peserta)
-            _buildEvaluasiCard(),
-
-            // Card Komitmen (hanya untuk Peserta)
-            _buildKomitmenCard(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBookCard() {
-    return Card(
-      color: AppColors.primary,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 4,
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.asset('assets/images/book_cover.jpg', width: 100, height: 150, fit: BoxFit.cover),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    'Beyond The Ocean Door',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Sinopsis Buku: Buku ini mengajak kita untuk berpikir lebih dalam tentang kehidupan dan membagikan wawasan yang penting.',
-                    style: TextStyle(fontSize: 14, color: Colors.white),
-                  ),
-                  SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(Icons.star, color: Colors.amber, size: 18),
-                      Icon(Icons.star, color: Colors.amber, size: 18),
-                      Icon(Icons.star, color: Colors.amber, size: 18),
-                      Icon(Icons.star, color: Colors.amber, size: 18),
-                      Icon(Icons.star_border, color: Colors.amber, size: 18),
-                      SizedBox(width: 8),
-                      Text('4.0', style: TextStyle(fontSize: 14, color: Colors.white)),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildVideoCard() {
-    return Card(
-      color: AppColors.primary,
-      elevation: 4,
-      margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: Stack(
         children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: Image.network(
-              'https://img.youtube.com/vi/AGJMcs2yCY8/0.jpg',
-              height: 160,
-              width: double.infinity,
-              fit: BoxFit.cover,
+          Positioned(
+            child: Image.asset(
+              'assets/images/background_fade.jpg',
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              fit: BoxFit.fill,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Pelayanan dalam Kehidupan Mahasiswa',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Refleksi panggilan dan peran pelayanan saat studi.',
-                  style: TextStyle(fontSize: 14, color: Colors.white),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      launchUrl(Uri.parse('https://youtu.be/AGJMcs2yCY8'));
-                    },
-                    icon: const Icon(Icons.play_arrow, color: Colors.white),
-                    label: const Text(
-                      'Tonton di YouTube',
-                      style: TextStyle(fontWeight: FontWeight.normal, color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white.withAlpha(30),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
+          SafeArea(
+            child: RefreshIndicator(
+              onRefresh: () => initAll(),
+              color: AppColors.brown1,
+              backgroundColor: Colors.white,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 24.0, bottom: 64),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 16),
+                        child: Column(
+                          children: [
+                            Align(
+                              alignment: Alignment.topRight,
+                              child: Container(
+                                height: 48,
+                                width: 48,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Icon(
+                                  Icons.search,
+                                  color: AppColors.primary,
+                                  size: 32,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Column(
+                          children: [
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Image.asset(
+                                'assets/texts/materi.png',
+                                height: 72,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildDaySelector(),
+                      _isLoading
+                          ? buildAcaraShimmer(context)
+                          : _acaraList.isEmpty
+                          ? Center(
+                            child: CustomNotFound(
+                              text: "Gagal memuat daftar acara :(",
+                              textColor: AppColors.brown1,
+                              imagePath: 'assets/images/data_not_found.png',
+                              onBack: initAll,
+                              backText: 'Reload Acara',
+                            ),
+                          )
+                          : ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: const EdgeInsets.all(16),
+                            itemCount: _acaraList.length,
+                            itemBuilder: (context, index) {
+                              final acara = _acaraList[index];
+                              print(
+                                'Acara: ${acara['id']} - ${acara['acara_nama']}',
+                              );
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 16),
+                                child: SizedBox(
+                                  child: Stack(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      DetailAcaraScreen(
+                                                        id: acara["id"],
+                                                      ),
+                                            ),
+                                          );
+                                        },
+                                        child: CustomPanelShape(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          height:
+                                              MediaQuery.of(
+                                                context,
+                                              ).size.height *
+                                              0.2,
+
+                                          imageProvider: () {
+                                            final nama =
+                                                acara['acara_nama']
+                                                    ?.toString() ??
+                                                '';
+                                            if (nama ==
+                                                'Pendaftaran Ulang dan Kedatangan') {
+                                              return Image.asset(
+                                                'assets/mockups/daftar.jpg',
+                                              ).image;
+                                            } else if (nama == 'Opening') {
+                                              return Image.asset(
+                                                'assets/mockups/opening.jpg',
+                                              ).image;
+                                            } else if (nama == 'KKR 1') {
+                                              return Image.asset(
+                                                'assets/mockups/kkr1.jpg',
+                                              ).image;
+                                            } else if (nama == 'KKR 2') {
+                                              return Image.asset(
+                                                'assets/mockups/kkr2.jpg',
+                                              ).image;
+                                            } else if (nama == 'KKR 3') {
+                                              return Image.asset(
+                                                'assets/mockups/kkr3.jpg',
+                                              ).image;
+                                            } else if (nama == 'Saat Teduh') {
+                                              return Image.asset(
+                                                'assets/mockups/saat_teduh1.jpg',
+                                              ).image;
+                                            } else if (nama ==
+                                                'Drama Musikal') {
+                                              return Image.asset(
+                                                'assets/mockups/drama_musikal.jpg',
+                                              ).image;
+                                            } else if (nama ==
+                                                'New Year Countdown') {
+                                              return Image.asset(
+                                                'assets/mockups/new_year.jpg',
+                                              ).image;
+                                            } else if (nama == 'Closing') {
+                                              return Image.asset(
+                                                'assets/mockups/closing.jpg',
+                                              ).image;
+                                            } else {
+                                              return Image.asset(
+                                                'assets/images/event.jpg',
+                                              ).image;
+                                            }
+                                          }(),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        left: 24,
+                                        bottom: 20,
+                                        right: 16,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              acara['acara_nama']?.toString() ??
+                                                  '',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            RichText(
+                                              text: TextSpan(
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 10,
+                                                ),
+                                                text: () {
+                                                  final desc =
+                                                      acara['acara_deskripsi']
+                                                          ?.toString() ??
+                                                      '';
+                                                  if (desc.length > 30) {
+                                                    return desc.substring(
+                                                          0,
+                                                          30,
+                                                        ) +
+                                                        '...';
+                                                  }
+                                                  return desc;
+                                                }(),
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Positioned(
+                                        right:
+                                            MediaQuery.of(context).size.width *
+                                            0.1,
+                                        bottom:
+                                            MediaQuery.of(context).size.height *
+                                            0.007,
+                                        child: Text(
+                                          'Tap for More',
+                                          style: const TextStyle(
+                                            color: Color(0xFF606060),
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
         ],
@@ -166,57 +362,78 @@ class _MateriScreenState extends State<MateriScreen> {
     );
   }
 
-  Widget _buildEvaluasiCard() {
-    return Card(
-      color: AppColors.primary,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 4,
-      margin: const EdgeInsets.only(bottom: 16),
-      child: const Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+  // Shimmer loading untuk daftar acara
+  Widget buildAcaraShimmer(BuildContext context, {int itemCount = 3}) {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(16),
+      itemCount: itemCount,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: SizedBox(
+            child: Stack(
               children: [
-                Icon(Icons.assignment, color: Colors.blue, size: 30),
-                SizedBox(width: 12),
-                Text('Evaluasi', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height * 0.2,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 24,
+                  bottom: 20,
+                  right: 16,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          width: 120,
+                          height: 20,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          width: 180,
+                          height: 10,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  right: MediaQuery.of(context).size.width * 0.1,
+                  bottom: MediaQuery.of(context).size.height * 0.007,
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      width: 80,
+                      height: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
               ],
             ),
-            SizedBox(height: 8),
-            Text('Done.', style: TextStyle(fontSize: 14, color: Colors.white)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildKomitmenCard() {
-    return Card(
-      color: AppColors.primary,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 4,
-      margin: const EdgeInsets.only(bottom: 16),
-      child: const Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.check_circle_outline, color: Colors.green, size: 30),
-                SizedBox(width: 12),
-                Text('Komitmen', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-              ],
-            ),
-            SizedBox(height: 8),
-            Text('Progress: 0/100', style: TextStyle(fontSize: 14, color: Colors.white)),
-            SizedBox(height: 8),
-            LinearProgressIndicator(value: 0.0),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

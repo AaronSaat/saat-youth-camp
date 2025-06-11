@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/screens/form_evaluasi_screen.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../services/api_service.dart';
 import '../utils/app_colors.dart';
@@ -40,14 +41,88 @@ class _EvaluasiKomitmenListScreenState
   @override
   void initState() {
     super.initState();
+    initAll();
+  }
 
-    if (widget.type == 'Evaluasi') {
-      loadEvaluasiAcara();
-      loadCountAcara();
-    } else if (widget.type == 'Komitmen') {
-      loadKomitmen();
-    } else {
-      _isLoading = false;
+  Future<void> initAll() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      if (widget.type == 'Evaluasi') {
+        // Ambil count acara & count all
+        try {
+          final countAcara = await ApiService.getAcaraCount(context);
+          final countAcaraAll = await ApiService.getAcaraCountAll(context);
+          if (!mounted) return;
+          setState(() {
+            _countAcara = countAcara ?? 0;
+            _countAcaraAll = countAcaraAll ?? 0;
+          });
+        } catch (e) {
+          print('❌ Gagal memuat acara count dan acara count all: $e');
+        }
+
+        // Ambil list acara
+        final acaraList = await ApiService.getAcaraByDay(context, day);
+        if (!mounted) return;
+        _acaraIdList = acaraList.map((acara) => acara['id']).toList();
+        _evaluasiDoneList = List.filled(acaraList.length ?? 0, false);
+        for (int i = 0; i < _evaluasiDoneList.length; i++) {
+          try {
+            final result = await ApiService.getEvaluasiByPesertaByAcara(
+              context,
+              widget.userId,
+              _acaraIdList[i],
+            );
+            if (!mounted) return;
+            if (result != null && result['success'] == true) {
+              _evaluasiDoneList[i] = true;
+            }
+          } catch (e) {
+            // ignore error, keep as false
+          }
+        }
+        setState(() {
+          _acaraList = acaraList ?? [];
+          _isLoading = false;
+        });
+      } else if (widget.type == 'Komitmen') {
+        // Ambil list komitmen
+        final komitmenList = await ApiService.getKomitmen(context);
+        if (!mounted) return;
+        _komitmenDoneList = List.filled(komitmenList.length ?? 0, false);
+        for (int i = 0; i < _komitmenDoneList.length; i++) {
+          try {
+            final result = await ApiService.getKomitmenByPesertaByDay(
+              context,
+              widget.userId,
+              i + 1,
+            );
+            if (!mounted) return;
+            if (result != null && result['success'] == true) {
+              _komitmenDoneList[i] = true;
+            }
+          } catch (e) {
+            // ignore error, keep as false
+          }
+        }
+        setState(() {
+          _komitmenList = komitmenList ?? [];
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('❌ Gagal memuat data: $e');
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -227,126 +302,152 @@ class _EvaluasiKomitmenListScreenState
               fit: BoxFit.fill,
             ),
           ),
-          _isLoading
-              ? const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-              : SafeArea(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      left: 24.0,
-                      right: 24.0,
-                      bottom: 24.0,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Column(
-                          children: [
-                            Image.asset(
-                              widget.type == 'Evaluasi'
-                                  ? 'assets/texts/evaluasi.png'
-                                  : 'assets/texts/komitmen.png',
-                              height: 96,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        if (widget.type == 'Evaluasi') _buildDaySelector(),
-                        const SizedBox(height: 16),
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount:
-                              widget.type == 'Evaluasi'
-                                  ? _acaraList.length
-                                  : _komitmenList.length,
-                          itemBuilder: (context, index) {
-                            final items =
+          SafeArea(
+            child: RefreshIndicator(
+              onRefresh: () => initAll(),
+              color: AppColors.brown1,
+              backgroundColor: Colors.white,
+              child: SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(),
+
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 24.0,
+                    right: 24.0,
+                    bottom: 24.0,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(
+                        children: [
+                          Image.asset(
+                            widget.type == 'Evaluasi'
+                                ? 'assets/texts/evaluasi.png'
+                                : 'assets/texts/komitmen.png',
+                            height: 96,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      if (widget.type == 'Evaluasi') _buildDaySelector(),
+                      const SizedBox(height: 16),
+                      _isLoading
+                          ? buildShimmerList()
+                          : ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount:
                                 widget.type == 'Evaluasi'
-                                    ? _acaraList
-                                    : _komitmenList;
-                            String item;
-                            bool? status;
-                            if (widget.type == 'Evaluasi') {
-                              final acara = items[index];
-                              item =
-                                  '${acara['acara_nama'] ?? '-'} (Hari ${acara['hari'] ?? '-'})';
-                              status = _evaluasiDoneList[index];
-                            } else {
-                              final komitmen = items[index];
-                              item = 'Komitmen Hari ${komitmen['hari'] ?? '-'}';
-                              status = _komitmenDoneList[index];
-                            }
-                            return CustomCard(
-                              text: item,
-                              icon:
-                                  status == true
-                                      ? Icons.check
-                                      : Icons.arrow_outward_rounded,
-                              onTap: () {
-                                String type = widget.type;
-                                String userId = widget.userId;
-                                int acaraHariId;
-                                if (type == 'Evaluasi') {
-                                  acaraHariId = _acaraList[index]['id'];
-                                } else {
-                                  acaraHariId = _komitmenList[index]['hari'];
-                                }
-                                if (status == true) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (context) =>
-                                              EvaluasiKomitmenViewScreen(
-                                                type: type,
-                                                userId: userId,
-                                                acaraHariId: acaraHariId,
-                                              ),
-                                    ),
-                                  );
-                                } else {
+                                    ? _acaraList.length
+                                    : _komitmenList.length,
+                            itemBuilder: (context, index) {
+                              final items =
+                                  widget.type == 'Evaluasi'
+                                      ? _acaraList
+                                      : _komitmenList;
+                              String item;
+                              bool? status;
+                              if (widget.type == 'Evaluasi') {
+                                final acara = items[index];
+                                item =
+                                    '${acara['acara_nama'] ?? '-'} (Hari ${acara['hari'] ?? '-'})';
+                                status = _evaluasiDoneList[index];
+                              } else {
+                                final komitmen = items[index];
+                                item =
+                                    'Komitmen Hari ${komitmen['hari'] ?? '-'}';
+                                status = _komitmenDoneList[index];
+                              }
+                              return CustomCard(
+                                text: item,
+                                icon:
+                                    status == true
+                                        ? Icons.check
+                                        : Icons.arrow_outward_rounded,
+                                onTap: () {
+                                  String type = widget.type;
+                                  String userId = widget.userId;
+                                  int acaraHariId;
                                   if (type == 'Evaluasi') {
+                                    acaraHariId = _acaraList[index]['id'];
+                                  } else {
+                                    acaraHariId = _komitmenList[index]['hari'];
+                                  }
+                                  if (status == true) {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder:
-                                            (context) => FormEvaluasiScreen(
-                                              userId: userId,
-                                              acaraHariId: acaraHariId,
-                                            ),
+                                            (context) =>
+                                                EvaluasiKomitmenViewScreen(
+                                                  type: type,
+                                                  userId: userId,
+                                                  acaraHariId: acaraHariId,
+                                                ),
                                       ),
                                     );
                                   } else {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) => FormKomitmenScreen(
-                                              userId: userId,
-                                              acaraHariId: acaraHariId,
-                                            ),
-                                      ),
-                                    );
+                                    if (type == 'Evaluasi') {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) => FormEvaluasiScreen(
+                                                userId: userId,
+                                                acaraHariId: acaraHariId,
+                                              ),
+                                        ),
+                                      );
+                                    } else {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) => FormKomitmenScreen(
+                                                userId: userId,
+                                                acaraHariId: acaraHariId,
+                                              ),
+                                        ),
+                                      );
+                                    }
                                   }
-                                }
-                              },
-                              iconBackgroundColor: AppColors.brown1,
-                              showCheckIcon: status == true,
-                            );
-                          },
-                        ),
-                      ],
-                    ),
+                                },
+                                iconBackgroundColor: AppColors.brown1,
+                                showCheckIcon: status == true,
+                              );
+                            },
+                          ),
+                    ],
                   ),
                 ),
               ),
+            ),
+          ),
         ],
       ),
     );
   }
+}
+
+Widget buildShimmerList() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: List.generate(5, (index) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 16.0),
+        child: Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            height: 72,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+        ),
+      );
+    }),
+  );
 }

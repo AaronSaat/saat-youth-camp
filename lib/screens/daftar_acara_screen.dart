@@ -5,6 +5,8 @@ import 'package:syc/utils/app_colors.dart';
 import 'package:syc/widgets/custom_panel_shape.dart';
 
 import '../services/api_service.dart';
+import '../widgets/custom_not_found.dart';
+import 'detail_acara_screen.dart';
 
 class DaftarAcaraScreen extends StatefulWidget {
   const DaftarAcaraScreen({super.key});
@@ -133,204 +135,224 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
             ),
           ),
           SafeArea(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.only(top: 24.0, bottom: 64),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 16),
-                      child: Column(
-                        children: [
-                          Align(
-                            alignment: Alignment.topRight,
-                            child: Container(
-                              height: 48,
-                              width: 48,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Icon(
-                                Icons.search,
-                                color: AppColors.primary,
-                                size: 32,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Column(
-                        children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Image.asset(
-                              'assets/texts/events.png',
-                              height: 72,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildDaySelector(),
-                    _isLoading
-                        ? buildAcaraShimmer(context)
-                        : _acaraList.isEmpty
-                        ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                'assets/images/data_not_found.png',
-                                height: 100,
-                              ),
-                              const SizedBox(height: 12),
-                              const Text(
-                                "Gagal memuat daftar acara :(",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.brown1,
-                                  fontSize: 16,
+            child: RefreshIndicator(
+              onRefresh: () => initAll(),
+              color: AppColors.brown1,
+              backgroundColor: Colors.white,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 24.0, bottom: 64),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 16),
+                        child: Column(
+                          children: [
+                            Align(
+                              alignment: Alignment.topRight,
+                              child: Container(
+                                height: 48,
+                                width: 48,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Icon(
+                                  Icons.search,
+                                  color: AppColors.primary,
+                                  size: 32,
                                 ),
                               ),
-                            ],
-                          ),
-                        )
-                        : ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          padding: const EdgeInsets.all(16),
-                          itemCount: _acaraList.length,
-                          itemBuilder: (context, index) {
-                            final acara = _acaraList[index];
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: SizedBox(
-                                child: Stack(
-                                  children: [
-                                    CustomPanelShape(
-                                      width: MediaQuery.of(context).size.width,
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                          0.2,
-                                      imageProvider: () {
-                                        final nama =
-                                            acara['acara_nama']?.toString() ??
-                                            '';
-                                        if (nama ==
-                                            'Pendaftaran Ulang dan Kedatangan') {
-                                          return Image.asset(
-                                            'assets/mockups/daftar.jpg',
-                                          ).image;
-                                        } else if (nama == 'Opening') {
-                                          return Image.asset(
-                                            'assets/mockups/opening.jpg',
-                                          ).image;
-                                        } else if (nama == 'KKR 1') {
-                                          return Image.asset(
-                                            'assets/mockups/kkr1.jpg',
-                                          ).image;
-                                        } else if (nama == 'KKR 2') {
-                                          return Image.asset(
-                                            'assets/mockups/kkr2.jpg',
-                                          ).image;
-                                        } else if (nama == 'KKR 3') {
-                                          return Image.asset(
-                                            'assets/mockups/kkr3.jpg',
-                                          ).image;
-                                        } else if (nama == 'Saat Teduh') {
-                                          return Image.asset(
-                                            'assets/mockups/saat_teduh1.jpg',
-                                          ).image;
-                                        } else if (nama == 'Drama Musikal') {
-                                          return Image.asset(
-                                            'assets/mockups/drama_musikal.jpg',
-                                          ).image;
-                                        } else if (nama ==
-                                            'New Year Countdown') {
-                                          return Image.asset(
-                                            'assets/mockups/new_year.jpg',
-                                          ).image;
-                                        } else if (nama == 'Closing') {
-                                          return Image.asset(
-                                            'assets/mockups/closing.jpg',
-                                          ).image;
-                                        } else {
-                                          return Image.asset(
-                                            'assets/images/event.jpg',
-                                          ).image;
-                                        }
-                                      }(),
-                                    ),
-                                    Positioned(
-                                      left: 24,
-                                      bottom: 20,
-                                      right: 16,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            acara['acara_nama']?.toString() ??
-                                                '',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Column(
+                          children: [
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Image.asset(
+                                'assets/texts/events.png',
+                                height: 72,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildDaySelector(),
+                      _isLoading
+                          ? buildAcaraShimmer(context)
+                          : _acaraList.isEmpty
+                          ? Center(
+                            child: CustomNotFound(
+                              text: "Gagal memuat daftar acara :(",
+                              textColor: AppColors.brown1,
+                              imagePath: 'assets/images/data_not_found.png',
+                              onBack: initAll,
+                              backText: 'Reload Acara',
+                            ),
+                          )
+                          : ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: const EdgeInsets.all(16),
+                            itemCount: _acaraList.length,
+                            itemBuilder: (context, index) {
+                              final acara = _acaraList[index];
+                              print(
+                                'Acara: ${acara['id']} - ${acara['acara_nama']}',
+                              );
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 16),
+                                child: SizedBox(
+                                  child: Stack(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      DetailAcaraScreen(
+                                                        id: acara["id"],
+                                                      ),
                                             ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          RichText(
-                                            text: TextSpan(
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 10,
-                                              ),
-                                              text: () {
-                                                final desc =
-                                                    acara['acara_deskripsi']
-                                                        ?.toString() ??
-                                                    '';
-                                                if (desc.length > 30) {
-                                                  return desc.substring(0, 30) +
-                                                      '...';
-                                                }
-                                                return desc;
-                                              }(),
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Positioned(
-                                      right:
-                                          MediaQuery.of(context).size.width *
-                                          0.1,
-                                      bottom:
-                                          MediaQuery.of(context).size.height *
-                                          0.007,
-                                      child: Text(
-                                        'Tap for More',
-                                        style: const TextStyle(
-                                          color: Color(0xFF606060),
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
+                                          );
+                                        },
+                                        child: CustomPanelShape(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          height:
+                                              MediaQuery.of(
+                                                context,
+                                              ).size.height *
+                                              0.2,
+
+                                          imageProvider: () {
+                                            final nama =
+                                                acara['acara_nama']
+                                                    ?.toString() ??
+                                                '';
+                                            if (nama ==
+                                                'Pendaftaran Ulang dan Kedatangan') {
+                                              return Image.asset(
+                                                'assets/mockups/daftar.jpg',
+                                              ).image;
+                                            } else if (nama == 'Opening') {
+                                              return Image.asset(
+                                                'assets/mockups/opening.jpg',
+                                              ).image;
+                                            } else if (nama == 'KKR 1') {
+                                              return Image.asset(
+                                                'assets/mockups/kkr1.jpg',
+                                              ).image;
+                                            } else if (nama == 'KKR 2') {
+                                              return Image.asset(
+                                                'assets/mockups/kkr2.jpg',
+                                              ).image;
+                                            } else if (nama == 'KKR 3') {
+                                              return Image.asset(
+                                                'assets/mockups/kkr3.jpg',
+                                              ).image;
+                                            } else if (nama == 'Saat Teduh') {
+                                              return Image.asset(
+                                                'assets/mockups/saat_teduh1.jpg',
+                                              ).image;
+                                            } else if (nama ==
+                                                'Drama Musikal') {
+                                              return Image.asset(
+                                                'assets/mockups/drama_musikal.jpg',
+                                              ).image;
+                                            } else if (nama ==
+                                                'New Year Countdown') {
+                                              return Image.asset(
+                                                'assets/mockups/new_year.jpg',
+                                              ).image;
+                                            } else if (nama == 'Closing') {
+                                              return Image.asset(
+                                                'assets/mockups/closing.jpg',
+                                              ).image;
+                                            } else {
+                                              return Image.asset(
+                                                'assets/images/event.jpg',
+                                              ).image;
+                                            }
+                                          }(),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                      Positioned(
+                                        left: 24,
+                                        bottom: 20,
+                                        right: 16,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              acara['acara_nama']?.toString() ??
+                                                  '',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            RichText(
+                                              text: TextSpan(
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 10,
+                                                ),
+                                                text: () {
+                                                  final desc =
+                                                      acara['acara_deskripsi']
+                                                          ?.toString() ??
+                                                      '';
+                                                  if (desc.length > 30) {
+                                                    return desc.substring(
+                                                          0,
+                                                          30,
+                                                        ) +
+                                                        '...';
+                                                  }
+                                                  return desc;
+                                                }(),
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Positioned(
+                                        right:
+                                            MediaQuery.of(context).size.width *
+                                            0.1,
+                                        bottom:
+                                            MediaQuery.of(context).size.height *
+                                            0.007,
+                                        child: Text(
+                                          'Tap for More',
+                                          style: const TextStyle(
+                                            color: Color(0xFF606060),
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                        ),
-                  ],
+                              );
+                            },
+                          ),
+                    ],
+                  ),
                 ),
               ),
             ),

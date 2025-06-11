@@ -7,7 +7,8 @@ void showCustomSnackBar(
   String message, {
   bool isSuccess = false,
 }) {
-  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
+  if (scaffoldMessenger == null) return;
   scaffoldMessenger.showSnackBar(
     SnackBar(
       content: Text(

@@ -121,6 +121,7 @@ flutter:
     - assets/texts/kelompok.png
     - assets/texts/daftar_gereja.png
     - assets/texts/daftar_kelompok.png
+    - assets/texts/materi.png
 
     # logos
     - assets/logos/appicon.png
