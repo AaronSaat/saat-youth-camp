@@ -103,243 +103,212 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: AppColors.brown1,
               backgroundColor: Colors.white,
               child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 12.0, bottom: 96.0),
+                  padding: const EdgeInsets.only(
+                    top: 24.0,
+                    bottom: 96.0,
+                    left: 24.0,
+                    right: 24.0,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                      SizedBox(
+                        width: double.infinity,
                         child: Column(
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: SizedBox(
-                                width: double.infinity,
-                                child: Column(
-                                  children: [
-                                    Align(
-                                      alignment: Alignment.topRight,
-                                      child: Image.asset(
-                                        'assets/buttons/hamburger_white.png',
-                                        height: 48,
-                                        width: 48,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      username,
-                                      style: const TextStyle(
-                                        fontSize: 32,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        SizedBox(
-                                          width:
-                                              MediaQuery.of(
-                                                context,
-                                              ).size.width *
-                                              0.28,
-                                          height:
-                                              MediaQuery.of(
-                                                context,
-                                              ).size.width *
-                                              0.28,
-                                          child: CircleAvatar(
-                                            radius: 50,
-                                            backgroundImage: AssetImage(() {
-                                              switch (role) {
-                                                case 'Pembina':
-                                                  return 'assets/mockups/pembina.jpg';
-                                                case 'Peserta':
-                                                  return 'assets/mockups/peserta.jpg';
-                                                case 'Pembimbing':
-                                                  return 'assets/mockups/pembimbing.jpg';
-                                                case 'Panitia':
-                                                  return 'assets/mockups/panitia.jpg';
-                                                default:
-                                                  return 'assets/mockups/unknown.jpg';
-                                              }
-                                            }()),
-                                          ),
+                            Align(
+                              alignment: Alignment.topRight,
+                              child: Image.asset(
+                                'assets/buttons/hamburger_white.png',
+                                height: 48,
+                                width: 48,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.3,
+                                  height:
+                                      MediaQuery.of(context).size.width * 0.3,
+                                  child: CircleAvatar(
+                                    radius: 50,
+                                    backgroundImage: AssetImage(() {
+                                      switch (role) {
+                                        case 'Pembina':
+                                          return 'assets/mockups/pembina.jpg';
+                                        case 'Peserta':
+                                          return 'assets/mockups/peserta.jpg';
+                                        case 'Pembimbing':
+                                          return 'assets/mockups/pembimbing.jpg';
+                                        case 'Panitia':
+                                          return 'assets/mockups/panitia.jpg';
+                                        default:
+                                          return 'assets/mockups/unknown.jpg';
+                                      }
+                                    }()),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        username,
+                                        style: const TextStyle(
+                                          fontSize: 32,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
                                         ),
-                                        const SizedBox(width: 16),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
+                                      ),
+                                      Row(
+                                        children: [
+                                          Card(
+                                            color: AppColors.secondary,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 8,
+                                                    vertical: 4,
+                                                  ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  Card(
-                                                    color: AppColors.secondary,
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            12,
-                                                          ),
-                                                    ),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            horizontal: 8,
-                                                            vertical: 4,
-                                                          ),
-                                                      child: Row(
-                                                        mainAxisSize:
-                                                            MainAxisSize.min,
-                                                        children: [
-                                                          const Icon(
-                                                            Icons.work,
-                                                            size: 16,
-                                                            color:
-                                                                AppColors
-                                                                    .primary,
-                                                          ),
-                                                          const SizedBox(
-                                                            width: 4,
-                                                          ),
-                                                          Text(
-                                                            role,
-                                                            style:
-                                                                const TextStyle(
-                                                                  fontSize: 16,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500,
-                                                                ),
-                                                          ),
-                                                        ],
-                                                      ),
+                                                  const Icon(
+                                                    Icons.work,
+                                                    size: 12,
+                                                    color: AppColors.primary,
+                                                  ),
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    role,
+                                                    style: const TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w500,
                                                     ),
                                                   ),
-                                                  if (kelompok.isNotEmpty &&
-                                                      kelompok != 'Null')
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                            left: 6,
-                                                          ),
-                                                      child: Card(
-                                                        color:
-                                                            AppColors.secondary,
-                                                        shape: RoundedRectangleBorder(
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                12,
-                                                              ),
-                                                        ),
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                horizontal: 8,
-                                                                vertical: 4,
-                                                              ),
-                                                          child: Row(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .min,
-                                                            children: [
-                                                              const Icon(
-                                                                Icons.group,
-                                                                size: 16,
-                                                                color:
-                                                                    AppColors
-                                                                        .primary,
-                                                              ),
-                                                              const SizedBox(
-                                                                width: 4,
-                                                              ),
-                                                              Text(
-                                                                kelompok,
-                                                                style: const TextStyle(
-                                                                  fontSize: 16,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
                                                 ],
                                               ),
-                                              const SizedBox(height: 6),
-                                              if (gereja.isNotEmpty &&
-                                                  gereja != 'Null')
-                                                Card(
-                                                  color: AppColors.secondary,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          12,
+                                            ),
+                                          ),
+                                          if (kelompok.isNotEmpty &&
+                                              kelompok != 'Null')
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                left: 6,
+                                              ),
+                                              child: Card(
+                                                color: AppColors.secondary,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 4,
+                                                      ),
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      const Icon(
+                                                        Icons.group,
+                                                        size: 12,
+                                                        color:
+                                                            AppColors.primary,
+                                                      ),
+                                                      const SizedBox(width: 4),
+                                                      Text(
+                                                        kelompok,
+                                                        style: const TextStyle(
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.w500,
                                                         ),
+                                                      ),
+                                                    ],
                                                   ),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                          horizontal: 8,
-                                                          vertical: 4,
-                                                        ),
-                                                    child: Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        const Icon(
-                                                          Icons.church,
-                                                          size: 16,
-                                                          color:
-                                                              AppColors.primary,
-                                                        ),
-                                                        const SizedBox(
-                                                          width: 4,
-                                                        ),
-                                                        Text(
-                                                          gereja,
-                                                          style:
-                                                              const TextStyle(
-                                                                fontSize: 16,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                              ),
-                                                        ),
-                                                      ],
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                      if (gereja.isNotEmpty && gereja != 'Null')
+                                        Card(
+                                          color: AppColors.secondary,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Icon(
+                                                  Icons.church,
+                                                  size: 16,
+                                                  color: AppColors.primary,
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Flexible(
+                                                  child: Text(
+                                                    gereja,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    maxLines: 3,
+                                                    style: TextStyle(
+                                                      fontSize:
+                                                          gereja.length > 30
+                                                              ? 12
+                                                              : 16,
+                                                      fontWeight:
+                                                          FontWeight.w500,
                                                     ),
                                                   ),
                                                 ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
                             const SizedBox(height: 16),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  logoutUser(context);
-                                },
-                                icon: const Icon(Icons.logout),
-                                label: const Text('Logout'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.accent,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(32),
+                            Align(
+                              alignment: Alignment.bottomCenter,
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    logoutUser(context);
+                                  },
+                                  icon: const Icon(Icons.logout),
+                                  label: const Text('Logout'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.accent,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(32),
+                                    ),
                                   ),
                                 ),
                               ),

@@ -28,7 +28,6 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
   String _namaBulan = '';
   List<Map<String, dynamic>> _dataBrm = [];
   List _dataProgressBacaan = [];
-  bool _loadBrmToday = false;
 
   @override
   void initState() {
@@ -40,7 +39,6 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
     if (!mounted) return;
     setState(() {
       _isLoading = true;
-      _loadBrmToday = false;
     });
     try {
       final hariKe = getCurrentDayOfMonth();
@@ -71,7 +69,6 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
     if (!mounted) return;
     setState(() {
       _isLoading = true;
-      _loadBrmToday = true;
     });
     try {
       final brm = await ApiService.getBrmToday(context);
@@ -83,8 +80,6 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
         } else {
           _dataBrm = [];
         }
-        print('Data BRM AARON: $_dataBrm');
-        print("BRM AARON: $_loadBrmToday");
         _isLoading = false;
       });
     } catch (e) {}
@@ -201,13 +196,9 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
             final bool selected = day == d;
             return GestureDetector(
               onTap: () {
-                if (day != d) {
-                  setState(() {
-                    day = d;
-                  });
-                } else {
-                  loadBrm();
-                }
+                setState(() {
+                  day = d;
+                });
               },
               child: Stack(
                 alignment: Alignment.center,
@@ -277,9 +268,9 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
             ),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Text(
-              _dataBrm != null && _dataBrm!.isNotEmpty
+              _dataBrm.isNotEmpty
                   ? DateFormatter.ubahTanggal(_dataBrm![0]['tanggal'])
-                  : '',
+                  : 'Tanggal???',
               style: const TextStyle(
                 fontSize: 12,
                 color: Colors.white,
@@ -320,7 +311,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                       const SizedBox(height: 16),
                       _isLoading
                           ? buildShimmerList()
-                          : _dataBrm.isEmpty && !_loadBrmToday
+                          : _dataBrm.isEmpty
                           ? Center(
                             child: const CustomNotFound(
                               text: "Gagal memuat data brm hari ini :(",
@@ -328,7 +319,8 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                               imagePath: 'assets/images/data_not_found.png',
                             ),
                           )
-                          : Padding(
+                          : (day == _hariKe)
+                          ? Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8.0,
                             ),
@@ -369,6 +361,13 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                                   showCheckIcon: false,
                                 ),
                               ],
+                            ),
+                          )
+                          : Center(
+                            child: const CustomNotFound(
+                              text: "Hanya bisa menampilkan bacaan hari ini :(",
+                              textColor: Colors.white,
+                              imagePath: 'assets/images/data_not_found.png',
                             ),
                           ),
                     ],
