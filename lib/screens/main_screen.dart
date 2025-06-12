@@ -8,7 +8,7 @@ import 'login_screen.dart';
 import 'dashboard_screen.dart';
 import 'gereja_kelompok_anggota_screen.dart';
 import 'zzz_gereja_kelompok_screen.dart';
-import 'profil_screen.dart';
+import 'profile_screen.dart';
 import 'daftar_acara_screen.dart';
 import 'daftar_acara_screen.dart';
 import 'navigasi_screen.dart';
@@ -87,8 +87,8 @@ class _MainScreenState extends State<MainScreen> {
           type: 'Peserta',
           id: id,
         ), //nanti masukkan parameter gerejanya
-        const MateriScreen(),
-        const ProfilScreen(),
+        MateriScreen(userId: id.toString()),
+        const ProfileScreen(),
       ];
     } else if (role == 'Pembimbing Kelompok') {
       _pages = [
@@ -98,8 +98,8 @@ class _MainScreenState extends State<MainScreen> {
           type: 'Pembimbing Kelompok',
           id: id,
         ), //nantt masukkan parameter kelompoknya
-        const MateriScreen(),
-        const ProfilScreen(),
+        MateriScreen(userId: id.toString()),
+        const ProfileScreen(),
       ];
     } else if (role == 'Pembina') {
       _pages = [
@@ -109,8 +109,8 @@ class _MainScreenState extends State<MainScreen> {
           type: 'Pembina Gereja',
           id: id,
         ), //nanti masukkan parameter gerejanya
-        const MateriScreen(),
-        const ProfilScreen(),
+        MateriScreen(userId: id),
+        const ProfileScreen(),
       ];
     } else if (role == 'Panitia') {
       _pages = [
@@ -122,7 +122,7 @@ class _MainScreenState extends State<MainScreen> {
         ), //nanti masukkan parameter gereja pertama supaya tidak null
         // const BroadcastScreen(),
         // const AdminScreen(),
-        const ProfilScreen(),
+        const ProfileScreen(),
       ];
     }
 

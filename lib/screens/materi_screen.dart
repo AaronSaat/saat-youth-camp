@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:syc/screens/bible_reading_list_screen.dart';
+import 'package:syc/screens/evaluasi_komitmen_list_screen.dart';
+import 'package:syc/screens/bible_reading_more_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 import 'package:syc/widgets/custom_panel_shape.dart';
 
@@ -9,17 +13,23 @@ import '../widgets/custom_not_found.dart';
 import 'detail_acara_screen.dart';
 
 class MateriScreen extends StatefulWidget {
-  const MateriScreen({super.key});
+  final String? userId;
+  const MateriScreen({super.key, required this.userId});
 
   @override
   State<MateriScreen> createState() => _MateriScreenState();
 }
 
 class _MateriScreenState extends State<MateriScreen> {
-  List<dynamic> _acaraList = [];
-  int _countAcara = 0;
   bool _isLoading = true;
   int day = 1;
+  Map<String, String> _dataUser = {};
+
+  // progress
+  Map<String, List<bool>> _komitmenDoneMap = {};
+  Map<String, Map<String, int>> _komitmenSummaryMap = {};
+  Map<String, List<bool>> _evaluasiDoneMap = {};
+  Map<String, Map<String, int>> _evaluasiSummaryMap = {};
 
   @override
   void initState() {
@@ -32,8 +42,9 @@ class _MateriScreenState extends State<MateriScreen> {
       _isLoading = true;
     });
     try {
-      await loadCountAcara();
-      await loadAcara();
+      await loadUserData();
+      await loadProgresKomitmenAnggota();
+      await loadProgresEvaluasiAnggota();
     } catch (e) {
       // handle error jika perlu
     }
@@ -43,87 +54,102 @@ class _MateriScreenState extends State<MateriScreen> {
     });
   }
 
-  Future<void> loadAcara() async {
+  Future<void> loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys = [
+      'id',
+      'username',
+      'email',
+      'role',
+      'token',
+      'gereja_id',
+      'gereja_nama',
+      'kelompok_id',
+      'kelompok_nama',
+    ];
+    final Map<String, String> userData = {};
+    for (final key in keys) {
+      userData[key] = prefs.getString(key) ?? '';
+    }
     if (!mounted) return;
     setState(() {
-      _isLoading = true;
+      _dataUser = userData;
+      print('User data HEY: $_dataUser');
     });
+  }
+
+  Future<void> loadProgresKomitmenAnggota() async {
     try {
-      final acaraList = await ApiService.getAcaraByDay(context, day);
-      if (!mounted) return;
-      setState(() {
-        _acaraList = acaraList;
-        _isLoading = false;
-      });
+      final komitmenList = await ApiService.getKomitmen(context);
+      _komitmenDoneMap = {};
+      _komitmenSummaryMap = {};
+      final userId = _dataUser['id'] ?? '';
+      List<bool> progress = List.filled(komitmenList.length, false);
+      for (int i = 0; i < progress.length; i++) {
+        try {
+          final result = await ApiService.getKomitmenByPesertaByDay(
+            context,
+            userId,
+            i + 1,
+          );
+          if (result['success'] == true) {
+            progress[i] = true;
+          }
+        } catch (e) {
+          // ignore error, keep as false
+        }
+      }
+      _komitmenDoneMap[userId] = progress;
+      // Hitung jumlah true/false
+      int done = progress.where((e) => e).length;
+      int notDone = progress.length - done;
+      _komitmenSummaryMap[userId] = {'done': done, 'notDone': notDone};
+      print('Progress Komitmen Map: \n$_komitmenDoneMap');
+      print('Summary Komitmen Map: \n$_komitmenSummaryMap');
     } catch (e) {
-      print('❌ Gagal memuat acara: $e');
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-      });
+      print('❌ Gagal memuat progress komitmen: $e');
     }
   }
 
-  Future<void> loadCountAcara() async {
+  Future<void> loadProgresEvaluasiAnggota() async {
+    if (!mounted) return;
     try {
-      final countAcara = await ApiService.getAcaraCount(context);
-      if (!mounted) return;
-      setState(() {
-        _countAcara = countAcara;
-      });
+      final acaraList = await ApiService.getAcara(context);
+      _evaluasiDoneMap = {};
+      _evaluasiSummaryMap = {};
+      final userId = _dataUser['id'] ?? '';
+      List<bool> progress = List.filled(acaraList.length, false);
+      for (int i = 0; i < progress.length; i++) {
+        try {
+          final result = await ApiService.getEvaluasiByPesertaByAcara(
+            context,
+            userId,
+            i + 1,
+          );
+          if (result['success'] == true) {
+            progress[i] = true;
+          }
+        } catch (e) {
+          // ignore error, keep as false
+        }
+      }
+      _evaluasiDoneMap[userId] = progress;
+      // Hitung jumlah true/false
+      int done = progress.where((e) => e).length;
+      int notDone = progress.length - done;
+      _evaluasiSummaryMap[userId] = {'done': done, 'notDone': notDone};
+      print('Progress evaluasi Map: \n$_evaluasiDoneMap');
+      print('Summary evaluasi Map: \n$_evaluasiSummaryMap');
     } catch (e) {
-      print('❌ Gagal memuat acara count: $e');
+      // Use a logging framework or handle error appropriately
+      if (!mounted) return;
     }
-  }
-
-  Widget _buildDaySelector() {
-    final List<int> days = List.generate(_countAcara, (index) => index + 1);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children:
-            days.map((d) {
-              final bool selected = day == d;
-              return Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      if (day != d) {
-                        setState(() {
-                          day = d;
-                        });
-                        loadAcara();
-                      }
-                    },
-                    child: Container(
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: selected ? AppColors.primary : Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Day $d',
-                        style: TextStyle(
-                          color: selected ? Colors.white : AppColors.primary,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // body: Center(child: Text("TES - ${_dataUser['id']}")),
       body: Stack(
         children: [
           Positioned(
@@ -141,213 +167,144 @@ class _MateriScreenState extends State<MateriScreen> {
               backgroundColor: Colors.white,
               child: SingleChildScrollView(
                 child: Padding(
-                  padding: EdgeInsets.only(top: 24.0, bottom: 64),
+                  padding: EdgeInsets.only(
+                    top: 24.0,
+                    bottom: 84,
+                    left: 16,
+                    right: 16,
+                  ),
                   child: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 16),
-                        child: Column(
-                          children: [
-                            Align(
-                              alignment: Alignment.topRight,
-                              child: Container(
-                                height: 48,
-                                width: 48,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Icon(
-                                  Icons.search,
-                                  color: AppColors.primary,
-                                  size: 32,
-                                ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: Image.asset(
+                              'assets/texts/materi.png',
+                              height: 84,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: Container(
+                              height: 48,
+                              width: 48,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Icon(
+                                Icons.search,
+                                color: AppColors.primary,
+                                size: 32,
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Column(
-                          children: [
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Image.asset(
-                                'assets/texts/materi.png',
-                                height: 72,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16),
-                      _buildDaySelector(),
                       _isLoading
                           ? buildAcaraShimmer(context)
-                          : _acaraList.isEmpty
-                          ? Center(
-                            child: CustomNotFound(
-                              text: "Gagal memuat daftar acara :(",
-                              textColor: AppColors.brown1,
-                              imagePath: 'assets/images/data_not_found.png',
-                              onBack: initAll,
-                              backText: 'Reload Acara',
-                            ),
-                          )
-                          : ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            padding: const EdgeInsets.all(16),
-                            itemCount: _acaraList.length,
-                            itemBuilder: (context, index) {
-                              final acara = _acaraList[index];
-                              print(
-                                'Acara: ${acara['id']} - ${acara['acara_nama']}',
-                              );
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 16),
-                                child: SizedBox(
-                                  child: Stack(
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (context) =>
-                                                      DetailAcaraScreen(
-                                                        id: acara["id"],
-                                                      ),
-                                            ),
-                                          );
-                                        },
-                                        child: CustomPanelShape(
-                                          width:
-                                              MediaQuery.of(context).size.width,
-                                          height:
-                                              MediaQuery.of(
-                                                context,
-                                              ).size.height *
-                                              0.2,
+                          //     : _acaraList.isEmpty
+                          //     ? Center(
+                          //       child: CustomNotFound(
+                          //         text: "Gagal memuat daftar materi :(",
+                          //         textColor: AppColors.brown1,
+                          //         imagePath: 'assets/images/data_not_found.png',
+                          //         onBack: initAll,
+                          //         backText: 'Reload Materi',
+                          //       ),
+                          //     )
+                          : Builder(
+                            builder: (context) {
+                              // Ambil userId dari _dataUser
+                              final userId = _dataUser['id'] ?? '';
+                              // Progress Evaluasi
+                              final progressEvaluasi =
+                                  _evaluasiDoneMap[userId] ?? [];
+                              final evaluasiTotal = progressEvaluasi.length;
+                              final evaluasiDone =
+                                  progressEvaluasi.where((e) => e).length;
+                              final evaluasiProgress =
+                                  evaluasiTotal > 0
+                                      ? evaluasiDone / evaluasiTotal
+                                      : 0.0;
 
-                                          imageProvider: () {
-                                            final nama =
-                                                acara['acara_nama']
-                                                    ?.toString() ??
-                                                '';
-                                            if (nama ==
-                                                'Pendaftaran Ulang dan Kedatangan') {
-                                              return Image.asset(
-                                                'assets/mockups/daftar.jpg',
-                                              ).image;
-                                            } else if (nama == 'Opening') {
-                                              return Image.asset(
-                                                'assets/mockups/opening.jpg',
-                                              ).image;
-                                            } else if (nama == 'KKR 1') {
-                                              return Image.asset(
-                                                'assets/mockups/kkr1.jpg',
-                                              ).image;
-                                            } else if (nama == 'KKR 2') {
-                                              return Image.asset(
-                                                'assets/mockups/kkr2.jpg',
-                                              ).image;
-                                            } else if (nama == 'KKR 3') {
-                                              return Image.asset(
-                                                'assets/mockups/kkr3.jpg',
-                                              ).image;
-                                            } else if (nama == 'Saat Teduh') {
-                                              return Image.asset(
-                                                'assets/mockups/saat_teduh1.jpg',
-                                              ).image;
-                                            } else if (nama ==
-                                                'Drama Musikal') {
-                                              return Image.asset(
-                                                'assets/mockups/drama_musikal.jpg',
-                                              ).image;
-                                            } else if (nama ==
-                                                'New Year Countdown') {
-                                              return Image.asset(
-                                                'assets/mockups/new_year.jpg',
-                                              ).image;
-                                            } else if (nama == 'Closing') {
-                                              return Image.asset(
-                                                'assets/mockups/closing.jpg',
-                                              ).image;
-                                            } else {
-                                              return Image.asset(
-                                                'assets/images/event.jpg',
-                                              ).image;
-                                            }
-                                          }(),
+                              // Progress Komitmen
+                              final progressKomitmen =
+                                  _komitmenDoneMap[userId] ?? [];
+                              final komitmenTotal = progressKomitmen.length;
+                              final komitmenDone =
+                                  progressKomitmen.where((e) => e).length;
+                              final komitmenProgress =
+                                  komitmenTotal > 0
+                                      ? komitmenDone / komitmenTotal
+                                      : 0.0;
+
+                              return Column(
+                                children: [
+                                  MateriMenuCard(
+                                    title: 'Evaluasi Pribadi',
+                                    imagePath: 'assets/mockups/evaluasi.jpg',
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) =>
+                                                  EvaluasiKomitmenListScreen(
+                                                    type: 'Evaluasi',
+                                                    userId: userId,
+                                                  ),
                                         ),
-                                      ),
-                                      Positioned(
-                                        left: 24,
-                                        bottom: 20,
-                                        right: 16,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              acara['acara_nama']?.toString() ??
-                                                  '',
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            RichText(
-                                              text: TextSpan(
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 10,
-                                                ),
-                                                text: () {
-                                                  final desc =
-                                                      acara['acara_deskripsi']
-                                                          ?.toString() ??
-                                                      '';
-                                                  if (desc.length > 30) {
-                                                    return desc.substring(
-                                                          0,
-                                                          30,
-                                                        ) +
-                                                        '...';
-                                                  }
-                                                  return desc;
-                                                }(),
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Positioned(
-                                        right:
-                                            MediaQuery.of(context).size.width *
-                                            0.1,
-                                        bottom:
-                                            MediaQuery.of(context).size.height *
-                                            0.007,
-                                        child: Text(
-                                          'Tap for More',
-                                          style: const TextStyle(
-                                            color: Color(0xFF606060),
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w400,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                      );
+                                    },
+                                    withProgress: true,
+                                    valueProgress: evaluasiProgress,
+                                    valueDone: evaluasiDone,
+                                    valueTotal: evaluasiTotal,
                                   ),
-                                ),
+                                  MateriMenuCard(
+                                    title: 'Komitmen Pribadi',
+                                    imagePath: 'assets/mockups/komitmen.jpg',
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) =>
+                                                  EvaluasiKomitmenListScreen(
+                                                    type: 'Komitmen',
+                                                    userId: userId,
+                                                  ),
+                                        ),
+                                      );
+                                    },
+                                    withProgress: true,
+                                    valueProgress: komitmenProgress,
+                                    valueDone: komitmenDone,
+                                    valueTotal: komitmenTotal,
+                                  ),
+                                  MateriMenuCard(
+                                    title: 'Bacaan Harian',
+                                    imagePath: 'assets/mockups/reading.jpg',
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) =>
+                                                  BibleReadingListScreen(
+                                                    userId: userId,
+                                                  ),
+                                        ),
+                                      );
+                                    },
+                                    // Progress belum tersedia untuk Bacaan Harian
+                                    withProgress: false,
+                                  ),
+                                ],
                               );
                             },
                           ),
@@ -363,12 +320,12 @@ class _MateriScreenState extends State<MateriScreen> {
   }
 
   // Shimmer loading untuk daftar acara
-  Widget buildAcaraShimmer(BuildContext context, {int itemCount = 3}) {
+  Widget buildAcaraShimmer(BuildContext context) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(16),
-      itemCount: itemCount,
+      padding: const EdgeInsets.all(8),
+      itemCount: 3,
       itemBuilder: (context, index) {
         return Padding(
           padding: const EdgeInsets.only(bottom: 16),
@@ -380,7 +337,7 @@ class _MateriScreenState extends State<MateriScreen> {
                   highlightColor: Colors.grey[100]!,
                   child: Container(
                     width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height * 0.2,
+                    height: MediaQuery.of(context).size.height * 0.25,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(24),
@@ -434,6 +391,123 @@ class _MateriScreenState extends State<MateriScreen> {
           ),
         );
       },
+    );
+  }
+}
+
+class MateriMenuCard extends StatelessWidget {
+  final String title;
+  final String imagePath;
+  final VoidCallback onTap;
+  final bool withProgress;
+  final double valueProgress;
+  final int? valueDone;
+  final int? valueTotal;
+
+  const MateriMenuCard({
+    super.key,
+    required this.title,
+    required this.imagePath,
+    required this.onTap,
+    this.withProgress = false,
+    this.valueProgress = 0.0,
+    this.valueDone,
+    this.valueTotal,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
+              ),
+              child: Image.asset(
+                imagePath,
+                width: double.infinity,
+                height: 150,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                  const Icon(
+                    Icons.arrow_forward_ios,
+                    color: AppColors.primary,
+                    size: 24,
+                  ),
+                ],
+              ),
+            ),
+            if (withProgress)
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 0,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: LinearProgressIndicator(
+                          value: valueProgress,
+                          minHeight: 12,
+                          backgroundColor: Colors.grey[200],
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.green,
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (valueDone != null && valueTotal != null)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 12),
+                        child: Text(
+                          '$valueDone/$valueTotal',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            if (withProgress) const SizedBox(height: 16),
+          ],
+        ),
+      ),
     );
   }
 }

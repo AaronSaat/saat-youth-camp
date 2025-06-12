@@ -8,9 +8,9 @@ import 'package:syc/screens/evaluasi_komitmen_success_screen.dart';
 import 'package:syc/screens/form_evaluasi_screen.dart';
 import 'package:syc/screens/form_komitmen_screen.dart';
 import 'package:syc/screens/gereja_kelompok_anggota_screen.dart';
-import 'package:syc/screens/read_more_success_screen.dart';
+import 'package:syc/screens/bible_reading_success_screen.dart';
 import 'package:syc/screens/review_evaluasi_screen.dart';
-import 'package:syc/screens/read_more_screen.dart';
+import 'package:syc/screens/bible_reading_more_screen.dart';
 import 'package:syc/screens/test_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 

@@ -6,6 +6,7 @@ import 'package:shimmer/shimmer.dart';
 import '../services/api_service.dart';
 import '../utils/app_colors.dart';
 import '../widgets/custom_card.dart';
+import '../widgets/custom_snackbar.dart';
 import 'form_komitmen_screen.dart';
 import 'review_evaluasi_screen.dart';
 import 'evaluasi_komitmen_view_screen.dart';
@@ -33,6 +34,7 @@ class _EvaluasiKomitmenListScreenState
   List<dynamic> _evaluasiDoneList = [];
   List<dynamic> _acaraIdList =
       []; // untuk menyimpan acara ID supaya di listnya tau selesai atau belum
+  Map<String, String> _dataUser = {};
   bool _isLoading = true;
   int day = 1; // default day
   int _countAcara = 1;
@@ -50,6 +52,7 @@ class _EvaluasiKomitmenListScreenState
     });
 
     try {
+      await loadUserData();
       if (widget.type == 'Evaluasi') {
         // Ambil count acara & count all
         try {
@@ -207,6 +210,29 @@ class _EvaluasiKomitmenListScreenState
     } catch (e) {
       print('❌ Gagal memuat acara count dan acara count all: $e');
     }
+  }
+
+  Future<void> loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys = [
+      'id',
+      'username',
+      'email',
+      'role',
+      'token',
+      'gereja_id',
+      'gereja_nama',
+      'kelompok_id',
+      'kelompok_nama',
+    ];
+    final Map<String, String> userData = {};
+    for (final key in keys) {
+      userData[key] = prefs.getString(key) ?? '';
+    }
+    if (!mounted) return;
+    setState(() {
+      _dataUser = userData;
+    });
   }
 
   Widget _buildDaySelector() {
@@ -388,7 +414,15 @@ class _EvaluasiKomitmenListScreenState
                                       ),
                                     );
                                   } else {
-                                    if (type == 'Evaluasi') {
+                                    if (_dataUser['id'] != widget.userId) {
+                                      if (mounted) {
+                                        showCustomSnackBar(
+                                          context,
+                                          'Evaluasi/Komitmen hanya bisa diisi oleh pemilikinya.',
+                                          isSuccess: false,
+                                        );
+                                      }
+                                    } else if (type == 'Evaluasi') {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(

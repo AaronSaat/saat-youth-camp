@@ -24,10 +24,12 @@ class CustomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double setHeight = text.length > 50 ? 100 : 70;
+    double setwidth = text.length > 50 ? 100 : 70;
     return Stack(
       children: [
         Container(
-          height: 70,
+          height: setHeight,
           margin: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             color: AppColors.grey3,
@@ -41,8 +43,8 @@ class CustomCard extends StatelessWidget {
           child: Row(
             children: [
               SizedBox(
-                width: 70,
-                height: 70,
+                width: setwidth,
+                height: setHeight,
                 child: Container(
                   decoration: BoxDecoration(
                     color: iconBackgroundColor,

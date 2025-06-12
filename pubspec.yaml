@@ -54,11 +54,13 @@ flutter:
     - assets/images/read_saved.png
     - assets/images/megaphone.png
     - assets/images/background_dashboard.jpg
+    - assets/images/background_profile.jpg
     - assets/images/background_dashboard.png
     - assets/images/background_fade.jpg #pakai ini
     - assets/images/background_fade.png
     - assets/images/background_anggota.jpg
     - assets/images/background_read_more.jpg
+    - assets/images/background_list_bacaan.jpg
 
     # kelompok_gereja_all assets
     - assets/images/background_member.png
@@ -149,10 +151,13 @@ flutter:
     - assets/mockups/saat_teduh2.jpg 
     - assets/mockups/saat_teduh3.jpg 
     - assets/mockups/saat_teduh4.jpg 
+    - assets/mockups/evaluasi.jpg 
+    - assets/mockups/komitmen.jpg 
     - assets/mockups/peserta.jpg 
     - assets/mockups/pembina.jpg 
     - assets/mockups/pembimbing.jpg 
     - assets/mockups/panitia.jpg 
+    - assets/mockups/unknown.jpg 
 
   fonts:
     - family: Roboto

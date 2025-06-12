@@ -5,17 +5,17 @@ import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
 import '../widgets/custom_alert_dialog.dart';
 import '../widgets/custom_snackbar.dart';
-import 'read_more_success_screen.dart';
+import 'bible_reading_success_screen.dart';
 
-class ReadMoreScreen extends StatefulWidget {
+class BibleReadingMoreScreen extends StatefulWidget {
   final String userId;
-  const ReadMoreScreen({super.key, required this.userId});
+  const BibleReadingMoreScreen({super.key, required this.userId});
 
   @override
-  State<ReadMoreScreen> createState() => _ReadMoreScreenState();
+  State<BibleReadingMoreScreen> createState() => _BibleReadingMoreScreenState();
 }
 
-class _ReadMoreScreenState extends State<ReadMoreScreen> {
+class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
   bool _isLoading = true;
   List<Map<String, dynamic>>? _dataBrm;
   Map<String, dynamic>? _dataBible;
@@ -103,7 +103,7 @@ class _ReadMoreScreenState extends State<ReadMoreScreen> {
                 if (mounted) {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
-                      builder: (context) => ReadMoreSuccessScreen(),
+                      builder: (context) => BibleReadingSuccessScreen(),
                     ),
                   );
                 }

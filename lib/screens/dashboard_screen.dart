@@ -9,7 +9,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:syc/utils/app_colors.dart';
 
 import 'detail_acara_screen.dart';
-import 'read_more_screen.dart';
+import 'bible_reading_more_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -162,9 +162,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final userId = _dataUser['id'] ?? '-';
-
-    final data = _dataBrm;
-    // print('Data BRM Test: $data');
     return Scaffold(
       body: Stack(
         children: [
@@ -237,8 +234,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       context,
                                       MaterialPageRoute(
                                         builder:
-                                            (context) =>
-                                                ReadMoreScreen(userId: userId),
+                                            (context) => BibleReadingMoreScreen(
+                                              userId: userId,
+                                            ),
                                       ),
                                     );
                                   },

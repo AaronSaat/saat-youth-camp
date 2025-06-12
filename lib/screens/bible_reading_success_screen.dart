@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../utils/app_colors.dart';
 
-class ReadMoreSuccessScreen extends StatelessWidget {
-  const ReadMoreSuccessScreen({super.key});
+class BibleReadingSuccessScreen extends StatelessWidget {
+  const BibleReadingSuccessScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

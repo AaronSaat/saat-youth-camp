@@ -32,12 +32,6 @@ class _GerejaKelompokAnggotaScreenState
   bool _isLoading = true;
   String gereja_atau_kelompok = '';
 
-  // progress
-  Map<String, List<bool>> _komitmenDoneMap = {};
-  Map<String, Map<String, int>> _komitmenSummaryMap = {};
-  Map<String, List<bool>> _evaluasiDoneMap = {};
-  Map<String, Map<String, int>> _evaluasiSummaryMap = {};
-
   @override
   void initState() {
     super.initState();
@@ -45,9 +39,6 @@ class _GerejaKelompokAnggotaScreenState
   }
 
   Future<void> _initAll() async {
-    setState(() {
-      _isLoading = true;
-    });
     try {
       if (widget.type == 'Peserta' ||
           widget.type == 'Pembimbing Kelompok' ||
@@ -57,8 +48,6 @@ class _GerejaKelompokAnggotaScreenState
           widget.type == 'Panitia Gereja') {
         await loadAnggotaGereja(widget.id);
       }
-      await loadProgresKomitmenAnggota();
-      await loadProgresEvaluasiAnggota();
     } catch (e) {
       // handle error jika perlu
     }
@@ -70,22 +59,16 @@ class _GerejaKelompokAnggotaScreenState
   }
 
   Future<void> loadAnggotaGereja(gerejaId) async {
-    setState(() {
-      _isLoading = true;
-    });
     try {
       final response = await ApiService.getAnggotaGereja(context, gerejaId);
       setState(() {
         gereja_atau_kelompok = 'Gereja';
         nama = response['nama_gereja'];
         anggota = response['data_anggota_gereja'];
-        _isLoading = false;
       });
       print('Gereja atau kelompok?: $gereja_atau_kelompok');
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() {});
       print('Gagal mengambil data gereja: $e');
     }
   }
@@ -100,85 +83,10 @@ class _GerejaKelompokAnggotaScreenState
         gereja_atau_kelompok = 'Kelompok';
         nama = response['nama_kelompok'];
         anggota = response['data_anggota_kelompok'];
-        _isLoading = false;
       });
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() {});
       print('Gagal mengambil data kelompok: $e');
-    }
-  }
-
-  Future<void> loadProgresKomitmenAnggota() async {
-    try {
-      final komitmenList = await ApiService.getKomitmen(context);
-      _komitmenDoneMap = {};
-      _komitmenSummaryMap = {};
-      for (var user in anggota) {
-        final userId = user['id'].toString();
-        List<bool> progress = List.filled(komitmenList.length, false);
-        for (int i = 0; i < progress.length; i++) {
-          try {
-            final result = await ApiService.getKomitmenByPesertaByDay(
-              context,
-              userId,
-              i + 1,
-            );
-            if (result['success'] == true) {
-              progress[i] = true;
-            }
-          } catch (e) {
-            // ignore error, keep as false
-          }
-        }
-        _komitmenDoneMap[userId] = progress;
-        // Hitung jumlah true/false
-        int done = progress.where((e) => e).length;
-        int notDone = progress.length - done;
-        _komitmenSummaryMap[userId] = {'done': done, 'notDone': notDone};
-      }
-      print('Progress Komitmen Map: \n$_komitmenDoneMap');
-      print('Summary Komitmen Map: \n$_komitmenSummaryMap');
-    } catch (e) {
-      print('❌ Gagal memuat progress komitmen: $e');
-    }
-  }
-
-  Future<void> loadProgresEvaluasiAnggota() async {
-    if (!mounted) return;
-    try {
-      final acaraList = await ApiService.getAcara(context);
-      _evaluasiDoneMap = {};
-      _evaluasiSummaryMap = {};
-      for (var user in anggota) {
-        final userId = user['id'].toString();
-        List<bool> progress = List.filled(acaraList.length, false);
-        for (int i = 0; i < progress.length; i++) {
-          try {
-            final result = await ApiService.getEvaluasiByPesertaByAcara(
-              context,
-              userId,
-              i + 1,
-            );
-            if (result['success'] == true) {
-              progress[i] = true;
-            }
-          } catch (e) {
-            // ignore error, keep as false
-          }
-        }
-        _evaluasiDoneMap[userId] = progress;
-        // Hitung jumlah true/false
-        int done = progress.where((e) => e).length;
-        int notDone = progress.length - done;
-        _evaluasiSummaryMap[userId] = {'done': done, 'notDone': notDone};
-      }
-      print('Progress evaluasi Map: \n$_evaluasiDoneMap');
-      print('Summary evaluasi Map: \n$_evaluasiSummaryMap');
-    } catch (e) {
-      // Use a logging framework or handle error appropriately
-      if (!mounted) return;
     }
   }
 
@@ -380,53 +288,7 @@ class _GerejaKelompokAnggotaScreenState
                                                     ),
                                                   ),
                                                 ),
-                                                if ((user['gender'] == "P" ||
-                                                        user['gender'] == "L" ||
-                                                        user['gender'] ==
-                                                            null) &&
-                                                    user['role'] !=
-                                                        "Pembimbing")
-                                                  Positioned(
-                                                    top: -5,
-                                                    right: -5,
-                                                    child: Card(
-                                                      color:
-                                                          user['gender'] == "P"
-                                                              ? Colors.pink
-                                                              : user['gender'] ==
-                                                                  "L"
-                                                              ? Colors.blue
-                                                              : Colors.grey,
-                                                      shape: const RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius.only(
-                                                              bottomLeft:
-                                                                  Radius.circular(
-                                                                    16,
-                                                                  ),
-                                                              topRight:
-                                                                  Radius.circular(
-                                                                    16,
-                                                                  ),
-                                                            ),
-                                                      ),
-                                                      elevation: 0,
-                                                      child: SizedBox(
-                                                        width: 48,
-                                                        height: 36,
-                                                        child: Icon(
-                                                          user['gender'] == "P"
-                                                              ? Icons.female
-                                                              : user['gender'] ==
-                                                                  "L"
-                                                              ? Icons.male
-                                                              : Icons
-                                                                  .help_outline,
-                                                          color: Colors.white,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
+
                                                 if (user['role'] == "Pembina" ||
                                                     user['role'] ==
                                                         "Pembimbing")
@@ -455,169 +317,6 @@ class _GerejaKelompokAnggotaScreenState
                                                         child: Icon(
                                                           Icons.star,
                                                           color: Colors.white,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                // show komitmen progress
-                                                if (user['role'] == "Anggota")
-                                                  Positioned(
-                                                    bottom: -5,
-                                                    left: -5,
-                                                    child: Card(
-                                                      color: AppColors.brown1,
-                                                      shape: const RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius.only(
-                                                              topRight:
-                                                                  Radius.circular(
-                                                                    16,
-                                                                  ),
-                                                              bottomLeft:
-                                                                  Radius.circular(
-                                                                    16,
-                                                                  ),
-                                                            ),
-                                                      ),
-                                                      elevation: 0,
-                                                      child: SizedBox(
-                                                        width: 72,
-                                                        height: 36,
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Icon(
-                                                              Icons.checklist,
-                                                              color:
-                                                                  Colors.white,
-                                                              size: 18,
-                                                            ),
-                                                            const SizedBox(
-                                                              width: 4,
-                                                            ),
-                                                            Builder(
-                                                              builder: (
-                                                                context,
-                                                              ) {
-                                                                final summary =
-                                                                    _komitmenSummaryMap[user['id']
-                                                                        .toString()];
-                                                                if (summary ==
-                                                                    null) {
-                                                                  return const Text(
-                                                                    '-',
-                                                                    style: TextStyle(
-                                                                      fontSize:
-                                                                          12,
-                                                                      color:
-                                                                          Colors
-                                                                              .white,
-                                                                    ),
-                                                                  );
-                                                                }
-                                                                return Text(
-                                                                  '${summary['done']}/${summary['done']! + summary['notDone']!}',
-                                                                  style: const TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                    color:
-                                                                        Colors
-                                                                            .white,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                  ),
-                                                                );
-                                                              },
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                // show evaluasi progress
-                                                if (user['role'] == "Anggota")
-                                                  Positioned(
-                                                    top: -5,
-                                                    left: -5,
-                                                    child: Card(
-                                                      color: AppColors.brown1,
-                                                      shape: const RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius.only(
-                                                              bottomRight:
-                                                                  Radius.circular(
-                                                                    16,
-                                                                  ),
-                                                              topLeft:
-                                                                  Radius.circular(
-                                                                    16,
-                                                                  ),
-                                                            ),
-                                                      ),
-                                                      elevation: 0,
-                                                      child: SizedBox(
-                                                        width: 72,
-                                                        height: 36,
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Icon(
-                                                              Icons
-                                                                  .assignment_turned_in,
-                                                              color:
-                                                                  Colors.white,
-                                                              size: 18,
-                                                            ),
-                                                            const SizedBox(
-                                                              width: 4,
-                                                            ),
-                                                            Builder(
-                                                              builder: (
-                                                                context,
-                                                              ) {
-                                                                final summary =
-                                                                    _evaluasiSummaryMap[user['id']
-                                                                        .toString()];
-                                                                if (summary ==
-                                                                    null) {
-                                                                  return const Text(
-                                                                    '-',
-                                                                    style: TextStyle(
-                                                                      fontSize:
-                                                                          12,
-                                                                      color:
-                                                                          Colors
-                                                                              .white,
-                                                                    ),
-                                                                  );
-                                                                }
-                                                                return Text(
-                                                                  '${summary['done']}/${summary['done']! + summary['notDone']!}',
-                                                                  style: const TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                    color:
-                                                                        Colors
-                                                                            .white,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                  ),
-                                                                );
-                                                              },
-                                                            ),
-                                                          ],
                                                         ),
                                                       ),
                                                     ),
