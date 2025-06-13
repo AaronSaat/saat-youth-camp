@@ -80,41 +80,21 @@ class _PanelShapePainter extends CustomPainter {
     );
 
     // Pindah cekungan ke kiri bawah
-    // Jadi dari kanan bawah pindah ke kiri bawah
     path.lineTo(size.width * 0.62, size.height - 30);
 
     // Cekungan kiri bawah — dibuat lebih lebar dan halus
     path.quadraticBezierTo(
       size.width * 0.57,
-      size.height -
-          30, // Titik kontrol pertama (lebih ke kanan & naik), mengatur awal lekukan
+      size.height - 30,
       size.width * 0.55,
-      size.height - 10, // Titik akhir pertama, bagian atas dari lekukan "gigit"
+      size.height - 10,
     );
     path.quadraticBezierTo(
       size.width * 0.54,
-      size.height, // Titik kontrol kedua, memberi efek "turun" ke dalam
+      size.height,
       size.width * 0.5,
-      size.height, // Titik akhir kedua, kembali ke tepi bawah panel
+      size.height,
     );
-
-    // Pindah cekungan ke kiri bawah
-    // Jadi dari kanan bawah pindah ke kiri bawah
-    // path.lineTo(size.width * 0.55, size.height - 30);
-
-    // // cekungan kiri bawah
-    // path.quadraticBezierTo(
-    //   size.width * 0.50,
-    //   size.height - 30, // titik kontrol kiri atas cekungan
-    //   size.width * 0.48,
-    //   size.height - 10, // titik akhir cekungan (ke atas)
-    // );
-    // path.quadraticBezierTo(
-    //   size.width * 0.46,
-    //   size.height, // titik kontrol cekungan bawah
-    //   size.width * 0.44,
-    //   size.height, // titik akhir cekungan di bawah
-    // );
 
     path.lineTo(radius, size.height);
     path.quadraticBezierTo(0, size.height, 0, size.height - radius);
@@ -123,6 +103,7 @@ class _PanelShapePainter extends CustomPainter {
     path.quadraticBezierTo(0, 0, radius, 0);
 
     if (image != null) {
+      canvas.save();
       canvas.clipPath(path);
       final paint = Paint();
       canvas.drawImageRect(
@@ -131,9 +112,34 @@ class _PanelShapePainter extends CustomPainter {
         Rect.fromLTWH(0, 0, size.width, size.height),
         paint,
       );
+
+      // Tambahkan gradasi di atas gambar
+      final gradient = LinearGradient(
+        begin: Alignment.bottomCenter,
+        end: Alignment.center,
+        colors: [Colors.black.withAlpha(100), Colors.black.withAlpha(10)],
+      );
+      final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+      final paintGradient = Paint()..shader = gradient.createShader(rect);
+      canvas.drawRect(rect, paintGradient);
+
+      canvas.restore();
     } else {
       final paint = Paint()..color = color ?? Colors.brown;
       canvas.drawPath(path, paint);
+
+      // Tambahkan gradasi di atas warna solid
+      final gradient = LinearGradient(
+        begin: Alignment.bottomCenter,
+        end: Alignment.center,
+        colors: [Colors.black.withAlpha(100), Colors.black.withAlpha(10)],
+      );
+      final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+      final paintGradient = Paint()..shader = gradient.createShader(rect);
+      canvas.save();
+      canvas.clipPath(path);
+      canvas.drawRect(rect, paintGradient);
+      canvas.restore();
     }
   }
 

@@ -124,6 +124,15 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading:
+            Navigator.canPop(context)
+                ? BackButton(color: AppColors.primary)
+                : null,
+      ),
       body: Stack(
         children: [
           Positioned(
@@ -141,7 +150,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
               backgroundColor: Colors.white,
               child: SingleChildScrollView(
                 child: Padding(
-                  padding: EdgeInsets.only(top: 24.0, bottom: 64),
+                  padding: EdgeInsets.only(bottom: 64),
                   child: Column(
                     children: [
                       Padding(

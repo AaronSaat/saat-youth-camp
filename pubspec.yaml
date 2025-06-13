@@ -35,7 +35,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/logos/appicon.png" 
+  image_path: "assets/logos/appicon4.png" 
   min_sdk_android: 21 
 
 flutter:
@@ -55,6 +55,7 @@ flutter:
     - assets/images/megaphone.png
     - assets/images/background_dashboard.jpg
     - assets/images/background_profile.jpg
+    - assets/images/background_profile2.jpg
     - assets/images/background_dashboard.png
     - assets/images/background_fade.jpg #pakai ini
     - assets/images/background_fade.png
@@ -127,6 +128,9 @@ flutter:
 
     # logos
     - assets/logos/appicon.png
+    - assets/logos/appicon2.png
+    - assets/logos/appicon3.png
+    - assets/logos/appicon4.png
     - assets/logos/syc.png
     - assets/logos/syc2.png
     - assets/logos/story_saat.png

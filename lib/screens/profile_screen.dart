@@ -46,6 +46,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final keys = [
       'id',
       'username',
+      'nama',
       'email',
       'role',
       'token',
@@ -84,14 +85,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final gereja = _dataUser['gereja_nama'] ?? '';
     final kelompok = _dataUser['kelompok_nama'] ?? '';
     final role = _dataUser['role'] ?? '';
-    final username = _dataUser['username'] ?? '';
+    final name = _dataUser['nama'] ?? '';
 
     return Scaffold(
       body: Stack(
         children: [
           Positioned(
             child: Image.asset(
-              'assets/images/background_dashboard.png',
+              'assets/images/background_profile2.jpg',
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
               fit: BoxFit.fill,
@@ -103,19 +104,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: AppColors.brown1,
               backgroundColor: Colors.white,
               child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    top: 24.0,
-                    bottom: 96.0,
-                    left: 24.0,
-                    right: 24.0,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: double.infinity,
-                        child: Column(
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      top: 24.0,
+                      bottom: 24.0,
+                      left: 24.0,
+                      right: 24.0,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
                           children: [
                             Align(
                               alignment: Alignment.topRight,
@@ -142,7 +144,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           return 'assets/mockups/pembina.jpg';
                                         case 'Peserta':
                                           return 'assets/mockups/peserta.jpg';
-                                        case 'Pembimbing':
+                                        case 'Pembimbing Kelompok':
                                           return 'assets/mockups/pembimbing.jpg';
                                         case 'Panitia':
                                           return 'assets/mockups/panitia.jpg';
@@ -158,14 +160,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        username,
-                                        style: const TextStyle(
-                                          fontSize: 32,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
+                                      if (role != 'Panitia')
+                                        Text(
+                                          name,
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
                                         ),
-                                      ),
                                       Row(
                                         children: [
                                           Card(
@@ -190,7 +193,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   ),
                                                   const SizedBox(width: 4),
                                                   Text(
-                                                    role,
+                                                    role.replaceAll(
+                                                      ' Kelompok',
+                                                      '',
+                                                    ),
                                                     style: const TextStyle(
                                                       fontSize: 12,
                                                       fontWeight:
@@ -274,10 +280,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                         TextOverflow.ellipsis,
                                                     maxLines: 3,
                                                     style: TextStyle(
-                                                      fontSize:
-                                                          gereja.length > 30
-                                                              ? 12
-                                                              : 16,
+                                                      fontSize: 12,
                                                       fontWeight:
                                                           FontWeight.w500,
                                                     ),
@@ -293,8 +296,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ],
                             ),
                             const SizedBox(height: 16),
-                            Align(
-                              alignment: Alignment.bottomCenter,
+                            Padding(
+                              padding: const EdgeInsets.only(top: 400),
                               child: SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton.icon(
@@ -315,9 +318,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ],
                         ),
-                      ),
-                      // Tambahkan widget lainnya di bawah ini jika perlu
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

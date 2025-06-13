@@ -32,6 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _saveLoginData(
     String id,
     String username,
+    String nama,
     String email,
     String role,
     String token,
@@ -43,6 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('id', id);
     await prefs.setString('username', username);
+    await prefs.setString('nama', nama);
     await prefs.setString('email', email);
     await prefs.setString('role', role);
     await prefs.setString('token', token);
@@ -53,6 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
     print('Login data saved:');
     print('id: $id');
     print('username: $username');
+    print('nama: $nama');
     print('email: $email');
     print('role: $role');
     print('token: $token');
@@ -81,6 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
         await _saveLoginData(
           response['user']['id'].toString(),
           response['user']['username'],
+          response['user']['nama'] ?? 'Null',
           response['user']['email'],
           response['user']['role'],
           response['token'],

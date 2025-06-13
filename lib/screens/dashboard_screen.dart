@@ -254,6 +254,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           color: AppColors.primary.withAlpha(
                                             70,
                                           ),
+                                          gradient: LinearGradient(
+                                            begin: Alignment.bottomCenter,
+                                            end: Alignment.center,
+                                            colors: [
+                                              Colors.black.withAlpha(100),
+                                              Colors.black.withAlpha(10),
+                                            ],
+                                          ),
                                           borderRadius: BorderRadius.circular(
                                             16,
                                           ),
@@ -560,83 +568,123 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                         fit: BoxFit.cover,
                                                       ),
                                                     ),
-                                                    // child: Padding(
-                                                    //   padding:
-                                                    //       const EdgeInsets.only(
-                                                    //         left: 8,
-                                                    //         right: 8,
-                                                    //         bottom: 8,
-                                                    //       ),
-                                                    //   child: Align(
-                                                    //     alignment:
-                                                    //         Alignment.bottomLeft,
-                                                    //     child: Column(
-                                                    //       crossAxisAlignment:
-                                                    //           CrossAxisAlignment
-                                                    //               .start,
-                                                    //       mainAxisAlignment:
-                                                    //           MainAxisAlignment
-                                                    //               .end,
-                                                    //       children: [
-                                                    //         Flexible(
-                                                    //           child: Text(
-                                                    //             _acaraList[index]['acara_nama'] ??
-                                                    //                 'Acara ${index + 1}???',
-                                                    //             textAlign:
-                                                    //                 TextAlign
-                                                    //                     .left,
-                                                    //             style: const TextStyle(
-                                                    //               fontSize: 18,
-                                                    //               fontWeight:
-                                                    //                   FontWeight
-                                                    //                       .w900,
-                                                    //               color:
-                                                    //                   AppColors
-                                                    //                       .primary,
-                                                    //               overflow:
-                                                    //                   TextOverflow
-                                                    //                       .ellipsis,
-                                                    //             ),
-                                                    //           ),
-                                                    //         ),
-                                                    //         Row(
-                                                    //           children: [
-                                                    //             const Icon(
-                                                    //               Icons
-                                                    //                   .location_on,
-                                                    //               color:
-                                                    //                   AppColors
-                                                    //                       .primary,
-                                                    //               size: 12,
-                                                    //             ),
-                                                    //             const SizedBox(
-                                                    //               width: 4,
-                                                    //             ),
-                                                    //             Flexible(
-                                                    //               child: Text(
-                                                    //                 _acaraList[index]['tempat'] ??
-                                                    //                     '',
-                                                    //                 style: const TextStyle(
-                                                    //                   fontSize:
-                                                    //                       14,
-                                                    //                   color:
-                                                    //                       AppColors
-                                                    //                           .primary,
-                                                    //                   fontWeight:
-                                                    //                       FontWeight
-                                                    //                           .w300,
-                                                    //                 ),
-                                                    //                 overflow:
-                                                    //                     TextOverflow
-                                                    //                         .ellipsis,
-                                                    //               ),
-                                                    //             ),
-                                                    //           ],
-                                                    //         ),
-                                                    //       ],
-                                                    //     ),
-                                                    //   ),
-                                                    // ),
+                                                    child: Stack(
+                                                      children: [
+                                                        // Gradient overlay
+                                                        Container(
+                                                          decoration: BoxDecoration(
+                                                            gradient: LinearGradient(
+                                                              begin:
+                                                                  Alignment
+                                                                      .bottomCenter,
+                                                              end:
+                                                                  Alignment
+                                                                      .center,
+                                                              colors: [
+                                                                Colors.black
+                                                                    .withAlpha(
+                                                                      100,
+                                                                    ),
+                                                                Colors.black
+                                                                    .withAlpha(
+                                                                      10,
+                                                                    ),
+                                                              ],
+                                                            ),
+                                                            borderRadius: const BorderRadius.only(
+                                                              bottomRight:
+                                                                  Radius.circular(
+                                                                    16,
+                                                                  ),
+                                                              topLeft:
+                                                                  Radius.circular(
+                                                                    16,
+                                                                  ),
+                                                              bottomLeft:
+                                                                  Radius.circular(
+                                                                    16,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets.only(
+                                                                left: 8,
+                                                                right: 8,
+                                                                bottom: 8,
+                                                              ),
+                                                          child: Align(
+                                                            alignment:
+                                                                Alignment
+                                                                    .bottomLeft,
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .end,
+                                                              children: [
+                                                                Flexible(
+                                                                  child: Text(
+                                                                    _acaraList[index]['acara_nama'] ??
+                                                                        'Acara ${index + 1}???',
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .left,
+                                                                    style: const TextStyle(
+                                                                      fontSize:
+                                                                          18,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w900,
+                                                                      color:
+                                                                          Colors
+                                                                              .white,
+                                                                      overflow:
+                                                                          TextOverflow
+                                                                              .ellipsis,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                Row(
+                                                                  children: [
+                                                                    const Icon(
+                                                                      Icons
+                                                                          .location_on,
+                                                                      color:
+                                                                          Colors
+                                                                              .white,
+                                                                      size: 12,
+                                                                    ),
+                                                                    const SizedBox(
+                                                                      width: 4,
+                                                                    ),
+                                                                    Flexible(
+                                                                      child: Text(
+                                                                        _acaraList[index]['tempat'] ??
+                                                                            '',
+                                                                        style: const TextStyle(
+                                                                          fontSize:
+                                                                              14,
+                                                                          color:
+                                                                              Colors.white,
+                                                                          fontWeight:
+                                                                              FontWeight.w300,
+                                                                        ),
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
                                                   // text waktu
                                                   Positioned(
@@ -698,106 +746,106 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                     ),
                                                   ),
                                                   // text nama acara dan tempat
-                                                  Positioned(
-                                                    bottom: -5,
-                                                    right: -5,
-                                                    left: -5,
-                                                    child: Card(
-                                                      color: Colors.white,
-                                                      shape: const RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius.only(
-                                                              bottomLeft:
-                                                                  Radius.circular(
-                                                                    16,
-                                                                  ),
-                                                              bottomRight:
-                                                                  Radius.circular(
-                                                                    16,
-                                                                  ),
-                                                            ),
-                                                      ),
-                                                      elevation: 0,
-                                                      child: SizedBox(
-                                                        width: 72,
-                                                        height: 48,
-                                                        child: Center(
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets.all(
-                                                                  8.0,
-                                                                ),
-                                                            child: Align(
-                                                              alignment:
-                                                                  Alignment
-                                                                      .bottomLeft,
-                                                              child: Column(
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .end,
-                                                                children: [
-                                                                  Flexible(
-                                                                    child: Text(
-                                                                      _acaraList[index]['acara_nama'] ??
-                                                                          'Acara ${index + 1}???',
-                                                                      textAlign:
-                                                                          TextAlign
-                                                                              .left,
-                                                                      style: const TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        fontWeight:
-                                                                            FontWeight.w900,
-                                                                        color:
-                                                                            AppColors.primary,
-                                                                        overflow:
-                                                                            TextOverflow.ellipsis,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  Row(
-                                                                    children: [
-                                                                      const Icon(
-                                                                        Icons
-                                                                            .location_on,
-                                                                        color:
-                                                                            AppColors.primary,
-                                                                        size:
-                                                                            10,
-                                                                      ),
-                                                                      const SizedBox(
-                                                                        width:
-                                                                            4,
-                                                                      ),
-                                                                      Flexible(
-                                                                        child: Text(
-                                                                          _acaraList[index]['tempat'] ??
-                                                                              '',
-                                                                          style: const TextStyle(
-                                                                            fontSize:
-                                                                                10,
-                                                                            color:
-                                                                                AppColors.primary,
-                                                                            fontWeight:
-                                                                                FontWeight.w300,
-                                                                          ),
-                                                                          overflow:
-                                                                              TextOverflow.ellipsis,
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
+                                                  // Positioned(
+                                                  //   bottom: -5,
+                                                  //   right: -5,
+                                                  //   left: -5,
+                                                  //   child: Card(
+                                                  //     color: Colors.white,
+                                                  //     shape: const RoundedRectangleBorder(
+                                                  //       borderRadius:
+                                                  //           BorderRadius.only(
+                                                  //             bottomLeft:
+                                                  //                 Radius.circular(
+                                                  //                   16,
+                                                  //                 ),
+                                                  //             bottomRight:
+                                                  //                 Radius.circular(
+                                                  //                   16,
+                                                  //                 ),
+                                                  //           ),
+                                                  //     ),
+                                                  //     elevation: 0,
+                                                  //     child: SizedBox(
+                                                  //       width: 72,
+                                                  //       height: 48,
+                                                  //       child: Center(
+                                                  //         child: Padding(
+                                                  //           padding:
+                                                  //               const EdgeInsets.all(
+                                                  //                 8.0,
+                                                  //               ),
+                                                  //           child: Align(
+                                                  //             alignment:
+                                                  //                 Alignment
+                                                  //                     .bottomLeft,
+                                                  //             child: Column(
+                                                  //               crossAxisAlignment:
+                                                  //                   CrossAxisAlignment
+                                                  //                       .start,
+                                                  //               mainAxisAlignment:
+                                                  //                   MainAxisAlignment
+                                                  //                       .end,
+                                                  //               children: [
+                                                  //                 Flexible(
+                                                  //                   child: Text(
+                                                  //                     _acaraList[index]['acara_nama'] ??
+                                                  //                         'Acara ${index + 1}???',
+                                                  //                     textAlign:
+                                                  //                         TextAlign
+                                                  //                             .left,
+                                                  //                     style: const TextStyle(
+                                                  //                       fontSize:
+                                                  //                           12,
+                                                  //                       fontWeight:
+                                                  //                           FontWeight.w900,
+                                                  //                       color:
+                                                  //                           AppColors.primary,
+                                                  //                       overflow:
+                                                  //                           TextOverflow.ellipsis,
+                                                  //                     ),
+                                                  //                   ),
+                                                  //                 ),
+                                                  //                 Row(
+                                                  //                   children: [
+                                                  //                     const Icon(
+                                                  //                       Icons
+                                                  //                           .location_on,
+                                                  //                       color:
+                                                  //                           AppColors.primary,
+                                                  //                       size:
+                                                  //                           10,
+                                                  //                     ),
+                                                  //                     const SizedBox(
+                                                  //                       width:
+                                                  //                           4,
+                                                  //                     ),
+                                                  //                     Flexible(
+                                                  //                       child: Text(
+                                                  //                         _acaraList[index]['tempat'] ??
+                                                  //                             '',
+                                                  //                         style: const TextStyle(
+                                                  //                           fontSize:
+                                                  //                               10,
+                                                  //                           color:
+                                                  //                               AppColors.primary,
+                                                  //                           fontWeight:
+                                                  //                               FontWeight.w300,
+                                                  //                         ),
+                                                  //                         overflow:
+                                                  //                             TextOverflow.ellipsis,
+                                                  //                       ),
+                                                  //                     ),
+                                                  //                   ],
+                                                  //                 ),
+                                                  //               ],
+                                                  //             ),
+                                                  //           ),
+                                                  //         ),
+                                                  //       ),
+                                                  //     ),
+                                                  //   ),
+                                                  // ),
                                                 ],
                                               ),
                                             ),
