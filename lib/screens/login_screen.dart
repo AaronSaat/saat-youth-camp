@@ -58,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
     print('nama: $nama');
     print('email: $email');
     print('role: $role');
-    print('token: $token');
+    print('CEK TOKEN BERHASILLOGIN: $token');
     print('gereja_id: $gereja_id');
     print('gereja_nama: $gereja_nama');
     print('kelompok_id: $kelompok_id');
@@ -152,7 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
 
                       const SizedBox(height: 32),
-                      Image.asset('assets/logos/syc2.png', height: 100),
+                      // Image.asset('assets/logos/syc2.png', height: 100),
                       const SizedBox(height: 40),
 
                       // Username

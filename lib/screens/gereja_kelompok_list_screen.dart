@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:syc/screens/anggota_kelompok_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 
 import '../services/api_service.dart';
 import '../widgets/custom_card.dart';
-import 'gereja_kelompok_anggota_screen.dart';
+import 'anggota_gereja_screen.dart';
 
 class GerejaKelompokListScreen extends StatefulWidget {
   final String type;
@@ -60,16 +61,7 @@ class _GerejaKelompokListScreenState extends State<GerejaKelompokListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ),
-      ),
+      appBar: AppBar(backgroundColor: Colors.transparent),
       body: Stack(
         children: [
           Positioned(
@@ -148,13 +140,11 @@ class _GerejaKelompokListScreenState extends State<GerejaKelompokListScreen> {
                                     context,
                                     MaterialPageRoute(
                                       builder:
-                                          (context) =>
-                                              GerejaKelompokAnggotaScreen(
-                                                type: 'Pembina Gereja',
-                                                id:
-                                                    gereja['gereja_id'] ??
-                                                    'Gereja???',
-                                              ),
+                                          (context) => AnggotaGerejaScreen(
+                                            id:
+                                                gereja['gereja_id'] ??
+                                                'Gereja???',
+                                          ),
                                     ),
                                   );
                                 },
@@ -171,10 +161,7 @@ class _GerejaKelompokListScreenState extends State<GerejaKelompokListScreen> {
                                     context,
                                     MaterialPageRoute(
                                       builder:
-                                          (
-                                            context,
-                                          ) => GerejaKelompokAnggotaScreen(
-                                            type: 'Peserta',
+                                          (context) => AnggotaKelompokScreen(
                                             id:
                                                 '${kelompok['id'] ?? 'Kelompok???'}',
                                           ),

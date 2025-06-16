@@ -37,8 +37,8 @@ class BibleReadingSuccessScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
+                      onTap: () async {
+                        Navigator.pop(context, 'reload');
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 32.0),
@@ -51,7 +51,7 @@ class BibleReadingSuccessScreen extends StatelessWidget {
                           ),
                           alignment: Alignment.center,
                           child: const Text(
-                            'Kembali ke Dashboard',
+                            'Kembali',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 14,

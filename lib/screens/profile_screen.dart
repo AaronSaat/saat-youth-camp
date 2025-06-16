@@ -4,6 +4,7 @@ import 'package:syc/screens/zzz_temp_codes.dart';
 import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
 import '../widgets/custom_not_found.dart';
+import '../widgets/custom_pin_textfield.dart';
 import 'daftar_acara_screen.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -119,14 +120,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         Column(
                           children: [
-                            Align(
-                              alignment: Alignment.topRight,
-                              child: Image.asset(
-                                'assets/buttons/hamburger_white.png',
-                                height: 48,
-                                width: 48,
-                              ),
-                            ),
+                            // Align(
+                            //   alignment: Alignment.topRight,
+                            //   child: Image.asset(
+                            //     'assets/buttons/hamburger_white.png',
+                            //     height: 48,
+                            //     width: 48,
+                            //   ),
+                            // ),
                             const SizedBox(height: 8),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -296,6 +297,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ],
                             ),
                             const SizedBox(height: 16),
+                            // CustomPinTextfield(),
+                            const SizedBox(height: 16),
                             Padding(
                               padding: const EdgeInsets.only(top: 400),
                               child: SizedBox(
@@ -307,7 +310,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   icon: const Icon(Icons.logout),
                                   label: const Text('Logout'),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.accent,
+                                    backgroundColor: AppColors.primary,
                                     foregroundColor: Colors.white,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(32),

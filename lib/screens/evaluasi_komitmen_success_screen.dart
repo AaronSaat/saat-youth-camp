@@ -51,7 +51,7 @@ class EvaluasiKomitmenSuccessScreen extends StatelessWidget {
                     GestureDetector(
                       onTap: () async {
                         Navigator.pop(context);
-                        Navigator.pop(context);
+                        Navigator.pop(context, 'reload');
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 32.0),

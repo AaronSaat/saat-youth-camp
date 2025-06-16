@@ -258,7 +258,12 @@ class _MateriScreenState extends State<MateriScreen> {
                                                     userId: userId,
                                                   ),
                                         ),
-                                      );
+                                      ).then((result) {
+                                        if (result == 'reload') {
+                                          initAll();
+                                        }
+                                      });
+                                      ;
                                     },
                                     withProgress: true,
                                     valueProgress: evaluasiProgress,

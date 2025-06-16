@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syc/screens/anggota_kelompok_screen.dart';
+import 'package:syc/screens/gereja_kelompok_list_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 
 import '../services/api_service.dart';
 import 'login_screen.dart';
 import 'dashboard_screen.dart';
-import 'gereja_kelompok_anggota_screen.dart';
+import 'anggota_gereja_screen.dart';
 import 'zzz_gereja_kelompok_screen.dart';
 import 'profile_screen.dart';
 import 'daftar_acara_screen.dart';
@@ -83,10 +85,7 @@ class _MainScreenState extends State<MainScreen> {
         const DashboardScreen(),
         const DaftarAcaraScreen(),
         // const DaftarAcaraScreen(),
-        GerejaKelompokAnggotaScreen(
-          type: 'Peserta',
-          id: id,
-        ), //nanti masukkan parameter gerejanya
+        AnggotaKelompokScreen(id: id), //nanti masukkan parameter gerejanya
         MateriScreen(userId: id.toString()),
         const ProfileScreen(),
       ];
@@ -94,10 +93,7 @@ class _MainScreenState extends State<MainScreen> {
       _pages = [
         const DashboardScreen(),
         const DaftarAcaraScreen(),
-        GerejaKelompokAnggotaScreen(
-          type: 'Pembimbing Kelompok',
-          id: id,
-        ), //nantt masukkan parameter kelompoknya
+        AnggotaKelompokScreen(id: id), //nantt masukkan parameter kelompoknya
         MateriScreen(userId: id.toString()),
         const ProfileScreen(),
       ];
@@ -105,10 +101,7 @@ class _MainScreenState extends State<MainScreen> {
       _pages = [
         const DashboardScreen(),
         const DaftarAcaraScreen(),
-        GerejaKelompokAnggotaScreen(
-          type: 'Pembina Gereja',
-          id: id,
-        ), //nanti masukkan parameter gerejanya
+        AnggotaGerejaScreen(id: id), //nanti masukkan parameter gerejanya
         MateriScreen(userId: id),
         const ProfileScreen(),
       ];
@@ -116,10 +109,10 @@ class _MainScreenState extends State<MainScreen> {
       _pages = [
         const DashboardScreen(),
         const DaftarAcaraScreen(),
-        GerejaKelompokAnggotaScreen(
-          type: 'Panitia Kelompok',
-          id: id,
-        ), //nanti masukkan parameter gereja pertama supaya tidak null
+        // AnggotaGerejaScreen(id: "2"),
+        // AnggotaKelompokScreen(id: "1"),
+        GerejaKelompokListScreen(type: "Gereja"),
+        GerejaKelompokListScreen(type: "Kelompok"),
         // const BroadcastScreen(),
         // const AdminScreen(),
         const ProfileScreen(),
@@ -197,10 +190,11 @@ class _MainScreenState extends State<MainScreen> {
           'Acara',
           1,
         ),
+        buildSvgNavItem('assets/icons/navigation_bar/gereja.svg', 'Gereja', 2),
         buildSvgNavItem(
-          'assets/icons/navigation_bar/all_user.svg',
-          'Peserta',
-          1,
+          'assets/icons/navigation_bar/kelompok.svg',
+          'Kelompok',
+          3,
         ),
         // const BottomNavigationBarItem(
         //   icon: Icon(Icons.campaign),

@@ -36,9 +36,9 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
   }
 
   Future<void> initAll() async {
-    if (!mounted) return;
     setState(() {
       _isLoading = true;
+      print('🔄 Memuat data bacaan harian...');
     });
     try {
       final hariKe = getCurrentDayOfMonth();
@@ -62,14 +62,11 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
     if (!mounted) return;
     setState(() {
       _isLoading = false;
+      print('✅ Data bacaan harian berhasil dimuat.');
     });
   }
 
   Future<void> loadBrm() async {
-    if (!mounted) return;
-    setState(() {
-      _isLoading = true;
-    });
     try {
       final brm = await ApiService.getBrmToday(context);
       if (!mounted) return;
@@ -83,10 +80,6 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
         _isLoading = false;
       });
     } catch (e) {}
-    if (!mounted) return;
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   Future<void> loadReportBrmByPesertaByDay() async {
@@ -158,6 +151,10 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
   }
 
   Widget _buildDaySelector() {
+    if (_isLoading) {
+      return buildShimmerTabBarList();
+    }
+
     List<int> days = List.generate(_jumlahHari, (index) => index + 1);
     final ScrollController _scrollController = ScrollController();
 
@@ -344,7 +341,8 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                                   icon: Icons.menu_book_rounded,
                                   onTap: () {
                                     final userId = widget.userId;
-                                    if (_dataProgressBacaan[_hariKe] == 0) {
+                                    if (_dataProgressBacaan.length > _hariKe &&
+                                        _dataProgressBacaan[_hariKe] == 0) {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -354,7 +352,11 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                                                     userId: userId,
                                                   ),
                                         ),
-                                      );
+                                      ).then((result) {
+                                        if (result == 'reload') {
+                                          initAll();
+                                        }
+                                      });
                                     }
                                   },
                                   iconBackgroundColor: AppColors.brown1,
@@ -364,8 +366,9 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                             ),
                           )
                           : Center(
-                            child: const CustomNotFound(
-                              text: "Hanya bisa menampilkan bacaan hari ini :(",
+                            child: CustomNotFound(
+                              text:
+                                  "Hanya bisa menampilkan bacaan tanggal $_hariKe $_namaBulan :(",
                               textColor: Colors.white,
                               imagePath: 'assets/images/data_not_found.png',
                             ),
@@ -385,7 +388,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
 Widget buildShimmerList() {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
-    children: List.generate(5, (index) {
+    children: List.generate(3, (index) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 16.0),
         child: Shimmer.fromColors(
@@ -401,5 +404,34 @@ Widget buildShimmerList() {
         ),
       );
     }),
+  );
+}
+
+Widget buildShimmerTabBarList() {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 0.0),
+    child: SizedBox(
+      height: 72,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        itemCount: 5,
+        separatorBuilder: (context, index) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          return Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              width: 108,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+            ),
+          );
+        },
+      ),
+    ),
   );
 }

@@ -185,21 +185,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Column(
-                          children: [
-                            Align(
-                              alignment: Alignment.topRight,
-                              child: Image.asset(
-                                'assets/buttons/hamburger_white.png',
-                                height: 48,
-                                width: 48,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      // Padding(
+                      //   padding: const EdgeInsets.symmetric(horizontal: 24),
+                      //   child: Column(
+                      //     children: [
+                      //       Align(
+                      //         alignment: Alignment.topRight,
+                      //         child: Image.asset(
+                      //           'assets/buttons/hamburger_white.png',
+                      //           height: 48,
+                      //           width: 48,
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24),
                         child: Column(
@@ -238,7 +238,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                               userId: userId,
                                             ),
                                       ),
-                                    );
+                                    ).then((result) {
+                                      if (result == 'reload') {
+                                        initAll(); // reload dashboard
+                                      }
+                                    });
                                   },
                                   borderRadius: BorderRadius.circular(16),
                                   child: Stack(
@@ -475,6 +479,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                       ) => DetailAcaraScreen(
                                                         id:
                                                             _acaraList[index]["id"],
+                                                        hari:
+                                                            _acaraList[index]["hari"],
+                                                        userId: userId,
                                                       ),
                                                 ),
                                               );

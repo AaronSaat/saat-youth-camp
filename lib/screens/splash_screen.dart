@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'
+    show SharedPreferences;
+import '../services/api_service.dart';
 import '../utils/app_colors.dart';
 import 'login_screen.dart';
+import 'main_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -36,18 +40,13 @@ class _SplashScreenState extends State<SplashScreen>
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    // Posisi terakhir logo diatur di sini:
     _logoPositionAnimation = Tween<Offset>(
       begin: Offset.zero,
-      end: const Offset(0, -1.25), // <-- posisi terakhir logo
+      end: const Offset(0, -1.25),
     ).animate(
       CurvedAnimation(parent: _logoMoveController, curve: Curves.easeInOut),
     );
-    // Animasi scale down logo
-    _logoScaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.55, // scale down ke 60%
-    ).animate(
+    _logoScaleAnimation = Tween<double>(begin: 1.0, end: 0.55).animate(
       CurvedAnimation(parent: _logoMoveController, curve: Curves.easeInOut),
     );
 
@@ -60,29 +59,78 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     Future.delayed(const Duration(seconds: 2), () async {
-      await _bgFadeController.forward();
-      await Future.wait([
-        _logoMoveController.forward(),
-        _textFadeController.forward(),
-      ]);
-      await Future.delayed(const Duration(milliseconds: 400));
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder:
-                (context, animation, secondaryAnimation) => const LoginScreen(),
-            transitionsBuilder: (
-              context,
-              animation,
-              secondaryAnimation,
-              child,
-            ) {
-              // Fade transition langsung ke LoginScreen, tidak harus putih dulu
-              return FadeTransition(opacity: animation, child: child);
-            },
-            transitionDuration: const Duration(milliseconds: 200),
-          ),
+      // Ambil token dari SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final getToken = prefs.getString('token');
+
+      if (getToken != null && getToken.isNotEmpty) {
+        final isValid = await ApiService.validateToken(
+          context,
+          token: getToken,
         );
+        if (isValid) {
+          print('CEK TOKEN: VALID');
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const MainScreen()),
+            );
+          }
+        } else {
+          print('CEK TOKEN: TIDAK VALID');
+          // lakukan animasi
+          await _bgFadeController.forward();
+          await Future.wait([
+            _logoMoveController.forward(),
+            _textFadeController.forward(),
+          ]);
+          await Future.delayed(const Duration(milliseconds: 400));
+          if (mounted) {
+            Navigator.of(context).pushReplacement(
+              PageRouteBuilder(
+                pageBuilder:
+                    (context, animation, secondaryAnimation) =>
+                        const LoginScreen(),
+                transitionsBuilder: (
+                  context,
+                  animation,
+                  secondaryAnimation,
+                  child,
+                ) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+                transitionDuration: const Duration(milliseconds: 200),
+              ),
+            );
+          }
+        }
+      } else {
+        // Token tidak ada, langsung lakukan animasi
+        print('CEK TOKEN: TOKEN TIDAK ADA');
+        await _bgFadeController.forward();
+        await Future.wait([
+          _logoMoveController.forward(),
+          _textFadeController.forward(),
+        ]);
+        await Future.delayed(const Duration(milliseconds: 400));
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            PageRouteBuilder(
+              pageBuilder:
+                  (context, animation, secondaryAnimation) =>
+                      const LoginScreen(),
+              transitionsBuilder: (
+                context,
+                animation,
+                secondaryAnimation,
+                child,
+              ) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+              transitionDuration: const Duration(milliseconds: 200),
+            ),
+          );
+        }
       }
     });
   }

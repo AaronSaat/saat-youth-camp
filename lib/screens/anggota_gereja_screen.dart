@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'
+    show SharedPreferences;
 import 'package:shimmer/shimmer.dart';
 import 'package:syc/utils/app_colors.dart';
 import '../services/api_service.dart';
@@ -6,31 +8,20 @@ import '../widgets/custom_not_found.dart';
 import 'evaluasi_komitmen_list_screen.dart';
 import 'gereja_kelompok_list_screen.dart';
 
-class GerejaKelompokAnggotaScreen extends StatefulWidget {
-  final String?
-  type; // Panitia Gereja / Panitia Kelompok / Peserta / Pembimbing Kelompok / Pembina Gereja
+class AnggotaGerejaScreen extends StatefulWidget {
   final String? id;
-  const GerejaKelompokAnggotaScreen({
-    Key? key,
-    required this.type,
-    required this.id,
-  }) : super(key: key);
+  const AnggotaGerejaScreen({Key? key, required this.id}) : super(key: key);
 
   @override
-  State<GerejaKelompokAnggotaScreen> createState() =>
-      _GerejaKelompokAnggotaScreenState();
+  State<AnggotaGerejaScreen> createState() => _AnggotaGerejaScreenState();
 }
 
-class _GerejaKelompokAnggotaScreenState
-    extends State<GerejaKelompokAnggotaScreen> {
+class _AnggotaGerejaScreenState extends State<AnggotaGerejaScreen> {
   List<dynamic> anggota = [];
   String? nama;
   dynamic selectedUser;
-  String selectedTab = 'Komitmen';
-  List<bool> isSelected = [false, true];
-  final List<String> opsi = ['Gereja', 'Kelompok'];
   bool _isLoading = true;
-  String gereja_atau_kelompok = '';
+  Map<String, String> _dataUser = {};
 
   @override
   void initState() {
@@ -40,14 +31,8 @@ class _GerejaKelompokAnggotaScreenState
 
   Future<void> _initAll() async {
     try {
-      if (widget.type == 'Peserta' ||
-          widget.type == 'Pembimbing Kelompok' ||
-          widget.type == 'Panitia Kelompok') {
-        await loadAnggotaKelompok(widget.id);
-      } else if (widget.type == 'Pembina Gereja' ||
-          widget.type == 'Panitia Gereja') {
-        await loadAnggotaGereja(widget.id);
-      }
+      await loadUserData();
+      await loadAnggotaGereja(widget.id);
     } catch (e) {
       // handle error jika perlu
     }
@@ -58,47 +43,46 @@ class _GerejaKelompokAnggotaScreenState
     }
   }
 
+  Future<void> loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys = [
+      'id',
+      'username',
+      'email',
+      'role',
+      'token',
+      'gereja_id',
+      'gereja_nama',
+      'kelompok_id',
+      'kelompok_nama',
+    ];
+    final Map<String, String> userData = {};
+    for (final key in keys) {
+      userData[key] = prefs.getString(key) ?? '';
+    }
+    if (!mounted) return;
+    setState(() {
+      _dataUser = userData;
+    });
+  }
+
   Future<void> loadAnggotaGereja(gerejaId) async {
     try {
       final response = await ApiService.getAnggotaGereja(context, gerejaId);
       setState(() {
-        gereja_atau_kelompok = 'Gereja';
         nama = response['nama_gereja'];
         anggota = response['data_anggota_gereja'];
       });
-      print('Gereja atau kelompok?: $gereja_atau_kelompok');
     } catch (e) {
       setState(() {});
       print('Gagal mengambil data gereja: $e');
     }
   }
 
-  Future<void> loadAnggotaKelompok(kelompokId) async {
-    setState(() {
-      _isLoading = true;
-    });
-    try {
-      final response = await ApiService.getAnggotaKelompok(context, kelompokId);
-      setState(() {
-        gereja_atau_kelompok = 'Kelompok';
-        nama = response['nama_kelompok'];
-        anggota = response['data_anggota_kelompok'];
-      });
-    } catch (e) {
-      setState(() {});
-      print('Gagal mengambil data kelompok: $e');
-    }
-  }
-
   String getRoleImage(String role) {
-    print('Role: $role, Gereja atau Kelompok: $gereja_atau_kelompok');
-    if (gereja_atau_kelompok == "Gereja" && role == "Pembina") {
+    if (role == "Pembina") {
       return 'assets/mockups/pembina.jpg';
-    } else if (gereja_atau_kelompok == "Gereja" && role == "Anggota") {
-      return 'assets/mockups/peserta.jpg';
-    } else if (gereja_atau_kelompok == "Kelompok" && role == "Pembimbing") {
-      return 'assets/mockups/pembimbing.jpg';
-    } else if (gereja_atau_kelompok == "Kelompok" && role == "Anggota") {
+    } else if (role == "Anggota") {
       return 'assets/mockups/peserta.jpg';
     } else {
       return 'assets/mockups/panitia.jpg';
@@ -106,15 +90,10 @@ class _GerejaKelompokAnggotaScreenState
   }
 
   IconData getRoleIcon(String role) {
-    print('Role: $role, Gereja atau Kelompok: $gereja_atau_kelompok');
-    if (gereja_atau_kelompok == "Gereja" && role == "Pembina") {
+    if (role == "Pembina") {
       return Icons.church;
-    } else if (gereja_atau_kelompok == "Gereja" && role == "Anggota") {
+    } else if (role == "Anggota") {
       return Icons.person_2;
-    } else if (gereja_atau_kelompok == "Kelompok" && role == "Pembimbing") {
-      return Icons.leaderboard;
-    } else if (gereja_atau_kelompok == "Kelompok" && role == "Anggota") {
-      return Icons.person;
     } else {
       return Icons.error;
     }
@@ -122,6 +101,7 @@ class _GerejaKelompokAnggotaScreenState
 
   @override
   Widget build(BuildContext context) {
+    final role = _dataUser['role'] ?? '-';
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -130,56 +110,6 @@ class _GerejaKelompokAnggotaScreenState
         leading:
             Navigator.canPop(context)
                 ? BackButton(color: AppColors.primary)
-                : null,
-        actions:
-            (widget.type == 'Panitia Kelompok' ||
-                    widget.type == 'Panitia Gereja')
-                ? [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 16.0),
-                    child: ToggleButtons(
-                      borderRadius: BorderRadius.circular(32),
-                      borderWidth: 1,
-                      selectedBorderColor: AppColors.primary,
-                      selectedColor: Colors.white,
-                      fillColor: AppColors.primary,
-                      color: AppColors.primary,
-                      constraints: const BoxConstraints(
-                        minHeight: 40,
-                        minWidth: 90,
-                      ),
-                      isSelected: isSelected,
-                      onPressed: (int index) {
-                        setState(() {
-                          for (int i = 0; i < isSelected.length; i++) {
-                            isSelected[i] = i == index;
-                          }
-                        });
-                        if (index == 0) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) =>
-                                      GerejaKelompokListScreen(type: 'Gereja'),
-                            ),
-                          );
-                        } else if (index == 1) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => GerejaKelompokListScreen(
-                                    type: 'Kelompok',
-                                  ),
-                            ),
-                          );
-                        }
-                      },
-                      children: opsi.map((label) => Text(label)).toList(),
-                    ),
-                  ),
-                ]
                 : null,
       ),
       body: Stack(
@@ -211,7 +141,7 @@ class _GerejaKelompokAnggotaScreenState
                           : anggota.isEmpty
                           ? Center(
                             child: CustomNotFound(
-                              text: "Gagal memuat anggota gereja / kelompok :(",
+                              text: "Gagal memuat anggota gereja :(",
                               textColor: AppColors.brown1,
                               imagePath: 'assets/images/data_not_found.png',
                               onBack: _initAll,
@@ -221,7 +151,7 @@ class _GerejaKelompokAnggotaScreenState
                           : Column(
                             children: [
                               Text(
-                                '${gereja_atau_kelompok.isNotEmpty ? gereja_atau_kelompok : ''} ${nama ?? ''}',
+                                'Gereja ${nama ?? ''}',
                                 style: const TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
@@ -367,97 +297,145 @@ class _GerejaKelompokAnggotaScreenState
                                                             TextAlign.left,
                                                       ),
                                                       const SizedBox(height: 4),
+                                                      Text(
+                                                        'Nama Gereja: ${user['nama_gereja']}' ??
+                                                            '',
+                                                        style: TextStyle(
+                                                          color:
+                                                              AppColors.primary,
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                        textAlign:
+                                                            TextAlign.left,
+                                                      ),
+                                                      const SizedBox(height: 4),
+                                                      Text(
+                                                        'Asal Provinsi: ${user['provinsi']}' ??
+                                                            '',
+                                                        style: TextStyle(
+                                                          color:
+                                                              AppColors.primary,
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                        textAlign:
+                                                            TextAlign.left,
+                                                      ),
+                                                      const SizedBox(height: 4),
+                                                      Text(
+                                                        'Umur: ${user['umur']}' ??
+                                                            '',
+                                                        style: TextStyle(
+                                                          color:
+                                                              AppColors.primary,
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                        textAlign:
+                                                            TextAlign.left,
+                                                      ),
+                                                      const SizedBox(height: 4),
                                                     ],
                                                   ),
                                                   Column(
                                                     mainAxisAlignment:
                                                         MainAxisAlignment.start,
                                                     children: [
-                                                      SizedBox(
-                                                        width: 210,
-                                                        height: 30,
-                                                        child: ElevatedButton(
-                                                          style: ElevatedButton.styleFrom(
-                                                            backgroundColor:
-                                                                AppColors
-                                                                    .brown1,
-                                                            shape: RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    32,
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                          onPressed: () {
-                                                            Navigator.push(
-                                                              context,
-                                                              MaterialPageRoute(
-                                                                builder:
-                                                                    (
-                                                                      context,
-                                                                    ) => EvaluasiKomitmenListScreen(
-                                                                      type:
-                                                                          'Komitmen',
-                                                                      userId:
-                                                                          user['id']
-                                                                              .toString(),
+                                                      if (role.toLowerCase() ==
+                                                              'pembimbing kelompok' ||
+                                                          role.toLowerCase() ==
+                                                              'panitia')
+                                                        SizedBox(
+                                                          width: 210,
+                                                          height: 30,
+                                                          child: ElevatedButton(
+                                                            style: ElevatedButton.styleFrom(
+                                                              backgroundColor:
+                                                                  AppColors
+                                                                      .brown1,
+                                                              shape: RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      32,
                                                                     ),
                                                               ),
-                                                            );
-                                                          },
-                                                          child: const Text(
-                                                            'KOMITMEN',
-                                                            style: TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 12,
+                                                            ),
+                                                            onPressed: () {
+                                                              Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                  builder:
+                                                                      (
+                                                                        context,
+                                                                      ) => EvaluasiKomitmenListScreen(
+                                                                        type:
+                                                                            'Komitmen',
+                                                                        userId:
+                                                                            user['id'].toString(),
+                                                                      ),
+                                                                ),
+                                                              );
+                                                            },
+                                                            child: const Text(
+                                                              'KOMITMEN',
+                                                              style: TextStyle(
+                                                                color:
+                                                                    Colors
+                                                                        .white,
+                                                                fontSize: 12,
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
-                                                      ),
                                                       SizedBox(height: 8),
-                                                      SizedBox(
-                                                        width: 210,
-                                                        height: 30,
-                                                        child: ElevatedButton(
-                                                          style: ElevatedButton.styleFrom(
-                                                            backgroundColor:
-                                                                AppColors
-                                                                    .brown1,
-                                                            shape: RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    32,
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                          onPressed: () {
-                                                            Navigator.push(
-                                                              context,
-                                                              MaterialPageRoute(
-                                                                builder:
-                                                                    (
-                                                                      context,
-                                                                    ) => EvaluasiKomitmenListScreen(
-                                                                      type:
-                                                                          'Evaluasi',
-                                                                      userId:
-                                                                          user['id']
-                                                                              .toString(),
+                                                      if (role.toLowerCase() ==
+                                                          'panitia')
+                                                        SizedBox(
+                                                          width: 210,
+                                                          height: 30,
+                                                          child: ElevatedButton(
+                                                            style: ElevatedButton.styleFrom(
+                                                              backgroundColor:
+                                                                  AppColors
+                                                                      .brown1,
+                                                              shape: RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      32,
                                                                     ),
                                                               ),
-                                                            );
-                                                          },
-                                                          child: const Text(
-                                                            'EVALUASI',
-                                                            style: TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 12,
+                                                            ),
+                                                            onPressed: () {
+                                                              Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                  builder:
+                                                                      (
+                                                                        context,
+                                                                      ) => EvaluasiKomitmenListScreen(
+                                                                        type:
+                                                                            'Evaluasi',
+                                                                        userId:
+                                                                            user['id'].toString(),
+                                                                      ),
+                                                                ),
+                                                              );
+                                                            },
+                                                            child: const Text(
+                                                              'EVALUASI',
+                                                              style: TextStyle(
+                                                                color:
+                                                                    Colors
+                                                                        .white,
+                                                                fontSize: 12,
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
-                                                      ),
                                                     ],
                                                   ),
                                                 ],

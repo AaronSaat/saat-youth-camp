@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syc/screens/login_screen.dart';
 
 import '/utils/api_helper.dart';
 import '/utils/debug_log.dart';
@@ -14,7 +15,7 @@ import '../widgets/custom_snackbar.dart';
 class ApiService {
   // static const String baseurl = 'http://172.172.52.9:82/reg-new/api-syc2025/';
   // static const String baseurl = 'http://172.172.52.11:8080/api-syc2025/';
-  static const String baseurl = 'http://172.172.52.11:8888/api-syc2025/';
+  static const String baseurl = 'http://172.172.52.11:8080 /api-syc2025/';
   // static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
 
   static Future<Map<String, dynamic>> loginUser(
@@ -94,6 +95,41 @@ class ApiService {
       return json.decode(response.body);
     } else {
       throw Exception('Invalid Email or Secret Code');
+    }
+  }
+
+  static Future<bool> validateToken(
+    BuildContext context, {
+    required String token,
+  }) async {
+    if (token == null || token.isEmpty) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    }
+
+    final url = Uri.parse('${baseurl}brm-today');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> dataBacaan = json.decode(response.body);
+      return dataBacaan['success'];
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      print('❌ Error test: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load bacaan harian');
     }
   }
 

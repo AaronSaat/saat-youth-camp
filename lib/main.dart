@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemChrome, DeviceOrientation;
+import 'package:syc/screens/main_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 
 import 'orientation_guard.dart';
@@ -29,7 +30,13 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
         useMaterial3: true,
       ),
-      home: const SplashScreen(),
+      initialRoute: '/splash',
+      routes: {
+        '/splash': (context) => const SplashScreen(),
+        '/login': (context) => const LoginScreen(),
+        '/main': (context) => const MainScreen(),
+      },
+      // home: const SplashScreen(),
 
       // ganti desain
       // home: LoginScreen(),

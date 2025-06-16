@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:shared_preferences/shared_preferences.dart'
+    show SharedPreferences;
 import 'package:shimmer/shimmer.dart';
 import 'package:syc/utils/app_colors.dart';
 import 'package:syc/widgets/custom_panel_shape.dart';
@@ -20,6 +22,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
   int _countAcara = 0;
   bool _isLoading = true;
   int day = 1;
+  Map<String, String> _dataUser = {};
 
   @override
   void initState() {
@@ -34,6 +37,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
     try {
       await loadCountAcara();
       await loadAcara();
+      await loadUserData();
     } catch (e) {
       // handle error jika perlu
     }
@@ -74,6 +78,29 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
     } catch (e) {
       print('❌ Gagal memuat acara count: $e');
     }
+  }
+
+  Future<void> loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys = [
+      'id',
+      'username',
+      'email',
+      'role',
+      'token',
+      'gereja_id',
+      'gereja_nama',
+      'kelompok_id',
+      'kelompok_nama',
+    ];
+    final Map<String, String> userData = {};
+    for (final key in keys) {
+      userData[key] = prefs.getString(key) ?? '';
+    }
+    if (!mounted) return;
+    setState(() {
+      _dataUser = userData;
+    });
   }
 
   Widget _buildDaySelector() {
@@ -123,6 +150,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final userId = _dataUser['id'] ?? '-';
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -229,6 +257,8 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                                                   (context) =>
                                                       DetailAcaraScreen(
                                                         id: acara["id"],
+                                                        hari: acara["hari"],
+                                                        userId: userId,
                                                       ),
                                             ),
                                           );

@@ -314,7 +314,7 @@ class _EvaluasiKomitmenListScreenState
           padding: const EdgeInsets.only(left: 16.0),
           child: IconButton(
             icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.pop(context, 'reload'),
           ),
         ),
       ),
@@ -423,6 +423,16 @@ class _EvaluasiKomitmenListScreenState
                                         );
                                       }
                                     } else if (type == 'Evaluasi') {
+                                      // Navigator.push(
+                                      //   context,
+                                      //   MaterialPageRoute(
+                                      //     builder:
+                                      //         (context) => FormEvaluasiScreen(
+                                      //           userId: userId,
+                                      //           acaraHariId: acaraHariId,
+                                      //         ),
+                                      //   ),
+                                      // );
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -432,7 +442,11 @@ class _EvaluasiKomitmenListScreenState
                                                 acaraHariId: acaraHariId,
                                               ),
                                         ),
-                                      );
+                                      ).then((result) {
+                                        if (result == 'reload') {
+                                          initAll();
+                                        }
+                                      });
                                     } else {
                                       Navigator.push(
                                         context,
@@ -443,7 +457,11 @@ class _EvaluasiKomitmenListScreenState
                                                 acaraHariId: acaraHariId,
                                               ),
                                         ),
-                                      );
+                                      ).then((result) {
+                                        if (result == 'reload') {
+                                          initAll();
+                                        }
+                                      });
                                     }
                                   }
                                 },

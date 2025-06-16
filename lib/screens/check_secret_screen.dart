@@ -88,7 +88,7 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
         children: [
           Positioned(
             child: Image.asset(
-              'assets/images/background_login4.jpg',
+              'assets/images/background_secret.jpg',
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
               fit: BoxFit.fill,
@@ -118,24 +118,24 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                         ),
                       ),
                       const SizedBox(height: 32),
-                      Image.asset('assets/logos/syc2.png', height: 100),
+                      // Image.asset('assets/logos/syc2.png', height: 100),
                       const SizedBox(height: 40),
                       // Email
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Colors.transparent,
                             borderRadius: BorderRadius.circular(32),
-                            border: Border.all(color: Colors.brown, width: 2),
+                            border: Border.all(color: Colors.white, width: 2),
                           ),
                           child: TextFormField(
                             controller: emailController,
-                            style: const TextStyle(color: AppColors.primary),
+                            style: const TextStyle(color: Colors.white),
                             decoration: InputDecoration(
                               hintText: 'Email',
                               hintStyle: const TextStyle(
-                                color: AppColors.primary,
+                                color: Colors.white,
                                 fontWeight: FontWeight.w300,
                               ),
                               border: InputBorder.none,
@@ -163,17 +163,17 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Colors.transparent,
                             borderRadius: BorderRadius.circular(32),
-                            border: Border.all(color: Colors.brown, width: 2),
+                            border: Border.all(color: Colors.white, width: 2),
                           ),
                           child: TextFormField(
                             controller: secretCodeController,
-                            style: const TextStyle(color: AppColors.primary),
+                            style: const TextStyle(color: Colors.white),
                             decoration: InputDecoration(
                               hintText: 'Kode Rahasia',
                               hintStyle: const TextStyle(
-                                color: AppColors.primary,
+                                color: Colors.white,
                                 fontWeight: FontWeight.w300,
                               ),
                               border: InputBorder.none,
@@ -204,19 +204,19 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                             width: double.infinity,
                             height: 50,
                             decoration: BoxDecoration(
-                              color: AppColors.brown1,
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(32),
                             ),
                             alignment: Alignment.center,
                             child:
                                 isLoading
                                     ? const CircularProgressIndicator(
-                                      color: Colors.white,
+                                      color: AppColors.brown1,
                                     )
                                     : const Text(
                                       'Check Secret',
                                       style: TextStyle(
-                                        color: Colors.white,
+                                        color: AppColors.brown1,
                                         fontSize: 18,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -234,7 +234,7 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                             style: TextStyle(
                               fontWeight: FontWeight.w300,
                               fontSize: 16,
-                              color: AppColors.primary,
+                              color: Colors.white,
                             ),
                           ),
                           GestureDetector(
@@ -251,7 +251,7 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
-                                color: AppColors.primary,
+                                color: Colors.white,
                                 decoration: TextDecoration.underline,
                               ),
                             ),

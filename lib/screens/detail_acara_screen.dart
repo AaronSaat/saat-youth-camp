@@ -10,7 +10,14 @@ import 'evaluasi_komitmen_list_screen.dart';
 
 class DetailAcaraScreen extends StatefulWidget {
   final int id;
-  const DetailAcaraScreen({super.key, required this.id});
+  final int hari;
+  final String userId;
+  const DetailAcaraScreen({
+    super.key,
+    required this.id,
+    required this.hari,
+    required this.userId,
+  });
 
   @override
   State<DetailAcaraScreen> createState() => _DetailAcaraScreenState();
@@ -20,6 +27,8 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
   bool _isLoading = true;
   Map<String, dynamic>? _dataAcara;
   Map<String, String>? _userData;
+  bool _evaluasiDone = false;
+  bool _komitmenDone = false;
 
   @override
   void initState() {
@@ -37,12 +46,33 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
         context,
         widget.id,
       );
+      final komitmenDone = await ApiService.getKomitmenByPesertaByDay(
+        context,
+        widget.userId,
+        widget.hari,
+      );
+      final evaluasiDone = await ApiService.getEvaluasiByPesertaByAcara(
+        context,
+        widget.userId,
+        widget.id,
+      );
+
       if (!mounted) return;
       setState(() {
         _dataAcara = acaraList.isNotEmpty ? acaraList['data_acara'] : null;
         _userData = userData;
+        _evaluasiDone =
+            evaluasiDone['status'] == 404
+                ? false
+                : (evaluasiDone['success'] ?? false);
+        _komitmenDone =
+            komitmenDone['status'] == 404
+                ? false
+                : (komitmenDone['success'] ?? false);
         print('Data Acara: $_dataAcara');
         print('User Data dari SharedPreferences: $_userData');
+        print('Evaluasi Done: $_evaluasiDone');
+        print('Komitmen Done: $_komitmenDone');
         _isLoading = false;
       });
     } catch (e) {
@@ -142,105 +172,61 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                               style: const TextStyle(fontSize: 12),
                             ),
                             const SizedBox(height: 16),
-                            const Divider(),
-                            const SizedBox(height: 16),
-                            const Text(
-                              'Pembicara',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                            if (_dataAcara != null &&
+                                _dataAcara!["pembicara"] != null &&
+                                (_dataAcara!["pembicara"] as String)
+                                    .isNotEmpty) ...[
+                              const Divider(),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'Pembicara',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.asset(
-                                    'assets/logos/stt_saat.png',
-                                    width: 48,
-                                    height: 48,
-                                    fit: BoxFit.cover,
+                              const SizedBox(height: 12),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.asset(
+                                      'assets/logos/stt_saat.png',
+                                      width: 48,
+                                      height: 48,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        (_dataAcara != null &&
-                                                _dataAcara!["pembicara"] !=
-                                                    null &&
-                                                (_dataAcara!["pembicara"]
-                                                        as String)
-                                                    .isNotEmpty)
-                                            ? _dataAcara!["pembicara"]
-                                            : 'Belum ada pembicara',
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          _dataAcara!["pembicara"],
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                      const Text(
-                                        'Title / Jabatan Pembicara',
-                                        style: TextStyle(fontSize: 12),
-                                      ),
-                                    ],
+                                        const Text(
+                                          'Title / Jabatan Pembicara',
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
+                                ],
+                              ),
+                            ],
                             const SizedBox(height: 24),
                             if (_userData != null &&
                                 (_userData!['role']?.toLowerCase() ==
                                     'peserta'))
                               Column(
                                 children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                    ),
-                                    child: SizedBox(
-                                      width: double.infinity,
-                                      height: 50,
-                                      child: ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: AppColors.brown1,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              32,
-                                            ),
-                                          ),
-                                        ),
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (context) =>
-                                                      FormKomitmenScreen(
-                                                        userId:
-                                                            _userData!['id']!,
-                                                        acaraHariId:
-                                                            _dataAcara!['hari'],
-                                                      ),
-                                            ),
-                                          );
-                                        },
-                                        child: const Text(
-                                          'KOMITMEN',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 16,

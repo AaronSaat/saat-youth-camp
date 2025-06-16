@@ -20,6 +20,7 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
   List<Map<String, dynamic>>? _dataBrm;
   Map<String, dynamic>? _dataBible;
   List<dynamic> _books = [];
+  int countRead = 0;
 
   @override
   void initState() {
@@ -31,6 +32,7 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
     setState(() => _isLoading = true);
     try {
       await loadBrm();
+      await loadReportBrmByPesertaByDay();
     } catch (e) {
       // handle error jika perlu
     }
@@ -65,6 +67,20 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
       if (!mounted) return;
       setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> loadReportBrmByPesertaByDay() async {
+    try {
+      final count = await ApiService.getBrmReportByPesertaByDay(
+        context,
+        widget.userId,
+        DateTime.now().toIso8601String().substring(0, 10),
+      );
+      if (!mounted) return;
+      setState(() {
+        countRead = count;
+      });
+    } catch (e) {}
   }
 
   List<dynamic> parseBooks(Map<String, dynamic>? dataBible) {
@@ -320,33 +336,36 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                               child: buildBibleContent(),
                             ),
                             const SizedBox(height: 16),
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.4,
-                                height: 40,
-                                child: ElevatedButton.icon(
-                                  onPressed: _isLoading ? null : _handleSubmit,
-                                  label: const Text(
-                                    'Selesai Membaca',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w300,
-                                      color: Colors.white,
+                            if (countRead == 0)
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.4,
+                                  height: 50,
+                                  child: ElevatedButton.icon(
+                                    onPressed:
+                                        _isLoading ? null : _handleSubmit,
+                                    label: const Text(
+                                      'Selesai Membaca',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white,
+                                      ),
                                     ),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.brown1,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.all(12),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(24),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.secondary,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.all(12),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(24),
+                                      ),
+                                      elevation: 0,
                                     ),
-                                    elevation: 0,
                                   ),
                                 ),
                               ),
-                            ),
                           ],
                         ),
                       ),
