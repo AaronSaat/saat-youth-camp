@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:syc/screens/zzz_temp_codes.dart';
 import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
 import '../widgets/custom_not_found.dart';
@@ -70,10 +69,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
     if (!context.mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-    );
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
   }
 
   @override
@@ -109,12 +105,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height,
                   child: Padding(
-                    padding: const EdgeInsets.only(
-                      top: 24.0,
-                      bottom: 24.0,
-                      left: 24.0,
-                      right: 24.0,
-                    ),
+                    padding: const EdgeInsets.only(top: 24.0, bottom: 24.0, left: 24.0, right: 24.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -133,10 +124,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 SizedBox(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.3,
-                                  height:
-                                      MediaQuery.of(context).size.width * 0.3,
+                                  width: MediaQuery.of(context).size.width * 0.3,
+                                  height: MediaQuery.of(context).size.width * 0.3,
                                   child: CircleAvatar(
                                     radius: 50,
                                     backgroundImage: AssetImage(() {
@@ -158,8 +147,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       if (role != 'Panitia')
                                         Text(
@@ -174,75 +162,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         children: [
                                           Card(
                                             color: AppColors.secondary,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                             child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 8,
-                                                    vertical: 4,
-                                                  ),
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  const Icon(
-                                                    Icons.work,
-                                                    size: 12,
-                                                    color: AppColors.primary,
-                                                  ),
+                                                  const Icon(Icons.work, size: 12, color: AppColors.primary),
                                                   const SizedBox(width: 4),
                                                   Text(
-                                                    role.replaceAll(
-                                                      ' Kelompok',
-                                                      '',
-                                                    ),
-                                                    style: const TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
+                                                    role.replaceAll(' Kelompok', ''),
+                                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
                                                   ),
                                                 ],
                                               ),
                                             ),
                                           ),
-                                          if (kelompok.isNotEmpty &&
-                                              kelompok != 'Null')
+                                          if (kelompok.isNotEmpty && kelompok != 'Null')
                                             Padding(
-                                              padding: const EdgeInsets.only(
-                                                left: 6,
-                                              ),
+                                              padding: const EdgeInsets.only(left: 6),
                                               child: Card(
                                                 color: AppColors.secondary,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(12),
-                                                ),
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                                 child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 8,
-                                                        vertical: 4,
-                                                      ),
+                                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                                   child: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
+                                                    mainAxisSize: MainAxisSize.min,
                                                     children: [
-                                                      const Icon(
-                                                        Icons.group,
-                                                        size: 12,
-                                                        color:
-                                                            AppColors.primary,
-                                                      ),
+                                                      const Icon(Icons.group, size: 12, color: AppColors.primary),
                                                       const SizedBox(width: 4),
                                                       Text(
                                                         kelompok,
                                                         style: const TextStyle(
                                                           fontSize: 12,
-                                                          fontWeight:
-                                                              FontWeight.w500,
+                                                          fontWeight: FontWeight.w500,
                                                         ),
                                                       ),
                                                     ],
@@ -255,36 +208,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       if (gereja.isNotEmpty && gereja != 'Null')
                                         Card(
                                           color: AppColors.secondary,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                          ),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                           child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 4,
-                                            ),
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                             child: Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                const Icon(
-                                                  Icons.church,
-                                                  size: 16,
-                                                  color: AppColors.primary,
-                                                ),
+                                                const Icon(Icons.church, size: 16, color: AppColors.primary),
                                                 const SizedBox(width: 4),
                                                 Flexible(
                                                   child: Text(
                                                     gereja,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
+                                                    overflow: TextOverflow.ellipsis,
                                                     maxLines: 3,
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
+                                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
                                                   ),
                                                 ),
                                               ],
@@ -312,9 +249,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: AppColors.primary,
                                     foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(32),
-                                    ),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
                                   ),
                                 ),
                               ),
@@ -342,10 +277,7 @@ Widget buildBrmShimmer() {
     child: Container(
       height: 180,
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -374,10 +306,7 @@ Widget buildAcaraShimmer() {
       child: Container(
         decoration: const BoxDecoration(
           color: AppColors.grey1, // abu-abu muda
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(24),
-            bottomLeft: Radius.circular(24),
-          ),
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
         ),
         padding: const EdgeInsets.all(16.0),
         child: SizedBox(
@@ -387,12 +316,7 @@ Widget buildAcaraShimmer() {
             itemCount: 3,
             itemBuilder: (context, index) {
               return Padding(
-                padding: const EdgeInsets.only(
-                  left: 16.0,
-                  right: 16.0,
-                  top: 84.0,
-                  bottom: 8.0,
-                ),
+                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 84.0, bottom: 8.0),
                 child: Container(
                   height: 100,
                   width: 100,

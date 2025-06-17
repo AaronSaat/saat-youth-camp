@@ -16,4 +16,5 @@ class AppColors {
   // 5C0101
   static const Color primary = Color.fromARGB(255, 92, 1, 1);
   static const Color brown1 = Color.fromARGB(255, 92, 1, 1);
+  static const Color brown2 = Color(0xFF492e25); //kepake di custom card
 }

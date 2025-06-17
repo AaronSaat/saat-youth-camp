@@ -1,0 +1,155 @@
+import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:syc/screens/anggota_kelompok_screen.dart';
+import 'package:syc/utils/app_colors.dart';
+
+import '../services/api_service.dart';
+import '../widgets/custom_card.dart';
+import 'anggota_gereja_screen.dart';
+
+class ListKelompokScreen extends StatefulWidget {
+  const ListKelompokScreen({Key? key}) : super(key: key);
+
+  @override
+  _ListKelompokScreenState createState() => _ListKelompokScreenState();
+}
+
+class _ListKelompokScreenState extends State<ListKelompokScreen> {
+  List<dynamic> _kelompokList = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    initAll();
+  }
+
+  Future<void> initAll() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final kelompokList = await ApiService.getKelompok(context);
+      if (!mounted) return;
+      setState(() {
+        _kelompokList = kelompokList;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(backgroundColor: Colors.transparent),
+      body: Stack(
+        children: [
+          Positioned(
+            child: Image.asset(
+              'assets/images/background_fade.jpg',
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              fit: BoxFit.fill,
+            ),
+          ),
+          SafeArea(
+            child: RefreshIndicator(
+              onRefresh: () => initAll(),
+              color: AppColors.brown1,
+              backgroundColor: Colors.white,
+              child: SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(children: [Image.asset('assets/texts/daftar_kelompok.png', height: 128)]),
+                      // Tidak ada day selector di desain ini
+                      const SizedBox(height: 8),
+                      _isLoading
+                          ? buildListShimmer(context)
+                          : _kelompokList.isEmpty
+                          ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.asset('assets/images/data_not_found.png', height: 100),
+                                const SizedBox(height: 12),
+                                Text(
+                                  "Gagal memuat daftar kelompok :(",
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    color: AppColors.brown1,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                          : ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: _kelompokList.length,
+                            itemBuilder: (context, index) {
+                              final kelompok = _kelompokList[index];
+                              return CustomCard(
+                                text: kelompok['nama_kelompok'] ?? 'Kelompok???',
+                                icon: Icons.group,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => AnggotaKelompokScreen(id: '${kelompok['id'] ?? 'Kelompok???'}'),
+                                    ),
+                                  );
+                                },
+                                iconBackgroundColor: AppColors.brown1,
+                              );
+                            },
+                          ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+Widget buildListShimmer(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: SizedBox(
+      height: 7 * 86.0, // 7 item x tinggi item + padding
+      child: ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 5,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Shimmer.fromColors(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                height: 70,
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+              ),
+            ),
+          );
+        },
+      ),
+    ),
+  );
+}

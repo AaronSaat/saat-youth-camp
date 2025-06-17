@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemChrome, DeviceOrientation;
+import 'package:syc/screens/form_komitmen_screen.dart';
 import 'package:syc/screens/main_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 
@@ -48,11 +49,7 @@ class MyApp extends StatelessWidget {
       // home: ReadMoreSuccessScreen(),
       // home: TestScreen2(), //ini untuk gereja kelompok anggota
       // home: ReadMoreScreen(userId: "80"),
-      // home: EvaluasiKomitmenSuccessScreen(
-      //   userId: "80",
-      //   type: "Komitmen",
-      //   isSuccess: true,
-      // ),
+      // home: FormKomitmenScreen(userId: "80", acaraHariId: 2),
       // home: EvaluasiKomitmenListScreen(type: 'Komitmen', userId: '80'),
 
       // home: KomitmenScreen(userId: 2, day: 1),

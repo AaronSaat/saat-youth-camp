@@ -87,11 +87,7 @@ class _MateriScreenState extends State<MateriScreen> {
       List<bool> progress = List.filled(komitmenList.length, false);
       for (int i = 0; i < progress.length; i++) {
         try {
-          final result = await ApiService.getKomitmenByPesertaByDay(
-            context,
-            userId,
-            i + 1,
-          );
+          final result = await ApiService.getKomitmenByPesertaByDay(context, userId, i + 1);
           if (result['success'] == true) {
             progress[i] = true;
           }
@@ -121,11 +117,7 @@ class _MateriScreenState extends State<MateriScreen> {
       List<bool> progress = List.filled(acaraList.length, false);
       for (int i = 0; i < progress.length; i++) {
         try {
-          final result = await ApiService.getEvaluasiByPesertaByAcara(
-            context,
-            userId,
-            i + 1,
-          );
+          final result = await ApiService.getEvaluasiByPesertaByAcara(context, userId, i + 1);
           if (result['success'] == true) {
             progress[i] = true;
           }
@@ -167,12 +159,7 @@ class _MateriScreenState extends State<MateriScreen> {
               backgroundColor: Colors.white,
               child: SingleChildScrollView(
                 child: Padding(
-                  padding: EdgeInsets.only(
-                    top: 24.0,
-                    bottom: 84,
-                    left: 16,
-                    right: 16,
-                  ),
+                  padding: EdgeInsets.only(top: 24.0, bottom: 84, left: 16, right: 16),
                   child: Column(
                     children: [
                       Row(
@@ -180,27 +167,24 @@ class _MateriScreenState extends State<MateriScreen> {
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(left: 8),
-                            child: Image.asset(
-                              'assets/texts/materi.png',
-                              height: 84,
-                            ),
+                            child: Image.asset('assets/texts/materi.png', height: 84),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: Container(
-                              height: 48,
-                              width: 48,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Icon(
-                                Icons.search,
-                                color: AppColors.primary,
-                                size: 32,
-                              ),
-                            ),
-                          ),
+                          // Padding(
+                          //   padding: const EdgeInsets.only(right: 8),
+                          //   child: Container(
+                          //     height: 48,
+                          //     width: 48,
+                          //     decoration: BoxDecoration(
+                          //       color: Colors.white,
+                          //       borderRadius: BorderRadius.circular(16),
+                          //     ),
+                          //     child: Icon(
+                          //       Icons.search,
+                          //       color: AppColors.primary,
+                          //       size: 32,
+                          //     ),
+                          //   ),
+                          // ),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -221,26 +205,16 @@ class _MateriScreenState extends State<MateriScreen> {
                               // Ambil userId dari _dataUser
                               final userId = _dataUser['id'] ?? '';
                               // Progress Evaluasi
-                              final progressEvaluasi =
-                                  _evaluasiDoneMap[userId] ?? [];
+                              final progressEvaluasi = _evaluasiDoneMap[userId] ?? [];
                               final evaluasiTotal = progressEvaluasi.length;
-                              final evaluasiDone =
-                                  progressEvaluasi.where((e) => e).length;
-                              final evaluasiProgress =
-                                  evaluasiTotal > 0
-                                      ? evaluasiDone / evaluasiTotal
-                                      : 0.0;
+                              final evaluasiDone = progressEvaluasi.where((e) => e).length;
+                              final evaluasiProgress = evaluasiTotal > 0 ? evaluasiDone / evaluasiTotal : 0.0;
 
                               // Progress Komitmen
-                              final progressKomitmen =
-                                  _komitmenDoneMap[userId] ?? [];
+                              final progressKomitmen = _komitmenDoneMap[userId] ?? [];
                               final komitmenTotal = progressKomitmen.length;
-                              final komitmenDone =
-                                  progressKomitmen.where((e) => e).length;
-                              final komitmenProgress =
-                                  komitmenTotal > 0
-                                      ? komitmenDone / komitmenTotal
-                                      : 0.0;
+                              final komitmenDone = progressKomitmen.where((e) => e).length;
+                              final komitmenProgress = komitmenTotal > 0 ? komitmenDone / komitmenTotal : 0.0;
 
                               return Column(
                                 children: [
@@ -252,11 +226,7 @@ class _MateriScreenState extends State<MateriScreen> {
                                         context,
                                         MaterialPageRoute(
                                           builder:
-                                              (context) =>
-                                                  EvaluasiKomitmenListScreen(
-                                                    type: 'Evaluasi',
-                                                    userId: userId,
-                                                  ),
+                                              (context) => EvaluasiKomitmenListScreen(type: 'Evaluasi', userId: userId),
                                         ),
                                       ).then((result) {
                                         if (result == 'reload') {
@@ -278,11 +248,7 @@ class _MateriScreenState extends State<MateriScreen> {
                                         context,
                                         MaterialPageRoute(
                                           builder:
-                                              (context) =>
-                                                  EvaluasiKomitmenListScreen(
-                                                    type: 'Komitmen',
-                                                    userId: userId,
-                                                  ),
+                                              (context) => EvaluasiKomitmenListScreen(type: 'Komitmen', userId: userId),
                                         ),
                                       );
                                     },
@@ -297,13 +263,7 @@ class _MateriScreenState extends State<MateriScreen> {
                                     onTap: () {
                                       Navigator.push(
                                         context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) =>
-                                                  BibleReadingListScreen(
-                                                    userId: userId,
-                                                  ),
-                                        ),
+                                        MaterialPageRoute(builder: (context) => BibleReadingListScreen(userId: userId)),
                                       );
                                     },
                                     // Progress belum tersedia untuk Bacaan Harian
@@ -343,10 +303,7 @@ class _MateriScreenState extends State<MateriScreen> {
                   child: Container(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height * 0.25,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                    ),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
                   ),
                 ),
                 Positioned(
@@ -359,21 +316,13 @@ class _MateriScreenState extends State<MateriScreen> {
                       Shimmer.fromColors(
                         baseColor: Colors.grey[300]!,
                         highlightColor: Colors.grey[100]!,
-                        child: Container(
-                          width: 120,
-                          height: 20,
-                          color: Colors.white,
-                        ),
+                        child: Container(width: 120, height: 20, color: Colors.white),
                       ),
                       const SizedBox(height: 4),
                       Shimmer.fromColors(
                         baseColor: Colors.grey[300]!,
                         highlightColor: Colors.grey[100]!,
-                        child: Container(
-                          width: 180,
-                          height: 10,
-                          color: Colors.white,
-                        ),
+                        child: Container(width: 180, height: 10, color: Colors.white),
                       ),
                     ],
                   ),
@@ -384,11 +333,7 @@ class _MateriScreenState extends State<MateriScreen> {
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey[300]!,
                     highlightColor: Colors.grey[100]!,
-                    child: Container(
-                      width: 80,
-                      height: 16,
-                      color: Colors.white,
-                    ),
+                    child: Container(width: 80, height: 16, color: Colors.white),
                   ),
                 ),
               ],
@@ -429,28 +374,14 @@ class MateriMenuCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 12, offset: const Offset(0, 4))],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(24),
-                topRight: Radius.circular(24),
-              ),
-              child: Image.asset(
-                imagePath,
-                width: double.infinity,
-                height: 150,
-                fit: BoxFit.cover,
-              ),
+              borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+              child: Image.asset(imagePath, width: double.infinity, height: 150, fit: BoxFit.cover),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
@@ -459,27 +390,16 @@ class MateriMenuCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       title,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
-                      ),
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.primary),
                     ),
                   ),
-                  const Icon(
-                    Icons.arrow_forward_ios,
-                    color: AppColors.primary,
-                    size: 24,
-                  ),
+                  const Icon(Icons.arrow_forward_ios, color: AppColors.primary, size: 24),
                 ],
               ),
             ),
             if (withProgress)
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 0,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
                 child: Row(
                   children: [
                     Expanded(
@@ -489,9 +409,7 @@ class MateriMenuCard extends StatelessWidget {
                           value: valueProgress,
                           minHeight: 12,
                           backgroundColor: Colors.grey[200],
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.green,
-                          ),
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
                         ),
                       ),
                     ),
@@ -500,10 +418,7 @@ class MateriMenuCard extends StatelessWidget {
                         padding: const EdgeInsets.only(left: 12),
                         child: Text(
                           '$valueDone/$valueTotal',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
-                          ),
+                          style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
                         ),
                       ),
                   ],

@@ -15,25 +15,18 @@ class EvaluasiKomitmenListScreen extends StatefulWidget {
   final String type;
   final String userId;
 
-  const EvaluasiKomitmenListScreen({
-    Key? key,
-    required this.type,
-    required this.userId,
-  }) : super(key: key);
+  const EvaluasiKomitmenListScreen({Key? key, required this.type, required this.userId}) : super(key: key);
 
   @override
-  _EvaluasiKomitmenListScreenState createState() =>
-      _EvaluasiKomitmenListScreenState();
+  _EvaluasiKomitmenListScreenState createState() => _EvaluasiKomitmenListScreenState();
 }
 
-class _EvaluasiKomitmenListScreenState
-    extends State<EvaluasiKomitmenListScreen> {
+class _EvaluasiKomitmenListScreenState extends State<EvaluasiKomitmenListScreen> {
   List<dynamic> _acaraList = [];
   List<dynamic> _komitmenList = [];
   List<dynamic> _komitmenDoneList = [];
   List<dynamic> _evaluasiDoneList = [];
-  List<dynamic> _acaraIdList =
-      []; // untuk menyimpan acara ID supaya di listnya tau selesai atau belum
+  List<dynamic> _acaraIdList = []; // untuk menyimpan acara ID supaya di listnya tau selesai atau belum
   Map<String, String> _dataUser = {};
   bool _isLoading = true;
   int day = 1; // default day
@@ -74,11 +67,7 @@ class _EvaluasiKomitmenListScreenState
         _evaluasiDoneList = List.filled(acaraList.length ?? 0, false);
         for (int i = 0; i < _evaluasiDoneList.length; i++) {
           try {
-            final result = await ApiService.getEvaluasiByPesertaByAcara(
-              context,
-              widget.userId,
-              _acaraIdList[i],
-            );
+            final result = await ApiService.getEvaluasiByPesertaByAcara(context, widget.userId, _acaraIdList[i]);
             if (!mounted) return;
             if (result != null && result['success'] == true) {
               _evaluasiDoneList[i] = true;
@@ -98,11 +87,7 @@ class _EvaluasiKomitmenListScreenState
         _komitmenDoneList = List.filled(komitmenList.length ?? 0, false);
         for (int i = 0; i < _komitmenDoneList.length; i++) {
           try {
-            final result = await ApiService.getKomitmenByPesertaByDay(
-              context,
-              widget.userId,
-              i + 1,
-            );
+            final result = await ApiService.getKomitmenByPesertaByDay(context, widget.userId, i + 1);
             if (!mounted) return;
             if (result != null && result['success'] == true) {
               _komitmenDoneList[i] = true;
@@ -140,11 +125,7 @@ class _EvaluasiKomitmenListScreenState
       _evaluasiDoneList = List.filled(acaraList.length ?? 0, false);
       for (int i = 0; i < _evaluasiDoneList.length; i++) {
         try {
-          final result = await ApiService.getEvaluasiByPesertaByAcara(
-            context,
-            widget.userId,
-            _acaraIdList[i],
-          );
+          final result = await ApiService.getEvaluasiByPesertaByAcara(context, widget.userId, _acaraIdList[i]);
           if (result != null && result['success'] == true) {
             _evaluasiDoneList[i] = true;
           }
@@ -173,11 +154,7 @@ class _EvaluasiKomitmenListScreenState
       _komitmenDoneList = List.filled(komitmenList.length ?? 0, false);
       for (int i = 0; i < _komitmenDoneList.length; i++) {
         try {
-          final result = await ApiService.getKomitmenByPesertaByDay(
-            context,
-            widget.userId,
-            i + 1,
-          );
+          final result = await ApiService.getKomitmenByPesertaByDay(context, widget.userId, i + 1);
           if (result != null && result['success'] == true) {
             _komitmenDoneList[i] = true;
           }
@@ -249,11 +226,7 @@ class _EvaluasiKomitmenListScreenState
       if (selectedIdx != -1 && _scrollController.hasClients) {
         double offset = (selectedIdx * 108.0) - 16.0; // 100(width) + 8(spacing)
         if (offset < 0) offset = 0;
-        _scrollController.animateTo(
-          offset,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.ease,
-        );
+        _scrollController.animateTo(offset, duration: const Duration(milliseconds: 200), curve: Curves.ease);
       }
     });
 
@@ -280,7 +253,7 @@ class _EvaluasiKomitmenListScreenState
                 }
               },
               child: Container(
-                width: 100,
+                width: 120,
                 height: 48,
                 decoration: BoxDecoration(
                   color: selected ? AppColors.primary : Colors.transparent,
@@ -289,12 +262,8 @@ class _EvaluasiKomitmenListScreenState
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  d == 99 ? 'Overall' : 'Day $d',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+                  d == 99 ? 'Keseluruhan' : 'Hari ke-$d',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                 ),
               ),
             );
@@ -337,20 +306,14 @@ class _EvaluasiKomitmenListScreenState
                 physics: AlwaysScrollableScrollPhysics(),
 
                 child: Padding(
-                  padding: const EdgeInsets.only(
-                    left: 24.0,
-                    right: 24.0,
-                    bottom: 24.0,
-                  ),
+                  padding: const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Column(
                         children: [
                           Image.asset(
-                            widget.type == 'Evaluasi'
-                                ? 'assets/texts/evaluasi.png'
-                                : 'assets/texts/komitmen.png',
+                            widget.type == 'Evaluasi' ? 'assets/texts/evaluasi.png' : 'assets/texts/komitmen.png',
                             height: 96,
                           ),
                         ],
@@ -363,34 +326,23 @@ class _EvaluasiKomitmenListScreenState
                           : ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount:
-                                widget.type == 'Evaluasi'
-                                    ? _acaraList.length
-                                    : _komitmenList.length,
+                            itemCount: widget.type == 'Evaluasi' ? _acaraList.length : _komitmenList.length,
                             itemBuilder: (context, index) {
-                              final items =
-                                  widget.type == 'Evaluasi'
-                                      ? _acaraList
-                                      : _komitmenList;
+                              final items = widget.type == 'Evaluasi' ? _acaraList : _komitmenList;
                               String item;
                               bool? status;
                               if (widget.type == 'Evaluasi') {
                                 final acara = items[index];
-                                item =
-                                    '${acara['acara_nama'] ?? '-'} (Hari ${acara['hari'] ?? '-'})';
+                                item = '${acara['acara_nama'] ?? '-'} (Hari ${acara['hari'] ?? '-'})';
                                 status = _evaluasiDoneList[index];
                               } else {
                                 final komitmen = items[index];
-                                item =
-                                    'Komitmen Hari ${komitmen['hari'] ?? '-'}';
+                                item = 'Komitmen Hari ${komitmen['hari'] ?? '-'}';
                                 status = _komitmenDoneList[index];
                               }
                               return CustomCard(
                                 text: item,
-                                icon:
-                                    status == true
-                                        ? Icons.check
-                                        : Icons.arrow_outward_rounded,
+                                icon: status == true ? Icons.check : Icons.arrow_outward_rounded,
                                 onTap: () {
                                   String type = widget.type;
                                   String userId = widget.userId;
@@ -405,23 +357,23 @@ class _EvaluasiKomitmenListScreenState
                                       context,
                                       MaterialPageRoute(
                                         builder:
-                                            (context) =>
-                                                EvaluasiKomitmenViewScreen(
-                                                  type: type,
-                                                  userId: userId,
-                                                  acaraHariId: acaraHariId,
-                                                ),
+                                            (context) => EvaluasiKomitmenViewScreen(
+                                              type: type,
+                                              userId: userId,
+                                              acaraHariId: acaraHariId,
+                                            ),
                                       ),
                                     );
                                   } else {
                                     if (_dataUser['id'] != widget.userId) {
-                                      if (mounted) {
+                                      setState(() {
+                                        if (!mounted) return;
                                         showCustomSnackBar(
                                           context,
                                           'Evaluasi/Komitmen hanya bisa diisi oleh pemilikinya.',
                                           isSuccess: false,
                                         );
-                                      }
+                                      });
                                     } else if (type == 'Evaluasi') {
                                       // Navigator.push(
                                       //   context,
@@ -437,10 +389,7 @@ class _EvaluasiKomitmenListScreenState
                                         context,
                                         MaterialPageRoute(
                                           builder:
-                                              (context) => FormEvaluasiScreen(
-                                                userId: userId,
-                                                acaraHariId: acaraHariId,
-                                              ),
+                                              (context) => FormEvaluasiScreen(userId: userId, acaraHariId: acaraHariId),
                                         ),
                                       ).then((result) {
                                         if (result == 'reload') {
@@ -452,10 +401,7 @@ class _EvaluasiKomitmenListScreenState
                                         context,
                                         MaterialPageRoute(
                                           builder:
-                                              (context) => FormKomitmenScreen(
-                                                userId: userId,
-                                                acaraHariId: acaraHariId,
-                                              ),
+                                              (context) => FormKomitmenScreen(userId: userId, acaraHariId: acaraHariId),
                                         ),
                                       ).then((result) {
                                         if (result == 'reload') {
@@ -493,10 +439,7 @@ Widget buildShimmerList() {
           highlightColor: Colors.grey[100]!,
           child: Container(
             height: 72,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
           ),
         ),
       );

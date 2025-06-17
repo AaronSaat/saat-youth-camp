@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/screens/anggota_kelompok_screen.dart';
-import 'package:syc/screens/gereja_kelompok_list_screen.dart';
+import 'package:syc/screens/list_gereja_screen.dart';
+import 'package:syc/screens/list_kelompok_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 
 import '../services/api_service.dart';
 import 'login_screen.dart';
 import 'dashboard_screen.dart';
 import 'anggota_gereja_screen.dart';
-import 'zzz_gereja_kelompok_screen.dart';
 import 'profile_screen.dart';
 import 'daftar_acara_screen.dart';
 import 'daftar_acara_screen.dart';
@@ -55,9 +55,7 @@ class _MainScreenState extends State<MainScreen> {
       }
       return null;
     } catch (e) {
-      print(
-        '❌ Gagal memuat kelompok pada bottom navigation bar untuk panitia: $e',
-      );
+      print('❌ Gagal memuat kelompok pada bottom navigation bar untuk panitia: $e');
       setState(() {
         _isLoading = false;
       });
@@ -111,8 +109,8 @@ class _MainScreenState extends State<MainScreen> {
         const DaftarAcaraScreen(),
         // AnggotaGerejaScreen(id: "2"),
         // AnggotaKelompokScreen(id: "1"),
-        GerejaKelompokListScreen(type: "Gereja"),
-        GerejaKelompokListScreen(type: "Kelompok"),
+        ListGerejaScreen(),
+        ListKelompokScreen(),
         // const BroadcastScreen(),
         // const AdminScreen(),
         const ProfileScreen(),
@@ -122,20 +120,13 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {});
   }
 
-  BottomNavigationBarItem buildSvgNavItem(
-    String asset,
-    String label,
-    int index,
-  ) {
+  BottomNavigationBarItem buildSvgNavItem(String asset, String label, int index) {
     return BottomNavigationBarItem(
       icon: SvgPicture.asset(
         asset,
         height: 28,
         width: 28,
-        colorFilter: ColorFilter.mode(
-          _currentIndex == index ? AppColors.primary : Colors.grey,
-          BlendMode.srcIn,
-        ),
+        colorFilter: ColorFilter.mode(_currentIndex == index ? AppColors.primary : Colors.grey, BlendMode.srcIn),
       ),
       label: label,
     );
@@ -144,58 +135,26 @@ class _MainScreenState extends State<MainScreen> {
   List<BottomNavigationBarItem> _buildNavItems() {
     if (role == 'Peserta' || role == 'Pembimbing Kelompok') {
       return [
-        buildSvgNavItem(
-          'assets/icons/navigation_bar/dashboard.svg',
-          'Dashboard',
-          0,
-        ),
-        buildSvgNavItem(
-          'assets/icons/navigation_bar/list_acara.svg',
-          'Acara',
-          1,
-        ),
-        buildSvgNavItem(
-          'assets/icons/navigation_bar/kelompok.svg',
-          'Kelompok',
-          2,
-        ),
+        buildSvgNavItem('assets/icons/navigation_bar/dashboard.svg', 'Dashboard', 0),
+        buildSvgNavItem('assets/icons/navigation_bar/list_acara.svg', 'Acara', 1),
+        buildSvgNavItem('assets/icons/navigation_bar/kelompok.svg', 'Kelompok', 2),
         const BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Materi'),
         buildSvgNavItem('assets/icons/navigation_bar/profile.svg', 'Profil', 4),
       ];
     } else if (role == 'Pembina') {
       return [
-        buildSvgNavItem(
-          'assets/icons/navigation_bar/dashboard.svg',
-          'Dashboard',
-          0,
-        ),
-        buildSvgNavItem(
-          'assets/icons/navigation_bar/list_acara.svg',
-          'Acara',
-          1,
-        ),
+        buildSvgNavItem('assets/icons/navigation_bar/dashboard.svg', 'Dashboard', 0),
+        buildSvgNavItem('assets/icons/navigation_bar/list_acara.svg', 'Acara', 1),
         buildSvgNavItem('assets/icons/navigation_bar/gereja.svg', 'Gereja', 2),
         const BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Materi'),
         buildSvgNavItem('assets/icons/navigation_bar/profile.svg', 'Profil', 4),
       ];
     } else if (role == 'Panitia') {
       return [
-        buildSvgNavItem(
-          'assets/icons/navigation_bar/dashboard.svg',
-          'Dashboard',
-          0,
-        ),
-        buildSvgNavItem(
-          'assets/icons/navigation_bar/list_acara.svg',
-          'Acara',
-          1,
-        ),
+        buildSvgNavItem('assets/icons/navigation_bar/dashboard.svg', 'Dashboard', 0),
+        buildSvgNavItem('assets/icons/navigation_bar/list_acara.svg', 'Acara', 1),
         buildSvgNavItem('assets/icons/navigation_bar/gereja.svg', 'Gereja', 2),
-        buildSvgNavItem(
-          'assets/icons/navigation_bar/kelompok.svg',
-          'Kelompok',
-          3,
-        ),
+        buildSvgNavItem('assets/icons/navigation_bar/kelompok.svg', 'Kelompok', 3),
         // const BottomNavigationBarItem(
         //   icon: Icon(Icons.campaign),
         //   label: 'Broadcast',
@@ -242,13 +201,7 @@ class _MainScreenState extends State<MainScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                      boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: const Offset(0, 4))],
                     ),
                     child: BottomNavigationBar(
                       currentIndex: _currentIndex,

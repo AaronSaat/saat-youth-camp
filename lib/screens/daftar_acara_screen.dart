@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:shared_preferences/shared_preferences.dart'
-    show SharedPreferences;
+import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
 import 'package:shimmer/shimmer.dart';
 import 'package:syc/utils/app_colors.dart';
 import 'package:syc/widgets/custom_panel_shape.dart';
@@ -132,11 +131,11 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                       ),
                       alignment: Alignment.center,
                       child: Text(
-                        'Day $d',
+                        'Hari ke-$d',
                         style: TextStyle(
                           color: selected ? Colors.white : AppColors.primary,
                           fontWeight: FontWeight.w400,
-                          fontSize: 14,
+                          fontSize: 12,
                         ),
                       ),
                     ),
@@ -156,10 +155,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading:
-            Navigator.canPop(context)
-                ? BackButton(color: AppColors.primary)
-                : null,
+        leading: Navigator.canPop(context) ? BackButton(color: AppColors.primary) : null,
       ),
       body: Stack(
         children: [
@@ -181,40 +177,29 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                   padding: EdgeInsets.only(bottom: 64),
                   child: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 16),
-                        child: Column(
-                          children: [
-                            Align(
-                              alignment: Alignment.topRight,
-                              child: Container(
-                                height: 48,
-                                width: 48,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Icon(
-                                  Icons.search,
-                                  color: AppColors.primary,
-                                  size: 32,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
+                      // Padding(
+                      //   padding: const EdgeInsets.only(right: 16),
+                      //   child: Column(
+                      //     children: [
+                      //       Align(
+                      //         alignment: Alignment.topRight,
+                      //         child: Container(
+                      //           height: 48,
+                      //           width: 48,
+                      //           decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+                      //           child: Icon(Icons.search, color: AppColors.primary, size: 32),
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24),
                         child: Column(
                           children: [
                             Align(
                               alignment: Alignment.centerLeft,
-                              child: Image.asset(
-                                'assets/texts/events.png',
-                                height: 72,
-                              ),
+                              child: Image.asset('assets/texts/events.png', height: 72),
                             ),
                           ],
                         ),
@@ -240,156 +225,255 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                             itemCount: _acaraList.length,
                             itemBuilder: (context, index) {
                               final acara = _acaraList[index];
-                              print(
-                                'Acara: ${acara['id']} - ${acara['acara_nama']}',
-                              );
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 16),
-                                child: SizedBox(
-                                  child: Stack(
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (context) =>
-                                                      DetailAcaraScreen(
-                                                        id: acara["id"],
-                                                        hari: acara["hari"],
-                                                        userId: userId,
-                                                      ),
-                                            ),
-                                          );
-                                        },
-                                        child: CustomPanelShape(
-                                          width:
-                                              MediaQuery.of(context).size.width,
-                                          height:
-                                              MediaQuery.of(
-                                                context,
-                                              ).size.height *
-                                              0.2,
-
-                                          imageProvider: () {
-                                            final nama =
-                                                acara['acara_nama']
-                                                    ?.toString() ??
-                                                '';
-                                            if (nama ==
-                                                'Pendaftaran Ulang dan Kedatangan') {
-                                              return Image.asset(
-                                                'assets/mockups/daftar.jpg',
-                                              ).image;
-                                            } else if (nama == 'Opening') {
-                                              return Image.asset(
-                                                'assets/mockups/opening.jpg',
-                                              ).image;
-                                            } else if (nama == 'KKR 1') {
-                                              return Image.asset(
-                                                'assets/mockups/kkr1.jpg',
-                                              ).image;
-                                            } else if (nama == 'KKR 2') {
-                                              return Image.asset(
-                                                'assets/mockups/kkr2.jpg',
-                                              ).image;
-                                            } else if (nama == 'KKR 3') {
-                                              return Image.asset(
-                                                'assets/mockups/kkr3.jpg',
-                                              ).image;
-                                            } else if (nama == 'Saat Teduh') {
-                                              return Image.asset(
-                                                'assets/mockups/saat_teduh1.jpg',
-                                              ).image;
-                                            } else if (nama ==
-                                                'Drama Musikal') {
-                                              return Image.asset(
-                                                'assets/mockups/drama_musikal.jpg',
-                                              ).image;
-                                            } else if (nama ==
-                                                'New Year Countdown') {
-                                              return Image.asset(
-                                                'assets/mockups/new_year.jpg',
-                                              ).image;
-                                            } else if (nama == 'Closing') {
-                                              return Image.asset(
-                                                'assets/mockups/closing.jpg',
-                                              ).image;
-                                            } else {
-                                              return Image.asset(
-                                                'assets/images/event.jpg',
-                                              ).image;
-                                            }
-                                          }(),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) =>
+                                                DetailAcaraScreen(id: acara["id"], hari: acara["hari"], userId: userId),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    width: MediaQuery.of(context).size.width,
+                                    height: MediaQuery.of(context).size.height * 0.2,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(24),
+                                      image: DecorationImage(
+                                        image: () {
+                                          final nama = acara['acara_nama']?.toString() ?? '';
+                                          if (nama == 'Pendaftaran Ulang dan Kedatangan') {
+                                            return Image.asset('assets/mockups/daftar.jpg').image;
+                                          } else if (nama == 'Opening') {
+                                            return Image.asset('assets/mockups/opening.jpg').image;
+                                          } else if (nama == 'KKR 1') {
+                                            return Image.asset('assets/mockups/kkr1.jpg').image;
+                                          } else if (nama == 'KKR 2') {
+                                            return Image.asset('assets/mockups/kkr2.jpg').image;
+                                          } else if (nama == 'KKR 3') {
+                                            return Image.asset('assets/mockups/kkr3.jpg').image;
+                                          } else if (nama == 'Saat Teduh') {
+                                            return Image.asset('assets/mockups/saat_teduh1.jpg').image;
+                                          } else if (nama == 'Drama Musikal') {
+                                            return Image.asset('assets/mockups/drama_musikal.jpg').image;
+                                          } else if (nama == 'New Year Countdown') {
+                                            return Image.asset('assets/mockups/new_year.jpg').image;
+                                          } else if (nama == 'Closing') {
+                                            return Image.asset('assets/mockups/closing.jpg').image;
+                                          } else {
+                                            return Image.asset('assets/images/event.jpg').image;
+                                          }
+                                        }(),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(24),
+                                        gradient: LinearGradient(
+                                          begin: Alignment.bottomCenter,
+                                          end: Alignment.topCenter,
+                                          colors: [Colors.black.withOpacity(0.6), Colors.transparent],
                                         ),
                                       ),
-                                      Positioned(
-                                        left: 24,
-                                        bottom: 20,
-                                        right: 16,
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(24, 0, 16, 20),
                                         child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              acara['acara_nama']?.toString() ??
-                                                  '',
+                                              acara['acara_nama']?.toString() ?? '',
                                               style: const TextStyle(
                                                 color: Colors.white,
-                                                fontSize: 20,
+                                                fontSize: 22,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                             const SizedBox(height: 4),
-                                            RichText(
-                                              text: TextSpan(
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 10,
-                                                ),
-                                                text: () {
-                                                  final desc =
-                                                      acara['acara_deskripsi']
-                                                          ?.toString() ??
-                                                      '';
-                                                  if (desc.length > 30) {
-                                                    return desc.substring(
-                                                          0,
-                                                          30,
-                                                        ) +
-                                                        '...';
-                                                  }
-                                                  return desc;
-                                                }(),
-                                              ),
+                                            Text(
+                                              () {
+                                                final desc = acara['acara_deskripsi']?.toString() ?? '';
+                                                if (desc.length > 40) {
+                                                  return desc.substring(0, 40) + '...';
+                                                }
+                                                return desc;
+                                              }(),
+                                              style: const TextStyle(color: Colors.white, fontSize: 14),
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ],
                                         ),
                                       ),
-                                      Positioned(
-                                        right:
-                                            MediaQuery.of(context).size.width *
-                                            0.1,
-                                        bottom:
-                                            MediaQuery.of(context).size.height *
-                                            0.007,
-                                        child: Text(
-                                          'Tap for More',
-                                          style: const TextStyle(
-                                            color: Color(0xFF606060),
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w400,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                    ),
                                   ),
                                 ),
                               );
                             },
                           ),
+                      // custom shape
+                      // : ListView.builder(
+                      //   shrinkWrap: true,
+                      //   physics: const NeverScrollableScrollPhysics(),
+                      //   padding: const EdgeInsets.all(16),
+                      //   itemCount: _acaraList.length,
+                      //   itemBuilder: (context, index) {
+                      //     final acara = _acaraList[index];
+                      //     print(
+                      //       'Acara: ${acara['id']} - ${acara['acara_nama']}',
+                      //     );
+                      //     return Padding(
+                      //       padding: const EdgeInsets.only(bottom: 16),
+                      //       child: SizedBox(
+                      //         child: Stack(
+                      //           children: [
+                      //             GestureDetector(
+                      //               onTap: () {
+                      //                 Navigator.push(
+                      //                   context,
+                      //                   MaterialPageRoute(
+                      //                     builder:
+                      //                         (context) =>
+                      //                             DetailAcaraScreen(
+                      //                               id: acara["id"],
+                      //                               hari: acara["hari"],
+                      //                               userId: userId,
+                      //                             ),
+                      //                   ),
+                      //                 );
+                      //               },
+                      //               child: CustomPanelShape(
+                      //                 width:
+                      //                     MediaQuery.of(context).size.width,
+                      //                 height:
+                      //                     MediaQuery.of(
+                      //                       context,
+                      //                     ).size.height *
+                      //                     0.2,
+
+                      //                 imageProvider: () {
+                      //                   final nama =
+                      //                       acara['acara_nama']
+                      //                           ?.toString() ??
+                      //                       '';
+                      //                   if (nama ==
+                      //                       'Pendaftaran Ulang dan Kedatangan') {
+                      //                     return Image.asset(
+                      //                       'assets/mockups/daftar.jpg',
+                      //                     ).image;
+                      //                   } else if (nama == 'Opening') {
+                      //                     return Image.asset(
+                      //                       'assets/mockups/opening.jpg',
+                      //                     ).image;
+                      //                   } else if (nama == 'KKR 1') {
+                      //                     return Image.asset(
+                      //                       'assets/mockups/kkr1.jpg',
+                      //                     ).image;
+                      //                   } else if (nama == 'KKR 2') {
+                      //                     return Image.asset(
+                      //                       'assets/mockups/kkr2.jpg',
+                      //                     ).image;
+                      //                   } else if (nama == 'KKR 3') {
+                      //                     return Image.asset(
+                      //                       'assets/mockups/kkr3.jpg',
+                      //                     ).image;
+                      //                   } else if (nama == 'Saat Teduh') {
+                      //                     return Image.asset(
+                      //                       'assets/mockups/saat_teduh1.jpg',
+                      //                     ).image;
+                      //                   } else if (nama ==
+                      //                       'Drama Musikal') {
+                      //                     return Image.asset(
+                      //                       'assets/mockups/drama_musikal.jpg',
+                      //                     ).image;
+                      //                   } else if (nama ==
+                      //                       'New Year Countdown') {
+                      //                     return Image.asset(
+                      //                       'assets/mockups/new_year.jpg',
+                      //                     ).image;
+                      //                   } else if (nama == 'Closing') {
+                      //                     return Image.asset(
+                      //                       'assets/mockups/closing.jpg',
+                      //                     ).image;
+                      //                   } else {
+                      //                     return Image.asset(
+                      //                       'assets/images/event.jpg',
+                      //                     ).image;
+                      //                   }
+                      //                 }(),
+                      //               ),
+                      //             ),
+                      //             Positioned(
+                      //               left: 24,
+                      //               bottom: 20,
+                      //               right: 16,
+                      //               child: Column(
+                      //                 crossAxisAlignment:
+                      //                     CrossAxisAlignment.start,
+                      //                 children: [
+                      //                   Text(
+                      //                     acara['acara_nama']?.toString() ??
+                      //                         '',
+                      //                     style: const TextStyle(
+                      //                       color: Colors.white,
+                      //                       fontSize: 20,
+                      //                       fontWeight: FontWeight.bold,
+                      //                     ),
+                      //                   ),
+                      //                   const SizedBox(height: 4),
+                      //                   RichText(
+                      //                     text: TextSpan(
+                      //                       style: const TextStyle(
+                      //                         color: Colors.white,
+                      //                         fontSize: 10,
+                      //                       ),
+                      //                       text: () {
+                      //                         final desc =
+                      //                             acara['acara_deskripsi']
+                      //                                 ?.toString() ??
+                      //                             '';
+                      //                         if (desc.length > 30) {
+                      //                           return desc.substring(
+                      //                                 0,
+                      //                                 30,
+                      //                               ) +
+                      //                               '...';
+                      //                         }
+                      //                         return desc;
+                      //                       }(),
+                      //                     ),
+                      //                     overflow: TextOverflow.ellipsis,
+                      //                   ),
+                      //                 ],
+                      //               ),
+                      //             ),
+                      //             Positioned(
+                      //               right:
+                      //                   MediaQuery.of(context).size.width *
+                      //                   0.1,
+                      //               bottom:
+                      //                   MediaQuery.of(context).size.height *
+                      //                   0.007,
+                      //               child: Text(
+                      //                 'Tap for More',
+                      //                 style: const TextStyle(
+                      //                   color: Color(0xFF606060),
+                      //                   fontSize: 14,
+                      //                   fontWeight: FontWeight.w400,
+                      //                 ),
+                      //               ),
+                      //             ),
+                      //           ],
+                      //         ),
+                      //       ),
+                      //     );
+                      //   },
+                      // ),
                     ],
                   ),
                 ),
@@ -420,10 +504,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                   child: Container(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height * 0.2,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                    ),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
                   ),
                 ),
                 Positioned(
@@ -436,21 +517,13 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                       Shimmer.fromColors(
                         baseColor: Colors.grey[300]!,
                         highlightColor: Colors.grey[100]!,
-                        child: Container(
-                          width: 120,
-                          height: 20,
-                          color: Colors.white,
-                        ),
+                        child: Container(width: 120, height: 20, color: Colors.white),
                       ),
                       const SizedBox(height: 4),
                       Shimmer.fromColors(
                         baseColor: Colors.grey[300]!,
                         highlightColor: Colors.grey[100]!,
-                        child: Container(
-                          width: 180,
-                          height: 10,
-                          color: Colors.white,
-                        ),
+                        child: Container(width: 180, height: 10, color: Colors.white),
                       ),
                     ],
                   ),
@@ -461,11 +534,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey[300]!,
                     highlightColor: Colors.grey[100]!,
-                    child: Container(
-                      width: 80,
-                      height: 16,
-                      color: Colors.white,
-                    ),
+                    child: Container(width: 80, height: 16, color: Colors.white),
                   ),
                 ),
               ],

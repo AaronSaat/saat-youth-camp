@@ -64,6 +64,7 @@ flutter:
     - assets/images/background_anggota.jpg
     - assets/images/background_read_more.jpg
     - assets/images/background_list_bacaan.jpg
+ 
 
     # kelompok_gereja_all assets
     - assets/images/background_member.png
@@ -136,6 +137,7 @@ flutter:
     - assets/logos/syc.png
     - assets/logos/syc2.png
     - assets/logos/story_saat.png
+    - assets/logos/redeemed.png
     - assets/logos/stt_saat.png
 
     #widgets
@@ -164,6 +166,7 @@ flutter:
     - assets/mockups/pembimbing.jpg 
     - assets/mockups/panitia.jpg 
     - assets/mockups/unknown.jpg 
+    - assets/mockups/role_card.jpg
 
   fonts:
     - family: Roboto
