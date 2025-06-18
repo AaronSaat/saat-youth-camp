@@ -194,17 +194,17 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                       //   ),
                       // ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Column(
                           children: [
                             Align(
                               alignment: Alignment.centerLeft,
-                              child: Image.asset('assets/texts/events.png', height: 72),
+                              child: Image.asset('assets/texts/daftar_acara.png', height: 100),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 8),
                       _buildDaySelector(),
                       _isLoading
                           ? buildAcaraShimmer(context)

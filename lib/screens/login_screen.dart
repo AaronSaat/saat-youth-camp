@@ -34,6 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
     String username,
     String nama,
     String email,
+    String group_id,
     String role,
     String token,
     String gereja_id,
@@ -46,6 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
     await prefs.setString('username', username);
     await prefs.setString('nama', nama);
     await prefs.setString('email', email);
+    await prefs.setString('group_id', group_id);
     await prefs.setString('role', role);
     await prefs.setString('token', token);
     await prefs.setString('gereja_id', gereja_id);
@@ -57,6 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
     print('username: $username');
     print('nama: $nama');
     print('email: $email');
+    print('group_id: $group_id');
     print('role: $role');
     print('CEK TOKEN BERHASILLOGIN: $token');
     print('gereja_id: $gereja_id');
@@ -83,6 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
           response['user']['username'],
           response['user']['nama'] ?? 'Null',
           response['user']['email'],
+          response['user']['group_id'] ?? 'Null',
           response['user']['role'],
           response['token'],
           response['user']['gereja']?['gereja_id']?.toString() ?? 'Null',

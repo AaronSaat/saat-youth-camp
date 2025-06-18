@@ -7,9 +7,11 @@ import 'package:syc/screens/evaluasi_komitmen_list_screen.dart';
 import 'package:syc/screens/bible_reading_more_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 import 'package:syc/widgets/custom_panel_shape.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../services/api_service.dart';
 import '../widgets/custom_not_found.dart';
+import '../widgets/custom_snackbar.dart';
 import 'detail_acara_screen.dart';
 
 class MateriScreen extends StatefulWidget {
@@ -174,7 +176,7 @@ class _MateriScreenState extends State<MateriScreen> {
                           //   child: Container(
                           //     height: 48,
                           //     width: 48,
-                          //     decoration: BoxDecoration(
+                          //     decoration: BoxDecoration(`
                           //       color: Colors.white,
                           //       borderRadius: BorderRadius.circular(16),
                           //     ),
@@ -219,52 +221,41 @@ class _MateriScreenState extends State<MateriScreen> {
                               return Column(
                                 children: [
                                   MateriMenuCard(
-                                    title: 'Evaluasi Pribadi',
-                                    imagePath: 'assets/mockups/evaluasi.jpg',
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) => EvaluasiKomitmenListScreen(type: 'Evaluasi', userId: userId),
-                                        ),
-                                      ).then((result) {
-                                        if (result == 'reload') {
-                                          initAll();
-                                        }
-                                      });
-                                      ;
+                                    title: 'Buku',
+                                    imagePath: 'assets/mockups/materi_buku.jpg',
+                                    onTap: () async {
+                                      const url = 'https://library.seabs.ac.id/';
+                                      if (await canLaunchUrl(Uri.parse(url))) {
+                                        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                                      } else {
+                                        showCustomSnackBar(context, 'Tidak dapat membuka Buku');
+                                      }
                                     },
-                                    withProgress: true,
-                                    valueProgress: evaluasiProgress,
-                                    valueDone: evaluasiDone,
-                                    valueTotal: evaluasiTotal,
+                                    withProgress: false,
                                   ),
                                   MateriMenuCard(
-                                    title: 'Komitmen Pribadi',
-                                    imagePath: 'assets/mockups/komitmen.jpg',
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) => EvaluasiKomitmenListScreen(type: 'Komitmen', userId: userId),
-                                        ),
-                                      );
+                                    title: 'Youtube',
+                                    imagePath: 'assets/mockups/materi_youtube.jpg',
+                                    onTap: () async {
+                                      const url = 'https://seabs.ac.id/resources/youtube-channel/';
+                                      if (await canLaunchUrl(Uri.parse(url))) {
+                                        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                                      } else {
+                                        showCustomSnackBar(context, 'Tidak dapat membuka Youtube');
+                                      }
                                     },
-                                    withProgress: true,
-                                    valueProgress: komitmenProgress,
-                                    valueDone: komitmenDone,
-                                    valueTotal: komitmenTotal,
+                                    withProgress: false,
                                   ),
                                   MateriMenuCard(
-                                    title: 'Bacaan Harian',
-                                    imagePath: 'assets/mockups/reading.jpg',
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => BibleReadingListScreen(userId: userId)),
-                                      );
+                                    title: 'Berita',
+                                    imagePath: 'assets/mockups/materi_berita.jpg',
+                                    onTap: () async {
+                                      const url = 'https://seabs.ac.id/resources/berita/';
+                                      if (await canLaunchUrl(Uri.parse(url))) {
+                                        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                                      } else {
+                                        showCustomSnackBar(context, 'Tidak dapat membuka Berita');
+                                      }
                                     },
                                     // Progress belum tersedia untuk Bacaan Harian
                                     withProgress: false,

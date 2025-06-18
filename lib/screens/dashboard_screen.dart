@@ -211,6 +211,75 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           children: [Image.asset('assets/texts/hello.png', height: 72)],
                         ),
                       ),
+
+                      // Pembina Pembimbing Card
+                      if (role.toLowerCase().contains('pembina') == true ||
+                          role.toLowerCase().contains('pembimbing') == true)
+                        const SizedBox(height: 24),
+
+                      if (role.toLowerCase().contains('pembina') == true ||
+                          role.toLowerCase().contains('pembimbing') == true)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Stack(
+                                children: [
+                                  Container(
+                                    height: 180,
+                                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      image: const DecorationImage(
+                                        image: AssetImage('assets/images/card_dashboard_role.png'),
+                                        fit: BoxFit.fill,
+                                      ),
+                                    ),
+                                    child: Align(
+                                      alignment: Alignment.bottomRight,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(right: 16.0, bottom: 16.0, left: 48),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: [
+                                            Text(
+                                              (_dataUser['role']?.toLowerCase().contains('pembimbing') == true)
+                                                  ? 'Pembimbing'
+                                                  : (_dataUser['role']?.toLowerCase().contains('pembina') == true)
+                                                  ? 'Pembina'
+                                                  : 'role???',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w900,
+                                                color: Colors.white,
+                                                fontSize: 24,
+                                              ),
+                                              textAlign: TextAlign.right,
+                                            ),
+                                            Text(
+                                              (_dataUser['role']?.toLowerCase().contains('pembimbing') == true)
+                                                  ? '${_dataUser['kelompok_nama'] ?? ''}'
+                                                  : (_dataUser['role']?.toLowerCase().contains('pembina') == true)
+                                                  ? '${_dataUser['gereja_nama'] ?? ''}'
+                                                  : 'nama???',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.white,
+                                                fontSize: 16,
+                                              ),
+                                              textAlign: TextAlign.right,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
                       const SizedBox(height: 24),
 
                       // Bible Reading Movement
@@ -358,99 +427,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                       ),
 
-                      // Pembina Pembimbing Card
-                      if (role.toLowerCase().contains('pembina') == true ||
-                          role.toLowerCase().contains('pembimbing') == true)
+                      // Komitmen Card untuk Peserta
+                      if (!role.toLowerCase().contains('panitia') && !role.toLowerCase().contains('pembimbing'))
                         const SizedBox(height: 24),
 
-                      if (role.toLowerCase().contains('pembina') == true ||
-                          role.toLowerCase().contains('pembimbing') == true)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              _isLoading
-                                  ? buildBrmShimmer()
-                                  : _dataBrm.isEmpty
-                                  ? Center(
-                                    child: const CustomNotFound(
-                                      text: "Tidak menemukan role :(",
-                                      textColor: AppColors.brown1,
-                                      imagePath: 'assets/images/data_not_found.png',
-                                    ),
-                                  )
-                                  : InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => BibleReadingMoreScreen(userId: userId)),
-                                      ).then((result) {
-                                        if (result == 'reload') {
-                                          initAll(); // reload dashboard
-                                        }
-                                      });
-                                    },
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: Stack(
-                                      children: [
-                                        Container(
-                                          height: 180,
-                                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.primary.withAlpha(70),
-                                            borderRadius: BorderRadius.circular(16),
-                                            image: const DecorationImage(
-                                              image: AssetImage('assets/mockups/role_card.jpg'),
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                          child: Center(
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              crossAxisAlignment: CrossAxisAlignment.center,
-                                              children: [
-                                                if (_dataBrm.isNotEmpty) ...[
-                                                  Text(
-                                                    (_dataUser['role']?.toLowerCase().contains('pembimbing') == true)
-                                                        ? 'Pembimbing ${_dataUser['kelompok_nama'] ?? ''}'
-                                                        : (_dataUser['role']?.toLowerCase().contains('pembina') == true)
-                                                        ? '${_dataUser['role']} ${_dataUser['gereja_nama'] ?? ''}'
-                                                        : '${_dataUser['role']}',
-                                                    style: const TextStyle(
-                                                      fontWeight: FontWeight.bold,
-                                                      color: AppColors.primary,
-                                                      fontSize: 20,
-                                                    ),
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                ] else ...[
-                                                  const Text(
-                                                    "Tidak menemukan role :()",
-                                                    style: TextStyle(
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Colors.white,
-                                                      fontSize: 16,
-                                                    ),
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                ],
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                            ],
-                          ),
-                        ),
-
-                      // Komitmen Card untuk Peserta
-                      if (role.toLowerCase().contains('peserta') == true) const SizedBox(height: 24),
-
-                      if (role.toLowerCase().contains('peserta') == true)
+                      if (!role.toLowerCase().contains('panitia') && !role.toLowerCase().contains('pembimbing'))
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24),
                           child: Column(
@@ -476,34 +457,53 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       height: 180,
                                       padding: const EdgeInsets.symmetric(horizontal: 8),
                                       decoration: BoxDecoration(
-                                        color: AppColors.primary.withAlpha(70),
                                         borderRadius: BorderRadius.circular(16),
-                                        gradient: LinearGradient(
-                                          begin: Alignment.bottomCenter,
-                                          end: Alignment.topCenter,
-                                          colors: [Colors.black.withAlpha(100), Colors.black.withAlpha(100)],
-                                        ),
                                         image: const DecorationImage(
-                                          image: AssetImage('assets/mockups/komitmen.jpg'),
-                                          fit: BoxFit.cover,
+                                          image: AssetImage('assets/images/card_dashboard_komitmen.png'),
+                                          fit: BoxFit.fill,
                                         ),
                                       ),
                                       child: Center(
                                         child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          crossAxisAlignment: CrossAxisAlignment.end,
                                           children: [
-                                            Text(
-                                              'Jangan lupa mengisi komitmen harianmu!',
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                                fontSize: 20,
+                                            Padding(
+                                              padding: const EdgeInsets.only(right: 16.0, bottom: 16.0, left: 48),
+                                              child: Text(
+                                                'Jangan lupa mengisi komitmen harianmu!',
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w900,
+                                                  color: Colors.white,
+                                                  fontSize: 16,
+                                                ),
+                                                textAlign: TextAlign.right,
                                               ),
-                                              textAlign: TextAlign.center,
                                             ),
                                           ],
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: AppColors.secondary,
+                                          borderRadius: const BorderRadius.only(
+                                            topRight: Radius.circular(16),
+                                            bottomLeft: Radius.circular(8),
+                                          ),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                        child: Text(
+                                          DateFormatter.ubahTanggal(DateTime.now().toIso8601String().substring(0, 10)),
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                     ),

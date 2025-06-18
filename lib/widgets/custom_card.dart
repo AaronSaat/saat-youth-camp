@@ -21,9 +21,9 @@ class CustomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double setHeight = text.length > 50 ? 100 : 70;
+    double setHeight = text.length > 40 ? 100 : 70;
     double setwidth = text.length > 50 ? 100 : 70;
-    if (text.length > 50) {
+    if (text.length > 40) {
       // Tipe Stack untuk text panjang
       return GestureDetector(
         onTap: onTap,

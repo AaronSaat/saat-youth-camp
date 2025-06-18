@@ -13,8 +13,7 @@ import 'evaluasi_komitmen_view_screen.dart';
 class BibleReadingListScreen extends StatefulWidget {
   final String userId;
 
-  const BibleReadingListScreen({Key? key, required this.userId})
-    : super(key: key);
+  const BibleReadingListScreen({Key? key, required this.userId}) : super(key: key);
 
   @override
   _BibleReadingListScreenState createState() => _BibleReadingListScreenState();
@@ -95,11 +94,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
       List<dynamic> countList = [];
       for (final date in dateList) {
         try {
-          final count = await ApiService.getBrmReportByPesertaByDay(
-            context,
-            widget.userId,
-            date,
-          );
+          final count = await ApiService.getBrmReportByPesertaByDay(context, widget.userId, date);
           countList.add(count);
         } catch (e) {
           countList.add(0);
@@ -121,10 +116,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
 
   int getDaysInCurrentMonth() {
     final now = DateTime.now();
-    final beginningNextMonth =
-        (now.month < 12)
-            ? DateTime(now.year, now.month + 1, 1)
-            : DateTime(now.year + 1, 1, 1);
+    final beginningNextMonth = (now.month < 12) ? DateTime(now.year, now.month + 1, 1) : DateTime(now.year + 1, 1, 1);
     final lastDayOfMonth = beginningNextMonth.subtract(const Duration(days: 1));
     return lastDayOfMonth.day;
   }
@@ -170,11 +162,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
       if (selectedIdx != -1 && _scrollController.hasClients) {
         double offset = (selectedIdx * 108.0) - 16.0;
         if (offset < 0) offset = 0;
-        _scrollController.animateTo(
-          offset,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.ease,
-        );
+        _scrollController.animateTo(offset, duration: const Duration(milliseconds: 200), curve: Curves.ease);
       }
     });
 
@@ -210,15 +198,10 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                     alignment: Alignment.center,
                     child: Text(
                       '$d $_namaBulan',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                   ),
-                  if (_dataProgressBacaan.length > index &&
-                      _dataProgressBacaan[index] > 0)
+                  if (_dataProgressBacaan.length > index && _dataProgressBacaan[index] > 0)
                     Positioned(
                       top: 0,
                       right: 0,
@@ -248,31 +231,19 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
           'Bacaan Hari Ini',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
         ),
         automaticallyImplyLeading: true,
         actions: [
           Container(
             decoration: BoxDecoration(
               color: AppColors.secondary,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(8),
-              ),
+              borderRadius: const BorderRadius.only(topLeft: Radius.circular(8)),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Text(
-              _dataBrm.isNotEmpty
-                  ? DateFormatter.ubahTanggal(_dataBrm![0]['tanggal'])
-                  : 'Tanggal???',
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
+              _dataBrm.isNotEmpty ? DateFormatter.ubahTanggal(_dataBrm![0]['tanggal']) : 'Tanggal???',
+              style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -295,12 +266,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
               child: SingleChildScrollView(
                 physics: AlwaysScrollableScrollPhysics(),
                 child: Padding(
-                  padding: const EdgeInsets.only(
-                    top: 204.0,
-                    left: 24.0,
-                    right: 24.0,
-                    bottom: 24.0,
-                  ),
+                  padding: const EdgeInsets.only(top: 204.0, left: 24.0, right: 24.0, bottom: 24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -318,9 +284,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                           )
                           : (day == _hariKe)
                           ? Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -334,24 +298,16 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                                 ),
                                 CustomCard(
                                   text:
-                                      _dataBrm.isNotEmpty &&
-                                              _dataBrm[0]['passage'] != null
+                                      _dataBrm.isNotEmpty && _dataBrm[0]['passage'] != null
                                           ? _dataBrm[0]['passage'].toString()
                                           : '',
                                   icon: Icons.menu_book_rounded,
                                   onTap: () {
                                     final userId = widget.userId;
-                                    if (_dataProgressBacaan.length > _hariKe &&
-                                        _dataProgressBacaan[_hariKe] == 0) {
+                                    if (_dataProgressBacaan.length > _hariKe && _dataProgressBacaan[_hariKe] == 0) {
                                       Navigator.push(
                                         context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) =>
-                                                  BibleReadingMoreScreen(
-                                                    userId: userId,
-                                                  ),
-                                        ),
+                                        MaterialPageRoute(builder: (context) => BibleReadingMoreScreen(userId: userId)),
                                       ).then((result) {
                                         if (result == 'reload') {
                                           initAll();
@@ -367,8 +323,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                           )
                           : Center(
                             child: CustomNotFound(
-                              text:
-                                  "Hanya bisa menampilkan bacaan tanggal $_hariKe $_namaBulan :(",
+                              text: "Hanya bisa menampilkan bacaan tanggal $_hariKe $_namaBulan :(",
                               textColor: Colors.white,
                               imagePath: 'assets/images/data_not_found.png',
                             ),
@@ -396,10 +351,7 @@ Widget buildShimmerList() {
           highlightColor: Colors.grey[100]!,
           child: Container(
             height: 72,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
           ),
         ),
       );

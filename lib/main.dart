@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemChrome, DeviceOrientation;
 import 'package:syc/screens/form_komitmen_screen.dart';
 import 'package:syc/screens/main_screen.dart';
+import 'package:syc/screens/test_screen3.dart';
+import 'package:syc/screens/test_screen4.dart';
 import 'package:syc/utils/app_colors.dart';
 
 import 'orientation_guard.dart';
@@ -37,7 +39,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/main': (context) => const MainScreen(),
       },
-      // home: const SplashScreen(),
+      // home: TestScreen4(),
 
       // ganti desain
       // home: LoginScreen(),

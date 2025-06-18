@@ -24,6 +24,8 @@ dependencies:
   dio: ^5.2.0
   shimmer: ^3.0.0
   pin_code_fields: ^8.0.1
+  image_picker: ^1.1.2
+  fl_chart: ^1.0.0
 
 dev_dependencies:
   flutter_test:
@@ -56,14 +58,15 @@ flutter:
     - assets/images/read_saved.png
     - assets/images/megaphone.png
     - assets/images/background_dashboard.jpg
-    - assets/images/background_profile.jpg
-    - assets/images/background_profile2.jpg
+    - assets/images/background_profile.png
     - assets/images/background_dashboard.png
     - assets/images/background_fade.jpg #pakai ini
     - assets/images/background_fade.png
     - assets/images/background_anggota.jpg
     - assets/images/background_read_more.jpg
     - assets/images/background_list_bacaan.jpg
+    - assets/images/card_dashboard_komitmen.png
+    - assets/images/card_dashboard_role.png
  
 
     # kelompok_gereja_all assets
@@ -127,6 +130,7 @@ flutter:
     - assets/texts/kelompok.png
     - assets/texts/daftar_gereja.png
     - assets/texts/daftar_kelompok.png
+    - assets/texts/daftar_acara.png
     - assets/texts/materi.png
 
     # logos
@@ -167,6 +171,9 @@ flutter:
     - assets/mockups/panitia.jpg 
     - assets/mockups/unknown.jpg 
     - assets/mockups/role_card.jpg
+    - assets/mockups/materi_buku.jpg
+    - assets/mockups/materi_youtube.jpg
+    - assets/mockups/materi_berita.jpg
 
   fonts:
     - family: Roboto

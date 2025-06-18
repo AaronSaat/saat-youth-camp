@@ -7,15 +7,15 @@ import '../widgets/custom_not_found.dart';
 import 'evaluasi_komitmen_list_screen.dart';
 import 'list_gereja_screen.dart';
 
-class AnggotaKelompokScreen extends StatefulWidget {
+class AnggotaGroupScreen extends StatefulWidget {
   final String? id;
-  const AnggotaKelompokScreen({Key? key, required this.id}) : super(key: key);
+  const AnggotaGroupScreen({Key? key, required this.id}) : super(key: key);
 
   @override
-  State<AnggotaKelompokScreen> createState() => _AnggotaKelompokScreenState();
+  State<AnggotaGroupScreen> createState() => _AnggotaGroupScreenState();
 }
 
-class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
+class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
   List<dynamic> anggota = [];
   String? nama;
   dynamic selectedUser;
@@ -30,8 +30,8 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
 
   Future<void> _initAll() async {
     try {
-      await loadAnggotaKelompok(widget.id);
       await loadUserData();
+      await loadAnggotaGereja(widget.id);
     } catch (e) {
       // handle error jika perlu
     }
@@ -65,25 +65,22 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
     });
   }
 
-  Future<void> loadAnggotaKelompok(kelompokId) async {
-    setState(() {
-      _isLoading = true;
-    });
+  Future<void> loadAnggotaGereja(groupId) async {
     try {
-      final response = await ApiService.getAnggotaKelompok(context, kelompokId);
+      final response = await ApiService.getAnggotaGroup(context, groupId);
       setState(() {
-        nama = response['nama_kelompok'];
-        anggota = response['data_anggota_kelompok'];
+        nama = response['nama_gereja'];
+        anggota = response['data_anggota_gereja'];
       });
     } catch (e) {
       setState(() {});
-      print('Gagal mengambil data kelompok: $e');
+      print('Gagal mengambil data gereja: $e');
     }
   }
 
   String getRoleImage(String role) {
-    if (role == "Pembimbing") {
-      return 'assets/mockups/pembimbing.jpg';
+    if (role == "Pembina") {
+      return 'assets/mockups/pembina.jpg';
     } else if (role == "Anggota") {
       return 'assets/mockups/peserta.jpg';
     } else {
@@ -92,7 +89,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
   }
 
   IconData getRoleIcon(String role) {
-    if (role == "Pembimbing") {
+    if (role == "Pembina") {
       return Icons.church;
     } else if (role == "Anggota") {
       return Icons.person_2;
@@ -135,7 +132,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                           : anggota.isEmpty
                           ? Center(
                             child: CustomNotFound(
-                              text: "Gagal memuat anggota kelompok :(",
+                              text: "Gagal memuat anggota group pendaftaran :(",
                               textColor: AppColors.brown1,
                               imagePath: 'assets/images/data_not_found.png',
                               onBack: _initAll,
@@ -145,7 +142,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                           : Column(
                             children: [
                               Text(
-                                'Kelompok ${nama ?? ''}',
+                                'Group ${nama ?? ''}',
                                 style: const TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
@@ -187,20 +184,10 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                                                                 ) ??
                                                                 false)
                                                             ? 125
-                                                            : (user['role'].toString().toLowerCase().contains(
+                                                            : (user['role']?.toString().toLowerCase().contains(
                                                                   'anggota',
-                                                                ) &&
-                                                                (role.toString().toLowerCase().contains('peserta')))
-                                                            ? 190 //sebagai anggota dan role user peserta
-                                                            : (user['role'].toString().toLowerCase().contains(
-                                                                  'anggota',
-                                                                ) &&
-                                                                (role.toString().toLowerCase().contains(
-                                                                      'pembimbing kelompok',
-                                                                    ) ||
-                                                                    role.toString().toLowerCase().contains(
-                                                                      'panitia',
-                                                                    ))) //sebagai anggota dan role user pembimbing kelompok atau panitia
+                                                                ) ??
+                                                                false)
                                                             ? 215
                                                             : 250,
                                                     child: Padding(
@@ -237,14 +224,14 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                                                                       mainAxisAlignment: MainAxisAlignment.center,
                                                                       children: [
                                                                         Icon(
-                                                                          Icons.church,
+                                                                          Icons.person,
                                                                           size: 18,
                                                                           color: AppColors.black1,
                                                                         ),
                                                                         const SizedBox(width: 6),
                                                                         Flexible(
                                                                           child: Text(
-                                                                            '${user['gereja_nama']}',
+                                                                            '${user['nama_kelompok']}',
                                                                             style: const TextStyle(
                                                                               fontSize: 14,
                                                                               color: AppColors.black1,
@@ -304,7 +291,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                                                           // DAN user yang ditampilkan BUKAN pembimbing
                                                           if (([
                                                                 'panitia',
-                                                                'pembimbing kelompok',
+                                                                'pembimbing',
                                                                 'pembina',
                                                               ].contains((role ?? '').toLowerCase())) &&
                                                               (user['role']?.toString().toLowerCase() != 'pembimbing'))
@@ -359,7 +346,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                                                                           MaterialPageRoute(
                                                                             builder:
                                                                                 (context) => EvaluasiKomitmenListScreen(
-                                                                                  type: 'Komitmen',
+                                                                                  type: 'Ko mitmen',
                                                                                   userId: user['id'] ?? '',
                                                                                 ),
                                                                           ),
@@ -420,7 +407,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                                                       ),
                                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                                                       child: Text(
-                                                        'Pembimbing',
+                                                        (user['role'] ?? '').toString(),
                                                         style: const TextStyle(
                                                           color: Colors.white,
                                                           fontWeight: FontWeight.bold,

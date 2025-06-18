@@ -18,10 +18,7 @@ class ApiService {
   static const String baseurl = 'http://172.172.52.11:8080 /api-syc2025/';
   // static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
 
-  static Future<Map<String, dynamic>> loginUser(
-    String username,
-    String password,
-  ) async {
+  static Future<Map<String, dynamic>> loginUser(String username, String password) async {
     print('Attempting to login with username: $username');
     print('Attempting to login with password: $password');
     final url = Uri.parse('${baseurl}check-user');
@@ -52,10 +49,7 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> loginUserDio(
-    String username,
-    String password,
-  ) async {
+  static Future<Map<String, dynamic>> loginUserDio(String username, String password) async {
     final dio = Dio();
     final url = '${baseurl}check-user';
     print('Login URL (Dio): $url');
@@ -77,10 +71,7 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> checkSecret(
-    String email,
-    String secretCode,
-  ) async {
+  static Future<Map<String, dynamic>> checkSecret(String email, String secretCode) async {
     print('Checking secret for email: $email with code: $secretCode');
     final url = Uri.parse('${baseurl}check-secret');
     final response = await http.post(
@@ -98,33 +89,22 @@ class ApiService {
     }
   }
 
-  static Future<bool> validateToken(
-    BuildContext context, {
-    required String token,
-  }) async {
+  static Future<bool> validateToken(BuildContext context, {required String token}) async {
     if (token == null || token.isEmpty) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      );
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const LoginScreen()));
     }
 
     final url = Uri.parse('${baseurl}brm-today');
     final response = await http.get(
       url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
     );
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> dataBacaan = json.decode(response.body);
       return dataBacaan['success'];
     } else if (response.statusCode == 401) {
-      showCustomSnackBar(
-        context,
-        'Sesi login Anda telah habis. Silakan login kembali.',
-      );
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {
@@ -143,10 +123,7 @@ class ApiService {
     final url = Uri.parse('${baseurl}brm-today');
     final response = await http.get(
       url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
     );
 
     // print('test url: $url');
@@ -161,10 +138,7 @@ class ApiService {
 
       return dataBacaan;
     } else if (response.statusCode == 401) {
-      showCustomSnackBar(
-        context,
-        'Sesi login Anda telah habis. Silakan login kembali.',
-      );
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {
@@ -173,26 +147,17 @@ class ApiService {
     }
   }
 
-  static Future<int> getBrmReportByPesertaByDay(
-    BuildContext context,
-    String userId,
-    String day,
-  ) async {
+  static Future<int> getBrmReportByPesertaByDay(BuildContext context, String userId, String day) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
 
-    final url = Uri.parse(
-      '${baseurl}brm-report-by-peserta-by-day?user_id=$userId&day=$day',
-    );
+    final url = Uri.parse('${baseurl}brm-report-by-peserta-by-day?user_id=$userId&day=$day');
     final response = await http.get(
       url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
     );
 
     print('test url brm report pribadi: $url');
@@ -203,10 +168,7 @@ class ApiService {
 
       return countRead;
     } else if (response.statusCode == 401) {
-      showCustomSnackBar(
-        context,
-        'Sesi login Anda telah habis. Silakan login kembali.',
-      );
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {
@@ -215,10 +177,7 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> postBrmDoneRead(
-    BuildContext context,
-    Map<String, dynamic> brmDoneRead,
-  ) async {
+  static Future<Map<String, dynamic>> postBrmDoneRead(BuildContext context, Map<String, dynamic> brmDoneRead) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null || token.isEmpty) {
@@ -230,10 +189,7 @@ class ApiService {
 
     final response = await http.post(
       url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
       body: body,
     );
 
@@ -246,10 +202,7 @@ class ApiService {
       print('✅ Brm done read berhasil dikirim: $result');
       return result;
     } else if (response.statusCode == 401) {
-      showCustomSnackBar(
-        context,
-        'Sesi login Anda telah habis. Silakan login kembali.',
-      );
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {
@@ -268,10 +221,7 @@ class ApiService {
     final url = Uri.parse('${baseurl}acara');
     final response = await http.get(
       url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
     );
 
     if (response.statusCode == 200) {
@@ -285,10 +235,7 @@ class ApiService {
 
       return dataAcara;
     } else if (response.statusCode == 401) {
-      showCustomSnackBar(
-        context,
-        'Sesi login Anda telah habis. Silakan login kembali.',
-      );
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {
@@ -307,10 +254,7 @@ class ApiService {
     final url = Uri.parse('${baseurl}acara-count');
     final response = await http.get(
       url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
     );
 
     if (response.statusCode == 200) {
@@ -322,10 +266,7 @@ class ApiService {
 
       return countAcara;
     } else if (response.statusCode == 401) {
-      showCustomSnackBar(
-        context,
-        'Sesi login Anda telah habis. Silakan login kembali.',
-      );
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {
@@ -344,10 +285,7 @@ class ApiService {
     final url = Uri.parse('${baseurl}acara-count-all');
     final response = await http.get(
       url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
     );
 
     if (response.statusCode == 200) {
@@ -359,10 +297,7 @@ class ApiService {
 
       return countAcara;
     } else if (response.statusCode == 401) {
-      showCustomSnackBar(
-        context,
-        'Sesi login Anda telah habis. Silakan login kembali.',
-      );
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {
@@ -381,10 +316,7 @@ class ApiService {
     final url = Uri.parse('${baseurl}acara-by-day?hari=$day');
     final response = await http.get(
       url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
     );
 
     if (response.statusCode == 200) {
@@ -398,10 +330,7 @@ class ApiService {
 
       return dataAcara;
     } else if (response.statusCode == 401) {
-      showCustomSnackBar(
-        context,
-        'Sesi login Anda telah habis. Silakan login kembali.',
-      );
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {
@@ -410,10 +339,7 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getAcaraById(
-    BuildContext context,
-    id,
-  ) async {
+  static Future<List<dynamic>> getAcaraById(BuildContext context, id) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null || token.isEmpty) {
@@ -423,25 +349,21 @@ class ApiService {
     final url = Uri.parse('${baseurl}acara-by-id?id=$id');
     final response = await http.get(
       url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
     );
 
     print('url $url');
+    print('response ${response.statusCode} - ${response.body}');
     if (response.statusCode == 200) {
-      final Map<String, dynamic> dataAcara = json.decode(response.body);
-      // final List<dynamic> dataAcara = decoded['data_acara'] ?? [];
+      final Map<String, dynamic> decoded = json.decode(response.body);
+      final dataAcara = decoded['data_acara'] ?? {};
 
       print('✅ Data acara by id berhasil dimuat: $dataAcara');
 
-      return dataAcara;
+      // Kembalikan dalam bentuk list agar konsisten dengan return type
+      return [dataAcara];
     } else if (response.statusCode == 401) {
-      showCustomSnackBar(
-        context,
-        'Sesi login Anda telah habis. Silakan login kembali.',
-      );
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {
@@ -450,10 +372,7 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getEvaluasiByAcara(
-    BuildContext context,
-    acaraId,
-  ) async {
+  static Future<Map<String, dynamic>> getEvaluasiByAcara(BuildContext context, acaraId) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null || token.isEmpty) {
@@ -464,10 +383,7 @@ class ApiService {
     print('URL: $url');
     final response = await http.get(
       url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
     );
 
     if (response.statusCode == 200) {
@@ -475,17 +391,12 @@ class ApiService {
 
       print('✅ Data pertanyaan evaluasi acaraId-$acaraId  berhasil dimuat:');
       for (var evaluasi in dataEvaluasi['data_evaluasi']) {
-        print(
-          '- Evaluasi: ${evaluasi['id']} | Status: ${evaluasi['hari']} | ${evaluasi['type']}',
-        );
+        print('- Evaluasi: ${evaluasi['id']} | Status: ${evaluasi['hari']} | ${evaluasi['type']}');
       }
 
       return dataEvaluasi;
     } else if (response.statusCode == 401) {
-      showCustomSnackBar(
-        context,
-        'Sesi login Anda telah habis. Silakan login kembali.',
-      );
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {
@@ -494,34 +405,23 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getEvaluasiByPesertaByAcara(
-    BuildContext context,
-    userId,
-    acaraId,
-  ) async {
+  static Future<Map<String, dynamic>> getEvaluasiByPesertaByAcara(BuildContext context, userId, acaraId) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
 
-    final url = Uri.parse(
-      '${baseurl}evaluasi-by-peserta-by-acara?user_id=$userId&acara_id=$acaraId',
-    );
+    final url = Uri.parse('${baseurl}evaluasi-by-peserta-by-acara?user_id=$userId&acara_id=$acaraId');
     final response = await http.get(
       url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
     );
     print('URL: $url');
     if (response.statusCode == 200) {
       final Map<String, dynamic> dataEvaluasi = json.decode(response.body);
 
-      print(
-        '✅ Data jawaban evaluasi acaraId-$acaraId oleh user id $userId berhasil dimuat:',
-      );
+      print('✅ Data jawaban evaluasi acaraId-$acaraId oleh user id $userId berhasil dimuat:');
       // for (var evaluasi in dataEvaluasi['data_evaluasi']) {
       //   print(
       //     '- Evaluasi: ${evaluasi['id']} | Status: ${evaluasi['hari']} | ${evaluasi['type']}',
@@ -530,17 +430,14 @@ class ApiService {
 
       return dataEvaluasi;
     } else if (response.statusCode == 401) {
-      showCustomSnackBar(
-        context,
-        'Sesi login Anda telah habis. Silakan login kembali.',
-      );
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
+    } else if (response.statusCode == 404) {
+      return {'status': 404, 'success': false};
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
-      throw Exception(
-        'Failed to load jawaban evaluasi acaraId-$acaraId oleh user id $userId',
-      );
+      throw Exception('Failed to load jawaban evaluasi acaraId-$acaraId oleh user id $userId');
     }
   }
 
@@ -559,10 +456,7 @@ class ApiService {
 
     final response = await http.post(
       url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
       body: body,
     );
 
@@ -575,10 +469,7 @@ class ApiService {
       print('✅ Evaluasi answer berhasil dikirim: $result');
       return result;
     } else if (response.statusCode == 401) {
-      showCustomSnackBar(
-        context,
-        'Sesi login Anda telah habis. Silakan login kembali.',
-      );
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {
@@ -597,10 +488,7 @@ class ApiService {
     final url = Uri.parse('${baseurl}komitmen');
     final response = await http.get(
       url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
     );
 
     if (response.statusCode == 200) {
@@ -614,10 +502,7 @@ class ApiService {
 
       return dataKomitmen;
     } else if (response.statusCode == 401) {
-      showCustomSnackBar(
-        context,
-        'Sesi login Anda telah habis. Silakan login kembali.',
-      );
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {
@@ -626,10 +511,7 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getKomitmenByDay(
-    BuildContext context,
-    day,
-  ) async {
+  static Future<Map<String, dynamic>> getKomitmenByDay(BuildContext context, day) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null || token.isEmpty) {
@@ -640,10 +522,7 @@ class ApiService {
     print('URL: $url');
     final response = await http.get(
       url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
     );
 
     if (response.statusCode == 200) {
@@ -651,17 +530,12 @@ class ApiService {
 
       print('✅ Data pertanyaan komitmen hari-$day  berhasil dimuat:');
       for (var komitmen in dataKomitmen['data_komitmen']) {
-        print(
-          '- komitmen: ${komitmen['id']} | Status: ${komitmen['hari']} | ${komitmen['type']}',
-        );
+        print('- komitmen: ${komitmen['id']} | Status: ${komitmen['hari']} | ${komitmen['type']}');
       }
 
       return dataKomitmen;
     } else if (response.statusCode == 401) {
-      showCustomSnackBar(
-        context,
-        'Sesi login Anda telah habis. Silakan login kembali.',
-      );
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {
@@ -670,54 +544,38 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getKomitmenByPesertaByDay(
-    BuildContext context,
-    userId,
-    day,
-  ) async {
+  static Future<Map<String, dynamic>> getKomitmenByPesertaByDay(BuildContext context, userId, day) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
 
-    final url = Uri.parse(
-      '${baseurl}komitmen-by-peserta-by-day?user_id=$userId&hari=$day',
-    );
+    final url = Uri.parse('${baseurl}komitmen-by-peserta-by-day?user_id=$userId&hari=$day');
     print('URL: $url');
     final response = await http.get(
       url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
     );
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> dataKomitmen = json.decode(response.body);
 
-      print(
-        '✅ Data jawaban komitmen hari-$day oleh user id $userId berhasil dimuat:',
-      );
+      print('✅ Data jawaban komitmen hari-$day oleh user id $userId berhasil dimuat:');
       for (var komitmen in dataKomitmen['data_komitmen']) {
-        print(
-          '- Komitmen: ${komitmen['id']} | Status: ${komitmen['hari']} | ${komitmen['type']}',
-        );
+        print('- Komitmen: ${komitmen['id']} | Status: ${komitmen['hari']} | ${komitmen['type']}');
       }
 
       return dataKomitmen;
     } else if (response.statusCode == 401) {
-      showCustomSnackBar(
-        context,
-        'Sesi login Anda telah habis. Silakan login kembali.',
-      );
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
+    } else if (response.statusCode == 404) {
+      return {'status': 404, 'success': false};
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
-      throw Exception(
-        'Failed to load jawaban komitmen hari-$day oleh user id $userId',
-      );
+      throw Exception('Failed to load jawaban komitmen hari-$day oleh user id $userId');
     }
   }
 
@@ -736,10 +594,7 @@ class ApiService {
 
     final response = await http.post(
       url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
       body: body,
     );
 
@@ -748,10 +603,7 @@ class ApiService {
       print('✅ Komitmen answer berhasil dikirim: $result');
       return result;
     } else if (response.statusCode == 401) {
-      showCustomSnackBar(
-        context,
-        'Sesi login Anda telah habis. Silakan login kembali.',
-      );
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {
@@ -770,10 +622,7 @@ class ApiService {
     final url = Uri.parse('${baseurl}gereja');
     final response = await http.get(
       url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
     );
 
     if (response.statusCode == 200) {
@@ -787,15 +636,106 @@ class ApiService {
 
       return dataGereja;
     } else if (response.statusCode == 401) {
-      showCustomSnackBar(
-        context,
-        'Sesi login Anda telah habis. Silakan login kembali.',
-      );
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load gereja');
+    }
+  }
+
+  static Future<Map<String, dynamic>> getAnggotaGereja(BuildContext context, String gerejaId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+    // sebagai parameter gerejaId berupa string, tapi di link API-nya berupa integer / string (tanpa "")
+    final parsed = int.tryParse(gerejaId) ?? gerejaId;
+    print('Parsed gerejaId: $parsed');
+
+    final url = Uri.parse('${baseurl}anggota-gereja?group_id=$parsed');
+    final response = await http.post(
+      url,
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> decoded = json.decode(response.body);
+      final dataAnggotaGereja = decoded['data_anggota_gereja'];
+      print(dataAnggotaGereja);
+      return json.decode(response.body) as Map<String, dynamic>;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      throw Exception('Failed to load anggota gereja');
+    }
+  }
+
+  static Future<List<dynamic>> getGroup(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}group');
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> decoded = json.decode(response.body);
+      final List<dynamic> dataGroup = decoded['data_group'] ?? [];
+
+      print('✅ Data gereja berhasil dimuat:');
+      for (var gereja in dataGroup) {
+        print('${gereja['gereja_nama']}');
+        print('${gereja['group_id']}');
+      }
+
+      return dataGroup;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load gereja');
+    }
+  }
+
+  static Future<Map<String, dynamic>> getAnggotaGroup(BuildContext context, String groupId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+    // sebagai parameter groupId berupa string, tapi di link API-nya berupa integer / string (tanpa "")
+    final parsed = int.tryParse(groupId) ?? groupId;
+    print('Parsed groupId: $parsed');
+
+    final url = Uri.parse('${baseurl}anggota-group?group_id=$parsed');
+    final response = await http.post(
+      url,
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> decoded = json.decode(response.body);
+      final dataAnggotaGereja = decoded['data_anggota_group'];
+      print(dataAnggotaGereja);
+      return json.decode(response.body) as Map<String, dynamic>;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      throw Exception('Failed to load anggota group');
     }
   }
 
@@ -809,10 +749,7 @@ class ApiService {
     final url = Uri.parse('${baseurl}kelompok');
     final response = await http.get(
       url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
     );
 
     if (response.statusCode == 200) {
@@ -826,10 +763,7 @@ class ApiService {
 
       return dataKelompok;
     } else if (response.statusCode == 401) {
-      showCustomSnackBar(
-        context,
-        'Sesi login Anda telah habis. Silakan login kembali.',
-      );
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {
@@ -838,49 +772,7 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getAnggotaGereja(
-    BuildContext context,
-    String gerejaId,
-  ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-    if (token == null || token.isEmpty) {
-      throw Exception('Token not found in SharedPreferences');
-    }
-    // sebagai parameter gerejaId berupa string, tapi di link API-nya berupa integer / string (tanpa "")
-    final parsed = int.tryParse(gerejaId) ?? gerejaId;
-    print('Parsed gerejaId: $parsed');
-
-    final url = Uri.parse('${baseurl}anggota-gereja?gereja_id=$parsed');
-    final response = await http.post(
-      url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> decoded = json.decode(response.body);
-      final dataAnggotaGereja = decoded['data_anggota_gereja'];
-      print(dataAnggotaGereja);
-      return json.decode(response.body) as Map<String, dynamic>;
-    } else if (response.statusCode == 401) {
-      showCustomSnackBar(
-        context,
-        'Sesi login Anda telah habis. Silakan login kembali.',
-      );
-      await handleUnauthorized(context);
-      throw Exception('Unauthorized');
-    } else {
-      throw Exception('Failed to load anggota gereja');
-    }
-  }
-
-  static Future<Map<String, dynamic>> getAnggotaKelompok(
-    BuildContext context,
-    String kelompokId,
-  ) async {
+  static Future<Map<String, dynamic>> getAnggotaKelompok(BuildContext context, String kelompokId) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null || token.isEmpty) {
@@ -893,10 +785,7 @@ class ApiService {
     final url = Uri.parse('${baseurl}anggota-kelompok?kelompok_id=$parsed');
     final response = await http.post(
       url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
     );
 
     if (response.statusCode == 200) {
@@ -905,10 +794,7 @@ class ApiService {
       print(dataAnggotaKelompok);
       return json.decode(response.body) as Map<String, dynamic>;
     } else if (response.statusCode == 401) {
-      showCustomSnackBar(
-        context,
-        'Sesi login Anda telah habis. Silakan login kembali.',
-      );
+      showCustomSnackBar(context, 'Sesi login Anda telah habis. Silakan login kembali.');
       await handleUnauthorized(context);
       throw Exception('Unauthorized');
     } else {
