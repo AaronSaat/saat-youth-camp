@@ -44,7 +44,9 @@ class _TestScreen3State extends State<TestScreen3> {
 
     var uri = Uri.parse('https://your-api-url.com/upload');
     var request = http.MultipartRequest('POST', uri);
-    request.files.add(await http.MultipartFile.fromPath('image', _imageFile!.path));
+    request.files.add(
+      await http.MultipartFile.fromPath('image', _imageFile!.path),
+    );
 
     try {
       var response = await request.send();
@@ -74,31 +76,16 @@ class _TestScreen3State extends State<TestScreen3> {
           children: [
             ElevatedButton(onPressed: _pickImage, child: Text('Select Image')),
             SizedBox(height: 16),
-            _imageFile != null ? Image.file(_imageFile!, height: 200) : Container(height: 200, color: Colors.grey[200]),
+            _imageFile != null
+                ? Image.file(_imageFile!, height: 200)
+                : Container(height: 200, color: Colors.grey[200]),
             SizedBox(height: 16),
-            ElevatedButton(onPressed: _uploadImage, child: Text('Upload Image')),
+            ElevatedButton(
+              onPressed: _uploadImage,
+              child: Text('Upload Image'),
+            ),
             SizedBox(height: 16),
             Text(_status),
-
-            // scatter chart example
-            ScatterChart(
-              ScatterChartData(
-                scatterSpots: [
-                  ScatterSpot(2, 3),
-                  ScatterSpot(4, 7),
-                  ScatterSpot(6, 2),
-                  ScatterSpot(8, 5),
-                  ScatterSpot(3, 8),
-                ],
-                minX: 0,
-                maxX: 10,
-                minY: 0,
-                maxY: 10,
-                borderData: FlBorderData(show: true),
-                gridData: FlGridData(show: true),
-                titlesData: FlTitlesData(show: true),
-              ),
-            ),
           ],
         ),
       ),

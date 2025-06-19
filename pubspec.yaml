@@ -43,20 +43,15 @@ flutter_launcher_icons:
 
 flutter:
   assets:
-    - assets/images/splash_bg4.jpg
     - assets/images/event.jpg
-    - assets/images/book_cover.jpg
-    - assets/images/background_login3.png
-    - assets/images/background_login4.jpg
+    - assets/images/background_login.jpg #compressed
     - assets/images/background_secret.jpg
-    - assets/images/background_email.png
-    - assets/images/background_kelompok.png
-    - assets/images/background_form.jpg
+    - assets/images/background_email.png #compressed
     - assets/images/background_form.png
     - assets/images/data_not_found.png
     - assets/images/answer_saved.png
     - assets/images/read_saved.png
-    - assets/images/megaphone.png
+    - assets/images/megaphone.png #compressed
     - assets/images/background_dashboard.jpg
     - assets/images/background_profile.png
     - assets/images/background_dashboard.png
@@ -67,12 +62,6 @@ flutter:
     - assets/images/background_list_bacaan.jpg
     - assets/images/card_dashboard_komitmen.png
     - assets/images/card_dashboard_role.png
- 
-
-    # kelompok_gereja_all assets
-    - assets/images/background_member.png
-    - assets/images/background_member2.png
-    - assets/images/background_member_list.png
 
     # icons for login
     - assets/icons/login/email.svg
@@ -170,7 +159,6 @@ flutter:
     - assets/mockups/pembimbing.jpg 
     - assets/mockups/panitia.jpg 
     - assets/mockups/unknown.jpg 
-    - assets/mockups/role_card.jpg
     - assets/mockups/materi_buku.jpg
     - assets/mockups/materi_youtube.jpg
     - assets/mockups/materi_berita.jpg

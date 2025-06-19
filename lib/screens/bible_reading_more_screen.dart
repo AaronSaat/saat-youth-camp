@@ -22,6 +22,10 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
   Map<String, dynamic>? _dataBible;
   List<dynamic> _books = [];
   int countRead = 0;
+  double fontSize_judul = 32;
+  double fontSize_subjudul = 18;
+  double fontSize_ayat = 10;
+  double fontSize_isi_ayat = 14;
 
   @override
   void initState() {
@@ -107,21 +111,31 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
             onConfirm: () async {
               Navigator.of(context).pop();
               setState(() => _isLoading = true);
-              final userId = int.tryParse(widget.userId.toString()) ?? widget.userId;
+              final userId =
+                  int.tryParse(widget.userId.toString()) ?? widget.userId;
               final brmId = _dataBrm![0]['id'];
-              Map<String, dynamic> brmDoneRead = {"brm_id": brmId, "user_id": userId};
+              Map<String, dynamic> brmDoneRead = {
+                "brm_id": brmId,
+                "user_id": userId,
+              };
 
               try {
                 await ApiService.postBrmDoneRead(context, brmDoneRead);
                 if (mounted) {
-                  Navigator.of(
-                    context,
-                  ).pushReplacement(MaterialPageRoute(builder: (context) => BibleReadingSuccessScreen()));
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => BibleReadingSuccessScreen(),
+                    ),
+                  );
                 }
               } catch (e) {
                 setState(() {
                   if (!mounted) return;
-                  showCustomSnackBar(context, 'Terjadi kesalahan', isSuccess: false);
+                  showCustomSnackBar(
+                    context,
+                    'Terjadi kesalahan',
+                    isSuccess: false,
+                  );
                 });
               }
               setState(() => _isLoading = false);
@@ -173,14 +187,20 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
             final chapterNum = chapter?['chap'] ?? '';
             final verses =
                 chapter?['verses']?['verse'] as List<dynamic>? ??
-                (chapter?['verses']?['verse'] != null ? [chapter?['verses']?['verse']] : []);
+                (chapter?['verses']?['verse'] != null
+                    ? [chapter?['verses']?['verse']]
+                    : []);
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '$bookName $chapterNum',
-                  style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: TextStyle(
+                    fontSize: fontSize_judul,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
 
                 const SizedBox(height: 8),
@@ -193,30 +213,47 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                     child: RichText(
                       textAlign: TextAlign.left,
                       text: TextSpan(
-                        style: const TextStyle(color: Colors.white, height: 1.5),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          height: 1.5,
+                        ),
                         children: [
                           if (number == "1" && verseTitle != null) ...[
                             TextSpan(
                               text: '$verseTitle. \n\n',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontStyle: FontStyle.italic,
                                 color: Colors.white,
-                                fontSize: 18,
+                                fontSize: fontSize_subjudul,
                               ),
                             ),
 
                             TextSpan(
                               text: '$number. ',
-                              style: const TextStyle(fontWeight: FontWeight.w400, color: Colors.white, fontSize: 10),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w400,
+                                color: Colors.white,
+                                fontSize: fontSize_ayat,
+                              ),
                             ),
-                            TextSpan(text: text, style: const TextStyle(fontSize: 14)),
+                            TextSpan(
+                              text: text,
+                              style: TextStyle(fontSize: fontSize_isi_ayat),
+                            ),
                           ] else ...[
                             TextSpan(
                               text: '$number. ',
-                              style: const TextStyle(fontWeight: FontWeight.w400, color: Colors.white, fontSize: 10),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w400,
+                                color: Colors.white,
+                                fontSize: fontSize_ayat,
+                              ),
                             ),
-                            TextSpan(text: text, style: const TextStyle(fontSize: 14)),
+                            TextSpan(
+                              text: text,
+                              style: TextStyle(fontSize: fontSize_isi_ayat),
+                            ),
                           ],
                         ],
                       ),
@@ -238,13 +275,19 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                   onPressed: _isLoading ? null : _handleSubmit,
                   label: const Text(
                     'Selesai Membaca',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.secondary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.all(12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
                     elevation: 0,
                   ),
                 ),
@@ -261,7 +304,8 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
           // Set background color using a Container
           Container(
             decoration: const BoxDecoration(
-              color: AppColors.primary, // Set your desired background color here
+              color:
+                  AppColors.primary, // Set your desired background color here
             ),
             child: SafeArea(
               child: Column(
@@ -272,7 +316,11 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                     iconTheme: const IconThemeData(color: Colors.white),
                     title: const Text(
                       'Bacaan Hari Ini',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
                     ),
                     automaticallyImplyLeading: true,
                     actions: [
@@ -280,7 +328,12 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => BibleReadingListScreen(userId: widget.userId)),
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => BibleReadingListScreen(
+                                    userId: widget.userId,
+                                  ),
+                            ),
                           ).then((result) {
                             if (result == 'reload') {
                               initAll(); // reload dashboard
@@ -290,14 +343,25 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                         child: Container(
                           decoration: BoxDecoration(
                             color: AppColors.secondary,
-                            borderRadius: const BorderRadius.only(topLeft: Radius.circular(8)),
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(8),
+                            ),
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
                           child: Text(
                             _dataBrm != null && _dataBrm!.isNotEmpty
-                                ? DateFormatter.ubahTanggal(_dataBrm![0]['tanggal'])
+                                ? DateFormatter.ubahTanggal(
+                                  _dataBrm![0]['tanggal'],
+                                )
                                 : '',
-                            style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
@@ -314,12 +378,90 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                       //     fit: BoxFit.fill,
                       //   ),
                       // ),
+                      // Font size control icons in a rounded card above the content
                       Padding(
-                        padding: const EdgeInsets.all(24),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 8.0,
+                        ),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Card(
+                            color: AppColors.secondary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8.0,
+                                vertical: 2.0,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.remove,
+                                      color: Colors.white,
+                                      size: 30,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        if (fontSize_judul > 18) {
+                                          fontSize_judul -= 2;
+                                          fontSize_subjudul -= 1;
+                                          fontSize_ayat -= 1;
+                                          fontSize_isi_ayat -= 1;
+                                        } else {
+                                          showCustomSnackBar(
+                                            context,
+                                            "Font size terlalu kecil",
+                                          );
+                                        }
+                                      });
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.add,
+                                      color: Colors.white,
+                                      size: 30,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        if (fontSize_judul < 42) {
+                                          fontSize_judul += 2;
+                                          fontSize_subjudul += 1;
+                                          fontSize_ayat += 1;
+                                          fontSize_isi_ayat += 1;
+                                        } else {
+                                          showCustomSnackBar(
+                                            context,
+                                            "Font size mencapai batas maksimal",
+                                          );
+                                        }
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          right: 24,
+                          left: 24,
+                          bottom: 24,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            SizedBox(height: MediaQuery.of(context).size.height * 0.8, child: buildBibleContent()),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.7,
+                              child: buildBibleContent(),
+                            ),
                           ],
                         ),
                       ),

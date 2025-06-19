@@ -77,7 +77,10 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       print(usernameController.text);
       print(passwordController.text);
-      final response = await ApiService.loginUser(usernameController.text, passwordController.text);
+      final response = await ApiService.loginUser(
+        usernameController.text,
+        passwordController.text,
+      );
       print('Login response: $response');
 
       if (response['success'] == true) {
@@ -95,7 +98,10 @@ class _LoginScreenState extends State<LoginScreen> {
           response['user']['kelompok']?['nama_kelompok'] ?? 'Null',
         );
 
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainScreen()));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainScreen()),
+        );
       } else {
         setState(() => errorMessage = response['message'] ?? 'Login gagal');
         if (!mounted) return;
@@ -119,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
         children: [
           Positioned(
             child: Image.asset(
-              'assets/images/background_login4.jpg',
+              'assets/images/background_login.jpg',
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
               fit: BoxFit.fill,
@@ -136,12 +142,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        width: 160,
-                        height: 160,
-                        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                        width: 350,
+                        height: 350,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.all(12),
-                          child: Image.asset('assets/logos/redeemed.png', fit: BoxFit.contain),
+                          child: Image.asset(
+                            'assets/logos/redeemed.png',
+                            fit: BoxFit.contain,
+                          ),
                         ),
                       ),
 
@@ -172,9 +184,15 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: const TextStyle(color: AppColors.primary),
                             decoration: InputDecoration(
                               hintText: 'Username atau Email',
-                              hintStyle: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w300),
+                              hintStyle: const TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w300,
+                              ),
                               border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
                               // prefixIcon: SvgPicture.asset(
                               //   'assets/icons/login/email.svg',
                               //   width: 24,
@@ -207,9 +225,15 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: const TextStyle(color: AppColors.primary),
                             decoration: InputDecoration(
                               hintText: 'Password',
-                              hintStyle: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w300),
+                              hintStyle: const TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w300,
+                              ),
                               border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
                               suffixIcon: IconButton(
                                 icon: SvgPicture.asset(
                                   _obscurePassword
@@ -217,7 +241,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                       : 'assets/icons/login/show_password.svg',
                                   width: 24,
                                   height: 24,
-                                  colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                                  colorFilter: const ColorFilter.mode(
+                                    AppColors.primary,
+                                    BlendMode.srcIn,
+                                  ),
                                 ),
                                 onPressed: () {
                                   setState(() {
@@ -239,14 +266,23 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Container(
                             width: double.infinity,
                             height: 50,
-                            decoration: BoxDecoration(color: AppColors.brown1, borderRadius: BorderRadius.circular(32)),
+                            decoration: BoxDecoration(
+                              color: AppColors.brown1,
+                              borderRadius: BorderRadius.circular(32),
+                            ),
                             alignment: Alignment.center,
                             child:
                                 isLoading
-                                    ? const CircularProgressIndicator(color: Colors.white)
+                                    ? const CircularProgressIndicator(
+                                      color: Colors.white,
+                                    )
                                     : const Text(
                                       'Login',
-                                      style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w500),
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                           ),
                         ),
@@ -257,10 +293,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text('Belum punya akun? ', style: TextStyle(color: AppColors.primary)),
+                          const Text(
+                            'Belum punya akun? ',
+                            style: TextStyle(color: AppColors.primary),
+                          ),
                           GestureDetector(
                             onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (_) => const CheckSecretScreen()));
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const CheckSecretScreen(),
+                                ),
+                              );
                             },
                             child: const Text(
                               'Daftar sekarang',

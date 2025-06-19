@@ -29,17 +29,6 @@
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UISupportedInterfaceOrientations</key>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Aplikasi membutuhkan akses ke galeri foto Anda.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Aplikasi membutuhkan akses ke kamera Anda.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Aplikasi membutuhkan izin untuk menyimpan foto ke galeri Anda.</string>
-	<key>LSApplicationQueriesSchemes</key>
-<array>
-    <string>http</string>
-    <string>https</string>
-</array>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 		<!-- <string>UIInterfaceOrientationLandscapeLeft</string>

@@ -86,7 +86,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       List<bool> progress = List.filled(komitmenList.length, false);
       for (int i = 0; i < progress.length; i++) {
         try {
-          final result = await ApiService.getKomitmenByPesertaByDay(context, userId, i + 1);
+          final result = await ApiService.getKomitmenByPesertaByDay(
+            context,
+            userId,
+            i + 1,
+          );
           if (result['success'] == true) {
             progress[i] = true;
           }
@@ -116,7 +120,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       List<bool> progress = List.filled(acaraList.length, false);
       for (int i = 0; i < progress.length; i++) {
         try {
-          final result = await ApiService.getEvaluasiByPesertaByAcara(context, userId, i + 1);
+          final result = await ApiService.getEvaluasiByPesertaByAcara(
+            context,
+            userId,
+            i + 1,
+          );
           if (result['success'] == true) {
             progress[i] = true;
           }
@@ -158,7 +166,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
     if (!context.mounted) return;
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+    );
   }
 
   @override
@@ -192,7 +203,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               backgroundColor: Colors.white,
               child: SingleChildScrollView(
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 24.0, bottom: 96, left: 24.0, right: 24.0),
+                  padding: const EdgeInsets.only(
+                    top: 24.0,
+                    bottom: 96,
+                    left: 24.0,
+                    right: 24.0,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -236,49 +252,81 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    if (role != 'Panitia')
-                                      Text(
-                                        name,
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
+                                    Text(
+                                      role != 'Panitia' ? name : 'Panitia',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
                                       ),
+                                    ),
                                     Row(
                                       children: [
                                         Card(
                                           color: AppColors.secondary,
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
                                           child: Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
                                             child: Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                const Icon(Icons.work, size: 12, color: AppColors.primary),
+                                                const Icon(
+                                                  Icons.work,
+                                                  size: 12,
+                                                  color: AppColors.primary,
+                                                ),
                                                 const SizedBox(width: 4),
                                                 Text(
-                                                  role.replaceAll(' Kelompok', ''),
-                                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                                                  role.replaceAll(
+                                                    ' Kelompok',
+                                                    '',
+                                                  ),
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
                                                 ),
                                               ],
                                             ),
                                           ),
                                         ),
-                                        if (kelompok.isNotEmpty && kelompok != 'Null')
+                                        if (kelompok.isNotEmpty &&
+                                            kelompok != 'Null')
                                           Card(
                                             color: AppColors.secondary,
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
                                             child: Padding(
-                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 8,
+                                                    vertical: 4,
+                                                  ),
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  const Icon(Icons.group, size: 12, color: AppColors.primary),
+                                                  const Icon(
+                                                    Icons.group,
+                                                    size: 12,
+                                                    color: AppColors.primary,
+                                                  ),
                                                   const SizedBox(width: 4),
                                                   Text(
                                                     kelompok,
-                                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                                                    style: const TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
                                                   ),
                                                 ],
                                               ),
@@ -289,20 +337,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     if (gereja.isNotEmpty && gereja != 'Null')
                                       Card(
                                         color: AppColors.secondary,
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
                                         child: Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              const Icon(Icons.church, size: 16, color: AppColors.primary),
+                                              const Icon(
+                                                Icons.church,
+                                                size: 16,
+                                                color: AppColors.primary,
+                                              ),
                                               const SizedBox(width: 4),
                                               Flexible(
                                                 child: Text(
                                                   gereja,
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   maxLines: 3,
-                                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
                                                 ),
                                               ),
                                             ],
@@ -318,7 +381,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                           // CustomPinTextfield(),
                           // progress evaluasi dan komitmen
-                          if (!role.toLowerCase().contains('panitia') && !role.toLowerCase().contains('pembimbing'))
+                          if (!role.toLowerCase().contains('panitia') &&
+                              !role.toLowerCase().contains('pembimbing'))
                             _isLoading
                                 ? buildAcaraShimmer()
                                 //     : _acaraList.isEmpty
@@ -336,16 +400,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     // Ambil userId dari _dataUser
                                     final userId = _dataUser['id'] ?? '';
                                     // Progress Evaluasi
-                                    final progressEvaluasi = _evaluasiDoneMap[userId] ?? [];
-                                    final evaluasiTotal = progressEvaluasi.length;
-                                    final evaluasiDone = progressEvaluasi.where((e) => e).length;
-                                    final evaluasiProgress = evaluasiTotal > 0 ? evaluasiDone / evaluasiTotal : 0.0;
+                                    final progressEvaluasi =
+                                        _evaluasiDoneMap[userId] ?? [];
+                                    final evaluasiTotal =
+                                        progressEvaluasi.length;
+                                    final evaluasiDone =
+                                        progressEvaluasi.where((e) => e).length;
+                                    final evaluasiProgress =
+                                        evaluasiTotal > 0
+                                            ? evaluasiDone / evaluasiTotal
+                                            : 0.0;
 
                                     // Progress Komitmen
-                                    final progressKomitmen = _komitmenDoneMap[userId] ?? [];
-                                    final komitmenTotal = progressKomitmen.length;
-                                    final komitmenDone = progressKomitmen.where((e) => e).length;
-                                    final komitmenProgress = komitmenTotal > 0 ? komitmenDone / komitmenTotal : 0.0;
+                                    final progressKomitmen =
+                                        _komitmenDoneMap[userId] ?? [];
+                                    final komitmenTotal =
+                                        progressKomitmen.length;
+                                    final komitmenDone =
+                                        progressKomitmen.where((e) => e).length;
+                                    final komitmenProgress =
+                                        komitmenTotal > 0
+                                            ? komitmenDone / komitmenTotal
+                                            : 0.0;
 
                                     return Column(
                                       children: [
@@ -357,7 +433,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               MaterialPageRoute(
                                                 builder:
                                                     (context) =>
-                                                        EvaluasiKomitmenListScreen(type: 'Evaluasi', userId: userId),
+                                                        EvaluasiKomitmenListScreen(
+                                                          type: 'Evaluasi',
+                                                          userId: userId,
+                                                        ),
                                               ),
                                             ).then((result) {
                                               if (result == 'reload') {
@@ -378,7 +457,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               MaterialPageRoute(
                                                 builder:
                                                     (context) =>
-                                                        EvaluasiKomitmenListScreen(type: 'Komitmen', userId: userId),
+                                                        EvaluasiKomitmenListScreen(
+                                                          type: 'Komitmen',
+                                                          userId: userId,
+                                                        ),
                                               ),
                                             );
                                           },
@@ -390,9 +472,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     );
                                   },
                                 ),
-                          if (!role.toLowerCase().contains('panitia') && !role.toLowerCase().contains('pembimbing'))
+                          if (!role.toLowerCase().contains('panitia') &&
+                              !role.toLowerCase().contains('pembimbing'))
                             const SizedBox(height: 16),
-                          if (!role.toLowerCase().contains('panitia') && !role.toLowerCase().contains('pembimbing'))
+                          if (!role.toLowerCase().contains('panitia') &&
+                              !role.toLowerCase().contains('pembimbing'))
                             _isLoading
                                 ? buildBacaanShimer()
                                 //     : _acaraList.isEmpty
@@ -411,7 +495,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   onTap: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (context) => BibleReadingListScreen(userId: id)),
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => BibleReadingListScreen(
+                                              userId: id,
+                                            ),
+                                      ),
                                     ).then((result) {
                                       if (result == 'reload') {
                                         initAll(); // reload dashboard
@@ -423,17 +512,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     children: [
                                       Container(
                                         height: 180,
-                                        padding: const EdgeInsets.only(left: 24, right: 24, bottom: 16),
+                                        padding: const EdgeInsets.only(
+                                          left: 24,
+                                          right: 24,
+                                          bottom: 16,
+                                        ),
                                         decoration: BoxDecoration(
-                                          color: AppColors.primary.withAlpha(70),
+                                          color: AppColors.primary.withAlpha(
+                                            70,
+                                          ),
                                           gradient: LinearGradient(
                                             begin: Alignment.bottomCenter,
                                             end: Alignment.center,
-                                            colors: [Colors.black.withAlpha(100), Colors.black.withAlpha(10)],
+                                            colors: [
+                                              Colors.black.withAlpha(100),
+                                              Colors.black.withAlpha(10),
+                                            ],
                                           ),
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                           image: const DecorationImage(
-                                            image: AssetImage('assets/mockups/bible_reading.jpg'),
+                                            image: AssetImage(
+                                              'assets/mockups/bible_reading.jpg',
+                                            ),
                                             fit: BoxFit.cover,
                                           ),
                                         ),
@@ -441,8 +543,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           alignment: Alignment.bottomLeft,
                                           child: Column(
                                             mainAxisSize: MainAxisSize.min,
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            mainAxisAlignment: MainAxisAlignment.end,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
                                             children: [
                                               Text(
                                                 'Bacaan Saya',
@@ -454,7 +558,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               ),
                                               const SizedBox(height: 8),
                                               Text(
-                                                _dataBrm.isNotEmpty ? (_dataBrm[0]['passage'] ?? '') : '',
+                                                _dataBrm.isNotEmpty
+                                                    ? (_dataBrm[0]['passage'] ??
+                                                        '')
+                                                    : '',
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.w400,
                                                   color: Colors.white,
@@ -471,15 +578,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         child: Container(
                                           decoration: BoxDecoration(
                                             color: AppColors.secondary,
-                                            borderRadius: const BorderRadius.only(
-                                              topRight: Radius.circular(16),
-                                              bottomLeft: Radius.circular(8),
-                                            ),
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                                  topRight: Radius.circular(16),
+                                                  bottomLeft: Radius.circular(
+                                                    8,
+                                                  ),
+                                                ),
                                           ),
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
                                           child: Text(
                                             _dataBrm.isNotEmpty
-                                                ? DateFormatter.ubahTanggal(_dataBrm[0]['tanggal'])
+                                                ? DateFormatter.ubahTanggal(
+                                                  _dataBrm[0]['tanggal'],
+                                                )
                                                 : '',
                                             style: const TextStyle(
                                               fontSize: 12,
@@ -504,7 +619,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.accent,
                                 foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(32),
+                                ),
                               ),
                             ),
                           ),
@@ -545,12 +662,18 @@ Widget buildAcaraShimmer() {
                     Container(
                       width: 120,
                       height: 18,
-                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                     Container(
                       width: 24,
                       height: 18,
-                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ],
                 ),
@@ -568,7 +691,10 @@ Widget buildAcaraShimmer() {
                       child: Container(
                         width: 40,
                         height: 16,
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                     ),
                   ],
@@ -588,7 +714,10 @@ Widget buildBacaanShimer() {
       Container(
         height: 180,
         padding: const EdgeInsets.only(left: 24, right: 24, bottom: 16),
-        decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(16)),
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: Align(
           alignment: Alignment.bottomLeft,
           child: Column(
@@ -602,7 +731,10 @@ Widget buildBacaanShimer() {
                 child: Container(
                   width: 120,
                   height: 24,
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
@@ -612,7 +744,10 @@ Widget buildBacaanShimer() {
                 child: Container(
                   width: 80,
                   height: 16,
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               ),
             ],
@@ -628,13 +763,19 @@ Widget buildBacaanShimer() {
           child: Container(
             decoration: BoxDecoration(
               color: AppColors.secondary,
-              borderRadius: const BorderRadius.only(topRight: Radius.circular(16), bottomLeft: Radius.circular(8)),
+              borderRadius: const BorderRadius.only(
+                topRight: Radius.circular(16),
+                bottomLeft: Radius.circular(8),
+              ),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
             child: Container(
               width: 60,
               height: 16,
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
           ),
         ),
@@ -682,9 +823,17 @@ class MateriMenuCard extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
-                      const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 18),
+                      const Icon(
+                        Icons.arrow_forward_ios,
+                        color: Colors.white,
+                        size: 18,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -697,7 +846,9 @@ class MateriMenuCard extends StatelessWidget {
                             value: valueProgress,
                             minHeight: 12,
                             backgroundColor: Colors.white,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.green,
+                            ),
                           ),
                         ),
                       ),
@@ -706,7 +857,10 @@ class MateriMenuCard extends StatelessWidget {
                           padding: const EdgeInsets.only(left: 12),
                           child: Text(
                             '$valueDone/$valueTotal',
-                            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                     ],
