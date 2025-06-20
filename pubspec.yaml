@@ -62,6 +62,7 @@ flutter:
     - assets/images/background_list_bacaan.jpg
     - assets/images/card_dashboard_komitmen.png
     - assets/images/card_dashboard_role.png
+    - assets/images/background_pengumuman.jpg
 
     # icons for login
     - assets/icons/login/email.svg
