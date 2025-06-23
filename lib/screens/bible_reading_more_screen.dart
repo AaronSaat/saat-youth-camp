@@ -5,6 +5,7 @@ import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
 import '../widgets/custom_alert_dialog.dart';
 import '../widgets/custom_snackbar.dart';
+import '../widgets/custom_text_field.dart';
 import 'bible_reading_list_screen.dart';
 import 'bible_reading_success_screen.dart';
 
@@ -26,6 +27,8 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
   double fontSize_subjudul = 18;
   double fontSize_ayat = 10;
   double fontSize_isi_ayat = 14;
+  final TextEditingController _noteController = TextEditingController();
+  String _note = '';
 
   @override
   void initState() {
@@ -84,6 +87,7 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
       if (!mounted) return;
       setState(() {
         countRead = count;
+        print('Count Read: $countRead');
       });
     } catch (e) {}
   }
@@ -118,9 +122,15 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                 "brm_id": brmId,
                 "user_id": userId,
               };
+              Map<String, dynamic> brmNotes = {
+                "user_id": userId,
+                "brm_id": brmId,
+                "notes": _noteController.text.toString().trim(),
+              };
 
               try {
                 await ApiService.postBrmDoneRead(context, brmDoneRead);
+                await ApiService.postBrmNotes(context, brmNotes);
                 if (mounted) {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
@@ -264,31 +274,80 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
               ],
             );
           }).toList(),
-          const SizedBox(height: 16),
           if (countRead == 0)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.4,
-                height: 50,
-                child: ElevatedButton.icon(
-                  onPressed: _isLoading ? null : _handleSubmit,
-                  label: const Text(
-                    'Selesai Membaca',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
+            Column(
+              children: [
+                Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: CustomTextField(
+                      controller: _noteController,
+                      label: 'Catatan',
+                      hintText: 'Tambahkan catatan (opsional)',
+                      maxLines: 4,
+                      labelColor: Colors.black,
+                      textColor: Colors.black,
+                      fillColor: Colors.white,
+                      suffixIcon: IconButton(
+                        icon: const Icon(
+                          Icons.keyboard_hide,
+                          color: Colors.black,
+                        ),
+                        onPressed: () => FocusScope.of(context).unfocus(),
+                      ),
                     ),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.secondary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.all(12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.4,
+                    height: 50,
+                    child: ElevatedButton.icon(
+                      onPressed: _handleSubmit,
+                      label: const Text(
+                        'Selesai Membaca',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.secondary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.all(12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        elevation: 0,
+                      ),
                     ),
-                    elevation: 0,
+                  ),
+                ),
+              ],
+            )
+          else
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Center(
+                  child: Text(
+                    'Anda sudah membaca dan mengisi catatan hari ini.',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
@@ -298,6 +357,7 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
     }
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -308,166 +368,169 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                   AppColors.primary, // Set your desired background color here
             ),
             child: SafeArea(
-              child: Column(
-                children: [
-                  AppBar(
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                    iconTheme: const IconThemeData(color: Colors.white),
-                    title: const Text(
-                      'Bacaan Hari Ini',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    AppBar(
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      iconTheme: const IconThemeData(color: Colors.white),
+                      title: const Text(
+                        'Bacaan Hari Ini',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
                       ),
+                      automaticallyImplyLeading: true,
+                      actions: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => BibleReadingListScreen(
+                                      userId: widget.userId,
+                                    ),
+                              ),
+                            ).then((result) {
+                              if (result == 'reload') {
+                                initAll(); // reload dashboard
+                              }
+                            });
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: AppColors.secondary,
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(8),
+                              ),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            child: Text(
+                              _dataBrm != null && _dataBrm!.isNotEmpty
+                                  ? DateFormatter.ubahTanggal(
+                                    _dataBrm![0]['tanggal'],
+                                  )
+                                  : '',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    automaticallyImplyLeading: true,
-                    actions: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => BibleReadingListScreen(
-                                    userId: widget.userId,
-                                  ),
-                            ),
-                          ).then((result) {
-                            if (result == 'reload') {
-                              initAll(); // reload dashboard
-                            }
-                          });
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: AppColors.secondary,
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(8),
-                            ),
-                          ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        //             Positioned.fill(
+                        //   child: Image.asset(
+                        //     'assets/images/background_read_more.jpg',
+                        //     width: MediaQuery.of(context).size.width,
+                        //     height: MediaQuery.of(context).size.height,
+                        //     fit: BoxFit.fill,
+                        //   ),
+                        // ),
+                        // Font size control icons in a rounded card above the content
+                        Padding(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
+                            horizontal: 16.0,
+                            vertical: 8.0,
                           ),
-                          child: Text(
-                            _dataBrm != null && _dataBrm!.isNotEmpty
-                                ? DateFormatter.ubahTanggal(
-                                  _dataBrm![0]['tanggal'],
-                                )
-                                : '',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      //             Positioned.fill(
-                      //   child: Image.asset(
-                      //     'assets/images/background_read_more.jpg',
-                      //     width: MediaQuery.of(context).size.width,
-                      //     height: MediaQuery.of(context).size.height,
-                      //     fit: BoxFit.fill,
-                      //   ),
-                      // ),
-                      // Font size control icons in a rounded card above the content
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 8.0,
-                        ),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Card(
-                            color: AppColors.secondary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8.0,
-                                vertical: 2.0,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Card(
+                              color: AppColors.secondary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.remove,
-                                      color: Colors.white,
-                                      size: 30,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0,
+                                  vertical: 2.0,
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.remove,
+                                        color: Colors.white,
+                                        size: 30,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          if (fontSize_judul > 18) {
+                                            fontSize_judul -= 2;
+                                            fontSize_subjudul -= 1;
+                                            fontSize_ayat -= 1;
+                                            fontSize_isi_ayat -= 1;
+                                          } else {
+                                            showCustomSnackBar(
+                                              context,
+                                              "Font size terlalu kecil",
+                                            );
+                                          }
+                                        });
+                                      },
                                     ),
-                                    onPressed: () {
-                                      setState(() {
-                                        if (fontSize_judul > 18) {
-                                          fontSize_judul -= 2;
-                                          fontSize_subjudul -= 1;
-                                          fontSize_ayat -= 1;
-                                          fontSize_isi_ayat -= 1;
-                                        } else {
-                                          showCustomSnackBar(
-                                            context,
-                                            "Font size terlalu kecil",
-                                          );
-                                        }
-                                      });
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.add,
-                                      color: Colors.white,
-                                      size: 30,
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.add,
+                                        color: Colors.white,
+                                        size: 30,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          if (fontSize_judul < 42) {
+                                            fontSize_judul += 2;
+                                            fontSize_subjudul += 1;
+                                            fontSize_ayat += 1;
+                                            fontSize_isi_ayat += 1;
+                                          } else {
+                                            showCustomSnackBar(
+                                              context,
+                                              "Font size mencapai batas maksimal",
+                                            );
+                                          }
+                                        });
+                                      },
                                     ),
-                                    onPressed: () {
-                                      setState(() {
-                                        if (fontSize_judul < 42) {
-                                          fontSize_judul += 2;
-                                          fontSize_subjudul += 1;
-                                          fontSize_ayat += 1;
-                                          fontSize_isi_ayat += 1;
-                                        } else {
-                                          showCustomSnackBar(
-                                            context,
-                                            "Font size mencapai batas maksimal",
-                                          );
-                                        }
-                                      });
-                                    },
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          right: 24,
-                          left: 24,
-                          bottom: 24,
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            right: 24,
+                            left: 24,
+                            bottom: 24,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.7,
+                                child: buildBibleContent(),
+                              ),
+                            ],
+                          ),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.7,
-                              child: buildBibleContent(),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

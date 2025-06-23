@@ -14,6 +14,8 @@ import 'bible_reading_more_screen.dart';
 import 'pengumuman_detail_screen.dart';
 import 'pengumuman_list_screen.dart';
 
+import 'package:html/parser.dart' as html_parser;
+
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -27,6 +29,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ScrollController _acaraController = ScrollController();
   int _currentAcaraPage = 0;
   List<dynamic> _acaraList = [];
+  List<Map<String, dynamic>> _pengumumanList = [];
   int day = 1;
   int countAcara = 5;
   bool _isLoading = true;
@@ -60,6 +63,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       await loadBrm();
       await loadAcara();
       await loadReportBrmByPesertaByDay();
+      await loadPengumumanByUserId();
     } catch (e) {
       // handle error jika perlu
     }
@@ -156,6 +160,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Future<void> loadPengumumanByUserId() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final pengumumanList = await ApiService.getPengumuman(
+        context,
+        _dataUser['id'],
+      );
+      if (!mounted) return;
+      setState(() {
+        final pengumumanList2 = List<Map<String, dynamic>>.from(pengumumanList);
+        _pengumumanList = pengumumanList2;
+        _isLoading = false;
+        if (_pengumumanList.isNotEmpty) {
+          print('Pengumuman index 0: ${_pengumumanList[0]}');
+        }
+      });
+    } catch (e) {
+      print('❌ Gagal memuat pengumuman: $e');
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   void dispose() {
     _acaraController.dispose();
@@ -168,6 +200,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final role = _dataUser['role'] ?? '-';
     final gereja = _dataUser['gereja_nama'] ?? '-';
     final kelompok = _dataUser['nama_kelompok'] ?? '-';
+
     return Scaffold(
       body: Stack(
         children: [
@@ -1117,79 +1150,89 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       const SizedBox(height: 32),
 
                       // Yellow card / card kuning dengan megaphone di atasnya
-                      InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PengumumanListScreen(),
-                            ),
-                          );
-                        },
-                        borderRadius: BorderRadius.circular(16),
-                        child: Stack(
-                          children: [
-                            Container(
-                              height: 140,
-                              decoration: BoxDecoration(
-                                color: AppColors.secondary,
+                      if (_pengumumanList.isNotEmpty)
+                        InkWell(
+                          onTap: () {
+                            final pengumuman = _pengumumanList[0];
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PengumumanListScreen(),
                               ),
-                              padding: const EdgeInsets.only(
-                                left: 16,
-                                top: 16,
-                                bottom: 16,
-                              ),
-                              child: Row(
-                                children: [
-                                  // Left column with 2 texts
-                                  Column(
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(16),
+                          child: Stack(
+                            children: [
+                              Container(
+                                width: double.infinity,
+                                height: 140,
+                                decoration: BoxDecoration(
+                                  color: AppColors.secondary,
+                                ),
+                                padding: const EdgeInsets.all(16.0),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: 8,
+                                    right: 128,
+                                    top: 8,
+                                    bottom: 8,
+                                  ),
+                                  child: Row(
                                     children: [
-                                      SizedBox(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                            0.4,
+                                      Expanded(
                                         child: Column(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
-                                          children: const [
+                                          children: [
                                             Text(
-                                              'Pengumuman',
-                                              style: TextStyle(
+                                              _pengumumanList[0]["judul"] ??
+                                                  'Judul Pengumuman???',
+                                              style: const TextStyle(
                                                 color: AppColors.primary,
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 20,
                                               ),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
+                                            const SizedBox(height: 8),
                                             Text(
-                                              'Cek info terbaru di sini!',
-                                              style: TextStyle(
+                                              _pengumumanList[0]["detail"]
+                                                  .replaceAll(
+                                                    RegExp(r'<[^>]*>'),
+                                                    '',
+                                                  )
+                                                  .trim(),
+                                              style: const TextStyle(
                                                 color: AppColors.primary,
                                                 fontSize: 14,
                                               ),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ],
                                         ),
                                       ),
                                     ],
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
-                            Positioned(
-                              bottom: -15,
-                              right: -12,
-                              child: Image.asset(
-                                'assets/images/megaphone.png',
-                                width: 180,
-                                height: 180,
-                                fit: BoxFit.contain,
+                              Positioned(
+                                bottom: -15,
+                                right: -15,
+                                child: Image.asset(
+                                  'assets/images/megaphone.png',
+                                  width: 180,
+                                  height: 180,
+                                  fit: BoxFit.contain,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
                       const SizedBox(height: 16),
                     ],
                   ),

@@ -66,6 +66,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       'gereja_nama',
       'kelompok_id',
       'kelompok_nama',
+      'avatar_url',
     ];
     final Map<String, String> userData = {};
     for (final key in keys) {
@@ -184,6 +185,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final kelompok = _dataUser['kelompok_nama'] ?? '';
     final role = _dataUser['role'] ?? '';
     final name = _dataUser['nama'] ?? '';
+    final avatar = _dataUser['avatar_url'] ?? '';
 
     return Scaffold(
       body: Stack(
@@ -231,20 +233,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 height: MediaQuery.of(context).size.width * 0.3,
                                 child: CircleAvatar(
                                   radius: 50,
-                                  backgroundImage: AssetImage(() {
-                                    switch (role) {
-                                      case 'Pembina':
-                                        return 'assets/mockups/pembina.jpg';
-                                      case 'Peserta':
-                                        return 'assets/mockups/peserta.jpg';
-                                      case 'Pembimbing Kelompok':
-                                        return 'assets/mockups/pembimbing.jpg';
-                                      case 'Panitia':
-                                        return 'assets/mockups/panitia.jpg';
-                                      default:
-                                        return 'assets/mockups/unknown.jpg';
-                                    }
-                                  }()),
+                                  backgroundImage:
+                                      (avatar.isNotEmpty)
+                                          ? NetworkImage(
+                                            'http://172.172.52.11:8080/$avatar',
+                                          )
+                                          : AssetImage(() {
+                                                switch (role) {
+                                                  case 'Pembina':
+                                                    return 'assets/mockups/pembina.jpg';
+                                                  case 'Peserta':
+                                                    return 'assets/mockups/peserta.jpg';
+                                                  case 'Pembimbing Kelompok':
+                                                    return 'assets/mockups/pembimbing.jpg';
+                                                  case 'Panitia':
+                                                    return 'assets/mockups/panitia.jpg';
+                                                  default:
+                                                    return 'assets/mockups/unknown.jpg';
+                                                }
+                                              }())
+                                              as ImageProvider,
                                 ),
                               ),
                               const SizedBox(width: 8),
