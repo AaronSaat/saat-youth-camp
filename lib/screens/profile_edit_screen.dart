@@ -1,0 +1,310 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:shared_preferences/shared_preferences.dart'
+    show SharedPreferences;
+
+import '../services/api_service.dart';
+import '../utils/app_colors.dart';
+import '../widgets/custom_snackbar.dart';
+
+class ProfileEditScreen extends StatefulWidget {
+  @override
+  _ProfileEditScreenState createState() => _ProfileEditScreenState();
+}
+
+class _ProfileEditScreenState extends State<ProfileEditScreen> {
+  File? _imageFile;
+  Map<String, String> _dataUser = {};
+  bool _isLoading = true;
+  String avatar = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _initAll();
+  }
+
+  Future<void> _initAll() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      await loadUserData();
+      await loadAvatarById();
+    } catch (e) {
+      // handle error jika perlu
+    }
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys = [
+      'id',
+      'username',
+      'email',
+      'role',
+      'token',
+      'gereja_id',
+      'gereja_nama',
+      'kelompok_id',
+      'kelompok_nama',
+    ];
+    final Map<String, String> userData = {};
+    for (final key in keys) {
+      userData[key] = prefs.getString(key) ?? '';
+    }
+    if (!mounted) return;
+    setState(() {
+      _dataUser = userData;
+    });
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+    } else {
+      if (!mounted) return;
+      showCustomSnackBar(
+        context,
+        'Tidak ada gambar yang dipilih',
+        isSuccess: false,
+      );
+    }
+  }
+
+  Future<void> _uploadImage() async {
+    if (_imageFile == null) {
+      if (!mounted) return;
+      showCustomSnackBar(
+        context,
+        'Pilih gambar terlebih dahulu',
+        isSuccess: false,
+      );
+      return;
+    }
+
+    try {
+      final result = await ApiService.postAvatar(
+        context,
+        _imageFile!.path,
+        body: {'user_id': _dataUser['id'] ?? ''},
+      );
+      if (!mounted) return;
+      showCustomSnackBar(
+        context,
+        'Upload gambar berhasil: ${result['message'] ?? ''}',
+        isSuccess: true,
+      );
+      //refresh page
+      await _initAll();
+    } catch (e) {
+      if (!mounted) return;
+      showCustomSnackBar(context, 'Upload gambar gagal: $e', isSuccess: false);
+    }
+  }
+
+  Future<void> loadAvatarById() async {
+    final userId = _dataUser['id'].toString() ?? '';
+    try {
+      final _avatar = await ApiService.getAvatarById(context, userId);
+      if (!mounted) return;
+      setState(() {
+        avatar = _avatar;
+        print('Avatar URL: $avatar');
+        _isLoading = false;
+      });
+    } catch (e) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final role = _dataUser['role'] ?? '';
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: Text(
+          'Edit Profile',
+          style: TextStyle(
+            color: AppColors.primary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading:
+            Navigator.canPop(context)
+                ? BackButton(color: AppColors.primary)
+                : null,
+      ),
+      body: Stack(
+        children: [
+          Positioned(
+            child: Image.asset(
+              'assets/images/background_anggota.jpg',
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              fit: BoxFit.fill,
+            ),
+          ),
+          SafeArea(
+            child: RefreshIndicator(
+              onRefresh: () => _initAll(),
+              color: AppColors.brown1,
+              backgroundColor: Colors.white,
+              child: SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      _isLoading
+                          ? buildShimmerEditProfile()
+                          : Column(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(4), // Outline thickness
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: AppColors.primary, // Outline color
+                                    width: 2, // Outline thickness
+                                  ),
+                                ),
+                                child: CircleAvatar(
+                                  radius: 100,
+                                  backgroundImage:
+                                      _imageFile != null
+                                          ? FileImage(_imageFile!)
+                                          : (avatar.isNotEmpty &&
+                                                  !avatar
+                                                      .toLowerCase()
+                                                      .contains('null')
+                                              ? NetworkImage(
+                                                'http://172.172.52.11:8080/$avatar',
+                                              )
+                                              : AssetImage(() {
+                                                    switch (role) {
+                                                      case 'Pembina':
+                                                        return 'assets/mockups/pembina.jpg';
+                                                      case 'Peserta':
+                                                        return 'assets/mockups/peserta.jpg';
+                                                      case 'Pembimbing Kelompok':
+                                                        return 'assets/mockups/pembimbing.jpg';
+                                                      case 'Panitia':
+                                                        return 'assets/mockups/panitia.jpg';
+                                                      default:
+                                                        return 'assets/mockups/unknown.jpg';
+                                                    }
+                                                  }())
+                                                  as ImageProvider),
+                                  backgroundColor: Colors.grey[200],
+                                ),
+                              ),
+                              SizedBox(height: 16),
+                              GestureDetector(
+                                onTap: _pickImage,
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.brown1,
+                                    borderRadius: BorderRadius.circular(32),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'Select Image',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 16),
+                              GestureDetector(
+                                onTap: _uploadImage,
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.brown1,
+                                    borderRadius: BorderRadius.circular(32),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'Upload Image',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+Widget buildShimmerEditProfile() {
+  return Column(
+    children: [
+      // Shimmer for avatar
+      Container(
+        padding: EdgeInsets.all(4),
+        child: Container(
+          width: 200,
+          height: 200,
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            shape: BoxShape.circle,
+          ),
+        ),
+      ),
+      SizedBox(height: 16),
+      // Shimmer for select image button
+      Container(
+        width: double.infinity,
+        height: 50,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(32),
+        ),
+      ),
+      SizedBox(height: 16),
+      // Shimmer for upload image button
+      Container(
+        width: double.infinity,
+        height: 50,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(32),
+        ),
+      ),
+    ],
+  );
+}

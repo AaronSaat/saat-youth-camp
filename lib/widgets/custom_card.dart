@@ -5,7 +5,7 @@ import '../utils/app_colors.dart';
 class CustomCard extends StatelessWidget {
   final String text;
   final IconData icon;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final Color iconBackgroundColor;
   final bool showCheckIcon;
 
@@ -13,10 +13,13 @@ class CustomCard extends StatelessWidget {
     Key? key,
     required this.text,
     required this.icon,
-    required this.onTap,
+    this.onTap,
     Color? iconBackgroundColor,
     this.showCheckIcon = false,
-  }) : iconBackgroundColor = showCheckIcon ? Colors.green : (iconBackgroundColor ?? AppColors.brown1),
+  }) : iconBackgroundColor =
+           showCheckIcon
+               ? Colors.green
+               : (iconBackgroundColor ?? AppColors.brown1),
        super(key: key);
 
   @override
@@ -45,7 +48,15 @@ class CustomCard extends StatelessWidget {
                 children: [
                   const SizedBox(width: 32), // Placeholder for icon space
                   Expanded(
-                    child: ListTile(title: Text(text, style: const TextStyle(color: Colors.black, fontSize: 16))),
+                    child: ListTile(
+                      title: Text(
+                        text,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -56,11 +67,17 @@ class CustomCard extends StatelessWidget {
               child: Container(
                 width: 70,
                 height: 70,
-                decoration: BoxDecoration(color: iconBackgroundColor, shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: iconBackgroundColor,
+                  shape: BoxShape.circle,
+                ),
                 child: Icon(
                   showCheckIcon ? Icons.check : icon,
                   color: Colors.white,
-                  size: (showCheckIcon || icon == Icons.arrow_outward_rounded) ? 64 : 48,
+                  size:
+                      (showCheckIcon || icon == Icons.arrow_outward_rounded)
+                          ? 64
+                          : 48,
                 ),
               ),
             ),
@@ -91,17 +108,30 @@ class CustomCard extends StatelessWidget {
                     width: 70,
                     height: 70,
                     child: Container(
-                      decoration: BoxDecoration(color: iconBackgroundColor, shape: BoxShape.circle),
+                      decoration: BoxDecoration(
+                        color: iconBackgroundColor,
+                        shape: BoxShape.circle,
+                      ),
                       child: Icon(
                         showCheckIcon ? Icons.check : icon,
                         color: Colors.white,
-                        size: (showCheckIcon || icon == Icons.arrow_outward_rounded) ? 64 : 48,
+                        size:
+                            (showCheckIcon ||
+                                    icon == Icons.arrow_outward_rounded)
+                                ? 64
+                                : 48,
                       ),
                     ),
                   ),
                   Expanded(
                     child: ListTile(
-                      title: Text(text, style: const TextStyle(color: Colors.black, fontSize: 16)),
+                      title: Text(
+                        text,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                        ),
+                      ),
                       onTap: onTap,
                     ),
                   ),

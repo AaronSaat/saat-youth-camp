@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'
+    show SharedPreferences;
 import 'package:syc/screens/bible_reading_more_screen.dart';
 import 'package:syc/screens/form_evaluasi_screen.dart';
 import 'package:shimmer/shimmer.dart';
@@ -8,12 +10,14 @@ import '../utils/app_colors.dart';
 import '../utils/date_formatter.dart';
 import '../widgets/custom_card.dart';
 import '../widgets/custom_not_found.dart';
+import '../widgets/custom_snackbar.dart';
 import 'evaluasi_komitmen_view_screen.dart';
 
 class BibleReadingListScreen extends StatefulWidget {
   final String userId;
 
-  const BibleReadingListScreen({Key? key, required this.userId}) : super(key: key);
+  const BibleReadingListScreen({Key? key, required this.userId})
+    : super(key: key);
 
   @override
   _BibleReadingListScreenState createState() => _BibleReadingListScreenState();
@@ -27,6 +31,9 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
   String _namaBulan = '';
   List<Map<String, dynamic>> _dataBrm = [];
   List _dataProgressBacaan = [];
+  List _dataNotesBacaan = [];
+  List _dataBacaan = [];
+  Map<String, String> _dataUser = {};
 
   @override
   void initState() {
@@ -49,8 +56,11 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
         _jumlahHari = jumlahHari ?? 0;
         _namaBulan = getNamaBulan();
       });
-      loadReportBrmByPesertaByDay();
-      loadBrm();
+      await loadUserData();
+      await loadBacaanByDay();
+      await loadReportCountBrmByPesertaByDay();
+      await loadReportNotesBrmByPesertaByDay();
+      await loadBrm();
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -65,6 +75,29 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
     });
   }
 
+  Future<void> loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys = [
+      'id',
+      'username',
+      'email',
+      'role',
+      'token',
+      'gereja_id',
+      'gereja_nama',
+      'kelompok_id',
+      'kelompok_nama',
+    ];
+    final Map<String, String> userData = {};
+    for (final key in keys) {
+      userData[key] = prefs.getString(key) ?? '';
+    }
+    if (!mounted) return;
+    setState(() {
+      _dataUser = userData;
+    });
+  }
+
   Future<void> loadBrm() async {
     try {
       final brm = await ApiService.getBrmToday(context);
@@ -76,12 +109,41 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
         } else {
           _dataBrm = [];
         }
-        _isLoading = false;
       });
     } catch (e) {}
   }
 
-  Future<void> loadReportBrmByPesertaByDay() async {
+  Future<void> loadBacaanByDay() async {
+    try {
+      final now = DateTime.now();
+      final year = now.year;
+      final month = now.month;
+      List<String> dateList = List.generate(_jumlahHari, (i) {
+        final day = i + 1;
+        return DateTime(year, month, day).toIso8601String().substring(0, 10);
+      });
+
+      List<dynamic> bacaanList = [];
+      for (final date in dateList) {
+        try {
+          final bacaan = await ApiService.getBacaanByDay(context, date);
+          print('Bacaan untuk $date: $bacaan');
+          bacaanList.add(bacaan);
+        } catch (e) {
+          print('Bacaan untuk $date: null');
+          bacaanList.add('Not Found');
+        }
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _dataBacaan = bacaanList;
+        print('Data Bacaan: $_dataBacaan');
+      });
+    } catch (e) {}
+  }
+
+  Future<void> loadReportCountBrmByPesertaByDay() async {
     try {
       final now = DateTime.now();
       final year = now.year;
@@ -94,7 +156,11 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
       List<dynamic> countList = [];
       for (final date in dateList) {
         try {
-          final count = await ApiService.getBrmReportByPesertaByDay(context, widget.userId, date);
+          final count = await ApiService.getBrmReportCountByPesertaByDay(
+            context,
+            widget.userId,
+            date,
+          );
           countList.add(count);
         } catch (e) {
           countList.add(0);
@@ -104,7 +170,38 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
       if (!mounted) return;
       setState(() {
         _dataProgressBacaan = countList;
-        print('Data Progress Bacaan: $_dataProgressBacaan');
+      });
+    } catch (e) {}
+  }
+
+  Future<void> loadReportNotesBrmByPesertaByDay() async {
+    try {
+      final now = DateTime.now();
+      final year = now.year;
+      final month = now.month;
+      List<String> dateList = List.generate(_jumlahHari, (i) {
+        final day = i + 1;
+        return DateTime(year, month, day).toIso8601String().substring(0, 10);
+      });
+
+      List<dynamic> noteList = [];
+      for (final date in dateList) {
+        try {
+          final note = await ApiService.getBrmReportNotesByPesertaByDay(
+            context,
+            widget.userId,
+            date,
+          );
+          noteList.add(note);
+        } catch (e) {
+          noteList.add('(no notes)');
+        }
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _dataNotesBacaan = noteList;
+        print('Data Notes Bacaan: $_dataNotesBacaan');
       });
     } catch (e) {}
   }
@@ -116,7 +213,10 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
 
   int getDaysInCurrentMonth() {
     final now = DateTime.now();
-    final beginningNextMonth = (now.month < 12) ? DateTime(now.year, now.month + 1, 1) : DateTime(now.year + 1, 1, 1);
+    final beginningNextMonth =
+        (now.month < 12)
+            ? DateTime(now.year, now.month + 1, 1)
+            : DateTime(now.year + 1, 1, 1);
     final lastDayOfMonth = beginningNextMonth.subtract(const Duration(days: 1));
     return lastDayOfMonth.day;
   }
@@ -143,10 +243,6 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
   }
 
   Widget _buildDaySelector() {
-    if (_isLoading) {
-      return buildShimmerTabBarList();
-    }
-
     List<int> days = List.generate(_jumlahHari, (index) => index + 1);
     final ScrollController _scrollController = ScrollController();
 
@@ -162,7 +258,11 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
       if (selectedIdx != -1 && _scrollController.hasClients) {
         double offset = (selectedIdx * 108.0) - 16.0;
         if (offset < 0) offset = 0;
-        _scrollController.animateTo(offset, duration: const Duration(milliseconds: 200), curve: Curves.ease);
+        _scrollController.animateTo(
+          offset,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.ease,
+        );
       }
     });
 
@@ -183,6 +283,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
               onTap: () {
                 setState(() {
                   day = d;
+                  // initAll();
                 });
               },
               child: Stack(
@@ -198,10 +299,15 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                     alignment: Alignment.center,
                     child: Text(
                       '$d $_namaBulan',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
-                  if (_dataProgressBacaan.length > index && _dataProgressBacaan[index] > 0)
+                  if (_dataProgressBacaan.length > index &&
+                      _dataProgressBacaan[index] > 0)
                     Positioned(
                       top: 0,
                       right: 0,
@@ -222,6 +328,8 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final id = _dataUser['id'] ?? '';
+    print('User ID: $id | Widget User ID: ${widget.userId}');
     return Scaffold(
       extendBodyBehindAppBar: true,
 
@@ -231,19 +339,31 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
           'Bacaan Hari Ini',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
         ),
         automaticallyImplyLeading: true,
         actions: [
           Container(
             decoration: BoxDecoration(
               color: AppColors.secondary,
-              borderRadius: const BorderRadius.only(topLeft: Radius.circular(8)),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(8),
+              ),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Text(
-              _dataBrm.isNotEmpty ? DateFormatter.ubahTanggal(_dataBrm![0]['tanggal']) : 'Tanggal???',
-              style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
+              _dataBrm.isNotEmpty
+                  ? DateFormatter.ubahTanggal(_dataBrm![0]['tanggal'])
+                  : 'Tanggal???',
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
@@ -266,7 +386,12 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
               child: SingleChildScrollView(
                 physics: AlwaysScrollableScrollPhysics(),
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 204.0, left: 24.0, right: 24.0, bottom: 24.0),
+                  padding: const EdgeInsets.only(
+                    top: 204.0,
+                    left: 24.0,
+                    right: 24.0,
+                    bottom: 24.0,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -274,22 +399,28 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                       const SizedBox(height: 16),
                       _isLoading
                           ? buildShimmerList()
-                          : _dataBrm.isEmpty
-                          ? Center(
-                            child: const CustomNotFound(
-                              text: "Gagal memuat data brm hari ini :(",
-                              textColor: AppColors.brown1,
-                              imagePath: 'assets/images/data_not_found.png',
+                          :
+                          // _dataBacaan.isEmpty &&
+                          //     _dataProgressBacaan.isEmpty &&
+                          //     _dataNotesBacaan.isEmpty
+                          // ? Center(
+                          //   child: const CustomNotFound(
+                          //     text: "Gagal memuat data brm hari ini :(",
+                          //     textColor: AppColors.brown1,
+                          //     imagePath: 'assets/images/data_not_found.png',
+                          //   ),
+                          // )
+                          // :
+                          // : (day == _hariKe)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0,
                             ),
-                          )
-                          : (day == _hariKe)
-                          ? Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Hari $_hariKe dari $_jumlahHari',
+                                  'Hari $day dari $_jumlahHari',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
@@ -298,36 +429,80 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                                 ),
                                 CustomCard(
                                   text:
-                                      _dataBrm.isNotEmpty && _dataBrm[0]['passage'] != null
-                                          ? _dataBrm[0]['passage'].toString()
-                                          : '',
+                                      (_dataBacaan.length >= day &&
+                                              _dataBacaan[day - 1] != null &&
+                                              _dataBacaan[day - 1]
+                                                  .toString()
+                                                  .isNotEmpty)
+                                          ? _dataBacaan[day - 1].toString()
+                                          : 'Bacaan???',
+                                  // _dataBrm.isNotEmpty &&
+                                  //         _dataBrm[0]['passage'] != null
+                                  //     ? _dataBrm[0]['passage'].toString()
+                                  //     : '',
                                   icon: Icons.menu_book_rounded,
                                   onTap: () {
                                     final userId = widget.userId;
-                                    if (_dataProgressBacaan.length > _hariKe && _dataProgressBacaan[_hariKe] == 0) {
+                                    if (day == _hariKe &&
+                                        _dataProgressBacaan[_hariKe - 1] == 0 &&
+                                        widget.userId == id) {
                                       Navigator.push(
                                         context,
-                                        MaterialPageRoute(builder: (context) => BibleReadingMoreScreen(userId: userId)),
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) =>
+                                                  BibleReadingMoreScreen(
+                                                    userId: userId,
+                                                  ),
+                                        ),
                                       ).then((result) {
                                         if (result == 'reload') {
                                           initAll();
                                         }
+                                      });
+                                    } else if (widget.userId != id) {
+                                      setState(() {
+                                        if (!mounted) return;
+                                        showCustomSnackBar(
+                                          context,
+                                          'Tidak bisa mengakses bacaan milik orang lain',
+                                          isSuccess: false,
+                                        );
+                                      });
+                                    } else {
+                                      setState(() {
+                                        if (!mounted) return;
+                                        showCustomSnackBar(
+                                          context,
+                                          'Hanya bisa mengakses bacaan $_hariKe $_namaBulan',
+                                          isSuccess: false,
+                                        );
                                       });
                                     }
                                   },
                                   iconBackgroundColor: AppColors.brown1,
                                   showCheckIcon: false,
                                 ),
+                                CustomCard(
+                                  text:
+                                      _dataNotesBacaan.isNotEmpty
+                                          ? 'Notes: ${_dataNotesBacaan[day - 1]}'
+                                          : 'Notes???',
+                                  icon: Icons.sticky_note_2_rounded,
+                                  iconBackgroundColor: AppColors.brown1,
+                                  showCheckIcon: false,
+                                ),
                               ],
                             ),
-                          )
-                          : Center(
-                            child: CustomNotFound(
-                              text: "Hanya bisa menampilkan bacaan tanggal $_hariKe $_namaBulan :(",
-                              textColor: Colors.white,
-                              imagePath: 'assets/images/data_not_found.png',
-                            ),
                           ),
+                      // : Center(
+                      //   child: CustomNotFound(
+                      //     text:
+                      //         "Hanya bisa menampilkan bacaan tanggal $_hariKe $_namaBulan :(",
+                      //     textColor: Colors.white,
+                      //     imagePath: 'assets/images/data_not_found.png',
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -351,7 +526,10 @@ Widget buildShimmerList() {
           highlightColor: Colors.grey[100]!,
           child: Container(
             height: 72,
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
           ),
         ),
       );

@@ -16,14 +16,10 @@ void showCustomSnackBar(
       SnackBar(
         content: Text(
           message,
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w300,
-            fontSize: message.length <= 30 ? 14 : 12,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w300),
         ),
         duration: const Duration(seconds: 5),
-        backgroundColor: isSuccess ? AppColors.accent : AppColors.black1,
+        backgroundColor: isSuccess ? AppColors.secondary : AppColors.black1,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
         action: SnackBarAction(

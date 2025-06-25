@@ -10,6 +10,10 @@ class CustomTextField extends StatelessWidget {
   final Color? fillColor;
   final bool enabled;
   final Widget? suffixIcon;
+  final double? labelFontSize;
+  final TextStyle? labelTextStyle;
+  final TextStyle? inputTextStyle;
+  final TextStyle? hintTextStyle;
 
   const CustomTextField({
     super.key,
@@ -22,6 +26,10 @@ class CustomTextField extends StatelessWidget {
     this.fillColor,
     this.enabled = true,
     this.suffixIcon,
+    this.labelFontSize,
+    this.labelTextStyle,
+    this.inputTextStyle,
+    this.hintTextStyle,
   });
 
   @override
@@ -31,21 +39,24 @@ class CustomTextField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: labelColor ?? Colors.black,
-          ),
+          style:
+              labelTextStyle ??
+              TextStyle(
+                fontSize: labelFontSize ?? 18,
+                fontWeight: FontWeight.bold,
+                color: labelColor ?? Colors.black,
+              ),
         ),
         const SizedBox(height: 4),
         TextField(
           controller: controller,
           maxLines: maxLines,
           enabled: enabled,
-          style: TextStyle(color: textColor ?? Colors.black),
+          style: inputTextStyle ?? TextStyle(color: textColor ?? Colors.black),
           decoration: InputDecoration(
             hintText: hintText,
-            hintStyle: TextStyle(color: textColor ?? Colors.black),
+            hintStyle:
+                hintTextStyle ?? TextStyle(color: textColor ?? Colors.black),
             filled: true,
             fillColor: fillColor ?? Colors.transparent,
             border: InputBorder.none,

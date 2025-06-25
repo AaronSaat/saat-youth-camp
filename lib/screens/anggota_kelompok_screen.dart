@@ -419,52 +419,57 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                                                                   MainAxisAlignment
                                                                       .spaceEvenly,
                                                               children: [
-                                                                Expanded(
-                                                                  child: Padding(
-                                                                    padding:
-                                                                        const EdgeInsets.symmetric(
-                                                                          horizontal:
-                                                                              2,
-                                                                        ),
-                                                                    child: ElevatedButton(
-                                                                      style: ElevatedButton.styleFrom(
-                                                                        backgroundColor:
-                                                                            AppColors.primary,
-                                                                        shape: RoundedRectangleBorder(
-                                                                          borderRadius: BorderRadius.circular(
-                                                                            16,
-                                                                          ),
-                                                                        ),
+                                                                if (role
+                                                                    .toString()
+                                                                    .toLowerCase()
+                                                                    .contains(
+                                                                      'panitia',
+                                                                    ))
+                                                                  Expanded(
+                                                                    child: Padding(
+                                                                      padding: const EdgeInsets.symmetric(
+                                                                        horizontal:
+                                                                            2,
                                                                       ),
-                                                                      onPressed: () {
-                                                                        Navigator.push(
-                                                                          context,
-                                                                          MaterialPageRoute(
-                                                                            builder:
-                                                                                (
-                                                                                  context,
-                                                                                ) => EvaluasiKomitmenListScreen(
-                                                                                  type:
-                                                                                      'Evaluasi',
-                                                                                  userId:
-                                                                                      user['id'] ??
-                                                                                      '',
-                                                                                ),
+                                                                      child: ElevatedButton(
+                                                                        style: ElevatedButton.styleFrom(
+                                                                          backgroundColor:
+                                                                              AppColors.primary,
+                                                                          shape: RoundedRectangleBorder(
+                                                                            borderRadius: BorderRadius.circular(
+                                                                              16,
+                                                                            ),
                                                                           ),
-                                                                        );
-                                                                      },
-                                                                      child: const Text(
-                                                                        'Evaluasi',
-                                                                        style: TextStyle(
-                                                                          color:
-                                                                              Colors.white,
-                                                                          fontSize:
-                                                                              10,
+                                                                        ),
+                                                                        onPressed: () {
+                                                                          Navigator.push(
+                                                                            context,
+                                                                            MaterialPageRoute(
+                                                                              builder:
+                                                                                  (
+                                                                                    context,
+                                                                                  ) => EvaluasiKomitmenListScreen(
+                                                                                    type:
+                                                                                        'Evaluasi',
+                                                                                    userId:
+                                                                                        user['id'] ??
+                                                                                        '',
+                                                                                  ),
+                                                                            ),
+                                                                          );
+                                                                        },
+                                                                        child: const Text(
+                                                                          'Evaluasi',
+                                                                          style: TextStyle(
+                                                                            color:
+                                                                                Colors.white,
+                                                                            fontSize:
+                                                                                10,
+                                                                          ),
                                                                         ),
                                                                       ),
                                                                     ),
                                                                   ),
-                                                                ),
                                                                 Expanded(
                                                                   child: Padding(
                                                                     padding:
@@ -499,13 +504,17 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                                                                           ),
                                                                         );
                                                                       },
-                                                                      child: const Text(
+                                                                      child: Text(
                                                                         'Komitmen',
                                                                         style: TextStyle(
                                                                           color:
                                                                               Colors.white,
                                                                           fontSize:
-                                                                              8,
+                                                                              role.toString().toLowerCase().contains(
+                                                                                    'panitia',
+                                                                                  )
+                                                                                  ? 10
+                                                                                  : 14,
                                                                         ),
                                                                       ),
                                                                     ),
@@ -549,13 +558,17 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                                                                           }
                                                                         });
                                                                       },
-                                                                      child: const Text(
+                                                                      child: Text(
                                                                         'Bacaan',
                                                                         style: TextStyle(
                                                                           color:
                                                                               Colors.white,
                                                                           fontSize:
-                                                                              10,
+                                                                              role.toString().toLowerCase().contains(
+                                                                                    'panitia',
+                                                                                  )
+                                                                                  ? 10
+                                                                                  : 14,
                                                                         ),
                                                                       ),
                                                                     ),

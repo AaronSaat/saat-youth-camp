@@ -101,7 +101,9 @@ class _PengumumanDetailScreenState extends State<PengumumanDetailScreen> {
                               ),
                               Text(
                                 timeago.format(
-                                  DateTime.parse(widget.tanggal),
+                                  DateTime.fromMillisecondsSinceEpoch(
+                                    int.parse(widget.tanggal.toString()) * 1000,
+                                  ),
                                   locale: 'id',
                                 ),
                                 style: TextStyle(

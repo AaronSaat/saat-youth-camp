@@ -236,9 +236,12 @@ class _PengumumanListScreenState extends State<PengumumanListScreen> {
                                                       pengumuman['created_at'] !=
                                                               null
                                                           ? timeago.format(
-                                                            DateTime.parse(
-                                                              pengumuman['created_at']
-                                                                  .toString(),
+                                                            DateTime.fromMillisecondsSinceEpoch(
+                                                              int.parse(
+                                                                    pengumuman['created_at']
+                                                                        .toString(),
+                                                                  ) *
+                                                                  1000,
                                                             ),
                                                             locale: 'id',
                                                           )

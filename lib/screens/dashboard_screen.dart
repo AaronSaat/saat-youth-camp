@@ -120,7 +120,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (!mounted) return;
     setState(() => _isLoading = true);
     try {
-      final count = await ApiService.getBrmReportByPesertaByDay(
+      final count = await ApiService.getBrmReportCountByPesertaByDay(
         context,
         _dataUser['id'] ?? '',
         DateTime.now().toIso8601String().substring(0, 10),
@@ -1149,90 +1149,114 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                       const SizedBox(height: 32),
 
-                      // Yellow card / card kuning dengan megaphone di atasnya
-                      if (_pengumumanList.isNotEmpty)
-                        InkWell(
-                          onTap: () {
-                            final pengumuman = _pengumumanList[0];
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PengumumanListScreen(),
-                              ),
-                            );
-                          },
-                          borderRadius: BorderRadius.circular(16),
-                          child: Stack(
-                            children: [
-                              Container(
-                                width: double.infinity,
-                                height: 140,
-                                decoration: BoxDecoration(
-                                  color: AppColors.secondary,
-                                ),
-                                padding: const EdgeInsets.all(16.0),
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 8,
-                                    right: 128,
-                                    top: 8,
-                                    bottom: 8,
-                                  ),
-                                  child: Row(
+                      // Pengumuman
+                      _isLoading
+                          ? buildPengumumanShimmer()
+                          : _pengumumanList.isEmpty
+                          ? Center(
+                            child: const CustomNotFound(
+                              text: "Gagal memuat data pengumuman :(",
+                              textColor: AppColors.brown1,
+                              imagePath: 'assets/images/data_not_found.png',
+                            ),
+                          )
+                          : SizedBox(
+                            height: 140,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: _pengumumanList.length,
+                              itemBuilder: (context, index) {
+                                final pengumuman = _pengumumanList[index];
+                                return InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => PengumumanListScreen(),
+                                      ),
+                                    );
+                                  },
+                                  child: Stack(
                                     children: [
-                                      Expanded(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              _pengumumanList[0]["judul"] ??
-                                                  'Judul Pengumuman???',
-                                              style: const TextStyle(
-                                                color: AppColors.primary,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 20,
+                                      Container(
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        height: 140,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.secondary,
+                                        ),
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                            left: 8,
+                                            right: 128,
+                                            top: 8,
+                                            bottom: 8,
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      pengumuman["judul"] ??
+                                                          'Judul Pengumuman???',
+                                                      style: const TextStyle(
+                                                        color:
+                                                            AppColors.primary,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 20,
+                                                      ),
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                    const SizedBox(height: 8),
+                                                    Text(
+                                                      pengumuman["detail"]
+                                                          .replaceAll(
+                                                            RegExp(r'<[^>]*>'),
+                                                            '',
+                                                          )
+                                                          .trim(),
+                                                      style: const TextStyle(
+                                                        color:
+                                                            AppColors.primary,
+                                                        fontSize: 14,
+                                                      ),
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            const SizedBox(height: 8),
-                                            Text(
-                                              _pengumumanList[0]["detail"]
-                                                  .replaceAll(
-                                                    RegExp(r'<[^>]*>'),
-                                                    '',
-                                                  )
-                                                  .trim(),
-                                              style: const TextStyle(
-                                                color: AppColors.primary,
-                                                fontSize: 14,
-                                              ),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ],
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        bottom: -15,
+                                        right: -15,
+                                        child: Image.asset(
+                                          'assets/images/megaphone.png',
+                                          width: 180,
+                                          height: 180,
+                                          fit: BoxFit.contain,
                                         ),
                                       ),
                                     ],
                                   ),
-                                ),
-                              ),
-                              Positioned(
-                                bottom: -15,
-                                right: -15,
-                                child: Image.asset(
-                                  'assets/images/megaphone.png',
-                                  width: 180,
-                                  height: 180,
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                            ],
+                                );
+                              },
+                            ),
                           ),
-                        ),
                       const SizedBox(height: 16),
                     ],
                   ),
@@ -1334,6 +1358,58 @@ Widget buildAcaraShimmer() {
           ),
         ),
       ),
+    ),
+  );
+}
+
+Widget buildPengumumanShimmer() {
+  return SizedBox(
+    height: 140,
+    child: ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: 2,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.only(right: 16.0),
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            period: const Duration(milliseconds: 800),
+            child: Stack(
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.85,
+                  height: 140,
+                  decoration: BoxDecoration(
+                    color: AppColors.secondary,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.all(16.0),
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      left: 8,
+                      right: 128,
+                      top: 8,
+                      bottom: 8,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(width: 180, height: 24, color: Colors.white),
+                        const SizedBox(height: 12),
+                        Container(width: 120, height: 16, color: Colors.white),
+                        const SizedBox(height: 8),
+                        Container(width: 100, height: 16, color: Colors.white),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     ),
   );
 }

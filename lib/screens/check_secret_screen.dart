@@ -102,19 +102,26 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Image.asset(
-                            'assets/logos/story_saat.png',
-                            fit: BoxFit.contain,
-                          ),
+                      // Container(
+                      //   width: 100,
+                      //   height: 100,
+                      //   decoration: const BoxDecoration(
+                      //     color: Colors.white,
+                      //     shape: BoxShape.circle,
+                      //   ),
+                      //   child: Padding(
+                      //     padding: const EdgeInsets.all(12),
+                      //     child: Image.asset(
+                      //       'assets/logos/story_saat.png',
+                      //       fit: BoxFit.contain,
+                      //     ),
+                      //   ),
+                      // ),
+                      Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Image.asset(
+                          'assets/logos/redeemed_text.png',
+                          fit: BoxFit.contain,
                         ),
                       ),
                       const SizedBox(height: 32),

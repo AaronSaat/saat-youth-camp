@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'
+    show SharedPreferences;
 import 'package:syc/utils/app_colors.dart';
 
 import '../services/api_service.dart';
@@ -27,8 +29,9 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
   double fontSize_subjudul = 18;
   double fontSize_ayat = 10;
   double fontSize_isi_ayat = 14;
+  Map<String, String> _dataUser = {};
   final TextEditingController _noteController = TextEditingController();
-  String _note = '';
+  String notes = '';
 
   @override
   void initState() {
@@ -39,13 +42,38 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
   Future<void> initAll() async {
     setState(() => _isLoading = true);
     try {
+      await loadUserData();
       await loadBrm();
-      await loadReportBrmByPesertaByDay();
+      await loadReportBrmCountByPesertaByDay();
+      await loadReportBrmNotesByPesertaByDay();
     } catch (e) {
       // handle error jika perlu
     }
     if (!mounted) return;
     setState(() => _isLoading = false);
+  }
+
+  Future<void> loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys = [
+      'id',
+      'username',
+      'email',
+      'role',
+      'token',
+      'gereja_id',
+      'gereja_nama',
+      'kelompok_id',
+      'kelompok_nama',
+    ];
+    final Map<String, String> userData = {};
+    for (final key in keys) {
+      userData[key] = prefs.getString(key) ?? '';
+    }
+    if (!mounted) return;
+    setState(() {
+      _dataUser = userData;
+    });
   }
 
   Future<void> loadBrm() async {
@@ -77,9 +105,9 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
     }
   }
 
-  Future<void> loadReportBrmByPesertaByDay() async {
+  Future<void> loadReportBrmCountByPesertaByDay() async {
     try {
-      final count = await ApiService.getBrmReportByPesertaByDay(
+      final count = await ApiService.getBrmReportCountByPesertaByDay(
         context,
         widget.userId,
         DateTime.now().toIso8601String().substring(0, 10),
@@ -87,7 +115,20 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
       if (!mounted) return;
       setState(() {
         countRead = count;
-        print('Count Read: $countRead');
+      });
+    } catch (e) {}
+  }
+
+  Future<void> loadReportBrmNotesByPesertaByDay() async {
+    try {
+      final note = await ApiService.getBrmReportNotesByPesertaByDay(
+        context,
+        widget.userId,
+        DateTime.now().toIso8601String().substring(0, 10),
+      );
+      if (!mounted) return;
+      setState(() {
+        notes = note;
       });
     } catch (e) {}
   }
@@ -129,24 +170,46 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
               };
 
               try {
-                await ApiService.postBrmDoneRead(context, brmDoneRead);
-                await ApiService.postBrmNotes(context, brmNotes);
-                if (mounted) {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => BibleReadingSuccessScreen(),
-                    ),
-                  );
-                }
-              } catch (e) {
-                setState(() {
+                final res1 = await ApiService.postBrmDoneRead(
+                  context,
+                  brmDoneRead,
+                );
+                final res2 = await ApiService.postBrmNotes(context, brmNotes);
+                print('VANILLA res1: $res1');
+                print('VANILLA res2: $res2');
+
+                if (res1['success'] == true && res2['success'] == true) {
+                  print('✅ VANILLA : Data berhasil disimpan');
+                  // if (!mounted) return;
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (_) => BibleReadingSuccessScreen(),
+                  //   ),
+                  // );
+                  // if (!mounted) return;
+                  // showCustomSnackBar(
+                  //   context,
+                  //   'Progress bacaan dan catatan hari ini berhasil disimpan!',
+                  //   isSuccess: true,
+                  // );
+                  await initAll(); // reload data
+                } else {
+                  // Salah satu gagal, tampilkan pesan error
                   if (!mounted) return;
                   showCustomSnackBar(
                     context,
-                    'Terjadi kesalahan',
+                    'Gagal menyimpan data. Silakan coba lagi.',
                     isSuccess: false,
                   );
-                });
+                }
+              } catch (e) {
+                if (!mounted) return;
+                showCustomSnackBar(
+                  context,
+                  'Terjadi kesalahan: $e',
+                  isSuccess: false,
+                );
               }
               setState(() => _isLoading = false);
             },
@@ -161,6 +224,7 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final role = _dataUser['role'] ?? '-';
     Widget buildBibleContent() {
       if (_isLoading) {
         return const Center(child: CircularProgressIndicator());
@@ -274,7 +338,9 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
               ],
             );
           }).toList(),
-          if (countRead == 0)
+          if (countRead == 0 &&
+              (role.toLowerCase().contains('peserta') ||
+                  role.toLowerCase().contains('pembina')))
             Column(
               children: [
                 Card(
@@ -286,10 +352,17 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                     padding: const EdgeInsets.all(16),
                     child: CustomTextField(
                       controller: _noteController,
-                      label: 'Catatan',
-                      hintText: 'Tambahkan catatan (opsional)',
+                      label:
+                          'Bagian berkat yang kamu dapatkan dari bacaan hari ini',
+                      labelFontSize: 12,
+                      hintText: '....',
                       maxLines: 4,
-                      labelColor: Colors.black,
+                      labelTextStyle: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        fontStyle: FontStyle.italic,
+                        color: AppColors.grey4,
+                      ),
                       textColor: Colors.black,
                       fillColor: Colors.white,
                       suffixIcon: IconButton(
@@ -330,27 +403,6 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                   ),
                 ),
               ],
-            )
-          else
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Center(
-                  child: Text(
-                    'Anda sudah membaca dan mengisi catatan hari ini.',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
             ),
         ],
       );
@@ -447,64 +499,68 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                           ),
                           child: Align(
                             alignment: Alignment.centerLeft,
-                            child: Card(
-                              color: AppColors.secondary,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8.0,
-                                  vertical: 2.0,
+                            child: SizedBox(
+                              width: 120, // Set lebar card di sini
+                              height: 50, // Set tinggi card di sini
+                              child: Card(
+                                color: AppColors.secondary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.remove,
-                                        color: Colors.white,
-                                        size: 30,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0,
+                                    vertical: 2.0,
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: Icon(
+                                          Icons.remove,
+                                          color: Colors.white,
+                                          size: 24,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            if (fontSize_judul > 18) {
+                                              fontSize_judul -= 2;
+                                              fontSize_subjudul -= 1;
+                                              fontSize_ayat -= 1;
+                                              fontSize_isi_ayat -= 1;
+                                            } else {
+                                              showCustomSnackBar(
+                                                context,
+                                                "Font size terlalu kecil",
+                                              );
+                                            }
+                                          });
+                                        },
                                       ),
-                                      onPressed: () {
-                                        setState(() {
-                                          if (fontSize_judul > 18) {
-                                            fontSize_judul -= 2;
-                                            fontSize_subjudul -= 1;
-                                            fontSize_ayat -= 1;
-                                            fontSize_isi_ayat -= 1;
-                                          } else {
-                                            showCustomSnackBar(
-                                              context,
-                                              "Font size terlalu kecil",
-                                            );
-                                          }
-                                        });
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.add,
-                                        color: Colors.white,
-                                        size: 30,
+                                      IconButton(
+                                        icon: Icon(
+                                          Icons.add,
+                                          color: Colors.white,
+                                          size: 24,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            if (fontSize_judul < 42) {
+                                              fontSize_judul += 2;
+                                              fontSize_subjudul += 1;
+                                              fontSize_ayat += 1;
+                                              fontSize_isi_ayat += 1;
+                                            } else {
+                                              showCustomSnackBar(
+                                                context,
+                                                "Font size mencapai batas maksimal",
+                                              );
+                                            }
+                                          });
+                                        },
                                       ),
-                                      onPressed: () {
-                                        setState(() {
-                                          if (fontSize_judul < 42) {
-                                            fontSize_judul += 2;
-                                            fontSize_subjudul += 1;
-                                            fontSize_ayat += 1;
-                                            fontSize_isi_ayat += 1;
-                                          } else {
-                                            showCustomSnackBar(
-                                              context,
-                                              "Font size mencapai batas maksimal",
-                                            );
-                                          }
-                                        });
-                                      },
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -521,12 +577,56 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                             children: [
                               SizedBox(
                                 height:
-                                    MediaQuery.of(context).size.height * 0.7,
+                                    countRead == 0
+                                        ? MediaQuery.of(context).size.height *
+                                            0.7
+                                        : MediaQuery.of(context).size.height *
+                                            0.6,
                                 child: buildBibleContent(),
                               ),
                             ],
                           ),
                         ),
+                        if (countRead > 0)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                            ),
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              color: Colors.white,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Bagian berkat yang kamu dapatkan dari bacaan hari ini:',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        fontStyle: FontStyle.italic,
+                                        color: AppColors.grey4,
+                                      ),
+                                      textAlign: TextAlign.left,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      notes.isNotEmpty ? notes : 'Notes???',
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                      textAlign: TextAlign.left,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ],

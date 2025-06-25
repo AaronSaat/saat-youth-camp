@@ -57,7 +57,9 @@ class _MainScreenState extends State<MainScreen> {
       }
       return null;
     } catch (e) {
-      print('❌ Gagal memuat kelompok pada bottom navigation bar untuk panitia: $e');
+      print(
+        '❌ Gagal memuat kelompok pada bottom navigation bar untuk panitia: $e',
+      );
       setState(() {
         _isLoading = false;
       });
@@ -113,6 +115,7 @@ class _MainScreenState extends State<MainScreen> {
         // AnggotaKelompokScreen(id: "1"),
         ListGroupScreen(),
         ListKelompokScreen(),
+        MateriScreen(userId: id),
         // const BroadcastScreen(),
         // const AdminScreen(),
         const ProfileScreen(),
@@ -122,13 +125,20 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {});
   }
 
-  BottomNavigationBarItem buildSvgNavItem(String asset, String label, int index) {
+  BottomNavigationBarItem buildSvgNavItem(
+    String asset,
+    String label,
+    int index,
+  ) {
     return BottomNavigationBarItem(
       icon: SvgPicture.asset(
         asset,
         height: 28,
         width: 28,
-        colorFilter: ColorFilter.mode(_currentIndex == index ? AppColors.primary : Colors.grey, BlendMode.srcIn),
+        colorFilter: ColorFilter.mode(
+          _currentIndex == index ? AppColors.primary : Colors.grey,
+          BlendMode.srcIn,
+        ),
       ),
       label: label,
     );
@@ -137,28 +147,67 @@ class _MainScreenState extends State<MainScreen> {
   List<BottomNavigationBarItem> _buildNavItems() {
     if (role == 'Peserta' || role == 'Pembimbing Kelompok') {
       return [
-        buildSvgNavItem('assets/icons/navigation_bar/dashboard.svg', 'Dashboard', 0),
-        buildSvgNavItem('assets/icons/navigation_bar/list_acara.svg', 'Acara', 1),
-        buildSvgNavItem('assets/icons/navigation_bar/kelompok.svg', 'Kelompok', 2),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/dashboard.svg',
+          'Dashboard',
+          0,
+        ),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/list_acara.svg',
+          'Acara',
+          1,
+        ),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/kelompok.svg',
+          'Kelompok',
+          2,
+        ),
         const BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Materi'),
         buildSvgNavItem('assets/icons/navigation_bar/profile.svg', 'Profil', 4),
       ];
     } else if (role == 'Pembina') {
       return [
-        buildSvgNavItem('assets/icons/navigation_bar/dashboard.svg', 'Dashboard', 0),
-        buildSvgNavItem('assets/icons/navigation_bar/list_acara.svg', 'Acara', 1),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/dashboard.svg',
+          'Dashboard',
+          0,
+        ),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/list_acara.svg',
+          'Acara',
+          1,
+        ),
         // buildSvgNavItem('assets/icons/navigation_bar/gereja.svg', 'Gereja', 2),
-        const BottomNavigationBarItem(icon: Icon(Icons.app_registration), label: 'Group'),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.app_registration),
+          label: 'Group',
+        ),
         const BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Materi'),
         buildSvgNavItem('assets/icons/navigation_bar/profile.svg', 'Profil', 4),
       ];
     } else if (role == 'Panitia') {
       return [
-        buildSvgNavItem('assets/icons/navigation_bar/dashboard.svg', 'Dashboard', 0),
-        buildSvgNavItem('assets/icons/navigation_bar/list_acara.svg', 'Acara', 1),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/dashboard.svg',
+          'Dashboard',
+          0,
+        ),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/list_acara.svg',
+          'Acara',
+          1,
+        ),
         // buildSvgNavItem('assets/icons/navigation_bar/gereja.svg', 'Gereja', 2),
-        const BottomNavigationBarItem(icon: Icon(Icons.app_registration), label: 'Group'),
-        buildSvgNavItem('assets/icons/navigation_bar/kelompok.svg', 'Kelompok', 3),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.app_registration),
+          label: 'Group',
+        ),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/kelompok.svg',
+          'Kelompok',
+          3,
+        ),
+        const BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Materi'),
         // const BottomNavigationBarItem(
         //   icon: Icon(Icons.campaign),
         //   label: 'Broadcast',
@@ -167,7 +216,7 @@ class _MainScreenState extends State<MainScreen> {
         //   icon: Icon(Icons.admin_panel_settings),
         //   label: 'Admin',
         // ),
-        buildSvgNavItem('assets/icons/navigation_bar/profile.svg', 'Profil', 4),
+        buildSvgNavItem('assets/icons/navigation_bar/profile.svg', 'Profil', 5),
       ];
     }
     return [];
@@ -205,7 +254,13 @@ class _MainScreenState extends State<MainScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: const Offset(0, 4))],
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: BottomNavigationBar(
                       currentIndex: _currentIndex,

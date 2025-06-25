@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syc/screens/catatan_harian_screen.dart';
 import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
 import '../widgets/custom_not_found.dart';
@@ -14,6 +15,7 @@ import 'detail_acara_screen.dart';
 import 'bible_reading_more_screen.dart';
 import 'evaluasi_komitmen_list_screen.dart';
 import 'login_screen.dart';
+import 'profile_edit_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -26,6 +28,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isLoading = true;
   Map<String, String> _dataUser = {};
   List<Map<String, dynamic>> _dataBrm = [];
+  String avatar = '';
 
   // progress
   Map<String, List<bool>> _komitmenDoneMap = {};
@@ -46,6 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await loadProgresKomitmenAnggota();
       await loadProgresEvaluasiAnggota();
       await loadBrm();
+      await loadAvatarById();
     } catch (e) {
       // handle error jika perlu
     }
@@ -66,7 +70,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       'gereja_nama',
       'kelompok_id',
       'kelompok_nama',
-      'avatar_url',
     ];
     final Map<String, String> userData = {};
     for (final key in keys) {
@@ -163,6 +166,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {}
   }
 
+  Future<void> loadAvatarById() async {
+    final userId = _dataUser['id'].toString() ?? '';
+    try {
+      final _avatar = await ApiService.getAvatarById(context, userId);
+      if (!mounted) return;
+      setState(() {
+        avatar = _avatar;
+        print('Avatar URL: $avatar');
+        _isLoading = false;
+      });
+    } catch (e) {}
+  }
+
   Future<void> logoutUser(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
@@ -185,7 +201,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final kelompok = _dataUser['kelompok_nama'] ?? '';
     final role = _dataUser['role'] ?? '';
     final name = _dataUser['nama'] ?? '';
-    final avatar = _dataUser['avatar_url'] ?? '';
+    print('role: $role');
 
     return Scaffold(
       body: Stack(
@@ -204,6 +220,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: AppColors.brown1,
               backgroundColor: Colors.white,
               child: SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(),
                 child: Padding(
                   padding: const EdgeInsets.only(
                     top: 24.0,
@@ -228,32 +245,87 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.3,
-                                height: MediaQuery.of(context).size.width * 0.3,
-                                child: CircleAvatar(
-                                  radius: 50,
-                                  backgroundImage:
-                                      (avatar.isNotEmpty)
-                                          ? NetworkImage(
-                                            'http://172.172.52.11:8080/$avatar',
-                                          )
-                                          : AssetImage(() {
-                                                switch (role) {
-                                                  case 'Pembina':
-                                                    return 'assets/mockups/pembina.jpg';
-                                                  case 'Peserta':
-                                                    return 'assets/mockups/peserta.jpg';
-                                                  case 'Pembimbing Kelompok':
-                                                    return 'assets/mockups/pembimbing.jpg';
-                                                  case 'Panitia':
-                                                    return 'assets/mockups/panitia.jpg';
-                                                  default:
-                                                    return 'assets/mockups/unknown.jpg';
-                                                }
-                                              }())
-                                              as ImageProvider,
-                                ),
+                              Stack(
+                                children: [
+                                  SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.3,
+                                    height:
+                                        MediaQuery.of(context).size.width * 0.3,
+                                    child:
+                                        _isLoading
+                                            ? Shimmer.fromColors(
+                                              baseColor: Colors.grey.shade300,
+                                              highlightColor:
+                                                  Colors.grey.shade100,
+                                              child: CircleAvatar(
+                                                radius: 50,
+                                                backgroundColor:
+                                                    Colors.grey[300],
+                                              ),
+                                            )
+                                            : CircleAvatar(
+                                              radius: 50,
+                                              backgroundImage:
+                                                  !avatar
+                                                              .toLowerCase()
+                                                              .contains(
+                                                                'null',
+                                                              ) &&
+                                                          avatar != ''
+                                                      ? NetworkImage(
+                                                        'http://172.172.52.11:8080/$avatar',
+                                                      )
+                                                      : AssetImage(() {
+                                                            switch (role) {
+                                                              case 'Pembina':
+                                                                return 'assets/mockups/pembina.jpg';
+                                                              case 'Peserta':
+                                                                return 'assets/mockups/peserta.jpg';
+                                                              case 'Pembimbing Kelompok':
+                                                                return 'assets/mockups/pembimbing.jpg';
+                                                              case 'Panitia':
+                                                                return 'assets/mockups/panitia.jpg';
+                                                              default:
+                                                                return 'assets/mockups/unknown.jpg';
+                                                            }
+                                                          }())
+                                                          as ImageProvider,
+                                            ),
+                                  ),
+                                  Positioned(
+                                    top: 5,
+                                    right: 5,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) =>
+                                                    ProfileEditScreen(),
+                                          ),
+                                        ).then((result) {
+                                          if (result == 'reload') {
+                                            initAll();
+                                          }
+                                        });
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: AppColors.grey4,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        padding: const EdgeInsets.all(6),
+                                        child: const Icon(
+                                          Icons.edit,
+                                          size: 20,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                               const SizedBox(width: 8),
                               Expanded(
@@ -616,6 +688,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 ),
                           const SizedBox(height: 16),
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CatatanHarianScreen(),
+                                ),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(16),
+                            child: Stack(
+                              children: [
+                                Container(
+                                  height: 180,
+                                  padding: const EdgeInsets.only(
+                                    left: 150,
+                                    right: 24,
+                                    bottom: 16,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary.withAlpha(70),
+                                    borderRadius: BorderRadius.circular(16),
+                                    image: const DecorationImage(
+                                      image: AssetImage(
+                                        'assets/images/card_catatan.png',
+                                      ),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  child: Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          'Catatan Harian',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w900,
+                                            color: Colors.white,
+                                            fontSize: 24,
+                                          ),
+                                          maxLines: 2,
+                                          textAlign: TextAlign.right,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton.icon(
@@ -855,7 +982,11 @@ class MateriMenuCard extends StatelessWidget {
                             minHeight: 12,
                             backgroundColor: Colors.white,
                             valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.green,
+                              valueProgress >= 1.0
+                                  ? Colors.green
+                                  : valueProgress >= 0.5
+                                  ? AppColors.accent
+                                  : Colors.yellow,
                             ),
                           ),
                         ),

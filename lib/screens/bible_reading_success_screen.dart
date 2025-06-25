@@ -38,6 +38,7 @@ class BibleReadingSuccessScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     GestureDetector(
                       onTap: () async {
+                        Navigator.pop(context);
                         Navigator.pop(context, 'reload');
                       },
                       child: Padding(
