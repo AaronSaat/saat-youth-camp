@@ -92,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
           response['user']['username'],
           response['user']['nama'] ?? 'Null',
           response['user']['email'],
-          response['user']['group_id'] ?? 'Null',
+          response['user']['group_id']?.toString() ?? 'Null',
           response['user']['role'],
           response['token'],
           response['user']['gereja']?['gereja_id']?.toString() ?? 'Null',
