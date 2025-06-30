@@ -73,8 +73,22 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
+      final file = File(pickedFile.path);
+      final bytes = await file.length();
+      print('File size in bytes: $bytes');
+      const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
+
+      if (bytes > maxSizeInBytes) {
+        showCustomSnackBar(
+          context,
+          'Ukuran gambar maksimal 2MB',
+          isSuccess: false,
+        );
+        return;
+      }
+
       setState(() {
-        _imageFile = File(pickedFile.path);
+        _imageFile = file;
       });
     } else {
       if (!mounted) return;
@@ -104,16 +118,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         body: {'user_id': _dataUser['id'] ?? ''},
       );
       if (!mounted) return;
-      showCustomSnackBar(
-        context,
-        'Upload gambar berhasil: ${result['message'] ?? ''}',
-        isSuccess: true,
-      );
+      showCustomSnackBar(context, 'Upload gambar berhasil', isSuccess: true);
       //refresh page
       await _initAll();
     } catch (e) {
       if (!mounted) return;
-      showCustomSnackBar(context, 'Upload gambar gagal: $e', isSuccess: false);
+      showCustomSnackBar(context, 'Upload gambar gagal', isSuccess: false);
     }
   }
 

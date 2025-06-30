@@ -1,6 +1,7 @@
 // lib/screens/login_screen3.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart'
@@ -112,17 +113,20 @@ class _PengumumanDetailScreenState extends State<PengumumanDetailScreen> {
                                   fontWeight: FontWeight.w300,
                                 ),
                               ),
-                              Text(
-                                widget.deskripsi.replaceAll(
-                                  RegExp(r'<[^>]*>'),
-                                  '',
-                                ),
-                                style: TextStyle(
-                                  color: AppColors.primary,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                                textAlign: TextAlign.left,
+
+                              // Use flutter_html to render HTML content
+                              // Add flutter_html to your pubspec.yaml dependencies
+                              // import 'package:flutter_html/flutter_html.dart'; at the top
+                              Html(
+                                data: widget.deskripsi,
+                                style: {
+                                  "body": Style(
+                                    color: AppColors.primary,
+                                    fontSize: FontSize(16),
+                                    fontWeight: FontWeight.w400,
+                                    textAlign: TextAlign.left,
+                                  ),
+                                },
                               ),
                             ],
                           ),

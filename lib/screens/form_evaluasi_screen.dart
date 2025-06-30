@@ -52,6 +52,7 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
 
   void loadEvaluasi() async {
     setState(() => _isLoading = true);
+    print('AARON Load Form Evaluasi');
     try {
       final evaluasi = await ApiService.getEvaluasiByAcara(
         context,
@@ -79,32 +80,32 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
     final typeKey = "Evaluasi";
     for (var item in data) {
       final key = '${typeKey}_answer_${item['id']}';
-      if (item['type'].toString().contains('1')) {
+      if (item['type'].toString() == '1') {
         final controller = TextEditingController(
           text: prefs.getString(key) ?? '',
         );
         _text_answer[item['id'].toString()] = controller;
-      } else if (item['type'].toString().contains('2')) {
+      } else if (item['type'].toString() == '2') {
         _checkbox_answer[item['id'].toString()] = prefs.getBool(key) ?? false;
-      } else if (item['type'].toString().contains("3") ||
-          item['type'].toString().contains("4") ||
-          item['type'].toString().contains("5") ||
-          item['type'].toString().contains("6") ||
-          item['type'].toString().contains("7") ||
-          item['type'].toString().contains("8") ||
-          item['type'].toString().contains("9") ||
-          item['type'].toString().contains("10") ||
-          item['type'].toString().contains("11") ||
-          item['type'].toString().contains("12") ||
-          item['type'].toString().contains("13") ||
-          item['type'].toString().contains("14") ||
-          item['type'].toString().contains("15")) {
+      } else if (item['type'].toString() == '3' ||
+          item['type'].toString() == '4' ||
+          item['type'].toString() == '5' ||
+          item['type'].toString() == '6' ||
+          item['type'].toString() == '7' ||
+          item['type'].toString() == '8' ||
+          item['type'].toString() == '9' ||
+          item['type'].toString() == '10' ||
+          item['type'].toString() == '11' ||
+          item['type'].toString() == '12' ||
+          item['type'].toString() == '13' ||
+          item['type'].toString() == '14' ||
+          item['type'].toString() == '15') {
         _slider_answer[item['id'].toString()] = prefs.getDouble(key) ?? 1.0;
-      } else if (item['type'].toString().contains("18") ||
-          item['type'].toString().contains("19")) {
+      } else if (item['type'].toString() == '18' ||
+          item['type'].toString() == '19') {
         _single_choice_answer[item['id'].toString()] =
             prefs.getString(key) ?? '';
-      } else if (item['type'].toString().contains("16")) {
+      } else if (item['type'].toString() == '16') {
         _multiple_choice_answer[item['id'].toString()] =
             prefs.getString(key) ?? '';
       }
@@ -121,28 +122,28 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
       final idStr = item['id'].toString();
       final key = '${typeKey}_answer_$idStr';
       savedIds.add(idStr);
-      if (item['type'].toString().contains("1")) {
+      if (item['type'].toString() == '1') {
         await prefs.setString(key, _text_answer[idStr]?.text ?? '');
-      } else if (item['type'].toString().contains("2")) {
+      } else if (item['type'].toString() == '2') {
         await prefs.setBool(key, _checkbox_answer[idStr] ?? false);
-      } else if (item['type'].toString().contains("3") ||
-          item['type'].toString().contains("4") ||
-          item['type'].toString().contains("5") ||
-          item['type'].toString().contains("6") ||
-          item['type'].toString().contains("7") ||
-          item['type'].toString().contains("8") ||
-          item['type'].toString().contains("9") ||
-          item['type'].toString().contains("10") ||
-          item['type'].toString().contains("11") ||
-          item['type'].toString().contains("12") ||
-          item['type'].toString().contains("13") ||
-          item['type'].toString().contains("14") ||
-          item['type'].toString().contains("15")) {
+      } else if (item['type'].toString() == '3' ||
+          item['type'].toString() == '4' ||
+          item['type'].toString() == '5' ||
+          item['type'].toString() == '6' ||
+          item['type'].toString() == '7' ||
+          item['type'].toString() == '8' ||
+          item['type'].toString() == '9' ||
+          item['type'].toString() == '10' ||
+          item['type'].toString() == '11' ||
+          item['type'].toString() == '12' ||
+          item['type'].toString() == '13' ||
+          item['type'].toString() == '14' ||
+          item['type'].toString() == '15') {
         await prefs.setDouble(key, _slider_answer[idStr] ?? 1.0);
-      } else if (item['type'].toString().contains("18") ||
-          item['type'].toString().contains("19")) {
+      } else if (item['type'].toString() == '18' ||
+          item['type'].toString() == '19') {
         await prefs.setString(key, _single_choice_answer[idStr] ?? '');
-      } else if (item['type'].toString().contains("16")) {
+      } else if (item['type'].toString() == '16') {
         await prefs.setString(key, _multiple_choice_answer[idStr] ?? '');
       }
     }
@@ -271,9 +272,7 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                           item['question'] ?? '';
                                       final String id = item['id'].toString();
 
-                                      if (item['type'].toString().contains(
-                                        '1',
-                                      )) {
+                                      if (item['type'].toString() == '1') {
                                         // TextField
                                         _text_answer.putIfAbsent(
                                           id,
@@ -316,9 +315,8 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                             const SizedBox(height: 16),
                                           ],
                                         );
-                                      } else if (item['type']
-                                          .toString()
-                                          .contains('2')) {
+                                      } else if (item['type'].toString() ==
+                                          '2') {
                                         // Checkbox
                                         return Column(
                                           children: [
@@ -363,6 +361,9 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                         _slider_answer.putIfAbsent(
                                           id,
                                           () => 1.0,
+                                        );
+                                        print(
+                                          "AARON TRUE ${item['type']} : ${item['question']}",
                                         );
                                         // Get slider settings from questionType
                                         final questionType =
@@ -474,10 +475,9 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                             const SizedBox(height: 16),
                                           ],
                                         );
-                                      } else if ([
-                                        "18",
-                                        "19",
-                                      ].contains(item['type'].toString())) {
+                                      } else if (item['type'].toString() ==
+                                              '18' ||
+                                          item['type'].toString() == '19') {
                                         final selectedValue =
                                             _single_choice_answer[id] ?? '';
                                         final options =
@@ -527,9 +527,8 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                             ),
                                           ],
                                         );
-                                      } else if (item['type']
-                                          .toString()
-                                          .contains('16')) {
+                                      } else if (item['type'].toString() ==
+                                          '16') {
                                         final selectedString =
                                             _multiple_choice_answer[id] ?? '';
                                         final selectedValues =
@@ -610,7 +609,7 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                               width: double.infinity,
                                               height: 50,
                                               decoration: BoxDecoration(
-                                                color: AppColors.brown1,
+                                                color: Colors.transparent,
                                                 borderRadius:
                                                     BorderRadius.circular(32),
                                                 border: Border.all(
@@ -656,7 +655,7 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                               width: double.infinity,
                                               height: 50,
                                               decoration: BoxDecoration(
-                                                color: AppColors.brown1,
+                                                color: Colors.transparent,
                                                 borderRadius:
                                                     BorderRadius.circular(32),
                                                 border: Border.all(

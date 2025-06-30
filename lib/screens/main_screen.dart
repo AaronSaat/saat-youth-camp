@@ -77,7 +77,7 @@ class _MainScreenState extends State<MainScreen> {
     } else if (role == 'Pembimbing Kelompok') {
       id = prefs.getString('kelompok_id');
     } else if (role == 'Pembina') {
-      id = prefs.getString('  ');
+      id = prefs.getString('group_id');
     } else if (role == 'Panitia') {
       id = await loadKelompok();
     }

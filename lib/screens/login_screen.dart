@@ -107,12 +107,14 @@ class _LoginScreenState extends State<LoginScreen> {
           MaterialPageRoute(builder: (context) => const MainScreen()),
         );
       } else {
+        // setState(() => errorMessage = response['message'] ?? 'Login gagal');
         setState(() => errorMessage = response['message'] ?? 'Login gagal');
         if (!mounted) return;
         showCustomSnackBar(context, errorMessage);
       }
     } catch (e) {
-      setState(() => errorMessage = 'Terjadi kesalahan: $e');
+      // setState(() => errorMessage = 'Terjadi kesalahan: $e');
+      setState(() => errorMessage = 'Terjadi kesalahan');
       if (!mounted) return;
       showCustomSnackBar(context, errorMessage);
     }
@@ -204,16 +206,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                 horizontal: 16,
                                 vertical: 14,
                               ),
-                              // prefixIcon: SvgPicture.asset(
-                              //   'assets/icons/login/email.svg',
-                              //   width: 24,
-                              //   height: 24,
-                              //   colorFilter: const ColorFilter.mode(
-                              //     AppColors.primary,
-                              //     BlendMode.srcIn,
-                              //   ),
-                              // ),
                             ),
+                            onChanged: (value) {
+                              final lower = value.toLowerCase();
+                              if (value != lower) {
+                                usernameController.value = usernameController
+                                    .value
+                                    .copyWith(
+                                      text: lower,
+                                      selection: TextSelection.collapsed(
+                                        offset: lower.length,
+                                      ),
+                                    );
+                              }
+                            },
                           ),
                         ),
                       ),

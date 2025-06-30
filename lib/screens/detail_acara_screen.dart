@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
+import 'package:shared_preferences/shared_preferences.dart'
+    show SharedPreferences;
 import 'package:syc/screens/form_evaluasi_screen.dart';
 import 'package:syc/screens/form_komitmen_screen.dart';
 import 'package:syc/widgets/custom_snackbar.dart';
@@ -11,7 +12,12 @@ class DetailAcaraScreen extends StatefulWidget {
   final int id;
   final int hari;
   final String userId;
-  const DetailAcaraScreen({super.key, required this.id, required this.hari, required this.userId});
+  const DetailAcaraScreen({
+    super.key,
+    required this.id,
+    required this.hari,
+    required this.userId,
+  });
 
   @override
   State<DetailAcaraScreen> createState() => _DetailAcaraScreenState();
@@ -36,9 +42,20 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
     });
     try {
       final Map<String, String> userData = await loadUserFromPrefs();
-      final List<dynamic> acaraList = await ApiService.getAcaraById(context, widget.id);
-      final komitmenDone = await ApiService.getKomitmenByPesertaByDay(context, widget.userId, widget.hari);
-      final evaluasiDone = await ApiService.getEvaluasiByPesertaByAcara(context, widget.userId, widget.id);
+      final List<dynamic> acaraList = await ApiService.getAcaraById(
+        context,
+        widget.id,
+      );
+      final komitmenDone = await ApiService.getKomitmenByPesertaByDay(
+        context,
+        widget.userId,
+        widget.hari,
+      );
+      final evaluasiDone = await ApiService.getEvaluasiByPesertaByAcara(
+        context,
+        widget.userId,
+        widget.id,
+      );
 
       print('User list: $userData');
       print('Acara list: $acaraList');
@@ -46,8 +63,14 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
       setState(() {
         _dataAcara = acaraList.isNotEmpty ? acaraList : null;
         _userData = userData;
-        _evaluasiDone = evaluasiDone['status'] == 404 ? false : (evaluasiDone['success'] ?? false);
-        _komitmenDone = komitmenDone['status'] == 404 ? false : (komitmenDone['success'] ?? false);
+        _evaluasiDone =
+            evaluasiDone['status'] == 404
+                ? false
+                : (evaluasiDone['success'] ?? false);
+        _komitmenDone =
+            komitmenDone['status'] == 404
+                ? false
+                : (komitmenDone['success'] ?? false);
         print('Data Acara : $_dataAcara');
         print('User Data dari SharedPreferences: $_userData');
         print('Evaluasi Done: $_evaluasiDone');
@@ -86,8 +109,12 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
         title:
             _isLoading
                 ? const SizedBox.shrink()
-                : Text(_dataAcara?[0]["acara_nama"] ?? '-', style: TextStyle(fontSize: 18, color: Colors.white)),
-        leading: Navigator.canPop(context) ? BackButton(color: Colors.white) : null,
+                : Text(
+                  _dataAcara?[0]["acara_nama"] ?? '-',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+        leading:
+            Navigator.canPop(context) ? BackButton(color: Colors.white) : null,
       ),
       body: Stack(
         children: [
@@ -113,28 +140,53 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                             const SizedBox(height: 108),
                             Text(
                               _dataAcara?[0]["acara_nama"] ?? '-',
-                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             const SizedBox(height: 8),
                             Text(
                               'Hari ke-${_dataAcara?[0]["hari"] ?? '-'}, Jam ${_dataAcara?[0]["waktu"] ?? '-'}',
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.normal,
+                              ),
                             ),
                             const SizedBox(height: 8),
-                            Text('Tempat: ${_dataAcara?[0]["tempat"] ?? '-'}', style: const TextStyle(fontSize: 14)),
+                            Text(
+                              'Tempat: ${_dataAcara?[0]["tempat"] ?? '-'}',
+                              style: const TextStyle(fontSize: 14),
+                            ),
                             const SizedBox(height: 16),
                             const Divider(),
                             const SizedBox(height: 16),
-                            const Text('Deskripsi', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            const Text(
+                              'Deskripsi',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             const SizedBox(height: 4),
-                            Text(_dataAcara?[0]["acara_deskripsi"] ?? '-', style: const TextStyle(fontSize: 12)),
+                            Text(
+                              _dataAcara?[0]["acara_deskripsi"] ?? '-',
+                              style: const TextStyle(fontSize: 12),
+                            ),
                             const SizedBox(height: 16),
                             if (_dataAcara != null &&
                                 _dataAcara![0]["pembicara"] != null &&
-                                (_dataAcara![0]["pembicara"] as String).isNotEmpty) ...[
+                                (_dataAcara![0]["pembicara"] as String)
+                                    .isNotEmpty) ...[
                               const Divider(),
                               const SizedBox(height: 16),
-                              const Text('Pembicara', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                              const Text(
+                                'Pembicara',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               const SizedBox(height: 12),
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,13 +203,20 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           _dataAcara![0]["pembicara"],
-                                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                        const Text('Title / Jabatan Pembicara', style: TextStyle(fontSize: 12)),
+                                        const Text(
+                                          'Title / Jabatan Pembicara',
+                                          style: TextStyle(fontSize: 12),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -165,34 +224,54 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                               ),
                             ],
                             const SizedBox(height: 24),
-                            if (_userData != null && (_userData!['role']?.toLowerCase() == 'peserta') && !_evaluasiDone)
+                            if (_userData != null &&
+                                _userData!['role'] != null &&
+                                (_userData!['role']!.toLowerCase().contains(
+                                      'peserta',
+                                    ) ||
+                                    _userData!['role']!.toLowerCase().contains(
+                                      'pembina',
+                                    )) &&
+                                !_evaluasiDone)
                               Column(
                                 children: [
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
                                     child: SizedBox(
                                       width: double.infinity,
                                       height: 50,
                                       child: ElevatedButton(
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: AppColors.brown1,
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              32,
+                                            ),
+                                          ),
                                         ),
                                         onPressed: () {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                               builder:
-                                                  (context) => FormEvaluasiScreen(
+                                                  (
+                                                    context,
+                                                  ) => FormEvaluasiScreen(
                                                     userId: _userData!['id']!,
-                                                    acaraHariId: _dataAcara![0]['id'],
+                                                    acaraHariId:
+                                                        _dataAcara![0]['id'],
                                                   ),
                                             ),
                                           );
                                         },
                                         child: const Text(
                                           'EVALUASI',
-                                          style: TextStyle(color: Colors.white, fontSize: 12),
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                          ),
                                         ),
                                       ),
                                     ),

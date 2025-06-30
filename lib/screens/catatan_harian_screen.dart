@@ -64,6 +64,8 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
+        _dataCatatanHarian = {};
+        print("Error fetching data");
         _isLoading = false;
       });
     }

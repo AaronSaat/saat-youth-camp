@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart' show Shimmer;
 import 'package:timeago/timeago.dart'
     as timeago
     show IdMessages, format, setLocaleMessages;
@@ -125,7 +126,7 @@ class _PengumumanListScreenState extends State<PengumumanListScreen> {
                       child: Center(
                         child:
                             _isLoading
-                                ? const CircularProgressIndicator()
+                                ? buildPengumumanShimmerList()
                                 : ListView.builder(
                                   itemCount: _pengumumanList.length,
                                   itemBuilder: (context, index) {
@@ -282,4 +283,72 @@ class _PengumumanListScreenState extends State<PengumumanListScreen> {
       ),
     );
   }
+}
+
+Widget buildPengumumanShimmerList() {
+  return ListView.builder(
+    itemCount: 6,
+    itemBuilder: (context, index) {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          period: const Duration(milliseconds: 800),
+          child: Column(
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Icon shimmer
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12.0),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                  // Judul dan deskripsi shimmer
+                  Expanded(
+                    flex: 3,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(width: 120, height: 16, color: Colors.white),
+                        const SizedBox(height: 8),
+                        Container(
+                          width: double.infinity,
+                          height: 14,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(height: 4),
+                        Container(width: 180, height: 14, color: Colors.white),
+                      ],
+                    ),
+                  ),
+                  // Tanggal shimmer
+                  Expanded(
+                    flex: 1,
+                    child: Center(
+                      child: Container(
+                        width: 50,
+                        height: 12,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Divider(color: Colors.grey, height: 2),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }

@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart'
 import 'package:shimmer/shimmer.dart';
 import 'package:syc/utils/app_colors.dart';
 import '../services/api_service.dart';
+import '../utils/global_variables.dart';
 import '../widgets/custom_not_found.dart';
 import 'bible_reading_list_screen.dart';
 import 'evaluasi_komitmen_list_screen.dart';
@@ -613,11 +614,38 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
                                               backgroundColor: Colors.white,
                                               child: CircleAvatar(
                                                 radius: 52,
-                                                backgroundImage: AssetImage(
-                                                  getRoleImage(
-                                                    user['role'] ?? '',
-                                                  ),
-                                                ),
+                                                backgroundImage:
+                                                    user['avatar_url'] != null
+                                                        ? NetworkImage(
+                                                          '${GlobalVariables.serverUrl}${user['avatar_url']}',
+                                                        )
+                                                        : AssetImage(() {
+                                                              if (user['role']
+                                                                  .toString()
+                                                                  .toLowerCase()
+                                                                  .contains(
+                                                                    'pembina',
+                                                                  )) {
+                                                                return 'assets/mockups/pembina.jpg';
+                                                              } else if (user['role']
+                                                                  .toString()
+                                                                  .toLowerCase()
+                                                                  .contains(
+                                                                    'anggota',
+                                                                  )) {
+                                                                return 'assets/mockups/peserta.jpg';
+                                                              } else if (user['role']
+                                                                  .toString()
+                                                                  .toLowerCase()
+                                                                  .contains(
+                                                                    'pembimbing',
+                                                                  )) {
+                                                                return 'assets/mockups/pembimbing.jpg';
+                                                              } else {
+                                                                return 'assets/mockups/unknown.jpg';
+                                                              }
+                                                            }())
+                                                            as ImageProvider,
                                               ),
                                             ),
                                           ),

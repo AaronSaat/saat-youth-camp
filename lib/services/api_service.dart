@@ -1195,6 +1195,8 @@ class ApiService {
       },
     );
 
+    print('URL: $url');
+    print('Response: ${response.statusCode} - ${response.body}');
     if (response.statusCode == 200) {
       final Map<String, dynamic> decoded = json.decode(response.body);
       final dataAnggotaGereja = decoded['data_anggota_group'];

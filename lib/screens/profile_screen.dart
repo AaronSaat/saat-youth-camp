@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/screens/catatan_harian_screen.dart';
 import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
+import '../utils/global_variables.dart';
 import '../widgets/custom_not_found.dart';
 import '../widgets/custom_pin_textfield.dart';
 import 'bible_reading_list_screen.dart';
@@ -274,7 +275,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                               ) &&
                                                           avatar != ''
                                                       ? NetworkImage(
-                                                        'http://172.172.52.11:8080/$avatar',
+                                                        '${GlobalVariables.serverUrl}$avatar',
                                                       )
                                                       : AssetImage(() {
                                                             switch (role) {

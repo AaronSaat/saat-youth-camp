@@ -207,7 +207,7 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                 if (!mounted) return;
                 showCustomSnackBar(
                   context,
-                  'Terjadi kesalahan: $e',
+                  'Terjadi kesalahan',
                   isSuccess: false,
                 );
               }

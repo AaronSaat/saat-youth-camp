@@ -65,13 +65,13 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
     for (var item in data) {
       final key = '${typeKey}_answer_${item['id']}';
       print('Load key: $key');
-      if (item['type'].toString().contains('1')) {
+      if (item['type'].toString() == '1') {
         // Text
         final controller = TextEditingController(
           text: prefs.getString(key) ?? '',
         );
         _text_answer[item['id'].toString()] = controller;
-      } else if (item['type'].toString().contains('2')) {
+      } else if (item['type'].toString() == '2') {
         // Checkbox
         _checkbox_answer[item['id'].toString()] = prefs.getBool(key) ?? false;
       }
@@ -91,7 +91,7 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
       if (item['type'].toString().contains('1')) {
         await prefs.setString(key, _text_answer[idStr]?.text ?? '');
         print('Save Text: $key = ${_text_answer[idStr]?.text}');
-      } else if (item['type'].toString().contains('2')) {
+      } else if (item['type'].toString() == '2') {
         await prefs.setBool(key, _checkbox_answer[idStr] ?? false);
         print('Save Checkbox: $key = ${_checkbox_answer[idStr] ?? false}');
       }
@@ -217,9 +217,7 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                                           item['question'] ?? '';
                                       final String id = item['id'].toString();
 
-                                      if (item['type'].toString().contains(
-                                        '1',
-                                      )) {
+                                      if (item['type'].toString() == '1') {
                                         // TextField
                                         _text_answer.putIfAbsent(
                                           id,
@@ -262,9 +260,8 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                                             const SizedBox(height: 16),
                                           ],
                                         );
-                                      } else if (item['type']
-                                          .toString()
-                                          .contains('2')) {
+                                      } else if (item['type'].toString() ==
+                                          '2') {
                                         // Checkbox
                                         return Column(
                                           children: [
@@ -308,7 +305,7 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                                               width: double.infinity,
                                               height: 50,
                                               decoration: BoxDecoration(
-                                                color: AppColors.brown1,
+                                                color: Colors.transparent,
                                                 borderRadius:
                                                     BorderRadius.circular(32),
                                                 border: Border.all(
@@ -354,7 +351,7 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                                               width: double.infinity,
                                               height: 50,
                                               decoration: BoxDecoration(
-                                                color: AppColors.brown1,
+                                                color: Colors.transparent,
                                                 borderRadius:
                                                     BorderRadius.circular(32),
                                                 border: Border.all(
