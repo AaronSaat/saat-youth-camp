@@ -1,3 +1,5 @@
+import 'dart:async' show Timer;
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/utils/app_colors.dart';
@@ -31,6 +33,7 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
   final Map<String, String> _single_choice_answer = {};
   final Map<String, String> _multiple_choice_answer = {};
   bool isLoading = false;
+  final Map<String, Timer?> _debounceTimers = {};
   Map<String, dynamic> _acara = {};
   List<Map<String, dynamic>> _dataEvaluasi = [];
   bool _isLoading = true;
@@ -175,6 +178,25 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
     );
   }
 
+  void _onChangedDebounced(String id) {
+    _debounceTimers[id]?.cancel();
+    _debounceTimers[id] = Timer(const Duration(milliseconds: 600), () {
+      print('[DEBOUNCE] Checkbox $id save triggered after 600ms');
+      _saveProgress();
+    });
+  }
+
+  @override
+  void dispose() {
+    for (var timer in _debounceTimers.values) {
+      timer?.cancel();
+    }
+    for (var controller in _text_answer.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     String titleImage = 'assets/texts/evaluasi.png';
@@ -298,6 +320,11 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                                   labelColor: Colors.black,
                                                   textColor: Colors.black,
                                                   fillColor: Colors.white,
+                                                  onChanged:
+                                                      (value) =>
+                                                          _onChangedDebounced(
+                                                            id,
+                                                          ),
                                                   suffixIcon: IconButton(
                                                     icon: const Icon(
                                                       Icons.keyboard_hide,
@@ -326,6 +353,7 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                               onChanged:
                                                   (val) => setState(() {
                                                     _checkbox_answer[id] = val;
+                                                    _onChangedDebounced(id);
                                                   }),
                                               label: question,
                                             ),
@@ -426,6 +454,7 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                               onChanged: (val) {
                                                 setState(() {
                                                   _slider_answer[id] = val;
+                                                  _onChangedDebounced(id);
                                                 });
                                               },
                                             ),
@@ -508,16 +537,17 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                                 setState(() {
                                                   _single_choice_answer[id] =
                                                       val.toString();
+                                                  _onChangedDebounced(id);
                                                 });
                                                 // Simpan langsung ke SharedPreferences
-                                                final prefs =
-                                                    await SharedPreferences.getInstance();
-                                                final key =
-                                                    'Evaluasi_answer_$id';
-                                                await prefs.setString(
-                                                  key,
-                                                  val.toString(),
-                                                );
+                                                // final prefs =
+                                                //     await SharedPreferences.getInstance();
+                                                // final key =
+                                                //     'Evaluasi_answer_$id';
+                                                // await prefs.setString(
+                                                //   key,
+                                                //   val.toString(),
+                                                // );
                                               },
                                             ),
                                             const SizedBox(height: 16),
@@ -570,15 +600,8 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                                 setState(() {
                                                   _multiple_choice_answer[id] =
                                                       answerString;
+                                                  _onChangedDebounced(id);
                                                 });
-                                                final prefs =
-                                                    await SharedPreferences.getInstance();
-                                                final key =
-                                                    'Evaluasi_answer_$id';
-                                                await prefs.setString(
-                                                  key,
-                                                  answerString,
-                                                );
                                               },
                                             ),
                                             const SizedBox(height: 16),

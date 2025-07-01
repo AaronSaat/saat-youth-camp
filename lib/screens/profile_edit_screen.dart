@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
+import 'package:syc/utils/global_variables.dart';
 
 import '../services/api_service.dart';
 import '../utils/app_colors.dart';
@@ -204,7 +205,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                                       .toLowerCase()
                                                       .contains('null')
                                               ? NetworkImage(
-                                                'http://172.172.52.11:8080/$avatar',
+                                                '${GlobalVariables.serverUrl}$avatar',
                                               )
                                               : AssetImage(() {
                                                     switch (role) {

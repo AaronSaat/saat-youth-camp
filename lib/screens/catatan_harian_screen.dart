@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:syc/screens/anggota_kelompok_screen.dart';
 import 'package:syc/utils/app_colors.dart';
+import 'package:syc/widgets/custom_count_up.dart' show CustomCountUp;
 import 'package:syc/widgets/custom_snackbar.dart';
 import 'package:timeago/timeago.dart'
     as timeago
@@ -12,7 +13,8 @@ import '../widgets/custom_card.dart';
 import 'anggota_gereja_screen.dart';
 
 class CatatanHarianScreen extends StatefulWidget {
-  const CatatanHarianScreen({Key? key}) : super(key: key);
+  final String role;
+  const CatatanHarianScreen({Key? key, required this.role}) : super(key: key);
 
   @override
   _CatatanHarianScreenState createState() => _CatatanHarianScreenState();
@@ -246,6 +248,54 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 2,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (widget.role.toLowerCase().contains('panitia'))
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.only(top: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 4,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.check_circle_rounded,
+                                color: AppColors.brown1,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 16),
+                              CustomCountUp(
+                                target: 100,
+                                duration: Duration(seconds: 2),
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w900,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  "/ 200 menyelesaikan bacaannya hari ini",
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.primary,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],

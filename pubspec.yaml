@@ -65,6 +65,7 @@ flutter:
     - assets/images/card_dashboard_komitmen.png
     - assets/images/card_dashboard_role.png
     - assets/images/card_catatan.png
+    - assets/images/card_komitmen.png
     - assets/images/background_pengumuman.jpg
 
     # icons for login

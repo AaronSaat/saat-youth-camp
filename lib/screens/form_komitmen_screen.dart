@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/screens/review_komitmen_screen.dart';
@@ -30,6 +32,7 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
   Map<String, dynamic> _acara = {};
   List<Map<String, dynamic>> _dataKomitmen = [];
   bool _isLoading = true;
+  final Map<String, Timer?> _debounceTimers = {};
 
   @override
   void initState() {
@@ -121,6 +124,35 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
             ),
       ),
     );
+  }
+
+  // kalo mau test print
+  // void _onTextChangedDebounced(String id, String value) {
+  //   print('[DEBOUNCE] TextField $id changed, value: $value');
+  //   _debounceTimers[id]?.cancel();
+  //   _debounceTimers[id] = Timer(const Duration(milliseconds: 600), () {
+  //     print('[DEBOUNCE] TextField $id save triggered after 600ms');
+  //     _saveProgress();
+  //   });
+  // }
+
+  void _onChangedDebounced(String id) {
+    _debounceTimers[id]?.cancel();
+    _debounceTimers[id] = Timer(const Duration(milliseconds: 600), () {
+      print('[DEBOUNCE] Checkbox $id save triggered after 600ms');
+      _saveProgress();
+    });
+  }
+
+  @override
+  void dispose() {
+    for (var timer in _debounceTimers.values) {
+      timer?.cancel();
+    }
+    for (var controller in _text_answer.values) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -243,6 +275,11 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                                                   labelColor: Colors.black,
                                                   textColor: Colors.black,
                                                   fillColor: Colors.white,
+                                                  onChanged:
+                                                      (value) =>
+                                                          _onChangedDebounced(
+                                                            id,
+                                                          ),
                                                   suffixIcon: IconButton(
                                                     icon: const Icon(
                                                       Icons.keyboard_hide,
@@ -274,6 +311,7 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                                                     print(
                                                       'Checkbox $id changed to $val',
                                                     );
+                                                    _onChangedDebounced(id);
                                                   }),
                                               label: question,
                                             ),

@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
 import 'package:syc/screens/form_evaluasi_screen.dart';
 import 'package:syc/screens/form_komitmen_screen.dart';
+import 'package:syc/widgets/custom_count_up.dart';
 import 'package:syc/widgets/custom_snackbar.dart';
 import '../services/api_service.dart';
 import '../utils/app_colors.dart';
@@ -168,6 +169,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+
                             const SizedBox(height: 4),
                             Text(
                               _dataAcara?[0]["acara_deskripsi"] ?? '-',
@@ -278,6 +280,75 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                   ),
                                 ],
                               ),
+                            const SizedBox(height: 4),
+                            // counter evaluasi card
+                            Center(
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  side: BorderSide(
+                                    color: AppColors.primary,
+                                    width: 1,
+                                  ),
+                                ),
+                                elevation: 1,
+                                margin: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 16,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Konter evaluasi acara ini:',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.primary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          CustomCountUp(
+                                            target: 100,
+                                            duration: Duration(seconds: 2),
+                                            style: const TextStyle(
+                                              fontSize: 32,
+                                              fontWeight: FontWeight.bold,
+                                              color: AppColors.primary,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          const Text(
+                                            '/',
+                                            style: TextStyle(
+                                              fontSize: 28,
+                                              color: AppColors.primary,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          const Text(
+                                            '250 Peserta',
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w600,
+                                              color: AppColors.primary,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),

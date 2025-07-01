@@ -11,6 +11,7 @@ import 'package:syc/utils/app_colors.dart';
 
 import 'detail_acara_screen.dart';
 import 'bible_reading_more_screen.dart';
+import 'evaluasi_komitmen_view_screen.dart';
 import 'pengumuman_detail_screen.dart';
 import 'pengumuman_list_screen.dart';
 
@@ -36,6 +37,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<Map<String, dynamic>> _dataBrm = [];
   Map<String, String> _dataUser = {};
   int countRead = 0; //indikator user ini sudah membaca bacaan hariannya
+  bool _komitmenDone = false;
 
   @override
   void initState() {
@@ -64,6 +66,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       await loadAcara();
       await loadReportBrmByPesertaByDay();
       await loadPengumumanByUserId();
+      await checkKomitmenDone();
     } catch (e) {
       // handle error jika perlu
     }
@@ -181,6 +184,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
       });
     } catch (e) {
       print('❌ Gagal memuat pengumuman: $e');
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> checkKomitmenDone() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final komitmenProgress = await ApiService.getKomitmenByPesertaByDay(
+        context,
+        _dataUser['id'],
+        1, //hardcoded
+      );
+      if (!mounted) return;
+      setState(() {
+        // Ambil status komitmen dari response
+        final dataKomitmen = komitmenProgress['success'] ?? false;
+        _komitmenDone = dataKomitmen;
+        print('Status komitmen: $_komitmenDone');
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('❌ Gagal memuat progress komitmen: $e');
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -535,11 +566,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                       // Komitmen Card untuk Peserta
                       if (!role.toLowerCase().contains('panitia') &&
-                          !role.toLowerCase().contains('pembimbing'))
+                          !role.toLowerCase().contains('pembimbing') &&
+                          !role.toLowerCase().contains('pembina'))
                         const SizedBox(height: 24),
 
                       if (!role.toLowerCase().contains('panitia') &&
-                          !role.toLowerCase().contains('pembimbing'))
+                          !role.toLowerCase().contains('pembimbing') &&
+                          !role.toLowerCase().contains('pembina'))
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24),
                           child: Column(
@@ -547,20 +580,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             children: [
                               InkWell(
                                 onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (context) => FormKomitmenScreen(
-                                            userId: userId,
-                                            acaraHariId: 1,
-                                          ),
-                                    ),
-                                  ).then((result) {
-                                    if (result == 'reload') {
-                                      initAll(); // reload dashboard
-                                    }
-                                  });
+                                  if (_komitmenDone) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) =>
+                                                EvaluasiKomitmenViewScreen(
+                                                  type: 'Komitmen',
+                                                  userId: userId,
+                                                  acaraHariId: 1, // hardcoded
+                                                ),
+                                      ),
+                                    );
+                                  } else {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => FormKomitmenScreen(
+                                              userId: userId,
+                                              acaraHariId: 1, // hardcoded
+                                            ),
+                                      ),
+                                    ).then((result) {
+                                      if (result == 'reload') {
+                                        initAll(); // reload dashboard
+                                      }
+                                    });
+                                  }
                                 },
                                 borderRadius: BorderRadius.circular(16),
                                 child: Stack(
@@ -594,7 +642,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                 left: 64,
                                               ),
                                               child: Text(
-                                                'Jangan lupa mengisi komitmen harianmu!',
+                                                _komitmenDone
+                                                    ? 'Terima kasih telah mengisi komitmen hari ini!'
+                                                    : 'Jangan lupa mengisi komitmen harianmu!',
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.w900,
                                                   color: Colors.white,
@@ -607,6 +657,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         ),
                                       ),
                                     ),
+                                    if (_komitmenDone)
+                                      Positioned(
+                                        top: 0,
+                                        left: 0,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.green,
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                                  topLeft: Radius.circular(16),
+                                                  bottomRight: Radius.circular(
+                                                    8,
+                                                  ),
+                                                ),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
+                                          child: Row(
+                                            children: const [
+                                              Icon(
+                                                Icons.check_circle,
+                                                color: Colors.white,
+                                                size: 16,
+                                              ),
+                                              SizedBox(width: 4),
+                                              Text(
+                                                'Selesai',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
                                     Positioned(
                                       top: 0,
                                       right: 0,

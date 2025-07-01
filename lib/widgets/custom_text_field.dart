@@ -14,6 +14,7 @@ class CustomTextField extends StatelessWidget {
   final TextStyle? labelTextStyle;
   final TextStyle? inputTextStyle;
   final TextStyle? hintTextStyle;
+  final ValueChanged<String>? onChanged;
 
   const CustomTextField({
     super.key,
@@ -30,6 +31,7 @@ class CustomTextField extends StatelessWidget {
     this.labelTextStyle,
     this.inputTextStyle,
     this.hintTextStyle,
+    this.onChanged,
   });
 
   @override
@@ -53,6 +55,7 @@ class CustomTextField extends StatelessWidget {
           maxLines: maxLines,
           enabled: enabled,
           style: inputTextStyle ?? TextStyle(color: textColor ?? Colors.black),
+          onChanged: onChanged,
           decoration: InputDecoration(
             hintText: hintText,
             hintStyle:

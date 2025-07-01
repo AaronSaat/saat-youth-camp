@@ -270,6 +270,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                 },
                               ),
                             ),
+                            onChanged: (value) {
+                              final lower = value.toLowerCase();
+                              if (value != lower) {
+                                passwordController.value = passwordController
+                                    .value
+                                    .copyWith(
+                                      text: lower,
+                                      selection: TextSelection.collapsed(
+                                        offset: lower.length,
+                                      ),
+                                    );
+                              }
+                            },
                           ),
                         ),
                       ),

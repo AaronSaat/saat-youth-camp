@@ -205,18 +205,42 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
                                                                     ?.toString()
                                                                     .toLowerCase()
                                                                     .contains(
-                                                                      'pembimbing',
+                                                                      'pembina',
                                                                     ) ??
                                                                 false)
-                                                            ? 125
+                                                            ? 170
                                                             : (user['role']
-                                                                    ?.toString()
+                                                                    .toString()
                                                                     .toLowerCase()
                                                                     .contains(
                                                                       'anggota',
-                                                                    ) ??
-                                                                false)
-                                                            ? 215
+                                                                    ) &&
+                                                                (role
+                                                                    .toString()
+                                                                    .toLowerCase()
+                                                                    .contains(
+                                                                      'peserta',
+                                                                    )))
+                                                            ? 190 //sebagai anggota dan role user peserta
+                                                            : (user['role']
+                                                                    .toString()
+                                                                    .toLowerCase()
+                                                                    .contains(
+                                                                      'anggota',
+                                                                    ) &&
+                                                                (role
+                                                                        .toString()
+                                                                        .toLowerCase()
+                                                                        .contains(
+                                                                          'pembina',
+                                                                        ) ||
+                                                                    role
+                                                                        .toString()
+                                                                        .toLowerCase()
+                                                                        .contains(
+                                                                          'panitia',
+                                                                        ))) //sebagai anggota dan role user pembimbing kelompok atau panitia
+                                                            ? 235
                                                             : 250,
                                                     child: Padding(
                                                       padding:
@@ -387,7 +411,7 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
                                                               (user['role']
                                                                       ?.toString()
                                                                       .toLowerCase() !=
-                                                                  'pembimbing'))
+                                                                  'pembina'))
                                                             Row(
                                                               mainAxisAlignment:
                                                                   MainAxisAlignment
