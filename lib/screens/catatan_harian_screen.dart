@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:syc/screens/anggota_kelompok_screen.dart';
 import 'package:syc/utils/app_colors.dart';
@@ -22,8 +23,16 @@ class CatatanHarianScreen extends StatefulWidget {
 
 class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
   Map<String, dynamic> _dataCatatanHarian = {};
+
+  // loadingnya jadi satu saja (tidak perlu dipisah dengan data panitia)
   bool _isLoading = true;
+
   DateTime _selectedDate = DateTime.now();
+
+  // progress untuk panitia
+  Map<String, String> _bacaanDoneMapPanitia = {};
+  Map<String, String> _countUserMapPanitia = {};
+
   // 10 pastel colors, cenderung gelap, cocok untuk latar text putih
   final List<Color> pastelDarkColors = [
     const Color(0xFF6D8B74), // Deep Sage
@@ -49,6 +58,10 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
     setState(() {
       _isLoading = true;
     });
+
+    if (widget.role.toLowerCase().contains('panitia')) {
+      await loadCountUser();
+    }
     try {
       print(
         "Fetching data for date: ${_selectedDate.toIso8601String().substring(0, 10)}",
@@ -57,10 +70,26 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
         context,
         _selectedDate.toIso8601String().substring(0, 10),
       );
+
+      if (widget.role.toLowerCase().contains('panitia')) {
+        final dataBacaan = await ApiService.getCountBrmReportByDay(
+          context,
+          _selectedDate.toIso8601String().substring(0, 10),
+        );
+
+        if (!mounted) return;
+        setState(() {
+          _bacaanDoneMapPanitia = dataBacaan.map(
+            (key, value) => MapEntry(key.toString(), value.toString()),
+          );
+        });
+      }
+
       if (!mounted) return;
       setState(() {
         _dataCatatanHarian = dataCatatan;
-        print("Data fetched: ${_dataCatatanHarian}");
+        print("Data catatan: ${_dataCatatanHarian}");
+        print("Data bacaan: ${_bacaanDoneMapPanitia}");
         _isLoading = false;
       });
     } catch (e) {
@@ -73,9 +102,38 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
     }
   }
 
+  Future<void> loadCountUser() async {
+    if (!mounted) return;
+    setState(() {});
+    try {
+      final _countUser = await ApiService.getCountUser(context);
+      if (!mounted) return;
+      setState(() {
+        _countUserMapPanitia = _countUser.map(
+          (key, value) => MapEntry(key.toString(), value.toString()),
+        );
+        print('Count User Map: $_countUserMapPanitia');
+      });
+    } catch (e) {}
+  }
+
   void _goToPreviousDate() async {
+    final now = DateTime.now();
+    final tenDaysAgo = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(const Duration(days: 9));
+    final previousDate = _selectedDate.subtract(const Duration(days: 1));
+    if (previousDate.isBefore(tenDaysAgo)) {
+      showCustomSnackBar(
+        context,
+        "Hanya bisa melihat catatan 10 hari terakhir.",
+      );
+      return;
+    }
     setState(() {
-      _selectedDate = _selectedDate.subtract(const Duration(days: 1));
+      _selectedDate = previousDate;
     });
     await initAll();
   }
@@ -254,53 +312,70 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                           ),
                         ),
                       if (widget.role.toLowerCase().contains('panitia'))
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          margin: const EdgeInsets.only(top: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 4,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.check_circle_rounded,
-                                color: AppColors.brown1,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 16),
-                              CustomCountUp(
-                                target: 100,
-                                duration: Duration(seconds: 2),
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w900,
-                                  color: AppColors.primary,
+                        _isLoading
+                            ? buildProgresBacaanPanitiaShimmerCard(context)
+                            : (() {
+                              final progresPesertaStr =
+                                  _bacaanDoneMapPanitia['count_peserta'] ?? '0';
+                              final progresPembinaStr =
+                                  _bacaanDoneMapPanitia['count_pembina'] ?? '0';
+                              final totalStr =
+                                  _countUserMapPanitia['count_peserta'] ?? '0';
+                              final progresPeserta =
+                                  int.tryParse(progresPesertaStr) ?? 0;
+                              final progresPembina =
+                                  int.tryParse(progresPembinaStr) ?? 0;
+                              final totalProgres =
+                                  progresPeserta + progresPembina;
+                              final total = int.tryParse(totalStr) ?? 0;
+                              return Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(16),
+                                margin: const EdgeInsets.only(top: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black12,
+                                      blurRadius: 4,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              const SizedBox(width: 4),
-                              Flexible(
-                                child: Text(
-                                  "/ 200 menyelesaikan bacaannya hari ini",
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.primary,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.check_circle_rounded,
+                                      color: AppColors.brown1,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 16),
+                                    CustomCountUp(
+                                      target: totalProgres,
+                                      duration: Duration(seconds: 2),
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w900,
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Flexible(
+                                      child: Text(
+                                        "/ $total menyelesaikan bacaannya hari ini",
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.primary,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
+                              );
+                            })(),
                       const SizedBox(height: 16),
                       _isLoading
                           ? buildListShimmer(context)
@@ -485,6 +560,36 @@ Widget buildListShimmer(BuildContext context) {
     padding: const EdgeInsets.all(8.0),
     child: SizedBox(
       height: 7 * 86.0, // 7 item x tinggi item + padding
+      child: ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 5,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Shimmer.fromColors(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                height: 70,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    ),
+  );
+}
+
+Widget buildProgresBacaanPanitiaShimmerCard(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: SizedBox(
+      height: 1 * 86.0,
       child: ListView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),

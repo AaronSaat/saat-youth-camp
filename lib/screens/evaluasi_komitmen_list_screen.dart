@@ -15,18 +15,25 @@ class EvaluasiKomitmenListScreen extends StatefulWidget {
   final String type;
   final String userId;
 
-  const EvaluasiKomitmenListScreen({Key? key, required this.type, required this.userId}) : super(key: key);
+  const EvaluasiKomitmenListScreen({
+    Key? key,
+    required this.type,
+    required this.userId,
+  }) : super(key: key);
 
   @override
-  _EvaluasiKomitmenListScreenState createState() => _EvaluasiKomitmenListScreenState();
+  _EvaluasiKomitmenListScreenState createState() =>
+      _EvaluasiKomitmenListScreenState();
 }
 
-class _EvaluasiKomitmenListScreenState extends State<EvaluasiKomitmenListScreen> {
+class _EvaluasiKomitmenListScreenState
+    extends State<EvaluasiKomitmenListScreen> {
   List<dynamic> _acaraList = [];
   List<dynamic> _komitmenList = [];
   List<dynamic> _komitmenDoneList = [];
   List<dynamic> _evaluasiDoneList = [];
-  List<dynamic> _acaraIdList = []; // untuk menyimpan acara ID supaya di listnya tau selesai atau belum
+  List<dynamic> _acaraIdList =
+      []; // untuk menyimpan acara ID supaya di listnya tau selesai atau belum
   Map<String, String> _dataUser = {};
   bool _isLoading = true;
   int day = 1; // default day
@@ -67,7 +74,11 @@ class _EvaluasiKomitmenListScreenState extends State<EvaluasiKomitmenListScreen>
         _evaluasiDoneList = List.filled(acaraList.length ?? 0, false);
         for (int i = 0; i < _evaluasiDoneList.length; i++) {
           try {
-            final result = await ApiService.getEvaluasiByPesertaByAcara(context, widget.userId, _acaraIdList[i]);
+            final result = await ApiService.getEvaluasiByPesertaByAcara(
+              context,
+              widget.userId,
+              _acaraIdList[i],
+            );
             if (!mounted) return;
             if (result != null && result['success'] == true) {
               _evaluasiDoneList[i] = true;
@@ -87,7 +98,11 @@ class _EvaluasiKomitmenListScreenState extends State<EvaluasiKomitmenListScreen>
         _komitmenDoneList = List.filled(komitmenList.length ?? 0, false);
         for (int i = 0; i < _komitmenDoneList.length; i++) {
           try {
-            final result = await ApiService.getKomitmenByPesertaByDay(context, widget.userId, i + 1);
+            final result = await ApiService.getKomitmenByPesertaByDay(
+              context,
+              widget.userId,
+              i + 1,
+            );
             if (!mounted) return;
             if (result != null && result['success'] == true) {
               _komitmenDoneList[i] = true;
@@ -125,7 +140,11 @@ class _EvaluasiKomitmenListScreenState extends State<EvaluasiKomitmenListScreen>
       _evaluasiDoneList = List.filled(acaraList.length ?? 0, false);
       for (int i = 0; i < _evaluasiDoneList.length; i++) {
         try {
-          final result = await ApiService.getEvaluasiByPesertaByAcara(context, widget.userId, _acaraIdList[i]);
+          final result = await ApiService.getEvaluasiByPesertaByAcara(
+            context,
+            widget.userId,
+            _acaraIdList[i],
+          );
           if (result != null && result['success'] == true) {
             _evaluasiDoneList[i] = true;
           }
@@ -154,7 +173,11 @@ class _EvaluasiKomitmenListScreenState extends State<EvaluasiKomitmenListScreen>
       _komitmenDoneList = List.filled(komitmenList.length ?? 0, false);
       for (int i = 0; i < _komitmenDoneList.length; i++) {
         try {
-          final result = await ApiService.getKomitmenByPesertaByDay(context, widget.userId, i + 1);
+          final result = await ApiService.getKomitmenByPesertaByDay(
+            context,
+            widget.userId,
+            i + 1,
+          );
           if (result != null && result['success'] == true) {
             _komitmenDoneList[i] = true;
           }
@@ -226,7 +249,11 @@ class _EvaluasiKomitmenListScreenState extends State<EvaluasiKomitmenListScreen>
       if (selectedIdx != -1 && _scrollController.hasClients) {
         double offset = (selectedIdx * 108.0) - 16.0; // 100(width) + 8(spacing)
         if (offset < 0) offset = 0;
-        _scrollController.animateTo(offset, duration: const Duration(milliseconds: 200), curve: Curves.ease);
+        _scrollController.animateTo(
+          offset,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.ease,
+        );
       }
     });
 
@@ -263,7 +290,11 @@ class _EvaluasiKomitmenListScreenState extends State<EvaluasiKomitmenListScreen>
                 alignment: Alignment.center,
                 child: Text(
                   d == 99 ? 'Keseluruhan' : 'Hari ke-$d',
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
                 ),
               ),
             );
@@ -306,14 +337,20 @@ class _EvaluasiKomitmenListScreenState extends State<EvaluasiKomitmenListScreen>
                 physics: AlwaysScrollableScrollPhysics(),
 
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0),
+                  padding: const EdgeInsets.only(
+                    left: 24.0,
+                    right: 24.0,
+                    bottom: 24.0,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Column(
                         children: [
                           Image.asset(
-                            widget.type == 'Evaluasi' ? 'assets/texts/evaluasi.png' : 'assets/texts/komitmen.png',
+                            widget.type == 'Evaluasi'
+                                ? 'assets/texts/evaluasi.png'
+                                : 'assets/texts/komitmen.png',
                             height: 96,
                           ),
                         ],
@@ -326,23 +363,38 @@ class _EvaluasiKomitmenListScreenState extends State<EvaluasiKomitmenListScreen>
                           : ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount: widget.type == 'Evaluasi' ? _acaraList.length : _komitmenList.length,
+                            itemCount:
+                                widget.type == 'Evaluasi'
+                                    ? _acaraList.length
+                                    : _komitmenList.length,
                             itemBuilder: (context, index) {
-                              final items = widget.type == 'Evaluasi' ? _acaraList : _komitmenList;
+                              final items =
+                                  widget.type == 'Evaluasi'
+                                      ? _acaraList
+                                      : _komitmenList;
                               String item;
                               bool? status;
                               if (widget.type == 'Evaluasi') {
                                 final acara = items[index];
-                                item = '${acara['acara_nama'] ?? '-'} (Hari ${acara['hari'] ?? '-'})';
+                                if (acara['hari'] == 99) {
+                                  item = '${acara['acara_nama'] ?? '-'}';
+                                } else {
+                                  item =
+                                      '${acara['acara_nama'] ?? '-'} (Hari ${acara['hari'] ?? '-'})';
+                                }
                                 status = _evaluasiDoneList[index];
                               } else {
                                 final komitmen = items[index];
-                                item = 'Komitmen Hari ${komitmen['hari'] ?? '-'}';
+                                item =
+                                    'Komitmen Hari ${komitmen['hari'] ?? '-'}';
                                 status = _komitmenDoneList[index];
                               }
                               return CustomCard(
                                 text: item,
-                                icon: status == true ? Icons.check : Icons.arrow_outward_rounded,
+                                icon:
+                                    status == true
+                                        ? Icons.check
+                                        : Icons.arrow_outward_rounded,
                                 onTap: () {
                                   String type = widget.type;
                                   String userId = widget.userId;
@@ -357,11 +409,12 @@ class _EvaluasiKomitmenListScreenState extends State<EvaluasiKomitmenListScreen>
                                       context,
                                       MaterialPageRoute(
                                         builder:
-                                            (context) => EvaluasiKomitmenViewScreen(
-                                              type: type,
-                                              userId: userId,
-                                              acaraHariId: acaraHariId,
-                                            ),
+                                            (context) =>
+                                                EvaluasiKomitmenViewScreen(
+                                                  type: type,
+                                                  userId: userId,
+                                                  acaraHariId: acaraHariId,
+                                                ),
                                       ),
                                     );
                                   } else {
@@ -375,33 +428,72 @@ class _EvaluasiKomitmenListScreenState extends State<EvaluasiKomitmenListScreen>
                                         );
                                       });
                                     } else if (type == 'Evaluasi') {
-                                      // Navigator.push(
-                                      //   context,
-                                      //   MaterialPageRoute(
-                                      //     builder:
-                                      //         (context) => FormEvaluasiScreen(
-                                      //           userId: userId,
-                                      //           acaraHariId: acaraHariId,
-                                      //         ),
-                                      //   ),
-                                      // );
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) => FormEvaluasiScreen(userId: userId, acaraHariId: acaraHariId),
-                                        ),
-                                      ).then((result) {
-                                        if (result == 'reload') {
-                                          initAll();
-                                        }
-                                      });
+                                      final acara = _acaraList[index];
+                                      String? tanggal = acara['tanggal'];
+                                      String? waktu = acara['waktu'];
+                                      DateTime? acaraDateTime;
+                                      bool evaluate = false;
+                                      String? time =
+                                          '${acara['tanggal']} ${acara['waktu']}';
+
+                                      if (tanggal != null && waktu != null) {
+                                        try {
+                                          acaraDateTime = DateTime.parse(
+                                            '$tanggal $waktu',
+                                          );
+                                          // final now = DateTime.now();
+                                          final now = DateTime(
+                                            2026,
+                                            1,
+                                            1,
+                                            4,
+                                            45,
+                                            0,
+                                          ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
+                                          if (now.isAfter(
+                                            acaraDateTime.add(
+                                              const Duration(hours: 1),
+                                            ),
+                                          )) {
+                                            evaluate = true;
+                                          }
+                                        } catch (e) {}
+                                      }
+
+                                      if (!evaluate) {
+                                        setState(() {
+                                          if (!mounted) return;
+                                          showCustomSnackBar(
+                                            context,
+                                            'Evaluasi ${acara['acara_nama']} dapat dilakukan pada $time.',
+                                            isSuccess: false,
+                                          );
+                                        });
+                                      } else {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) => FormEvaluasiScreen(
+                                                  userId: userId,
+                                                  acaraHariId: acaraHariId,
+                                                ),
+                                          ),
+                                        ).then((result) {
+                                          if (result == 'reload') {
+                                            initAll();
+                                          }
+                                        });
+                                      }
                                     } else {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder:
-                                              (context) => FormKomitmenScreen(userId: userId, acaraHariId: acaraHariId),
+                                              (context) => FormKomitmenScreen(
+                                                userId: userId,
+                                                acaraHariId: acaraHariId,
+                                              ),
                                         ),
                                       ).then((result) {
                                         if (result == 'reload') {
@@ -439,7 +531,10 @@ Widget buildShimmerList() {
           highlightColor: Colors.grey[100]!,
           child: Container(
             height: 72,
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
           ),
         ),
       );

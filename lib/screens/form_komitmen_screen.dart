@@ -334,53 +334,6 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                                             horizontal: 8.0,
                                           ),
                                           child: GestureDetector(
-                                            onTap: () async {
-                                              await _saveProgress();
-                                              if (context.mounted)
-                                                Navigator.pop(context);
-                                            },
-                                            child: Container(
-                                              width: double.infinity,
-                                              height: 50,
-                                              decoration: BoxDecoration(
-                                                color: Colors.transparent,
-                                                borderRadius:
-                                                    BorderRadius.circular(32),
-                                                border: Border.all(
-                                                  color: Colors.white,
-                                                  width: 2,
-                                                ),
-                                              ),
-                                              alignment: Alignment.center,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: const [
-                                                  Icon(
-                                                    Icons.save,
-                                                    color: Colors.white,
-                                                  ),
-                                                  SizedBox(width: 8),
-                                                  Text(
-                                                    'Save Progress',
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 16),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8.0,
-                                          ),
-                                          child: GestureDetector(
                                             onTap:
                                                 isLoading
                                                     ? null
@@ -414,7 +367,7 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                                                           ),
                                                           SizedBox(width: 8),
                                                           Text(
-                                                            'Review Jawaban',
+                                                            'Lanjutkan',
                                                             style: TextStyle(
                                                               color:
                                                                   Colors.white,

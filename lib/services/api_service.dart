@@ -15,8 +15,8 @@ import '../widgets/custom_snackbar.dart';
 class ApiService {
   // static const String baseurl = 'http://172.172.52.9:82/reg-new/api-syc2025/';
   // static const String baseurlLocal = 'http://172.172.52.9/website_backup/api/';
-  // static const String baseurl = 'http://172.172.52.11:8080/api-syc2025/';
-  static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
+  static const String baseurl = 'http://172.172.52.11:8080/api-syc2025/';
+  // static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
 
   static Future<Map<String, dynamic>> loginUser(
     String username,
@@ -133,56 +133,14 @@ class ApiService {
     }
   }
 
-  // coba dari local
-  static Future<Map<String, dynamic>> getimage(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token =
-        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InRpZGFyTUxHQCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDY0NDMxOCwiZXhwIjoxNzUwNzMwNzE4fQ.p0gxahqBCSNCiBh42g7RFDJloiorQQSIADknwceZO5s";
-    if (token == null || token.isEmpty) {
-      throw Exception('Token not found in SharedPreferences');
-    }
-
-    final url = Uri.parse('${baseurl}getimage');
-    final response = await http.get(
-      url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-
-    print('test url: $url');
-    print('test response: ${response.statusCode} - ${response.body}');
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> files = json.decode(response.body);
-
-      // print('✅ Data bacaan harian berhasil dimuat: ${dataBacaan}');
-      // for (var evaluasi in dataBacaan['data_evaluasi']) {
-      //   print('- Evaluasi: ${evaluasi['id']} | Status: ${evaluasi['hari']} | ${evaluasi['type']}');
-      // }
-
-      return files;
-    } else if (response.statusCode == 401) {
-      showCustomSnackBar(
-        context,
-        'Sesi login Anda telah habis. Silakan login kembali.',
-      );
-      await handleUnauthorized(context);
-      throw Exception('Unauthorized');
-    } else {
-      print('❌ Error test: ${response.statusCode} - ${response.body}');
-      throw Exception('Failed to load image');
-    }
-  }
-
-  static Future<String> getAvatarById(BuildContext context, String id) async {
+  static Future<Map<String, dynamic>> getCountUser(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
 
-    final url = Uri.parse('${baseurl}avatar-by-id?user_id=$id');
+    final url = Uri.parse('${baseurl}count-user');
     final response = await http.get(
       url,
       headers: {
@@ -193,11 +151,9 @@ class ApiService {
 
     print('url: $url');
     if (response.statusCode == 200) {
-      final Map<String, dynamic> dataGambar = json.decode(response.body);
-      final String _dataGambar = dataGambar['avatar_url'];
+      final Map<String, dynamic> dataUser = json.decode(response.body);
 
-      // print('✅ Data bacaan $day berhasil dimuat: $_dataGambar');
-      return _dataGambar;
+      return dataUser;
     } else if (response.statusCode == 401) {
       showCustomSnackBar(
         context,
@@ -207,60 +163,7 @@ class ApiService {
       throw Exception('Unauthorized');
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
-      throw Exception('Failed to load data gambar oleh id $id');
-    }
-  }
-
-  static Future<Map<String, dynamic>> postAvatar(
-    BuildContext context,
-    String filePath, {
-    Map<String, dynamic>? body,
-  }) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-    if (token == null || token.isEmpty) {
-      throw Exception('Token not found in SharedPreferences');
-    }
-
-    final url = Uri.parse('${baseurl}avatar');
-    final request = http.MultipartRequest('POST', url);
-
-    request.headers['Authorization'] = 'Bearer $token';
-
-    // Attach the image file
-    request.files.add(await http.MultipartFile.fromPath('file', filePath));
-
-    // Add user_id if provided in body
-    if (body != null) {
-      if (body['user_id'] != null) {
-        request.fields['user_id'] = body['user_id'].toString();
-      }
-    }
-    print('Request URL: ${request.url}');
-    print('Request Headers: ${request.headers}');
-    print('Request Fields: ${request.fields}');
-    print('Request Files: ${request.files.map((f) => f.filename).join(', ')}');
-    print('Request Body: ${request.fields}');
-    try {
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return json.decode(response.body) as Map<String, dynamic>;
-      } else if (response.statusCode == 401) {
-        showCustomSnackBar(
-          context,
-          'Sesi login Anda telah habis. Silakan login kembali.',
-        );
-        await handleUnauthorized(context);
-        throw Exception('Unauthorized');
-      } else {
-        print('❌ Error postimage: ${response.statusCode} - ${response.body}');
-        throw Exception('Failed to upload image');
-      }
-    } catch (e) {
-      print('HTTP error: $e');
-      throw Exception('Network error: $e');
+      throw Exception('Failed to load count user');
     }
   }
 
@@ -378,6 +281,43 @@ class ApiService {
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load perikop read bacaan harian');
+    }
+  }
+
+  static Future<Map<String, dynamic>> getCountBrmReportByDay(
+    BuildContext context,
+    String day,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}count-brm-report-by-day?day=$day');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('urlaaron: $url');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> databrm = json.decode(response.body);
+
+      return databrm;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      print('❌ Error test: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load count brm report by day');
     }
   }
 
@@ -837,6 +777,84 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>> getCountEvaluasiAnsweredByPeserta(
+    BuildContext context,
+    String userId,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse(
+      '${baseurl}count-evaluasi-answered-by-peserta?user_id=$userId',
+    );
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('url: $url');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> dataevaluasi = json.decode(response.body);
+
+      return dataevaluasi;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      print('❌ Error test: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load count evaluasi answered by peserta');
+    }
+  }
+
+  static Future<Map<String, dynamic>> getCountEvaluasiAnsweredByAcara(
+    BuildContext context,
+    String acaraId,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse(
+      '${baseurl}count-evaluasi-answered-by-acara?acara_id=$acaraId',
+    );
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('url: $url');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> dataevaluasi = json.decode(response.body);
+
+      return dataevaluasi;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      print('❌ Error test: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load count evaluasi answered by acara');
+    }
+  }
+
   static Future<Map<String, dynamic>> postEvaluasiAnswer(
     BuildContext context,
     List<Map<String, dynamic>> evaluasiAnswers,
@@ -1013,6 +1031,82 @@ class ApiService {
       throw Exception(
         'Failed to load jawaban komitmen hari-$day oleh user id $userId',
       );
+    }
+  }
+
+  static Future<Map<String, dynamic>> getCountKomitmenAnsweredByPeserta(
+    BuildContext context,
+    String userId,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse(
+      '${baseurl}count-komitmen-answered-by-peserta?user_id=$userId',
+    );
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('url: $url');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> datakomitmen = json.decode(response.body);
+
+      return datakomitmen;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      print('❌ Error test: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load count komitmen answered by peserta');
+    }
+  }
+
+  static Future<Map<String, dynamic>> getCountKomitmenAnsweredByDay(
+    BuildContext context,
+    String day,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}count-komitmen-answered-by-day?day=$day');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('url: $url');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> datakomitmen = json.decode(response.body);
+
+      return datakomitmen;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      print('❌ Error test: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load count komitmen answered by day');
     }
   }
 
@@ -1327,6 +1421,95 @@ class ApiService {
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load acara by id');
+    }
+  }
+
+  static Future<String> getAvatarById(BuildContext context, String id) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}avatar-by-id?user_id=$id');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('url: $url');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> dataGambar = json.decode(response.body);
+      final String _dataGambar = dataGambar['avatar_url'];
+
+      // print('✅ Data bacaan $day berhasil dimuat: $_dataGambar');
+      return _dataGambar;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      print('❌ Error test: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load data gambar oleh id $id');
+    }
+  }
+
+  static Future<Map<String, dynamic>> postAvatar(
+    BuildContext context,
+    String filePath, {
+    Map<String, dynamic>? body,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}avatar');
+    final request = http.MultipartRequest('POST', url);
+
+    request.headers['Authorization'] = 'Bearer $token';
+
+    // Attach the image file
+    request.files.add(await http.MultipartFile.fromPath('file', filePath));
+
+    // Add user_id if provided in body
+    if (body != null) {
+      if (body['user_id'] != null) {
+        request.fields['user_id'] = body['user_id'].toString();
+      }
+    }
+    print('Request URL: ${request.url}');
+    print('Request Headers: ${request.headers}');
+    print('Request Fields: ${request.fields}');
+    print('Request Files: ${request.files.map((f) => f.filename).join(', ')}');
+    print('Request Body: ${request.fields}');
+    try {
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return json.decode(response.body) as Map<String, dynamic>;
+      } else if (response.statusCode == 401) {
+        showCustomSnackBar(
+          context,
+          'Sesi login Anda telah habis. Silakan login kembali.',
+        );
+        await handleUnauthorized(context);
+        throw Exception('Unauthorized');
+      } else {
+        print('❌ Error postimage: ${response.statusCode} - ${response.body}');
+        throw Exception('Failed to upload image');
+      }
+    } catch (e) {
+      print('HTTP error: $e');
+      throw Exception('Network error: $e');
     }
   }
 }

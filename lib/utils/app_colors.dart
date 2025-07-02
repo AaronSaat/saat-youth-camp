@@ -10,7 +10,9 @@ class AppColors {
   static const Color grey1 = Color(0xFFe4e4e4); //kepake di dashboard
   static const Color grey2 = Color(0xFFeaeaea); //kepake di custom card
   static const Color grey3 = Color(0xFFdddddd); //kepake di custom card
-  static const Color grey4 = Colors.grey; //kepake di custom card
+  static const Color grey4 =
+      Colors
+          .grey; //kepake di custom card, disabled button (evaluasi detail acara)
 
   // penyesuaian warna sementara
   // 5C0101

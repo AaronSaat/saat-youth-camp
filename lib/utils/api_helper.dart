@@ -11,5 +11,9 @@ Future<void> handleUnauthorized(BuildContext context) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.clear();
 
-  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const LoginScreen()), (route) => false);
+  Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(builder: (_) => const LoginScreen()),
+    (route) => false,
+  );
 }

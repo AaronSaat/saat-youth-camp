@@ -34,15 +34,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isLoading_progresevaluasi = true;
   bool _isLoading_brm = true;
   bool _isLoading_avatar = true;
+
+  // loading progres komitmen untuk panitia
+  bool _isLoading_progreskomitmenday1_panitia = true;
+  bool _isLoading_progreskomitmenday2_panitia = true;
+  bool _isLoading_progreskomitmenday3_panitia = true;
+
   Map<String, String> _dataUser = {};
   List<Map<String, dynamic>> _dataBrm = [];
   String avatar = '';
 
   // progress
-  Map<String, List<bool>> _komitmenDoneMap = {};
-  Map<String, Map<String, int>> _komitmenSummaryMap = {};
-  Map<String, List<bool>> _evaluasiDoneMap = {};
-  Map<String, Map<String, int>> _evaluasiSummaryMap = {};
+  Map<String, String> _komitmenDoneMap = {};
+  int _komitmenTotal = 0;
+  Map<String, String> _evaluasiDoneMap = {};
+  int _evaluasiTotal = 0;
+
+  // progress untuk panitia
+  Map<String, String> _komitmenDoneDay1MapPanitia = {};
+  Map<String, String> _komitmenDoneDay2MapPanitia = {};
+  Map<String, String> _komitmenDoneDay3MapPanitia = {};
+  Map<String, String> _countUserMapPanitia = {};
 
   @override
   void initState() {
@@ -54,17 +66,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       _isLoading = true;
       _isLoading_userdata = true;
+      _isLoading_avatar = true;
+
+      _isLoading_brm = true;
+
+      // loading peserta
       _isLoading_progreskomitmen = true;
       _isLoading_progresevaluasi = true;
-      _isLoading_brm = true;
-      _isLoading_avatar = true;
+
+      // loading progres komitmen untuk panitia
+      _isLoading_progreskomitmenday1_panitia = true;
+      _isLoading_progreskomitmenday2_panitia = true;
+      _isLoading_progreskomitmenday3_panitia = true;
     });
     try {
       await loadUserData();
       await loadAvatarById();
-      await loadBrm();
-      await loadProgresEvaluasiAnggota();
-      await loadProgresKomitmenAnggota();
+
+      if (_dataUser['role']!.toLowerCase().contains('peserta')) {
+        await loadProgresEvaluasiAnggota();
+        await loadProgresKomitmenAnggota();
+      }
+
+      if (_dataUser['role']!.toLowerCase().contains('peserta') ||
+          _dataUser['role']!.toLowerCase().contains('pembina')) {
+        await loadBrm();
+      }
+
+      if (_dataUser['role']!.toLowerCase().contains('panitia')) {
+        await loadCountUser();
+        await loadKomitmenDoneDay1Panitia();
+        await loadKomitmenDoneDay2Panitia();
+        await loadKomitmenDoneDay3Panitia();
+      }
     } catch (e) {
       // handle error jika perlu
     }
@@ -72,10 +106,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       _isLoading = false;
       _isLoading_userdata = false;
+      _isLoading_avatar = false;
+
+      _isLoading_brm = false;
+
+      // loading peserta
       _isLoading_progreskomitmen = false;
       _isLoading_progresevaluasi = false;
-      _isLoading_brm = false;
-      _isLoading_avatar = false;
+
+      // loading progres komitmen untuk panitia
+      _isLoading_progreskomitmenday1_panitia = false;
+      _isLoading_progreskomitmenday2_panitia = false;
+      _isLoading_progreskomitmenday3_panitia = false;
     });
   }
 
@@ -114,38 +156,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _isLoading_progreskomitmen = true;
     });
     try {
-      final komitmenList = await ApiService.getKomitmen(context);
-      _komitmenDoneMap = {};
-      _komitmenSummaryMap = {};
       final userId = _dataUser['id'] ?? '';
-      List<bool> progress = List.filled(komitmenList.length, false);
-      for (int i = 0; i < progress.length; i++) {
-        try {
-          final result = await ApiService.getKomitmenByPesertaByDay(
-            context,
-            userId,
-            i + 1,
-          );
-          if (result['success'] == true) {
-            progress[i] = true;
-          }
-        } catch (e) {
-          // ignore error, keep as false
-        }
-      }
-      _komitmenDoneMap[userId] = progress;
-      // Hitung jumlah true/false
-      int done = progress.where((e) => e).length;
-      int notDone = progress.length - done;
-      _komitmenSummaryMap[userId] = {'done': done, 'notDone': notDone};
-      print('Progress Komitmen Map: \n$_komitmenDoneMap');
-      print('Summary Komitmen Map: \n$_komitmenSummaryMap');
+      final komitmenList = await ApiService.getCountKomitmenAnsweredByPeserta(
+        context,
+        userId,
+      );
+      final komitmen = await ApiService.getKomitmen(context);
+
       if (!mounted) return;
       setState(() {
+        _komitmenDoneMap = komitmenList.map(
+          (key, value) => MapEntry(key.toString(), value.toString()),
+        );
+        _komitmenTotal = komitmen.length;
+
+        print('Komitmen Done Map: $_komitmenDoneMap');
+        print('Total Komitmen: ${_komitmenTotal} komitmen');
         _isLoading_progreskomitmen = false;
       });
     } catch (e) {
-      print('❌ Gagal memuat progress komitmen: $e');
+      if (!mounted) return;
     }
   }
 
@@ -155,38 +185,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _isLoading_progresevaluasi = true;
     });
     try {
-      final acaraList = await ApiService.getAcara(context);
-      _evaluasiDoneMap = {};
-      _evaluasiSummaryMap = {};
       final userId = _dataUser['id'] ?? '';
-      List<bool> progress = List.filled(acaraList.length, false);
-      for (int i = 0; i < progress.length; i++) {
-        try {
-          final result = await ApiService.getEvaluasiByPesertaByAcara(
-            context,
-            userId,
-            i + 1,
-          );
-          if (result['success'] == true) {
-            progress[i] = true;
-          }
-        } catch (e) {
-          // ignore error, keep as false
-        }
-      }
-      _evaluasiDoneMap[userId] = progress;
-      // Hitung jumlah true/false
-      int done = progress.where((e) => e).length;
-      int notDone = progress.length - done;
-      _evaluasiSummaryMap[userId] = {'done': done, 'notDone': notDone};
-      print('Progress evaluasi Map: \n$_evaluasiDoneMap');
-      print('Summary evaluasi Map: \n$_evaluasiSummaryMap');
+      final evaluasiList = await ApiService.getCountEvaluasiAnsweredByPeserta(
+        context,
+        userId,
+      );
+      final acaraList = await ApiService.getAcara(context);
+
       if (!mounted) return;
       setState(() {
+        _evaluasiDoneMap = evaluasiList.map(
+          (key, value) => MapEntry(key.toString(), value.toString()),
+        );
+        _evaluasiTotal = acaraList.length;
+
+        print('Evaluasi Done Map: $_evaluasiDoneMap');
+        print('Total Eval: ${_evaluasiTotal} evaluasi');
         _isLoading_progresevaluasi = false;
       });
     } catch (e) {
-      // Use a logging framework or handle error appropriately
       if (!mounted) return;
     }
   }
@@ -225,6 +242,85 @@ class _ProfileScreenState extends State<ProfileScreen> {
         avatar = _avatar;
         print('Avatar URL: $avatar');
         _isLoading_avatar = false;
+      });
+    } catch (e) {}
+  }
+
+  Future<void> loadCountUser() async {
+    if (!mounted) return;
+    setState(() {});
+    try {
+      final _countUser = await ApiService.getCountUser(context);
+      if (!mounted) return;
+      setState(() {
+        _countUserMapPanitia = _countUser.map(
+          (key, value) => MapEntry(key.toString(), value.toString()),
+        );
+        print('Count User Map: $_countUserMapPanitia');
+      });
+    } catch (e) {}
+  }
+
+  //aku load satu satu , mau sekaligus juga bisa sih
+  Future<void> loadKomitmenDoneDay1Panitia() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading_progreskomitmenday1_panitia = true;
+    });
+    try {
+      final _countKomitmen = await ApiService.getCountKomitmenAnsweredByDay(
+        context,
+        "1",
+      );
+      if (!mounted) return;
+      setState(() {
+        _komitmenDoneDay1MapPanitia = _countKomitmen.map(
+          (key, value) => MapEntry(key.toString(), value.toString()),
+        );
+        print('Komitmen Done Day 1 Map: $_komitmenDoneDay1MapPanitia');
+        _isLoading_progreskomitmenday1_panitia = false;
+      });
+    } catch (e) {}
+  }
+
+  Future<void> loadKomitmenDoneDay2Panitia() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading_progreskomitmenday2_panitia = true;
+    });
+    try {
+      final _countKomitmen = await ApiService.getCountKomitmenAnsweredByDay(
+        context,
+        "2",
+      );
+      if (!mounted) return;
+      setState(() {
+        _komitmenDoneDay2MapPanitia = _countKomitmen.map(
+          (key, value) => MapEntry(key.toString(), value.toString()),
+        );
+        print('Komitmen Done Day 2 Map: $_komitmenDoneDay2MapPanitia');
+        _isLoading_progreskomitmenday2_panitia = false;
+      });
+    } catch (e) {}
+  }
+
+  Future<void> loadKomitmenDoneDay3Panitia() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading_progreskomitmenday3_panitia = true;
+    });
+    try {
+      final _countKomitmen = await ApiService.getCountKomitmenAnsweredByDay(
+        context,
+        "3",
+      );
+      if (!mounted) return;
+      setState(() {
+        _komitmenDoneDay3MapPanitia = _countKomitmen.map(
+          (key, value) => MapEntry(key.toString(), value.toString()),
+        );
+        print('Komitmen Done Day 3Map: $_komitmenDoneDay3MapPanitia');
+        _isLoading_progreskomitmenday3_panitia = false;
       });
     } catch (e) {}
   }
@@ -529,29 +625,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   builder: (context) {
                                     // Ambil userId dari _dataUser
                                     final userId = _dataUser['id'] ?? '';
+
                                     // Progress Evaluasi
-                                    final progressEvaluasi =
-                                        _evaluasiDoneMap[userId] ?? [];
-                                    final evaluasiTotal =
-                                        progressEvaluasi.length;
-                                    final evaluasiDone =
-                                        progressEvaluasi.where((e) => e).length;
-                                    final evaluasiProgress =
-                                        evaluasiTotal > 0
-                                            ? evaluasiDone / evaluasiTotal
-                                            : 0.0;
+                                    final progresEvaluasiStr =
+                                        _evaluasiDoneMap['count'] ?? '0';
+                                    final progresEvaluasi =
+                                        int.tryParse(progresEvaluasiStr) ?? 0;
+                                    final totalEvaluasi = _evaluasiTotal ?? 1;
 
                                     // Progress Komitmen
-                                    final progressKomitmen =
-                                        _komitmenDoneMap[userId] ?? [];
-                                    final komitmenTotal =
-                                        progressKomitmen.length;
-                                    final komitmenDone =
-                                        progressKomitmen.where((e) => e).length;
-                                    final komitmenProgress =
-                                        komitmenTotal > 0
-                                            ? komitmenDone / komitmenTotal
-                                            : 0.0;
+                                    final progresKomitmenStr =
+                                        _komitmenDoneMap['count'] ?? '0';
+                                    final progresKomitmen =
+                                        int.tryParse(progresKomitmenStr) ?? 0;
+                                    final totalKomitmen = _komitmenTotal ?? 1;
 
                                     return Column(
                                       children: [
@@ -575,9 +662,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             });
                                             ;
                                           },
-                                          valueProgress: evaluasiProgress,
-                                          valueDone: evaluasiDone,
-                                          valueTotal: evaluasiTotal,
+                                          valueProgress:
+                                              (totalEvaluasi > 0)
+                                                  ? (progresEvaluasi /
+                                                      totalEvaluasi)
+                                                  : 0.0,
+                                          valueDone: progresEvaluasi,
+                                          valueTotal: totalEvaluasi,
                                         ),
                                         MateriMenuCard(
                                           title: 'Komitmen Pribadi',
@@ -594,9 +685,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               ),
                                             );
                                           },
-                                          valueProgress: komitmenProgress,
-                                          valueDone: komitmenDone,
-                                          valueTotal: komitmenTotal,
+                                          valueProgress:
+                                              (totalKomitmen > 0)
+                                                  ? (progresKomitmen /
+                                                      totalKomitmen)
+                                                  : 0.0,
+                                          valueDone: progresKomitmen,
+                                          valueTotal: totalKomitmen,
                                         ),
                                       ],
                                     );
@@ -609,19 +704,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               !role.toLowerCase().contains('pembimbing'))
                             _isLoading_brm
                                 ? buildBacaanShimer()
-                                //     : _acaraList.isEmpty
-                                //     ? Center(
-                                //       child: CustomNotFound(
-                                //         text: "Gagal memuat daftar materi :(",
-                                //         textColor: AppColors.brown1,
-                                //         imagePath: 'assets/images/data_not_found.png',
-                                //         onBack: initAll,
-                                //         backText: 'Reload Materi',
-                                //       ),
-                                //     )
-                                :
-                                // card bacaan
-                                InkWell(
+                                : InkWell(
                                   onTap: () {
                                     Navigator.push(
                                       context,
@@ -643,7 +726,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       Container(
                                         height: 180,
                                         padding: const EdgeInsets.only(
-                                          left: 24,
+                                          left: 150,
                                           right: 24,
                                           bottom: 16,
                                         ),
@@ -651,86 +734,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           color: AppColors.primary.withAlpha(
                                             70,
                                           ),
-                                          gradient: LinearGradient(
-                                            begin: Alignment.bottomCenter,
-                                            end: Alignment.center,
-                                            colors: [
-                                              Colors.black.withAlpha(100),
-                                              Colors.black.withAlpha(10),
-                                            ],
-                                          ),
                                           borderRadius: BorderRadius.circular(
                                             16,
                                           ),
                                           image: const DecorationImage(
                                             image: AssetImage(
-                                              'assets/mockups/bible_reading.jpg',
+                                              'assets/images/card_bacaan.png',
                                             ),
                                             fit: BoxFit.cover,
                                           ),
                                         ),
                                         child: Align(
-                                          alignment: Alignment.bottomLeft,
+                                          alignment: Alignment.bottomRight,
                                           child: Column(
                                             mainAxisSize: MainAxisSize.min,
                                             crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                                CrossAxisAlignment.end,
                                             mainAxisAlignment:
                                                 MainAxisAlignment.end,
                                             children: [
                                               Text(
                                                 'Bacaan Saya',
                                                 style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
+                                                  fontWeight: FontWeight.w900,
                                                   color: Colors.white,
-                                                  fontSize: 20,
+                                                  fontSize: 24,
                                                 ),
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                _dataBrm.isNotEmpty
-                                                    ? (_dataBrm[0]['passage'] ??
-                                                        '')
-                                                    : '',
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w400,
-                                                  color: Colors.white,
-                                                  fontSize: 14,
-                                                ),
+                                                maxLines: 2,
+                                                textAlign: TextAlign.right,
                                               ),
                                             ],
-                                          ),
-                                        ),
-                                      ),
-                                      Positioned(
-                                        top: 0,
-                                        right: 0,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: AppColors.secondary,
-                                            borderRadius:
-                                                const BorderRadius.only(
-                                                  topRight: Radius.circular(16),
-                                                  bottomLeft: Radius.circular(
-                                                    8,
-                                                  ),
-                                                ),
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 8,
-                                          ),
-                                          child: Text(
-                                            _dataBrm.isNotEmpty
-                                                ? DateFormatter.ubahTanggal(
-                                                  _dataBrm[0]['tanggal'],
-                                                )
-                                                : '',
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                            ),
                                           ),
                                         ),
                                       ),
@@ -795,297 +828,376 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                           const SizedBox(height: 16),
+                          // day 1
                           if (role.toLowerCase().contains('panitia'))
                             Stack(
                               children: [
-                                Container(
-                                  height: 200,
-                                  padding: const EdgeInsets.only(
-                                    left: 128,
-                                    right: 48,
-                                    bottom: 16,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primary.withAlpha(70),
-                                    borderRadius: BorderRadius.circular(16),
-                                    image: const DecorationImage(
-                                      image: AssetImage(
-                                        'assets/images/card_komitmen.png',
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  child: Align(
-                                    alignment: Alignment.bottomRight,
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            CustomCircularProgress(
-                                              progress:
-                                                  1, // Nilai progress antara 0.0 sampai 1.0
-                                              size:
-                                                  110, // Ukuran diameter lingkaran
-                                              color:
-                                                  Colors
-                                                      .white, // Warna progress
-                                              duration: Duration(
-                                                milliseconds: 600,
-                                              ), // Durasi animasi
-                                              child: Column(
+                                _isLoading_progreskomitmenday1_panitia
+                                    ? buildProgresKomitmenPanitiaShimmerCard(
+                                      context,
+                                    )
+                                    : (() {
+                                      // Ambil jumlah peserta yang sudah mengisi komitmen hari ke-1
+                                      final progresStr =
+                                          _komitmenDoneDay1MapPanitia['count'] ??
+                                          '0';
+                                      final totalStr =
+                                          _countUserMapPanitia["count_peserta"] ??
+                                          '0';
+                                      final progres =
+                                          int.tryParse(progresStr) ?? 0;
+                                      final total = int.tryParse(totalStr) ?? 1;
+                                      final progressValue =
+                                          total > 0 ? progres / total : 0.0;
+
+                                      return Container(
+                                        height: 200,
+                                        padding: const EdgeInsets.only(
+                                          left: 128,
+                                          right: 48,
+                                          bottom: 16,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primary.withAlpha(
+                                            70,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          image: const DecorationImage(
+                                            image: AssetImage(
+                                              'assets/images/card_komitmen.png',
+                                            ),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                        child: Align(
+                                          alignment: Alignment.bottomRight,
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              Row(
                                                 mainAxisAlignment:
-                                                    MainAxisAlignment.center,
+                                                    MainAxisAlignment.end,
                                                 children: [
-                                                  Text(
-                                                    '100/',
-                                                    style: TextStyle(
-                                                      fontSize: 24,
-                                                      fontWeight:
-                                                          FontWeight.w900,
-                                                      color: Colors.white,
+                                                  CustomCircularProgress(
+                                                    progress: progressValue
+                                                        .clamp(0.0, 1.0),
+                                                    size: 110,
+                                                    color: Colors.white,
+                                                    duration: Duration(
+                                                      milliseconds: 600,
                                                     ),
-                                                  ),
-                                                  Text(
-                                                    '100',
-                                                    style: TextStyle(
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      color: Colors.white,
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Text(
+                                                          '$progres/',
+                                                          style: TextStyle(
+                                                            fontSize: 24,
+                                                            fontWeight:
+                                                                FontWeight.w900,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          '$total',
+                                                          style: TextStyle(
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ),
                                                 ],
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 8),
-                                        const Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            Flexible(
-                                              child: Text(
-                                                'telah mengisi\nkomitmen hari ke-1',
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                textAlign: TextAlign.right,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          if (role.toLowerCase().contains('panitia'))
-                            const SizedBox(height: 16),
-                          if (role.toLowerCase().contains('panitia'))
-                            Stack(
-                              children: [
-                                Container(
-                                  height: 200,
-                                  padding: const EdgeInsets.only(
-                                    left: 128,
-                                    right: 48,
-                                    bottom: 16,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primary.withAlpha(70),
-                                    borderRadius: BorderRadius.circular(16),
-                                    image: const DecorationImage(
-                                      image: AssetImage(
-                                        'assets/images/card_komitmen.png',
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  child: Align(
-                                    alignment: Alignment.bottomRight,
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            CustomCircularProgress(
-                                              progress:
-                                                  0.7, // Nilai progress antara 0.0 sampai 1.0
-                                              size:
-                                                  110, // Ukuran diameter lingkaran
-                                              color:
-                                                  Colors
-                                                      .white, // Warna progress
-                                              duration: Duration(
-                                                milliseconds: 600,
-                                              ), // Durasi animasi
-                                              child: Column(
+                                              const SizedBox(height: 8),
+                                              const Row(
                                                 mainAxisAlignment:
-                                                    MainAxisAlignment.center,
+                                                    MainAxisAlignment.end,
                                                 children: [
-                                                  Text(
-                                                    '70/',
-                                                    style: TextStyle(
-                                                      fontSize: 24,
-                                                      fontWeight:
-                                                          FontWeight.w900,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    '100',
-                                                    style: TextStyle(
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      color: Colors.white,
+                                                  Flexible(
+                                                    child: Text(
+                                                      'telah mengisi\nkomitmen hari ke-1',
+                                                      style: TextStyle(
+                                                        fontSize: 14,
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      textAlign:
+                                                          TextAlign.right,
                                                     ),
                                                   ),
                                                 ],
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                        const SizedBox(height: 8),
-                                        const Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            Flexible(
-                                              child: Text(
-                                                'telah mengisi\nkomitmen hari ke-2',
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                textAlign: TextAlign.right,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                                      );
+                                    })(),
                               ],
                             ),
                           if (role.toLowerCase().contains('panitia'))
                             const SizedBox(height: 16),
 
+                          // day 2
                           if (role.toLowerCase().contains('panitia'))
                             Stack(
                               children: [
-                                Container(
-                                  height: 200,
-                                  padding: const EdgeInsets.only(
-                                    left: 128,
-                                    right: 48,
-                                    bottom: 16,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primary.withAlpha(70),
-                                    borderRadius: BorderRadius.circular(16),
-                                    image: const DecorationImage(
-                                      image: AssetImage(
-                                        'assets/images/card_komitmen.png',
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  child: Align(
-                                    alignment: Alignment.bottomRight,
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            CustomCircularProgress(
-                                              progress:
-                                                  0.3, // Nilai progress antara 0.0 sampai 1.0
-                                              size:
-                                                  110, // Ukuran diameter lingkaran
-                                              color:
-                                                  Colors
-                                                      .white, // Warna progress
-                                              duration: Duration(
-                                                milliseconds: 600,
-                                              ), // Durasi animasi
-                                              child: Column(
+                                _isLoading_progreskomitmenday2_panitia
+                                    ? buildProgresKomitmenPanitiaShimmerCard(
+                                      context,
+                                    )
+                                    : (() {
+                                      // Ambil jumlah peserta yang sudah mengisi komitmen hari ke-1
+                                      final progresStr =
+                                          _komitmenDoneDay2MapPanitia['count'] ??
+                                          '0';
+                                      final totalStr =
+                                          _countUserMapPanitia["count_peserta"] ??
+                                          '0';
+                                      final progres =
+                                          int.tryParse(progresStr) ?? 0;
+                                      final total = int.tryParse(totalStr) ?? 1;
+                                      final progressValue =
+                                          total > 0 ? progres / total : 0.0;
+
+                                      return Container(
+                                        height: 200,
+                                        padding: const EdgeInsets.only(
+                                          left: 128,
+                                          right: 48,
+                                          bottom: 16,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primary.withAlpha(
+                                            70,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          image: const DecorationImage(
+                                            image: AssetImage(
+                                              'assets/images/card_komitmen.png',
+                                            ),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                        child: Align(
+                                          alignment: Alignment.bottomRight,
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              Row(
                                                 mainAxisAlignment:
-                                                    MainAxisAlignment.center,
+                                                    MainAxisAlignment.end,
                                                 children: [
-                                                  Text(
-                                                    '30/',
-                                                    style: TextStyle(
-                                                      fontSize: 24,
-                                                      fontWeight:
-                                                          FontWeight.w900,
-                                                      color: Colors.white,
+                                                  CustomCircularProgress(
+                                                    progress: progressValue
+                                                        .clamp(0.0, 1.0),
+                                                    size: 110,
+                                                    color: Colors.white,
+                                                    duration: Duration(
+                                                      milliseconds: 600,
                                                     ),
-                                                  ),
-                                                  Text(
-                                                    '100',
-                                                    style: TextStyle(
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      color: Colors.white,
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Text(
+                                                          '$progres/',
+                                                          style: TextStyle(
+                                                            fontSize: 24,
+                                                            fontWeight:
+                                                                FontWeight.w900,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          '$total',
+                                                          style: TextStyle(
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ),
                                                 ],
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 8),
-                                        const Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            Flexible(
-                                              child: Text(
-                                                'telah mengisi\nkomitmen hari ke-3',
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                textAlign: TextAlign.right,
+                                              const SizedBox(height: 8),
+                                              const Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  Flexible(
+                                                    child: Text(
+                                                      'telah mengisi\nkomitmen hari ke-2',
+                                                      style: TextStyle(
+                                                        fontSize: 14,
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      textAlign:
+                                                          TextAlign.right,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                                      );
+                                    })(),
+                              ],
+                            ),
+                          if (role.toLowerCase().contains('panitia'))
+                            const SizedBox(height: 16),
+
+                          // day 3
+                          if (role.toLowerCase().contains('panitia'))
+                            Stack(
+                              children: [
+                                _isLoading_progreskomitmenday3_panitia
+                                    ? buildProgresKomitmenPanitiaShimmerCard(
+                                      context,
+                                    )
+                                    : (() {
+                                      // Ambil jumlah peserta yang sudah mengisi komitmen hari ke-1
+                                      final progresStr =
+                                          _komitmenDoneDay1MapPanitia['count'] ??
+                                          '0';
+                                      final totalStr =
+                                          _countUserMapPanitia["count_peserta"] ??
+                                          '0';
+                                      final progres =
+                                          int.tryParse(progresStr) ?? 0;
+                                      final total = int.tryParse(totalStr) ?? 1;
+                                      final progressValue =
+                                          total > 0 ? progres / total : 0.0;
+
+                                      return Container(
+                                        height: 200,
+                                        padding: const EdgeInsets.only(
+                                          left: 128,
+                                          right: 48,
+                                          bottom: 16,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primary.withAlpha(
+                                            70,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          image: const DecorationImage(
+                                            image: AssetImage(
+                                              'assets/images/card_komitmen.png',
+                                            ),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                        child: Align(
+                                          alignment: Alignment.bottomRight,
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  CustomCircularProgress(
+                                                    progress: progressValue
+                                                        .clamp(0.0, 1.0),
+                                                    size: 110,
+                                                    color: Colors.white,
+                                                    duration: Duration(
+                                                      milliseconds: 600,
+                                                    ),
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Text(
+                                                          '$progres/',
+                                                          style: TextStyle(
+                                                            fontSize: 24,
+                                                            fontWeight:
+                                                                FontWeight.w900,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          '$total',
+                                                          style: TextStyle(
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 8),
+                                              const Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  Flexible(
+                                                    child: Text(
+                                                      'telah mengisi\nkomitmen hari ke-3',
+                                                      style: TextStyle(
+                                                        fontSize: 14,
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      textAlign:
+                                                          TextAlign.right,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    })(),
                               ],
                             ),
                           const SizedBox(height: 16),
@@ -1262,6 +1374,36 @@ Widget buildBacaanShimer() {
         ),
       ),
     ],
+  );
+}
+
+Widget buildProgresKomitmenPanitiaShimmerCard(BuildContext context) {
+  return Shimmer.fromColors(
+    baseColor: Colors.grey[300]!,
+    highlightColor: Colors.grey[100]!,
+    period: const Duration(milliseconds: 800),
+    child: Container(
+      height: 180,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Container(width: 120, height: 24, color: Colors.white),
+            const SizedBox(height: 8),
+            Container(width: 200, height: 16, color: Colors.white),
+            const SizedBox(height: 8),
+            Container(width: 80, height: 16, color: Colors.white),
+          ],
+        ),
+      ),
+    ),
   );
 }
 
