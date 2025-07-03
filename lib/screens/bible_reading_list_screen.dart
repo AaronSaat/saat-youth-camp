@@ -34,6 +34,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
   List _dataNotesBacaan = [];
   List _dataBacaan = [];
   Map<String, String> _dataUser = {};
+  bool _autoSelected = false;
 
   @override
   void initState() {
@@ -249,9 +250,11 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
     // Scroll to _hariKe after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       int selectedIdx = days.indexOf(day);
-      if (day == 1 && _hariKe > 0 && _hariKe <= _jumlahHari) {
+      if (!_autoSelected && day == 1 && _hariKe > 0 && _hariKe <= _jumlahHari) {
         setState(() {
           day = _hariKe;
+          _autoSelected = true; //supaya tidak reselect kalo bukan hari ke-1
+          print('Selected day set to: $day from _hariKe: $_hariKe');
         });
         selectedIdx = days.indexOf(_hariKe);
       }
@@ -283,6 +286,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
               onTap: () {
                 setState(() {
                   day = d;
+                  print('Selected day: $day');
                   // initAll();
                 });
               },

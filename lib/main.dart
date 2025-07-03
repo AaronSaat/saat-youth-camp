@@ -55,11 +55,6 @@ class MyApp extends StatelessWidget {
       // home: EvaluasiKomitmenListScreen(type: 'Komitmen', userId: '80'),
 
       // home: KomitmenScreen(userId: 2, day: 1),
-      // home: EvaluasiKomitmenFormScreen(
-      //   type: 'Evaluasi',
-      //   userId: '1',
-      //   acaraHariId: 1,
-      // ),
     );
   }
 }

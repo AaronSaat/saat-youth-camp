@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../utils/app_colors.dart';
-import 'evaluasi_komitmen_list_screen.dart';
+import 'list_evaluasi_screen.dart';
 
 class EvaluasiKomitmenSuccessScreen extends StatelessWidget {
   final String userId;

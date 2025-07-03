@@ -255,7 +255,7 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                           child: ConstrainedBox(
                             constraints: BoxConstraints(
                               maxHeight:
-                                  MediaQuery.of(context).size.height * 0.73,
+                                  MediaQuery.of(context).size.height * 0.7,
                             ),
                             child: SingleChildScrollView(
                               child: Padding(

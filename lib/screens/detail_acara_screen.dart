@@ -7,7 +7,7 @@ import 'package:syc/widgets/custom_count_up.dart';
 import 'package:syc/widgets/custom_snackbar.dart';
 import '../services/api_service.dart';
 import '../utils/app_colors.dart';
-import 'evaluasi_komitmen_list_screen.dart';
+import 'list_evaluasi_screen.dart';
 
 class DetailAcaraScreen extends StatefulWidget {
   final int id;

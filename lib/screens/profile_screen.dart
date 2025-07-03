@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/screens/catatan_harian_screen.dart';
+import 'package:syc/screens/list_komitmen_screen.dart';
 import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
 import '../utils/global_variables.dart';
@@ -16,7 +17,7 @@ import 'package:syc/utils/app_colors.dart';
 
 import 'detail_acara_screen.dart';
 import 'bible_reading_more_screen.dart';
-import 'evaluasi_komitmen_list_screen.dart';
+import 'list_evaluasi_screen.dart';
 import 'login_screen.dart';
 import 'profile_edit_screen.dart';
 
@@ -650,8 +651,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               MaterialPageRoute(
                                                 builder:
                                                     (context) =>
-                                                        EvaluasiKomitmenListScreen(
-                                                          type: 'Evaluasi',
+                                                        ListEvaluasiScreen(
                                                           userId: userId,
                                                         ),
                                               ),
@@ -678,8 +678,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               MaterialPageRoute(
                                                 builder:
                                                     (context) =>
-                                                        EvaluasiKomitmenListScreen(
-                                                          type: 'Komitmen',
+                                                        ListKomitmenScreen(
                                                           userId: userId,
                                                         ),
                                               ),

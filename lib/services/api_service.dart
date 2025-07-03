@@ -1424,6 +1424,45 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>> postPengumumanMarkRead(
+    BuildContext context,
+    Map<String, dynamic> pengumumanData,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}pengumuman-mark-read');
+    final body = json.encode({'data_pengumuman': pengumumanData});
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: body,
+    );
+
+    if (response.statusCode == 201) {
+      final Map<String, dynamic> result = json.decode(response.body);
+      print('✅ Pengumuman mark read berhasil dikirim: $result');
+      return result;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      throw Exception('Unauthorized');
+    } else {
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to post komitmen answer');
+    }
+  }
+
   static Future<String> getAvatarById(BuildContext context, String id) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');

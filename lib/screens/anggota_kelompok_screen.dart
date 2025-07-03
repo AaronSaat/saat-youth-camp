@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
 import 'package:shimmer/shimmer.dart';
+import 'package:syc/screens/list_komitmen_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 import 'package:syc/utils/global_variables.dart';
 import '../services/api_service.dart';
 import '../widgets/custom_not_found.dart';
 import 'bible_reading_list_screen.dart';
-import 'evaluasi_komitmen_list_screen.dart';
+import 'list_evaluasi_screen.dart';
 import 'list_gereja_screen.dart';
 
 class AnggotaKelompokScreen extends StatefulWidget {
@@ -449,9 +450,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                                                                               builder:
                                                                                   (
                                                                                     context,
-                                                                                  ) => EvaluasiKomitmenListScreen(
-                                                                                    type:
-                                                                                        'Evaluasi',
+                                                                                  ) => ListEvaluasiScreen(
                                                                                     userId:
                                                                                         user['id'] ??
                                                                                         '',
@@ -495,9 +494,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                                                                             builder:
                                                                                 (
                                                                                   context,
-                                                                                ) => EvaluasiKomitmenListScreen(
-                                                                                  type:
-                                                                                      'Komitmen',
+                                                                                ) => ListKomitmenScreen(
                                                                                   userId:
                                                                                       user['id'] ??
                                                                                       '',

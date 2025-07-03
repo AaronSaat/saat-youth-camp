@@ -3,7 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:syc/screens/bible_reading_list_screen.dart';
-import 'package:syc/screens/evaluasi_komitmen_list_screen.dart';
+import 'package:syc/screens/list_evaluasi_screen.dart';
 import 'package:syc/screens/bible_reading_more_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 import 'package:syc/widgets/custom_panel_shape.dart';
@@ -27,12 +27,6 @@ class _MateriScreenState extends State<MateriScreen> {
   int day = 1;
   Map<String, String> _dataUser = {};
 
-  // progress
-  Map<String, List<bool>> _komitmenDoneMap = {};
-  Map<String, Map<String, int>> _komitmenSummaryMap = {};
-  Map<String, List<bool>> _evaluasiDoneMap = {};
-  Map<String, Map<String, int>> _evaluasiSummaryMap = {};
-
   @override
   void initState() {
     super.initState();
@@ -45,8 +39,6 @@ class _MateriScreenState extends State<MateriScreen> {
     });
     try {
       await loadUserData();
-      await loadProgresKomitmenAnggota();
-      await loadProgresEvaluasiAnggota();
     } catch (e) {
       // handle error jika perlu
     }
@@ -78,74 +70,6 @@ class _MateriScreenState extends State<MateriScreen> {
       _dataUser = userData;
       print('User data HEY: $_dataUser');
     });
-  }
-
-  Future<void> loadProgresKomitmenAnggota() async {
-    try {
-      final komitmenList = await ApiService.getKomitmen(context);
-      _komitmenDoneMap = {};
-      _komitmenSummaryMap = {};
-      final userId = _dataUser['id'] ?? '';
-      List<bool> progress = List.filled(komitmenList.length, false);
-      for (int i = 0; i < progress.length; i++) {
-        try {
-          final result = await ApiService.getKomitmenByPesertaByDay(
-            context,
-            userId,
-            i + 1,
-          );
-          if (result['success'] == true) {
-            progress[i] = true;
-          }
-        } catch (e) {
-          // ignore error, keep as false
-        }
-      }
-      _komitmenDoneMap[userId] = progress;
-      // Hitung jumlah true/false
-      int done = progress.where((e) => e).length;
-      int notDone = progress.length - done;
-      _komitmenSummaryMap[userId] = {'done': done, 'notDone': notDone};
-      print('Progress Komitmen Map: \n$_komitmenDoneMap');
-      print('Summary Komitmen Map: \n$_komitmenSummaryMap');
-    } catch (e) {
-      print('❌ Gagal memuat progress komitmen: $e');
-    }
-  }
-
-  Future<void> loadProgresEvaluasiAnggota() async {
-    if (!mounted) return;
-    try {
-      final acaraList = await ApiService.getAcara(context);
-      _evaluasiDoneMap = {};
-      _evaluasiSummaryMap = {};
-      final userId = _dataUser['id'] ?? '';
-      List<bool> progress = List.filled(acaraList.length, false);
-      for (int i = 0; i < progress.length; i++) {
-        try {
-          final result = await ApiService.getEvaluasiByPesertaByAcara(
-            context,
-            userId,
-            i + 1,
-          );
-          if (result['success'] == true) {
-            progress[i] = true;
-          }
-        } catch (e) {
-          // ignore error, keep as false
-        }
-      }
-      _evaluasiDoneMap[userId] = progress;
-      // Hitung jumlah true/false
-      int done = progress.where((e) => e).length;
-      int notDone = progress.length - done;
-      _evaluasiSummaryMap[userId] = {'done': done, 'notDone': notDone};
-      print('Progress evaluasi Map: \n$_evaluasiDoneMap');
-      print('Summary evaluasi Map: \n$_evaluasiSummaryMap');
-    } catch (e) {
-      // Use a logging framework or handle error appropriately
-      if (!mounted) return;
-    }
   }
 
   @override
@@ -220,30 +144,6 @@ class _MateriScreenState extends State<MateriScreen> {
                           //     )
                           : Builder(
                             builder: (context) {
-                              // Ambil userId dari _dataUser
-                              final userId = _dataUser['id'] ?? '';
-                              // Progress Evaluasi
-                              final progressEvaluasi =
-                                  _evaluasiDoneMap[userId] ?? [];
-                              final evaluasiTotal = progressEvaluasi.length;
-                              final evaluasiDone =
-                                  progressEvaluasi.where((e) => e).length;
-                              final evaluasiProgress =
-                                  evaluasiTotal > 0
-                                      ? evaluasiDone / evaluasiTotal
-                                      : 0.0;
-
-                              // Progress Komitmen
-                              final progressKomitmen =
-                                  _komitmenDoneMap[userId] ?? [];
-                              final komitmenTotal = progressKomitmen.length;
-                              final komitmenDone =
-                                  progressKomitmen.where((e) => e).length;
-                              final komitmenProgress =
-                                  komitmenTotal > 0
-                                      ? komitmenDone / komitmenTotal
-                                      : 0.0;
-
                               return Column(
                                 children: [
                                   MateriMenuCard(

@@ -11,26 +11,17 @@ import 'form_komitmen_screen.dart';
 import 'review_evaluasi_screen.dart';
 import 'evaluasi_komitmen_view_screen.dart';
 
-class EvaluasiKomitmenListScreen extends StatefulWidget {
-  final String type;
+class ListEvaluasiScreen extends StatefulWidget {
   final String userId;
 
-  const EvaluasiKomitmenListScreen({
-    Key? key,
-    required this.type,
-    required this.userId,
-  }) : super(key: key);
+  const ListEvaluasiScreen({Key? key, required this.userId}) : super(key: key);
 
   @override
-  _EvaluasiKomitmenListScreenState createState() =>
-      _EvaluasiKomitmenListScreenState();
+  _ListEvaluasiScreenState createState() => _ListEvaluasiScreenState();
 }
 
-class _EvaluasiKomitmenListScreenState
-    extends State<EvaluasiKomitmenListScreen> {
+class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
   List<dynamic> _acaraList = [];
-  List<dynamic> _komitmenList = [];
-  List<dynamic> _komitmenDoneList = [];
   List<dynamic> _evaluasiDoneList = [];
   List<dynamic> _acaraIdList =
       []; // untuk menyimpan acara ID supaya di listnya tau selesai atau belum
@@ -53,73 +44,43 @@ class _EvaluasiKomitmenListScreenState
 
     try {
       await loadUserData();
-      if (widget.type == 'Evaluasi') {
-        // Ambil count acara & count all
-        try {
-          final countAcara = await ApiService.getAcaraCount(context);
-          final countAcaraAll = await ApiService.getAcaraCountAll(context);
-          if (!mounted) return;
-          setState(() {
-            _countAcara = countAcara ?? 0;
-            _countAcaraAll = countAcaraAll ?? 0;
-          });
-        } catch (e) {
-          print('❌ Gagal memuat acara count dan acara count all: $e');
-        }
-
-        // Ambil list acara
-        final acaraList = await ApiService.getAcaraByDay(context, day);
+      // Ambil count acara & count all
+      try {
+        final countAcara = await ApiService.getAcaraCount(context);
+        final countAcaraAll = await ApiService.getAcaraCountAll(context);
         if (!mounted) return;
-        _acaraIdList = acaraList.map((acara) => acara['id']).toList();
-        _evaluasiDoneList = List.filled(acaraList.length ?? 0, false);
-        for (int i = 0; i < _evaluasiDoneList.length; i++) {
-          try {
-            final result = await ApiService.getEvaluasiByPesertaByAcara(
-              context,
-              widget.userId,
-              _acaraIdList[i],
-            );
-            if (!mounted) return;
-            if (result != null && result['success'] == true) {
-              _evaluasiDoneList[i] = true;
-            }
-          } catch (e) {
-            // ignore error, keep as false
-          }
-        }
         setState(() {
-          _acaraList = acaraList ?? [];
-          _isLoading = false;
+          _countAcara = countAcara ?? 0;
+          _countAcaraAll = countAcaraAll ?? 0;
         });
-      } else if (widget.type == 'Komitmen') {
-        // Ambil list komitmen
-        final komitmenList = await ApiService.getKomitmen(context);
-        if (!mounted) return;
-        _komitmenDoneList = List.filled(komitmenList.length ?? 0, false);
-        for (int i = 0; i < _komitmenDoneList.length; i++) {
-          try {
-            final result = await ApiService.getKomitmenByPesertaByDay(
-              context,
-              widget.userId,
-              i + 1,
-            );
-            if (!mounted) return;
-            if (result != null && result['success'] == true) {
-              _komitmenDoneList[i] = true;
-            }
-          } catch (e) {
-            // ignore error, keep as false
-          }
-        }
-        setState(() {
-          _komitmenList = komitmenList ?? [];
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
+      } catch (e) {
+        print('❌ Gagal memuat acara count dan acara count all: $e');
       }
+
+      // Ambil list acara
+      final acaraList = await ApiService.getAcaraByDay(context, day);
+      if (!mounted) return;
+      _acaraIdList = acaraList.map((acara) => acara['id']).toList();
+      _evaluasiDoneList = List.filled(acaraList.length ?? 0, false);
+      for (int i = 0; i < _evaluasiDoneList.length; i++) {
+        try {
+          final result = await ApiService.getEvaluasiByPesertaByAcara(
+            context,
+            widget.userId,
+            _acaraIdList[i],
+          );
+          if (!mounted) return;
+          if (result != null && result['success'] == true) {
+            _evaluasiDoneList[i] = true;
+          }
+        } catch (e) {
+          // ignore error, keep as false
+        }
+      }
+      setState(() {
+        _acaraList = acaraList ?? [];
+        _isLoading = false;
+      });
     } catch (e) {
       print('❌ Gagal memuat data: $e');
       if (!mounted) return;
@@ -158,40 +119,6 @@ class _EvaluasiKomitmenListScreenState
       });
     } catch (e) {
       print('❌ Gagal memuat list acara: $e');
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  void loadKomitmen() async {
-    setState(() {
-      _isLoading = true;
-    });
-    try {
-      final komitmenList = await ApiService.getKomitmen(context);
-      _komitmenDoneList = List.filled(komitmenList.length ?? 0, false);
-      for (int i = 0; i < _komitmenDoneList.length; i++) {
-        try {
-          final result = await ApiService.getKomitmenByPesertaByDay(
-            context,
-            widget.userId,
-            i + 1,
-          );
-          if (result != null && result['success'] == true) {
-            _komitmenDoneList[i] = true;
-          }
-        } catch (e) {
-          // ignore error, keep as false
-        }
-      }
-      print('test Komitmen Done List: $_komitmenDoneList');
-      setState(() {
-        _komitmenList = komitmenList ?? [];
-        _isLoading = false;
-      });
-    } catch (e) {
-      print('❌ Gagal memuat list komitmen: $e');
       setState(() {
         _isLoading = false;
       });
@@ -347,48 +274,30 @@ class _EvaluasiKomitmenListScreenState
                     children: [
                       Column(
                         children: [
-                          Image.asset(
-                            widget.type == 'Evaluasi'
-                                ? 'assets/texts/evaluasi.png'
-                                : 'assets/texts/komitmen.png',
-                            height: 96,
-                          ),
+                          Image.asset('assets/texts/evaluasi.png', height: 96),
                         ],
                       ),
                       const SizedBox(height: 16),
-                      if (widget.type == 'Evaluasi') _buildDaySelector(),
+                      _buildDaySelector(),
                       const SizedBox(height: 16),
                       _isLoading
                           ? buildShimmerList()
                           : ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount:
-                                widget.type == 'Evaluasi'
-                                    ? _acaraList.length
-                                    : _komitmenList.length,
+                            itemCount: _acaraList.length,
                             itemBuilder: (context, index) {
-                              final items =
-                                  widget.type == 'Evaluasi'
-                                      ? _acaraList
-                                      : _komitmenList;
+                              final items = _acaraList;
                               String item;
                               bool? status;
-                              if (widget.type == 'Evaluasi') {
-                                final acara = items[index];
-                                if (acara['hari'] == 99) {
-                                  item = '${acara['acara_nama'] ?? '-'}';
-                                } else {
-                                  item =
-                                      '${acara['acara_nama'] ?? '-'} (Hari ${acara['hari'] ?? '-'})';
-                                }
-                                status = _evaluasiDoneList[index];
+                              final acara = items[index];
+                              if (acara['hari'] == 99) {
+                                item = '${acara['acara_nama'] ?? '-'}';
                               } else {
-                                final komitmen = items[index];
                                 item =
-                                    'Komitmen Hari ${komitmen['hari'] ?? '-'}';
-                                status = _komitmenDoneList[index];
+                                    '${acara['acara_nama'] ?? '-'} (Hari ${acara['hari'] ?? '-'})';
                               }
+                              status = _evaluasiDoneList[index];
                               return CustomCard(
                                 text: item,
                                 icon:
@@ -396,14 +305,9 @@ class _EvaluasiKomitmenListScreenState
                                         ? Icons.check
                                         : Icons.arrow_outward_rounded,
                                 onTap: () {
-                                  String type = widget.type;
                                   String userId = widget.userId;
                                   int acaraHariId;
-                                  if (type == 'Evaluasi') {
-                                    acaraHariId = _acaraList[index]['id'];
-                                  } else {
-                                    acaraHariId = _komitmenList[index]['hari'];
-                                  }
+                                  acaraHariId = _acaraList[index]['id'];
                                   if (status == true) {
                                     Navigator.push(
                                       context,
@@ -411,55 +315,57 @@ class _EvaluasiKomitmenListScreenState
                                         builder:
                                             (context) =>
                                                 EvaluasiKomitmenViewScreen(
-                                                  type: type,
+                                                  type: "Evaluasi",
                                                   userId: userId,
                                                   acaraHariId: acaraHariId,
                                                 ),
                                       ),
                                     );
                                   } else {
+                                    final acara = _acaraList[index];
+                                    String? tanggal = acara['tanggal'];
+                                    String? waktu = acara['waktu'];
+                                    DateTime? acaraDateTime;
+                                    bool evaluate = false;
+                                    String? time =
+                                        '${acara['tanggal']} ${acara['waktu']}';
                                     if (_dataUser['id'] != widget.userId) {
                                       setState(() {
                                         if (!mounted) return;
                                         showCustomSnackBar(
                                           context,
-                                          'Evaluasi/Komitmen hanya bisa diisi oleh pemilikinya.',
+                                          'Evaluasi hanya bisa diisi oleh pemilikinya.',
                                           isSuccess: false,
                                         );
                                       });
-                                    } else if (type == 'Evaluasi') {
-                                      final acara = _acaraList[index];
-                                      String? tanggal = acara['tanggal'];
-                                      String? waktu = acara['waktu'];
-                                      DateTime? acaraDateTime;
-                                      bool evaluate = false;
-                                      String? time =
-                                          '${acara['tanggal']} ${acara['waktu']}';
-
-                                      if (tanggal != null && waktu != null) {
-                                        try {
-                                          acaraDateTime = DateTime.parse(
-                                            '$tanggal $waktu',
-                                          );
-                                          // final now = DateTime.now();
-                                          final now = DateTime(
-                                            2026,
-                                            1,
-                                            1,
-                                            4,
-                                            45,
-                                            0,
-                                          ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
-                                          if (now.isAfter(
-                                            acaraDateTime.add(
-                                              const Duration(hours: 1),
-                                            ),
-                                          )) {
-                                            evaluate = true;
-                                          }
-                                        } catch (e) {}
+                                    } else if (tanggal != null &&
+                                        waktu != null) {
+                                      try {
+                                        acaraDateTime = DateTime.parse(
+                                          '$tanggal $waktu',
+                                        );
+                                        // final now = DateTime.now();
+                                        final now = DateTime(
+                                          2026,
+                                          1,
+                                          1,
+                                          8,
+                                          45,
+                                          0,
+                                        ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
+                                        if (now.isAfter(
+                                          acaraDateTime.add(
+                                            const Duration(hours: 1),
+                                          ),
+                                        )) {
+                                          evaluate = true;
+                                        }
+                                      } catch (e) {
+                                        // ignore error, keep evaluate as false
                                       }
+                                    }
 
+                                    if (tanggal != null && waktu != null) {
                                       if (!evaluate) {
                                         setState(() {
                                           if (!mounted) return;
@@ -485,21 +391,6 @@ class _EvaluasiKomitmenListScreenState
                                           }
                                         });
                                       }
-                                    } else {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) => FormKomitmenScreen(
-                                                userId: userId,
-                                                acaraHariId: acaraHariId,
-                                              ),
-                                        ),
-                                      ).then((result) {
-                                        if (result == 'reload') {
-                                          initAll();
-                                        }
-                                      });
                                     }
                                   }
                                 },

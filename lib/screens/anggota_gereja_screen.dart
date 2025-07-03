@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
+import 'package:shared_preferences/shared_preferences.dart'
+    show SharedPreferences;
 import 'package:shimmer/shimmer.dart';
+import 'package:syc/screens/list_komitmen_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 import '../services/api_service.dart';
 import '../widgets/custom_not_found.dart';
-import 'evaluasi_komitmen_list_screen.dart';
+import 'list_evaluasi_screen.dart';
 import 'list_gereja_screen.dart';
 
 class AnggotaGerejaScreen extends StatefulWidget {
@@ -106,7 +108,10 @@ class _AnggotaGerejaScreenState extends State<AnggotaGerejaScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: Navigator.canPop(context) ? BackButton(color: AppColors.primary) : null,
+        leading:
+            Navigator.canPop(context)
+                ? BackButton(color: AppColors.primary)
+                : null,
       ),
       body: Stack(
         children: [
@@ -125,7 +130,12 @@ class _AnggotaGerejaScreenState extends State<AnggotaGerejaScreen> {
               backgroundColor: Colors.white,
               child: SingleChildScrollView(
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 96),
+                  padding: const EdgeInsets.only(
+                    left: 8,
+                    right: 8,
+                    top: 8,
+                    bottom: 96,
+                  ),
                   child:
                       _isLoading
                           ? buildAnggotaShimmer()
@@ -159,8 +169,14 @@ class _AnggotaGerejaScreenState extends State<AnggotaGerejaScreen> {
                                   return Card(
                                     elevation: 0,
                                     color: Colors.grey[200],
-                                    margin: const EdgeInsets.only(left: 16, right: 16, top: 16),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                                    margin: const EdgeInsets.only(
+                                      left: 16,
+                                      right: 16,
+                                      top: 16,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(24),
+                                    ),
                                     child: SizedBox(
                                       height: 170,
                                       child: Row(
@@ -174,36 +190,65 @@ class _AnggotaGerejaScreenState extends State<AnggotaGerejaScreen> {
                                                   width: 140,
                                                   decoration: BoxDecoration(
                                                     color: Colors.white,
-                                                    borderRadius: const BorderRadius.only(
-                                                      topRight: Radius.circular(16),
-                                                      topLeft: Radius.circular(16),
-                                                      bottomLeft: Radius.circular(16),
-                                                      bottomRight: Radius.circular(16),
-                                                    ),
+                                                    borderRadius:
+                                                        const BorderRadius.only(
+                                                          topRight:
+                                                              Radius.circular(
+                                                                16,
+                                                              ),
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                16,
+                                                              ),
+                                                          bottomLeft:
+                                                              Radius.circular(
+                                                                16,
+                                                              ),
+                                                          bottomRight:
+                                                              Radius.circular(
+                                                                16,
+                                                              ),
+                                                        ),
                                                     image: DecorationImage(
-                                                      image: AssetImage(getRoleImage(user['role'] ?? '')),
+                                                      image: AssetImage(
+                                                        getRoleImage(
+                                                          user['role'] ?? '',
+                                                        ),
+                                                      ),
                                                       fit: BoxFit.cover,
                                                     ),
                                                   ),
                                                 ),
 
-                                                if (user['role'] == "Pembina" || user['role'] == "Pembimbing")
+                                                if (user['role'] == "Pembina" ||
+                                                    user['role'] ==
+                                                        "Pembimbing")
                                                   Positioned(
                                                     right: -5,
                                                     bottom: -5,
                                                     child: Card(
                                                       color: Colors.yellow[700],
                                                       shape: const RoundedRectangleBorder(
-                                                        borderRadius: BorderRadius.only(
-                                                          topLeft: Radius.circular(16),
-                                                          bottomRight: Radius.circular(16),
-                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                              topLeft:
+                                                                  Radius.circular(
+                                                                    16,
+                                                                  ),
+                                                              bottomRight:
+                                                                  Radius.circular(
+                                                                    16,
+                                                                  ),
+                                                            ),
                                                       ),
                                                       elevation: 0,
                                                       child: const SizedBox(
                                                         width: 48,
                                                         height: 36,
-                                                        child: Icon(Icons.star, color: Colors.white),
+                                                        child: Icon(
+                                                          Icons.star,
+                                                          color: Colors.white,
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
@@ -211,75 +256,113 @@ class _AnggotaGerejaScreenState extends State<AnggotaGerejaScreen> {
                                             ),
                                           ),
                                           Padding(
-                                            padding: const EdgeInsets.symmetric(vertical: 16),
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 16,
+                                            ),
                                             child: SizedBox(
-                                              width: MediaQuery.of(context).size.width * 0.35,
+                                              width:
+                                                  MediaQuery.of(
+                                                    context,
+                                                  ).size.width *
+                                                  0.35,
                                               height: 170,
                                               child: Column(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
                                                   Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       Text(
                                                         user['nama'] ?? '',
                                                         style: TextStyle(
-                                                          color: AppColors.primary,
+                                                          color:
+                                                              AppColors.primary,
                                                           fontSize:
-                                                              (user['nama'] != null && user['nama'].length > 15)
+                                                              (user['nama'] !=
+                                                                          null &&
+                                                                      user['nama']
+                                                                              .length >
+                                                                          15)
                                                                   ? 14
                                                                   : 18,
-                                                          fontWeight: FontWeight.bold,
+                                                          fontWeight:
+                                                              FontWeight.bold,
                                                         ),
-                                                        textAlign: TextAlign.left,
+                                                        textAlign:
+                                                            TextAlign.left,
                                                       ),
                                                       const SizedBox(height: 4),
                                                       Text(
-                                                        'Nama Gereja: ${user['nama_gereja']}' ?? '',
+                                                        'Nama Gereja: ${user['nama_gereja']}' ??
+                                                            '',
                                                         style: TextStyle(
-                                                          color: AppColors.primary,
+                                                          color:
+                                                              AppColors.primary,
                                                           fontSize: 12,
-                                                          fontWeight: FontWeight.bold,
+                                                          fontWeight:
+                                                              FontWeight.bold,
                                                         ),
-                                                        textAlign: TextAlign.left,
+                                                        textAlign:
+                                                            TextAlign.left,
                                                       ),
                                                       const SizedBox(height: 4),
                                                       Text(
-                                                        'Asal Provinsi: ${user['provinsi']}' ?? '',
+                                                        'Asal Provinsi: ${user['provinsi']}' ??
+                                                            '',
                                                         style: TextStyle(
-                                                          color: AppColors.primary,
+                                                          color:
+                                                              AppColors.primary,
                                                           fontSize: 12,
-                                                          fontWeight: FontWeight.bold,
+                                                          fontWeight:
+                                                              FontWeight.bold,
                                                         ),
-                                                        textAlign: TextAlign.left,
+                                                        textAlign:
+                                                            TextAlign.left,
                                                       ),
                                                       const SizedBox(height: 4),
                                                       Text(
-                                                        'Umur: ${user['umur']}' ?? '',
+                                                        'Umur: ${user['umur']}' ??
+                                                            '',
                                                         style: TextStyle(
-                                                          color: AppColors.primary,
+                                                          color:
+                                                              AppColors.primary,
                                                           fontSize: 12,
-                                                          fontWeight: FontWeight.bold,
+                                                          fontWeight:
+                                                              FontWeight.bold,
                                                         ),
-                                                        textAlign: TextAlign.left,
+                                                        textAlign:
+                                                            TextAlign.left,
                                                       ),
                                                       const SizedBox(height: 4),
                                                     ],
                                                   ),
                                                   Column(
-                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
                                                     children: [
-                                                      if (role.toLowerCase() == 'pembimbing kelompok' ||
-                                                          role.toLowerCase() == 'panitia')
+                                                      if (role.toLowerCase() ==
+                                                              'pembimbing kelompok' ||
+                                                          role.toLowerCase() ==
+                                                              'panitia')
                                                         SizedBox(
                                                           width: 210,
                                                           height: 30,
                                                           child: ElevatedButton(
                                                             style: ElevatedButton.styleFrom(
-                                                              backgroundColor: AppColors.brown1,
+                                                              backgroundColor:
+                                                                  AppColors
+                                                                      .brown1,
                                                               shape: RoundedRectangleBorder(
-                                                                borderRadius: BorderRadius.circular(32),
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      32,
+                                                                    ),
                                                               ),
                                                             ),
                                                             onPressed: () {
@@ -287,29 +370,42 @@ class _AnggotaGerejaScreenState extends State<AnggotaGerejaScreen> {
                                                                 context,
                                                                 MaterialPageRoute(
                                                                   builder:
-                                                                      (context) => EvaluasiKomitmenListScreen(
-                                                                        type: 'Komitmen',
-                                                                        userId: user['id'].toString(),
+                                                                      (
+                                                                        context,
+                                                                      ) => ListKomitmenScreen(
+                                                                        userId:
+                                                                            user['id'].toString(),
                                                                       ),
                                                                 ),
                                                               );
                                                             },
                                                             child: const Text(
                                                               'KOMITMEN',
-                                                              style: TextStyle(color: Colors.white, fontSize: 12),
+                                                              style: TextStyle(
+                                                                color:
+                                                                    Colors
+                                                                        .white,
+                                                                fontSize: 12,
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
                                                       SizedBox(height: 8),
-                                                      if (role.toLowerCase() == 'panitia')
+                                                      if (role.toLowerCase() ==
+                                                          'panitia')
                                                         SizedBox(
                                                           width: 210,
                                                           height: 30,
                                                           child: ElevatedButton(
                                                             style: ElevatedButton.styleFrom(
-                                                              backgroundColor: AppColors.brown1,
+                                                              backgroundColor:
+                                                                  AppColors
+                                                                      .brown1,
                                                               shape: RoundedRectangleBorder(
-                                                                borderRadius: BorderRadius.circular(32),
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      32,
+                                                                    ),
                                                               ),
                                                             ),
                                                             onPressed: () {
@@ -317,16 +413,23 @@ class _AnggotaGerejaScreenState extends State<AnggotaGerejaScreen> {
                                                                 context,
                                                                 MaterialPageRoute(
                                                                   builder:
-                                                                      (context) => EvaluasiKomitmenListScreen(
-                                                                        type: 'Evaluasi',
-                                                                        userId: user['id'].toString(),
+                                                                      (
+                                                                        context,
+                                                                      ) => ListEvaluasiScreen(
+                                                                        userId:
+                                                                            user['id'].toString(),
                                                                       ),
                                                                 ),
                                                               );
                                                             },
                                                             child: const Text(
                                                               'EVALUASI',
-                                                              style: TextStyle(color: Colors.white, fontSize: 12),
+                                                              style: TextStyle(
+                                                                color:
+                                                                    Colors
+                                                                        .white,
+                                                                fontSize: 12,
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
@@ -370,7 +473,9 @@ Widget buildAnggotaShimmer() {
               elevation: 0,
               color: Colors.grey[200],
               margin: const EdgeInsets.only(left: 16, right: 16, top: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
               child: SizedBox(
                 height: 170,
                 child: Row(
@@ -383,7 +488,10 @@ Widget buildAnggotaShimmer() {
                         child: Container(
                           height: 140,
                           width: 140,
-                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
                       ),
                     ),
@@ -402,7 +510,10 @@ Widget buildAnggotaShimmer() {
                               child: Container(
                                 width: 90,
                                 height: 18,
-                                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
                               ),
                             ),
                             Column(

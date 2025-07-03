@@ -50,6 +50,8 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
                 .toList() ??
             [];
         _isLoading = false;
+
+        print('Loaded Evaluasi: $_dataEvaluasi');
       });
       await _loadSavedProgress();
     } catch (e) {
@@ -230,8 +232,12 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
                       if (item.isEmpty) return const SizedBox.shrink();
                       final question = item['question'] ?? 'Pertanyaan';
                       final type = item['type']?.toString();
-                      final scale = item['scale']?.toString() ?? '';
+                      final scale =
+                          item['questionType']['scale_range']?.toString() ?? '';
                       final answer = _localAnswers[id];
+                      print(
+                        'MBEK Processing question: $question, type: $type, answer: $answer',
+                      );
                       if (["1", "18", "19"].contains(type)) {
                         return CustomTextCard(
                           text: question,
