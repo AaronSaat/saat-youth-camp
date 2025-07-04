@@ -346,11 +346,11 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
                                         );
                                         // final now = DateTime.now();
                                         final now = DateTime(
-                                          2026,
-                                          1,
-                                          1,
-                                          8,
-                                          45,
+                                          2025,
+                                          12,
+                                          31,
+                                          0,
+                                          0,
                                           0,
                                         ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
                                         if (now.isAfter(

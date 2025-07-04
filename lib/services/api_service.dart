@@ -15,8 +15,8 @@ import '../widgets/custom_snackbar.dart';
 class ApiService {
   // static const String baseurl = 'http://172.172.52.9:82/reg-new/api-syc2025/';
   // static const String baseurlLocal = 'http://172.172.52.9/website_backup/api/';
-  static const String baseurl = 'http://172.172.52.11:8080/api-syc2025/';
-  // static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
+  // static const String baseurl = 'http://172.172.52.11:8080/api-syc2025/';
+  static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
 
   static Future<Map<String, dynamic>> loginUser(
     String username,
@@ -126,7 +126,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return false;
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to validate token');
@@ -160,7 +161,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return {};
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load count user');
@@ -200,7 +202,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return {};
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load bacaan harian');
@@ -239,7 +242,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return {};
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load data catatan harian');
@@ -277,7 +281,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return "";
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load perikop read bacaan harian');
@@ -314,7 +319,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return {};
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load count brm report by day');
@@ -354,7 +360,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return 0;
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load count read bacaan harian');
@@ -397,7 +404,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return "";
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load notes bacaan harian');
@@ -440,7 +448,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return {};
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to post brm done read');
@@ -483,7 +492,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return {};
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to post brm done read');
@@ -522,7 +532,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return [];
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load list acara');
@@ -559,7 +570,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return 0;
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load count acara');
@@ -596,7 +608,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return 0;
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load count acara all');
@@ -635,7 +648,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return [];
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load acara');
@@ -674,7 +688,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return [];
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load acara by id');
@@ -718,7 +733,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return {};
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load pertanyaan evaluasi acaraId-$acaraId');
@@ -766,7 +782,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return {};
     } else if (response.statusCode == 404) {
       return {'status': 404, 'success': false};
     } else {
@@ -809,7 +826,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return {};
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load count evaluasi answered by peserta');
@@ -848,7 +866,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return {};
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load count evaluasi answered by acara');
@@ -891,7 +910,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return {};
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to post evaluasi answer');
@@ -930,7 +950,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return [];
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load list komitmen');
@@ -974,7 +995,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return {};
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load pertanyaan komitmen hari-$day');
@@ -1023,7 +1045,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return {};
     } else if (response.statusCode == 404) {
       return {'status': 404, 'success': false};
     } else {
@@ -1066,7 +1089,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return {};
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load count komitmen answered by peserta');
@@ -1103,7 +1127,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return {};
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load count komitmen answered by day');
@@ -1142,7 +1167,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return {};
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to post komitmen answer');
@@ -1181,7 +1207,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return [];
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load gereja');
@@ -1221,7 +1248,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return {};
     } else {
       throw Exception('Failed to load anggota gereja');
     }
@@ -1260,7 +1288,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return [];
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load gereja');
@@ -1302,7 +1331,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return {};
     } else {
       throw Exception('Failed to load anggota group');
     }
@@ -1340,7 +1370,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return [];
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load kelompok');
@@ -1380,7 +1411,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return {};
     } else {
       throw Exception('Failed to load anggota kelompok');
     }
@@ -1417,7 +1449,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return [];
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load acara by id');
@@ -1456,7 +1489,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return {};
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to post komitmen answer');
@@ -1492,7 +1526,8 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      throw Exception('Unauthorized');
+      // throw Exception('Unauthorized');
+      return "";
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load data gambar oleh id $id');
@@ -1541,7 +1576,8 @@ class ApiService {
           'Sesi login Anda telah habis. Silakan login kembali.',
         );
         await handleUnauthorized(context);
-        throw Exception('Unauthorized');
+        // throw Exception('Unauthorized');
+        return {};
       } else {
         print('❌ Error postimage: ${response.statusCode} - ${response.body}');
         throw Exception('Failed to upload image');

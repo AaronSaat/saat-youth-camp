@@ -10,6 +10,7 @@ import 'package:syc/utils/global_variables.dart';
 
 import '../services/api_service.dart';
 import '../utils/app_colors.dart';
+import '../utils/permission_helper.dart';
 import '../widgets/custom_snackbar.dart';
 
 class ProfileEditScreen extends StatefulWidget {
@@ -70,32 +71,44 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   }
 
   Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    bool hasPermission = await PermissionHelper.requestPhotosPermission(
+      context,
+    );
+    if (hasPermission) {
+      //[DEVELOPER NOTE] This condition is inverted, atau ga usah pakai
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        final file = File(pickedFile.path);
+        final bytes = await file.length();
+        print('File size in bytes: $bytes');
+        const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
 
-    if (pickedFile != null) {
-      final file = File(pickedFile.path);
-      final bytes = await file.length();
-      print('File size in bytes: $bytes');
-      const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
+        if (bytes > maxSizeInBytes) {
+          showCustomSnackBar(
+            context,
+            'Ukuran gambar maksimal 2MB',
+            isSuccess: false,
+          );
+          return;
+        }
 
-      if (bytes > maxSizeInBytes) {
+        setState(() {
+          _imageFile = file;
+        });
+      } else {
+        if (!mounted) return;
         showCustomSnackBar(
           context,
-          'Ukuran gambar maksimal 2MB',
+          'Tidak ada gambar yang dipilih',
           isSuccess: false,
         );
-        return;
       }
-
-      setState(() {
-        _imageFile = file;
-      });
     } else {
       if (!mounted) return;
       showCustomSnackBar(
         context,
-        'Tidak ada gambar yang dipilih',
+        'Izin akses galeri ditolak',
         isSuccess: false,
       );
     }

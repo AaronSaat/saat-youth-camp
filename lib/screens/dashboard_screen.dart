@@ -153,7 +153,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         // final today = DateTime.now().toIso8601String().substring(0, 10);
         final today =
-            "2025-12-30"; // hardcoded untuk testing, [DEVELOPMENT NOTES] nanti hapus
+            "2025-12-31"; // hardcoded untuk testing, [DEVELOPMENT NOTES] nanti hapus
 
         // Ambil list tanggal dan hari unik
         final List<Map<String, dynamic>> tanggalHariList = [];

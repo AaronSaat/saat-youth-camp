@@ -54,5 +54,7 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Aplikasi ini memerlukan akses ke galeri untuk memilih foto profil</string>
 </dict>
 </plist>

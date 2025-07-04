@@ -254,7 +254,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                                           2026,
                                           12,
                                           31,
-                                          9,
+                                          0,
                                           0,
                                           0,
                                         ); // hardcode, [DEVELOPMENT NOTES] nanti hapus

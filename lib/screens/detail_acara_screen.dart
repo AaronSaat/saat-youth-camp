@@ -315,11 +315,11 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                             }
                                             // final now = DateTime.now();
                                             final now = DateTime(
-                                              2026,
-                                              1,
-                                              1,
-                                              4,
-                                              45,
+                                              2025,
+                                              12,
+                                              31,
+                                              0,
+                                              0,
                                               0,
                                             ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
                                             final diff =
