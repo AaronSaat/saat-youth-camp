@@ -33,7 +33,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isLoading_userdata = true;
   bool _isLoading_progreskomitmen = true;
   bool _isLoading_progresevaluasi = true;
-  bool _isLoading_brm = true;
   bool _isLoading_avatar = true;
 
   // loading progres komitmen untuk panitia
@@ -69,8 +68,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _isLoading_userdata = true;
       _isLoading_avatar = true;
 
-      _isLoading_brm = true;
-
       // loading peserta
       _isLoading_progreskomitmen = true;
       _isLoading_progresevaluasi = true;
@@ -89,11 +86,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         await loadProgresKomitmenAnggota();
       }
 
-      if (_dataUser['role']!.toLowerCase().contains('peserta') ||
-          _dataUser['role']!.toLowerCase().contains('pembina')) {
-        await loadBrm();
-      }
-
       if (_dataUser['role']!.toLowerCase().contains('panitia')) {
         await loadCountUser();
         await loadKomitmenDoneDay1Panitia();
@@ -108,8 +100,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _isLoading = false;
       _isLoading_userdata = false;
       _isLoading_avatar = false;
-
-      _isLoading_brm = false;
 
       // loading peserta
       _isLoading_progreskomitmen = false;
@@ -207,27 +197,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {
       if (!mounted) return;
     }
-  }
-
-  Future<void> loadBrm() async {
-    if (!mounted) return;
-    setState(() {
-      _isLoading_brm = true;
-    });
-    try {
-      final brm = await ApiService.getBrmToday(context);
-      if (!mounted) return;
-      setState(() {
-        final dataBrm = brm['data_brm'];
-        if (dataBrm != null && dataBrm is Map<String, dynamic>) {
-          _dataBrm = [dataBrm];
-        } else {
-          _dataBrm = [];
-        }
-        // print('Data BRM: $_dataBrm');
-        _isLoading_brm = false;
-      });
-    } catch (e) {}
   }
 
   Future<void> loadAvatarById() async {
@@ -701,74 +670,67 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             const SizedBox(height: 16),
                           if (!role.toLowerCase().contains('panitia') &&
                               !role.toLowerCase().contains('pembimbing'))
-                            _isLoading_brm
-                                ? buildBacaanShimer()
-                                : InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) => BibleReadingListScreen(
-                                              userId: id,
-                                            ),
-                                      ),
-                                    ).then((result) {
-                                      if (result == 'reload') {
-                                        initAll(); // reload dashboard
-                                      }
-                                    });
-                                  },
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: Stack(
-                                    children: [
-                                      Container(
-                                        height: 180,
-                                        padding: const EdgeInsets.only(
-                                          left: 150,
-                                          right: 24,
-                                          bottom: 16,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.primary.withAlpha(
-                                            70,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          image: const DecorationImage(
-                                            image: AssetImage(
-                                              'assets/images/card_bacaan.png',
-                                            ),
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                        child: Align(
-                                          alignment: Alignment.bottomRight,
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
-                                            children: [
-                                              Text(
-                                                'Bacaan Saya',
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w900,
-                                                  color: Colors.white,
-                                                  fontSize: 24,
-                                                ),
-                                                maxLines: 2,
-                                                textAlign: TextAlign.right,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                            InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) =>
+                                            BibleReadingListScreen(userId: id),
                                   ),
-                                ),
+                                ).then((result) {
+                                  if (result == 'reload') {
+                                    initAll(); // reload dashboard
+                                  }
+                                });
+                              },
+                              borderRadius: BorderRadius.circular(16),
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    height: 180,
+                                    padding: const EdgeInsets.only(
+                                      left: 150,
+                                      right: 24,
+                                      bottom: 16,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary.withAlpha(70),
+                                      borderRadius: BorderRadius.circular(16),
+                                      image: const DecorationImage(
+                                        image: AssetImage(
+                                          'assets/images/card_bacaan.png',
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    child: Align(
+                                      alignment: Alignment.bottomRight,
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            'Bacaan Saya',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w900,
+                                              color: Colors.white,
+                                              fontSize: 24,
+                                            ),
+                                            maxLines: 2,
+                                            textAlign: TextAlign.right,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           const SizedBox(height: 16),
                           InkWell(
                             onTap: () {

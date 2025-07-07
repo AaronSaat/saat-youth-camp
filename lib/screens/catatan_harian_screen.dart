@@ -123,7 +123,7 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
       now.year,
       now.month,
       now.day,
-    ).subtract(const Duration(days: 9));
+    ).subtract(const Duration(days: 19));
     final previousDate = _selectedDate.subtract(const Duration(days: 1));
     if (previousDate.isBefore(tenDaysAgo)) {
       showCustomSnackBar(

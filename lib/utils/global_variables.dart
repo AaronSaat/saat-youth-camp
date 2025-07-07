@@ -1,6 +1,6 @@
 class GlobalVariables {
-  static const String serverUrl = 'https://reg.seabs.ac.id/';
-  // static const String serverUrl = 'http://172.172.52.11:8080/';
+  // static const String serverUrl = 'http://reg.seabs.ac.id/';
+  static const String serverUrl = 'http://172.172.52.11:8080/';
 }
 
 // Contoh penggunaan di file lain:

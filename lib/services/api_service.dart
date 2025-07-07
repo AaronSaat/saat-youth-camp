@@ -15,8 +15,8 @@ import '../widgets/custom_snackbar.dart';
 class ApiService {
   // static const String baseurl = 'http://172.172.52.9:82/reg-new/api-syc2025/';
   // static const String baseurlLocal = 'http://172.172.52.9/website_backup/api/';
-  // static const String baseurl = 'http://172.172.52.11:8080/api-syc2025/';
-  static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
+  static const String baseurl = 'http://172.172.52.11:8080/api-syc2025/';
+  // static const String baseurl = 'http://reg.seabs.ac.id/api-syc2025/';
 
   static Future<Map<String, dynamic>> loginUser(
     String username,
@@ -250,6 +250,46 @@ class ApiService {
     }
   }
 
+  // untuk catatan list supaya tidak loading lama
+  static Future<List<dynamic>> getBrmByBulan(
+    BuildContext context,
+    String bulan,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}brm-by-bulan?bulan=$bulan');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('url: $url');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> decoded = json.decode(response.body);
+      final List<dynamic> dataBacaan = decoded['data_brm'] ?? [];
+
+      return dataBacaan;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      // throw Exception('Unauthorized');
+      return [];
+    } else {
+      print('❌ Error test: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load data brm by bulan');
+    }
+  }
+
   // di bible_reading_list
   static Future<String> getBacaanByDay(BuildContext context, String day) async {
     final prefs = await SharedPreferences.getInstance();
@@ -324,6 +364,48 @@ class ApiService {
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load count brm report by day');
+    }
+  }
+
+  // untuk catatan harian biar ga loading lama
+  static Future<Map<String, dynamic>> getBrmReportByPesertaByBulan(
+    BuildContext context,
+    String userId,
+    String bulan,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse(
+      '${baseurl}brm-report-by-peserta-by-bulan?user_id=$userId&bulan=$bulan',
+    );
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('url: $url');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> databrm = json.decode(response.body);
+
+      return databrm;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      // throw Exception('Unauthorized');
+      return {};
+    } else {
+      print('❌ Error test: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load brm report by bulan');
     }
   }
 

@@ -29,11 +29,12 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
   int _hariKe = 1;
   int _jumlahHari = 1;
   String _namaBulan = '';
-  List<Map<String, dynamic>> _dataBrm = [];
-  List _dataProgressBacaan = [];
-  List _dataNotesBacaan = [];
-  List _dataBacaan = [];
+  List<dynamic> _dataBrm = [];
+  Map<String, dynamic> _dataProgress = {};
   Map<String, String> _dataUser = {};
+  List<String> _dataBacaan = [];
+  List<String> _dataNotesBacaan = [];
+  List<int> _dataProgressBacaan = [];
   bool _autoSelected = false;
 
   @override
@@ -58,10 +59,8 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
         _namaBulan = getNamaBulan();
       });
       await loadUserData();
-      await loadBacaanByDay();
-      await loadReportCountBrmByPesertaByDay();
-      await loadReportNotesBrmByPesertaByDay();
-      await loadBrm();
+      await loadBrmByBulan();
+      await loadBrmReportByPesertaByBulan();
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -99,110 +98,34 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
     });
   }
 
-  Future<void> loadBrm() async {
+  Future<void> loadBrmByBulan() async {
+    final now = DateTime.now();
+    final month = now.month.toString().padLeft(2, '0');
     try {
-      final brm = await ApiService.getBrmToday(context);
+      final brm = await ApiService.getBrmByBulan(context, month);
       if (!mounted) return;
       setState(() {
-        final dataBrm = brm['data_brm'];
-        if (dataBrm != null && dataBrm is Map<String, dynamic>) {
-          _dataBrm = [dataBrm];
-        } else {
-          _dataBrm = [];
-        }
+        _dataBrm = brm;
+        print('Data Brm Bulanan: $_dataBrm');
       });
     } catch (e) {}
   }
 
-  Future<void> loadBacaanByDay() async {
+  Future<void> loadBrmReportByPesertaByBulan() async {
     try {
       final now = DateTime.now();
-      final year = now.year;
-      final month = now.month;
-      List<String> dateList = List.generate(_jumlahHari, (i) {
-        final day = i + 1;
-        return DateTime(year, month, day).toIso8601String().substring(0, 10);
-      });
+      final month = now.month.toString().padLeft(2, '0');
 
-      List<dynamic> bacaanList = [];
-      for (final date in dateList) {
-        try {
-          final bacaan = await ApiService.getBacaanByDay(context, date);
-          print('Bacaan untuk $date: $bacaan');
-          bacaanList.add(bacaan);
-        } catch (e) {
-          print('Bacaan untuk $date: null');
-          bacaanList.add('Not Found');
-        }
-      }
+      final bacaan = await ApiService.getBrmReportByPesertaByBulan(
+        context,
+        widget.userId,
+        month,
+      );
 
       if (!mounted) return;
       setState(() {
-        _dataBacaan = bacaanList;
-        print('Data Bacaan: $_dataBacaan');
-      });
-    } catch (e) {}
-  }
-
-  Future<void> loadReportCountBrmByPesertaByDay() async {
-    try {
-      final now = DateTime.now();
-      final year = now.year;
-      final month = now.month;
-      List<String> dateList = List.generate(_jumlahHari, (i) {
-        final day = i + 1;
-        return DateTime(year, month, day).toIso8601String().substring(0, 10);
-      });
-
-      List<dynamic> countList = [];
-      for (final date in dateList) {
-        try {
-          final count = await ApiService.getBrmReportCountByPesertaByDay(
-            context,
-            widget.userId,
-            date,
-          );
-          countList.add(count);
-        } catch (e) {
-          countList.add(0);
-        }
-      }
-
-      if (!mounted) return;
-      setState(() {
-        _dataProgressBacaan = countList;
-      });
-    } catch (e) {}
-  }
-
-  Future<void> loadReportNotesBrmByPesertaByDay() async {
-    try {
-      final now = DateTime.now();
-      final year = now.year;
-      final month = now.month;
-      List<String> dateList = List.generate(_jumlahHari, (i) {
-        final day = i + 1;
-        return DateTime(year, month, day).toIso8601String().substring(0, 10);
-      });
-
-      List<dynamic> noteList = [];
-      for (final date in dateList) {
-        try {
-          final note = await ApiService.getBrmReportNotesByPesertaByDay(
-            context,
-            widget.userId,
-            date,
-          );
-          noteList.add(note);
-        } catch (e) {
-          noteList.add('(no notes)');
-        }
-      }
-
-      if (!mounted) return;
-      setState(() {
-        _dataNotesBacaan = noteList;
-        print('Data Notes Bacaan: $_dataNotesBacaan');
+        _dataProgress = bacaan;
+        print('Data Progress Bulanan: $_dataProgress');
       });
     } catch (e) {}
   }
@@ -333,7 +256,6 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
   @override
   Widget build(BuildContext context) {
     final id = _dataUser['id'] ?? '';
-    print('User ID: $id | Widget User ID: ${widget.userId}');
     return Scaffold(
       extendBodyBehindAppBar: true,
 
@@ -433,12 +355,14 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                                 ),
                                 CustomCard(
                                   text:
-                                      (_dataBacaan.length >= day &&
-                                              _dataBacaan[day - 1] != null &&
-                                              _dataBacaan[day - 1]
+                                      (_dataBrm.length >= day &&
+                                              _dataBrm[day - 1]?['passage'] !=
+                                                  null &&
+                                              _dataBrm[day - 1]['passage']
                                                   .toString()
                                                   .isNotEmpty)
-                                          ? _dataBacaan[day - 1].toString()
+                                          ? _dataBrm[day - 1]['passage']
+                                              .toString()
                                           : 'Bacaan???',
                                   // _dataBrm.isNotEmpty &&
                                   //         _dataBrm[0]['passage'] != null
@@ -447,9 +371,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                                   icon: Icons.menu_book_rounded,
                                   onTap: () {
                                     final userId = widget.userId;
-                                    if (day == _hariKe &&
-                                        _dataProgressBacaan[_hariKe - 1] == 0 &&
-                                        widget.userId == id) {
+                                    if (day == _hariKe && widget.userId == id) {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -489,8 +411,30 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                                 ),
                                 CustomCard(
                                   text:
-                                      _dataNotesBacaan.isNotEmpty
-                                          ? 'Notes: ${_dataNotesBacaan[day - 1]}'
+                                      (_dataBrm.length >= day &&
+                                              _dataProgress['brm_report'] !=
+                                                  null)
+                                          ? (() {
+                                            final brmId =
+                                                _dataBrm[day - 1]?['id'];
+                                            final brmReports =
+                                                _dataProgress['brm_report']
+                                                    as List<dynamic>;
+                                            final report = brmReports
+                                                .firstWhere(
+                                                  (r) => r['brm_id'] == brmId,
+                                                  orElse: () => null,
+                                                );
+                                            if (report != null &&
+                                                report['notes'] != null &&
+                                                report['notes']
+                                                    .toString()
+                                                    .isNotEmpty) {
+                                              return 'Catatan: ${report['notes']}';
+                                            } else {
+                                              return 'Tidak ada catatan';
+                                            }
+                                          })()
                                           : 'Notes???',
                                   icon: Icons.sticky_note_2_rounded,
                                   iconBackgroundColor: AppColors.brown1,
