@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/screens/form_komitmen_screen.dart';
+import 'package:syc/services/notification_service.dart'
+    show NotificationService;
+import 'package:url_launcher/url_launcher.dart'
+    show canLaunchUrl, LaunchMode, launchUrl;
 import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
 import '../widgets/custom_not_found.dart';
@@ -49,7 +53,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (countAcara <= 2) {
         itemWidth = 40;
       } else if (countAcara == 3) {
-        itemWidth = 120;
+        itemWidth = 110;
       } else {
         itemWidth = 160;
       }
@@ -271,6 +275,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  // Future<void> testBasicNotification() async {
+  //   await NotificationService.showBasicNotification(
+  //     title: 'Test Notification',
+  //     body: 'This is a test notification from SYC App.',
+  //   );
+  // }
+
   @override
   void dispose() {
     _acaraController.dispose();
@@ -431,12 +442,71 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                       const SizedBox(height: 24),
 
-                      // Bible Reading Movement
+                      // Notifikasi
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Test Notification Button
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  NotificationService().showNotification(
+                                    title: 'Test Notification',
+                                    body:
+                                        'This is a text notification from SYC App.',
+                                  );
+                                },
+                                icon: const Icon(Icons.notifications, size: 16),
+                                label: const Text('Test Notifications'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.secondary,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            // Schedule Notification Button
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  NotificationService().scheduledNotification(
+                                    title:
+                                        'Scheduled Notification: 5 seconds later',
+                                    body:
+                                        'This notification is scheduled for 5 seconds later.',
+                                    scheduledTime: DateTime.now().add(
+                                      const Duration(seconds: 5),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.schedule, size: 16),
+                                label: const Text(
+                                  'Schedule Notification: 5s Later',
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.secondary,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Bacaan Hari Ini (BRM)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child:
                             _isLoading
                                 ? buildBrmShimmer()
                                 : _dataBrm.isEmpty
@@ -612,6 +682,86 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ],
                                   ),
                                 ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            InkWell(
+                              onTap: () async {
+                                const url =
+                                    'https://drive.google.com/drive/folders/1J7qIoUL7aI2YGy7tR_ZFQxX-7ylzVZrg?usp=sharing';
+                                if (await canLaunchUrl(Uri.parse(url))) {
+                                  await launchUrl(
+                                    Uri.parse(url),
+                                    mode: LaunchMode.externalApplication,
+                                  );
+                                }
+                              },
+                              borderRadius: BorderRadius.circular(16),
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    height: 180,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      image: const DecorationImage(
+                                        image: AssetImage(
+                                          'assets/images/card_dokumentasi.jpg',
+                                        ),
+                                        fit: BoxFit.fill,
+                                      ),
+                                    ),
+                                    child: Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                          right: 8.0,
+                                        ),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                color: AppColors.secondary,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              padding: const EdgeInsets.all(12),
+                                              child: const Icon(
+                                                Icons.arrow_forward_ios,
+                                                color: Colors.white,
+                                                size: 28,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 8),
+                                            const Text(
+                                              'Dokumentasi Acara',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w900,
+                                                color: Colors.white,
+                                                fontSize: 16,
+                                              ),
+                                              textAlign: TextAlign.right,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                       ),

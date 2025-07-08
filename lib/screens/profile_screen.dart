@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/screens/catatan_harian_screen.dart';
+import 'package:syc/screens/kontak_panitia_screen.dart';
 import 'package:syc/screens/list_komitmen_screen.dart';
 import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
@@ -777,6 +778,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             fontWeight: FontWeight.w900,
                                             color: Colors.white,
                                             fontSize: 24,
+                                          ),
+                                          maxLines: 2,
+                                          textAlign: TextAlign.right,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => KontakPanitiaScreen(),
+                                ),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(16),
+                            child: Stack(
+                              children: [
+                                Container(
+                                  height: 180,
+                                  padding: const EdgeInsets.only(
+                                    left: 150,
+                                    right: 24,
+                                    bottom: 16,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary.withAlpha(70),
+                                    borderRadius: BorderRadius.circular(16),
+                                    image: const DecorationImage(
+                                      image: AssetImage(
+                                        'assets/images/card_kontak.jpg',
+                                      ),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  child: Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          'Kontak Panitia',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w900,
+                                            color: Colors.white,
+                                            fontSize: 22,
                                           ),
                                           maxLines: 2,
                                           textAlign: TextAlign.right,

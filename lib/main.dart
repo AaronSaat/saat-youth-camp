@@ -4,6 +4,8 @@ import 'package:syc/screens/form_komitmen_screen.dart';
 import 'package:syc/screens/main_screen.dart';
 import 'package:syc/screens/profile_edit_screen.dart';
 import 'package:syc/screens/test_screen4.dart';
+import 'package:syc/services/notification_service.dart'
+    show NotificationService;
 import 'package:syc/utils/app_colors.dart';
 
 import 'orientation_guard.dart';
@@ -16,6 +18,8 @@ import 'screens/splash_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  await NotificationService().initialize();
   runApp(const MyApp());
   // runApp(OrientationGuard(child: MyApp()));
 }
