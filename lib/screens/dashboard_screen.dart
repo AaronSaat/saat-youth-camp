@@ -34,6 +34,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ScrollController _acaraController = ScrollController();
   int _currentAcaraPage = 0;
   List<dynamic> _acaraList = [];
+  List<dynamic> _acaraListAll = [];
+  List<dynamic> _komitmenListAll = [];
   List<dynamic> _acaraDateList = [];
   List<Map<String, dynamic>> _pengumumanList = [];
   int day = 1;
@@ -73,6 +75,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
       await loadReportBrmByPesertaByDay();
       await loadPengumumanByUserId();
       await checkKomitmenDone();
+
+      // untuk keperluan notifikasi
+      await loadAllAcara();
+      await loadAllKomitmen();
+      await setupAllNotification();
+
+      //setup notifications
+      // await setupDailyNotification();
+
+      // ini adalah notifikasi pasti yaitu:
+      // 1. Notifikasi acara 15 menit sebelum acara hari 1 - 4 (untuk semua role)
+      // 2. Notifikasi evaluasi 2 jam menit setelah acara dimulai hari 1 - 4 (untuk peserta, pembina)
+      // 3. Notifikasi evaluasi keseluruhan 1x hari terakhir jam 12 siang (untuk peserta, pembina)
+      // 4. Notifikasi komitmen setiap hari tiap jam 8 malam (untuk peserta)
+      await setupAllNotification();
     } catch (e) {
       // handle error jika perlu
     }
@@ -86,6 +103,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'id',
       'username',
       'email',
+      'group_id',
       'role',
       'token',
       'gereja_id',
@@ -207,11 +225,59 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _acaraList = acaraList;
         _isLoading = false;
         countAcara = _acaraList.length;
-        print('Acara List: \n$_acaraList');
+        print('Acara List: $_acaraList');
         print('Jumlah Acara: ${_acaraList.length}');
       });
     } catch (e) {
       print('❌ Gagal memuat acara: $e');
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // untuk notifikasi
+  Future<void> loadAllAcara() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final acaraList = await ApiService.getAcara(context);
+      if (!mounted) return;
+      setState(() {
+        _acaraListAll = acaraList;
+        _isLoading = false;
+        print('Acara List All: \n$_acaraListAll');
+      });
+    } catch (e) {
+      print('❌ Gagal memuat all acara : $e');
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // untuk notifikasi
+  Future<void> loadAllKomitmen() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final komitmenList = await ApiService.getKomitmen(context);
+      if (!mounted) return;
+      setState(() {
+        _komitmenListAll = komitmenList;
+        _isLoading = false;
+        print('Komitmen List All: \n$_komitmenListAll');
+      });
+    } catch (e) {
+      print('❌ Gagal memuat all komitmen : $e');
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -275,12 +341,196 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  // Future<void> testBasicNotification() async {
-  //   await NotificationService.showBasicNotification(
-  //     title: 'Test Notification',
-  //     body: 'This is a test notification from SYC App.',
-  //   );
+  // Future<void> setupDailyNotification() async {
+  //   try {
+  //     final notificationService = NotificationService();
+  //     await notificationService.initialize();
+
+  //     // ⬅️ CANCEL SEMUA NOTIFIKASI LAMA TERLEBIH DAHULU
+  //     await notificationService.cancelNotification();
+
+  //     // Setup notifikasi baru
+  //     await notificationService.scheduledNotification(
+  //       title: '📖 Waktu Bacaan Harian!',
+  //       body:
+  //           'Jangan lupa baca Alkitab hari ini. Tuhan menunggu waktu bersamamu!',
+  //       scheduledTime: _getNext9AM(),
+  //       payload: 'splash',
+  //     );
+
+  //     print(
+  //       '✅ Daily BRM notification setup completed (old notifications cancelled)',
+  //     );
+  //   } catch (e) {
+  //     print('❌ Error setting up daily notifications: $e');
+  //   }
   // }
+
+  // ini adalah notifikasi pasti yaitu:
+  // 1. Notifikasi acara 15 menit sebelum acara hari 1 - 4 (untuk semua role)
+  // 2. Notifikasi evaluasi 2 jam setelah acara dimulai hari 1 - 4 (untuk peserta, pembina)
+  // 3. Notifikasi evaluasi keseluruhan 1x hari terakhir jam 12 siang (untuk peserta, pembina)
+  // 4. Notifikasi komitmen setiap hari tiap jam 8 malam (untuk peserta)
+  Future<void> setupAllNotification() async {
+    try {
+      final notificationService = NotificationService();
+      await notificationService.initialize();
+
+      // CANCEL SEMUA NOTIFIKASI LAMA TERLEBIH DAHULU
+      await notificationService.cancelNotification();
+
+      // 15 menit sebelum acara
+      for (final acara in _acaraListAll) {
+        final hari = acara['hari']?.toString();
+        if (hari == "99") continue; // skip hari 99
+        final tanggal = acara['tanggal'] ?? '';
+        final waktu = acara['waktu'] ?? '';
+        final namaAcara = acara['acara_nama'] ?? 'Acara';
+        DateTime? scheduledTime;
+        try {
+          scheduledTime = DateTime.parse(
+            '$tanggal ${waktu.length == 5 ? waktu : '00:00'}:00',
+          );
+          scheduledTime = scheduledTime.subtract(const Duration(minutes: 15));
+        } catch (e) {
+          continue;
+        }
+        print(
+          '🔔 Jadwalkan notif 15 menit sebelum acara "$namaAcara" pada $scheduledTime',
+        );
+        if (scheduledTime.isAfter(DateTime.now())) {
+          await notificationService.scheduledNotification(
+            title: '⏰ Acara akan dimulai!',
+            body: '${namaAcara} akan dimulai dalam 15 menit!',
+            scheduledTime: scheduledTime,
+            payload: 'splash',
+          );
+        }
+      }
+
+      final userRole = _dataUser['role']?.toLowerCase() ?? '';
+      // Evaluasi
+      // Notifikasi evaluasi 2 jam setelah acara dimulai
+      // Hanya untuk role peserta atau pembina
+      if (userRole == 'peserta' || userRole == 'pembina') {
+        for (final acara in _acaraListAll) {
+          final hari = acara['hari']?.toString();
+          if (hari == "99") continue; // skip hari 99
+          final tanggal = acara['tanggal'] ?? '';
+          final waktu = acara['waktu'] ?? '';
+          final namaAcara = acara['acara_nama'] ?? 'Acara';
+          DateTime? scheduledTime;
+          try {
+            // Gabungkan tanggal dan waktu, misal: '2025-12-31' + '07:30'
+            scheduledTime = DateTime.parse(
+              '$tanggal ${waktu.length == 5 ? waktu : '00:00'}:00',
+            );
+            // Tambahkan 2 jam setelah acara dimulai
+            scheduledTime = scheduledTime.add(const Duration(hours: 2));
+          } catch (e) {
+            print(
+              '❌ Gagal parsing tanggal/waktu evaluasi: $tanggal $waktu ($e)',
+            );
+            continue;
+          }
+          print(
+            '🔔 Jadwalkan notif evaluasi 2 jam setelah acara "$namaAcara" pada $scheduledTime',
+          );
+          if (scheduledTime.isAfter(DateTime.now())) {
+            await notificationService.scheduledNotification(
+              title: '📝 Reminder Evaluasi!',
+              body: 'Jangan lupa mengisi evaluasi acara : ${namaAcara}',
+              scheduledTime: scheduledTime,
+              payload: 'splash',
+            );
+          }
+        }
+      }
+
+      // Evaluasi keseluruhan
+      // Evaluasi keseluruhan: cari acara dengan hari == "99"
+      // Evaluasi keseluruhan: hanya untuk role peserta atau pembina
+      if (userRole == 'peserta' || userRole == 'pembina') {
+        final acaraEvaluasi = _acaraListAll.firstWhere(
+          (acara) => acara['hari']?.toString() == "99",
+          orElse: () => null,
+        );
+
+        if (acaraEvaluasi != null) {
+          final tanggal = acaraEvaluasi['tanggal'];
+          try {
+            // Set jam 12:00 siang pada tanggal tersebut
+            // Jika tanggal == '2026-01-02', set scheduledTime ke 2 Januari 2026 jam 12:00:00
+            final scheduledTime = DateTime.parse('2026-01-02 12:00:00');
+            print(
+              '🔔 Jadwalkan notif evaluasi keseluruhan pada $scheduledTime',
+            );
+            if (scheduledTime.isAfter(DateTime.now())) {
+              await notificationService.scheduledNotification(
+                title: 'Thank you for attending SYC 2025 - Redeemed!',
+                body:
+                    '📝 Jangan lupa mengisi evaluasi keseluruhan pada profil kamu 😊',
+                scheduledTime: scheduledTime,
+                payload: 'splash',
+              );
+            }
+          } catch (e) {
+            print(
+              '❌ Gagal parsing tanggal evaluasi keseluruhan: $tanggal ($e)',
+            );
+          }
+        }
+      }
+
+      // Komitmen harian
+      // Notifikasi komitmen harian: iterasi semua komitmen, jadwalkan pada tanggal terkait jam 20:00
+      // Komitmen harian: hanya untuk role peserta
+      if (userRole == 'peserta') {
+        for (final komitmen in _komitmenListAll) {
+          final tanggal = komitmen['tanggal'];
+          final hariKomitmen = komitmen['hari'] ?? '0';
+          if (tanggal != null && tanggal is String && tanggal.isNotEmpty) {
+            try {
+              // Set jam 20:00 (8 malam) pada tanggal tersebut
+              final scheduledTime = DateTime.parse('$tanggal 20:00:00');
+              if (scheduledTime.isAfter(DateTime.now())) {
+                await notificationService.scheduledNotification(
+                  title: '🙏 Reminder Komitmen!',
+                  body:
+                      'Jangan lupa mengisi komitmen hari ke : ${hariKomitmen}',
+                  scheduledTime: scheduledTime,
+                  payload: 'splash',
+                );
+              }
+            } catch (e) {
+              print('❌ Gagal parsing tanggal komitmen: $tanggal ($e)');
+            }
+          }
+        }
+      }
+      print('Notificaton setup completed');
+    } catch (e) {
+      print('❌ Error setting up daily notifications: $e');
+    }
+  }
+
+  DateTime _getNext9AM() {
+    final now = DateTime.now();
+    DateTime scheduledTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      9,
+      03,
+    ); // 09:00
+
+    // Jika sudah lewat jam 9 hari ini, jadwalkan untuk besok
+    if (scheduledTime.isBefore(now)) {
+      scheduledTime = scheduledTime.add(const Duration(days: 1));
+    }
+
+    return scheduledTime;
+  }
 
   @override
   void dispose() {
@@ -443,65 +693,102 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       const SizedBox(height: 24),
 
                       // Notifikasi
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Column(
-                          children: [
-                            // Test Notification Button
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  NotificationService().showNotification(
-                                    title: 'Test Notification',
-                                    body:
-                                        'This is a text notification from SYC App.',
-                                  );
-                                },
-                                icon: const Icon(Icons.notifications, size: 16),
-                                label: const Text('Test Notifications'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.secondary,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            // Schedule Notification Button
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  NotificationService().scheduledNotification(
-                                    title:
-                                        'Scheduled Notification: 5 seconds later',
-                                    body:
-                                        'This notification is scheduled for 5 seconds later.',
-                                    scheduledTime: DateTime.now().add(
-                                      const Duration(seconds: 5),
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(Icons.schedule, size: 16),
-                                label: const Text(
-                                  'Schedule Notification: 5s Later',
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.secondary,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
+                      // Padding(
+                      //   padding: const EdgeInsets.symmetric(horizontal: 24),
+                      //   child: Column(
+                      //     children: [
+                      //       // Test Notification Button
+                      //       SizedBox(
+                      //         width: double.infinity,
+                      //         child: ElevatedButton.icon(
+                      //           onPressed: () {
+                      //             NotificationService().showNotification(
+                      //               title: 'Test Notification',
+                      //               body:
+                      //                   'This is a text notification from SYC App.',
+                      //               payload: 'splash',
+                      //             );
+                      //           },
+                      //           icon: const Icon(Icons.notifications, size: 16),
+                      //           label: const Text('Test Notifications'),
+                      //           style: ElevatedButton.styleFrom(
+                      //             backgroundColor: AppColors.secondary,
+                      //             foregroundColor: Colors.white,
+                      //             padding: const EdgeInsets.symmetric(
+                      //               vertical: 12,
+                      //             ),
+                      //           ),
+                      //         ),
+                      //       ),
+                      //       const SizedBox(height: 12),
+                      //       // Schedule Notification Button (5s)
+                      //       SizedBox(
+                      //         width: double.infinity,
+                      //         child: ElevatedButton.icon(
+                      //           onPressed: () {
+                      //             NotificationService().scheduledNotification(
+                      //               title:
+                      //                   'Scheduled Notification: 30 seconds later',
+                      //               body:
+                      //                   'This notification is scheduled for 30 seconds later.',
+                      //               scheduledTime: DateTime.now().add(
+                      //                 const Duration(seconds: 30),
+                      //               ),
+                      //               payload: 'splash',
+                      //             );
+                      //           },
+                      //           icon: const Icon(Icons.schedule, size: 16),
+                      //           label: const Text(
+                      //             'Schedule Notification: 30s Later',
+                      //           ),
+                      //           style: ElevatedButton.styleFrom(
+                      //             backgroundColor: AppColors.secondary,
+                      //             foregroundColor: Colors.white,
+                      //             padding: const EdgeInsets.symmetric(
+                      //               vertical: 12,
+                      //             ),
+                      //           ),
+                      //         ),
+                      //       ),
+                      //       const SizedBox(height: 12),
+                      //       // Schedule Notification Button (9 July 2025 07:40 WIB)
+                      //       SizedBox(
+                      //         width: double.infinity,
+                      //         child: ElevatedButton.icon(
+                      //           onPressed: () {
+                      //             // 07:40 WIB = UTC+7
+                      //             final scheduledTime = DateTime.utc(
+                      //               2025,
+                      //               7,
+                      //               9,
+                      //               0,
+                      //               40,
+                      //             );
+                      //             NotificationService().scheduledNotification(
+                      //               title: 'Notifikasi Terjadwal',
+                      //               body:
+                      //                   'Ini notifikasi untuk 9 Juli 2025 jam 07.40 WIB.',
+                      //               scheduledTime: scheduledTime,
+                      //               payload: 'splash',
+                      //             );
+                      //           },
+                      //           icon: const Icon(Icons.schedule_send, size: 16),
+                      //           label: const Text(
+                      //             'Schedule Notif 9 Juli 2025 07:40 WIB',
+                      //           ),
+                      //           style: ElevatedButton.styleFrom(
+                      //             backgroundColor: AppColors.secondary,
+                      //             foregroundColor: Colors.white,
+                      //             padding: const EdgeInsets.symmetric(
+                      //               vertical: 12,
+                      //             ),
+                      //           ),
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
+                      // const SizedBox(height: 16),
 
                       // Bacaan Hari Ini (BRM)
                       Padding(
@@ -1024,9 +1311,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                           context,
                                                         ) => DetailAcaraScreen(
                                                           id:
-                                                              _acaraList[index]["id"],
-                                                          hari:
-                                                              _acaraList[index]["hari"],
+                                                              _acaraList[index]["id"]
+                                                                  .toString(),
                                                           userId: userId,
                                                         ),
                                                   ),

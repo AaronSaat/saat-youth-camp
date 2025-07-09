@@ -2,23 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
 import 'package:syc/screens/form_evaluasi_screen.dart';
-import 'package:syc/screens/form_komitmen_screen.dart';
 import 'package:syc/widgets/custom_count_up.dart';
 import 'package:syc/widgets/custom_snackbar.dart';
 import '../services/api_service.dart';
 import '../utils/app_colors.dart';
-import 'list_evaluasi_screen.dart';
 
 class DetailAcaraScreen extends StatefulWidget {
-  final int id;
-  final int hari;
+  final String id;
   final String userId;
-  const DetailAcaraScreen({
-    super.key,
-    required this.id,
-    required this.hari,
-    required this.userId,
-  });
+  const DetailAcaraScreen({super.key, required this.id, required this.userId});
 
   @override
   State<DetailAcaraScreen> createState() => _DetailAcaraScreenState();
@@ -37,6 +29,9 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
   @override
   void initState() {
     super.initState();
+    print(
+      '🎯 DetailAcaraScreen initialized with: ID=${widget.id}, UserId=${widget.userId}',
+    );
     initAll();
   }
 
@@ -45,79 +40,126 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
       _isLoading = true;
     });
     try {
-      final Map<String, String> userData = await loadUserFromPrefs();
+      await loadUserData();
+      await loadAcaraDetail();
+      if (_userData!['role']!.toLowerCase().contains('peserta')) {
+        await loadEvaluasiProgresByPesertaByAcara();
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('❌ Error in initAll: $e');
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+      showCustomSnackBar(
+        context,
+        'Gagal memuat data. Silakan coba lagi.',
+        isSuccess: false,
+      );
+    }
+  }
+
+  Future<void> loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys = [
+      'id',
+      'username',
+      'email',
+      'group_id',
+      'role',
+      'token',
+      'gereja_id',
+      'gereja_nama',
+      'kelompok_id',
+      'kelompok_nama',
+    ];
+    final Map<String, String> userData = {};
+    for (final key in keys) {
+      userData[key] = prefs.getString(key) ?? '';
+    }
+    if (!mounted) return;
+    setState(() {
+      _userData = userData;
+    });
+  }
+
+  Future<void> loadAcaraDetail() async {
+    if (!mounted) return;
+    setState(() {});
+
+    try {
       final List<dynamic> acaraList = await ApiService.getAcaraById(
         context,
         widget.id,
       );
-
-      if (userData['role']!.toLowerCase().contains('peserta')) {
-        final evaluasiDone = await ApiService.getEvaluasiByPesertaByAcara(
-          context,
-          widget.userId,
-          widget.id,
-        );
-
-        if (!mounted) return;
-        setState(() {
-          _evaluasiDone =
-              evaluasiDone['status'] == 404
-                  ? false
-                  : (evaluasiDone['success'] ?? false);
-          print('Evaluasi Done: $_evaluasiDone');
-        });
-      }
-
-      if (userData['role']!.toLowerCase().contains('panitia')) {
-        final evaluasiList = await ApiService.getCountEvaluasiAnsweredByAcara(
-          context,
-          widget.id.toString(),
-        );
-        final _countUser = await ApiService.getCountUser(context);
-        if (!mounted) return;
-        setState(() {
-          _evaluasiDoneMap = evaluasiList.map(
-            (key, value) => MapEntry(key.toString(), value.toString()),
-          );
-          _countUserMapPanitia = _countUser.map(
-            (key, value) => MapEntry(key.toString(), value.toString()),
-          );
-          print('Count User Map: $_countUserMapPanitia');
-          print('Evaluasi Done: $_evaluasiDoneMap');
-        });
-      }
-
-      print('User list: $userData');
-      print('Acara list: $acaraList');
       if (!mounted) return;
       setState(() {
-        _dataAcara = acaraList.isNotEmpty ? acaraList : null;
-        _userData = userData;
-
-        print('Data Acara : $_dataAcara');
-        print('User Data dari SharedPreferences: $_userData');
-        _isLoading = false;
+        _dataAcara = acaraList;
+        print('✅ Data Acara loaded: $_dataAcara');
       });
     } catch (e) {
+      print('❌ Error loading acara detail: $e');
       if (!mounted) return;
       setState(() {
-        _isLoading = false;
+        _dataAcara = [];
       });
-      // Bisa tampilkan error snackbar jika perlu
+      showCustomSnackBar(
+        context,
+        'Gagal memuat detail acara. Silakan coba lagi.',
+        isSuccess: false,
+      );
     }
   }
 
-  Future<Map<String, String>> loadUserFromPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final keys = prefs.getKeys();
-    final Map<String, String> userData = {};
-    for (final key in keys) {
-      final value = prefs.getString(key);
-      if (value != null) {
-        userData[key] = value;
-      }
+  Future<void> loadEvaluasiProgresByPesertaByAcara() async {
+    if (!mounted) return;
+    setState(() {});
+
+    try {
+      final evaluasiDone = await ApiService.getEvaluasiByPesertaByAcara(
+        context,
+        widget.userId,
+        widget.id,
+      );
+
+      final evaluasiList = await ApiService.getCountEvaluasiAnsweredByAcara(
+        context,
+        widget.id.toString(),
+      );
+
+      final _countUser = await ApiService.getCountUser(context);
+      if (!mounted) return;
+      setState(() {
+        _evaluasiDone =
+            evaluasiDone['status'] == 404
+                ? false
+                : (evaluasiDone['success'] ?? false);
+
+        _evaluasiDoneMap = evaluasiList.map(
+          (key, value) => MapEntry(key.toString(), value.toString()),
+        );
+        _countUserMapPanitia = _countUser.map(
+          (key, value) => MapEntry(key.toString(), value.toString()),
+        );
+
+        print('✅ Evaluasi Done: $_evaluasiDone');
+        print('✅ Count User Map: $_countUserMapPanitia');
+        print('✅ Evaluasi Done Map: $_evaluasiDoneMap');
+      });
+    } catch (e) {
+      print('❌ Error loading evaluasi progress: $e');
+      if (!mounted) return;
+      setState(() {
+        _evaluasiDone = false;
+        _evaluasiDoneMap = {};
+        _countUserMapPanitia = {};
+      });
     }
-    return userData;
   }
 
   @override
@@ -314,14 +356,16 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                               acaraDateTime = null;
                                             }
                                             // final now = DateTime.now();
+                                            // final now =
+                                            //     DateTime.now(); // Gunakan waktu real
                                             final now = DateTime(
-                                              2025,
-                                              12,
-                                              31,
+                                              2026,
+                                              01,
+                                              02,
                                               0,
                                               0,
                                               0,
-                                            ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
+                                            ); // [DEVELOPMENT CODE]
                                             final diff =
                                                 acaraDateTime != null
                                                     ? now
@@ -333,7 +377,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                             final canEvaluate =
                                                 diff != null && diff > 60;
                                             print(
-                                              'MBEK: $acaraDateTime, Now: $now, Diff: $diff, Can Evaluate: $canEvaluate, timezone device: ${now.timeZoneName}',
+                                              'Acara DateTime: $acaraDateTime, Now: $now, Diff: $diff minutes, Can Evaluate: $canEvaluate',
                                             );
                                             return ElevatedButton(
                                               style: ElevatedButton.styleFrom(
@@ -362,7 +406,12 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                                                       _dataAcara![0]['id'],
                                                                 ),
                                                           ),
-                                                        );
+                                                        ).then((result) {
+                                                          if (result ==
+                                                              'reload') {
+                                                            initAll(); // reload dashboard
+                                                          }
+                                                        });
                                                       }
                                                       : () {
                                                         showCustomSnackBar(

@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart'
+    show GlobalKey, NavigatorState, Navigator, MaterialPageRoute;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show
         AndroidInitializationSettings,
@@ -10,8 +12,10 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
         InitializationSettings,
         NotificationDetails,
         Priority,
-        DateTimeComponents;
+        DateTimeComponents,
+        NotificationResponse;
 import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:syc/screens/splash_screen.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -19,6 +23,8 @@ class NotificationService {
   final notificationPlugin = FlutterLocalNotificationsPlugin();
 
   bool _isInitialized = false;
+
+  static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   bool get isInitialized => _isInitialized;
 
@@ -72,6 +78,21 @@ class NotificationService {
     );
   }
 
+  static void onNotificationTap(NotificationResponse notificationResponse) {
+    final String? payload = notificationResponse.payload;
+    print('Notification tapped with payload: $payload');
+
+    if (navigatorKey.currentState.toString().contains("splash")) {
+      final context = navigatorKey.currentState!.context;
+
+      // Navigate to SplashScreen dan clear semua route sebelumnya
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => SplashScreen()),
+        (route) => false, // Remove all previous routes
+      );
+    }
+  }
+
   // Show Notification
   Future<void> showNotification({
     required String title,
@@ -95,7 +116,7 @@ class NotificationService {
     required String title,
     required String body,
     required DateTime scheduledTime,
-    String? payload,
+    required String payload,
   }) async {
     // get current date and time in local timezone
     final now = tz.TZDateTime.now(tz.local);
@@ -110,8 +131,6 @@ class NotificationService {
           ? now.add(const Duration(seconds: 1))
           : scheduledDateTime,
       notificationDetails(),
-      // uiLocalNotifications:
-      //     UILocalNotificationDateInterpretation.absoluteTime,
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       // androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
 
@@ -119,12 +138,12 @@ class NotificationService {
       matchDateTimeComponents: DateTimeComponents.time,
     );
 
-    print(
-      'Scheduled notification for $title at ${scheduledDateTime.toLocal()}',
-    );
+    // print(
+    //   'Scheduled notification for $title at ${scheduledDateTime.toLocal()}',
+    // );
   }
 
-  Future<void> cancelNotification(int id) async {
+  Future<void> cancelNotification() async {
     if (!_isInitialized) {
       await initialize();
     }

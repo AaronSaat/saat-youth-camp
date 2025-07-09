@@ -3,6 +3,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
 import 'package:shimmer/shimmer.dart';
+import 'package:syc/services/notification_service.dart'
+    show NotificationService;
 import 'package:syc/utils/app_colors.dart';
 import 'package:syc/widgets/custom_panel_shape.dart';
 
@@ -272,12 +274,12 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                                             context,
                                             MaterialPageRoute(
                                               builder:
-                                                  (context) =>
-                                                      DetailAcaraScreen(
-                                                        id: acara["id"],
-                                                        hari: acara["hari"],
-                                                        userId: userId,
-                                                      ),
+                                                  (
+                                                    context,
+                                                  ) => DetailAcaraScreen(
+                                                    id: acara["id"].toString(),
+                                                    userId: userId,
+                                                  ),
                                             ),
                                           );
                                         } else {

@@ -39,27 +39,8 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
 
     try {
       await loadUserData();
-      // Ambil list komitmen
-      final komitmenList = await ApiService.getKomitmen(context);
-      if (!mounted) return;
-      _komitmenDoneList = List.filled(komitmenList.length ?? 0, false);
-      for (int i = 0; i < _komitmenDoneList.length; i++) {
-        try {
-          final result = await ApiService.getKomitmenByPesertaByDay(
-            context,
-            widget.userId,
-            i + 1,
-          );
-          if (!mounted) return;
-          if (result != null && result['success'] == true) {
-            _komitmenDoneList[i] = true;
-          }
-        } catch (e) {
-          // ignore error, keep as false
-        }
-      }
+      await loadKomitmen();
       setState(() {
-        _komitmenList = komitmenList ?? [];
         _isLoading = false;
       });
     } catch (e) {
@@ -71,10 +52,8 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
     }
   }
 
-  void loadKomitmen() async {
-    setState(() {
-      _isLoading = true;
-    });
+  Future<void> loadKomitmen() async {
+    setState(() {});
     try {
       final komitmenList = await ApiService.getKomitmen(context);
       _komitmenDoneList = List.filled(komitmenList.length ?? 0, false);
@@ -92,16 +71,15 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
           // ignore error, keep as false
         }
       }
-      print('test Komitmen Done List: $_komitmenDoneList');
       setState(() {
         _komitmenList = komitmenList ?? [];
         _isLoading = false;
+
+        print('AARON: $_komitmenList');
       });
     } catch (e) {
       print('❌ Gagal memuat list komitmen: $e');
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() {});
     }
   }
 
@@ -186,6 +164,7 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
                               String item;
                               bool? status;
                               final komitmen = items[index];
+                              final tanggal = komitmen['tanggal'] ?? '';
                               item = 'Komitmen Hari ${komitmen['hari'] ?? '-'}';
                               status = _komitmenDoneList[index];
                               return CustomCard(
@@ -222,20 +201,43 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
                                         );
                                       });
                                     } else {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) => FormKomitmenScreen(
-                                                userId: userId,
-                                                acaraHariId: acaraHariId,
-                                              ),
-                                        ),
-                                      ).then((result) {
-                                        if (result == 'reload') {
-                                          initAll();
-                                        }
-                                      });
+                                      // Cek tanggal dan jam
+                                      // DateTime now = DateTime.now();
+                                      final now = DateTime(
+                                        2026,
+                                        01,
+                                        01,
+                                        11,
+                                        0,
+                                        0,
+                                      ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
+                                      DateTime tanggalKomitmen = DateTime.parse(
+                                        '$tanggal 20:00:00',
+                                      );
+
+                                      // Komitmen hanya bisa diisi pada tanggal yang sama atau setelahnya, dan setelah jam 8 malam
+                                      if (now.isBefore(tanggalKomitmen)) {
+                                        showCustomSnackBar(
+                                          context,
+                                          'Komitmen hanya dapat diisi pada tanggal ${tanggal} pukul 20:00.',
+                                          isSuccess: false,
+                                        );
+                                      } else {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) => FormKomitmenScreen(
+                                                  userId: userId,
+                                                  acaraHariId: acaraHariId,
+                                                ),
+                                          ),
+                                        ).then((result) {
+                                          if (result == 'reload') {
+                                            initAll();
+                                          }
+                                        });
+                                      }
                                     }
                                   }
                                 },

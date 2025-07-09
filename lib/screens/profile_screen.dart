@@ -124,6 +124,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       'username',
       'nama',
       'email',
+      'group_id',
       'role',
       'token',
       'gereja_id',

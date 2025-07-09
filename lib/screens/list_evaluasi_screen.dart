@@ -363,6 +363,36 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
                                       } catch (e) {
                                         // ignore error, keep evaluate as false
                                       }
+                                    } else if (_dataUser['id'] ==
+                                            widget.userId &&
+                                        acara['hari'] == 99) {
+                                      final batasWaktu = DateTime(
+                                        2026,
+                                        1,
+                                        2,
+                                        12,
+                                        0,
+                                        0,
+                                      );
+                                      // final now = DateTime.now();
+                                      final now = DateTime(
+                                        2025,
+                                        12,
+                                        31,
+                                        0,
+                                        0,
+                                        0,
+                                      ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
+                                      if (now.isBefore(batasWaktu)) {
+                                        setState(() {
+                                          if (!mounted) return;
+                                          showCustomSnackBar(
+                                            context,
+                                            'Evaluasi keseluruhan dapat dilakukan pada 02 Januari 2026 pukul 12.00.',
+                                            isSuccess: false,
+                                          );
+                                        });
+                                      }
                                     }
 
                                     if (tanggal != null && waktu != null) {
