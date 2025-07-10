@@ -16,8 +16,13 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
         NotificationResponse;
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:syc/screens/splash_screen.dart';
+import 'package:syc/utils/global_variables.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:html/parser.dart' as html_parser;
 
 class NotificationService {
   final notificationPlugin = FlutterLocalNotificationsPlugin();
@@ -149,4 +154,98 @@ class NotificationService {
     }
     await notificationPlugin.cancelAll();
   }
+
+  // Background sync untuk pengumuman terbaru
+  // static Future<void> checkLatestPengumuman() async {
+  //   try {
+  //     print('Background: Checking latest pengumuman...');
+
+  //     // Ambil user_id dari SharedPreferences (asumsi sudah disimpan saat login)
+  //     final prefs = await SharedPreferences.getInstance();
+  //     final userId = prefs.getInt('id') ?? 80; // default 80 jika tidak ada
+
+  //     // Hit API pengumuman
+  //     final response = await http
+  //         .get(
+  //           Uri.parse(
+  //             '${GlobalVariables.serverUrl}api-syc2025/pengumuman?user_id=$userId',
+  //           ),
+  //           headers: {'Content-Type': 'application/json'},
+  //         )
+  //         .timeout(Duration(seconds: 30));
+
+  //     if (response.statusCode == 200) {
+  //       final data = jsonDecode(response.body);
+
+  //       if (data['success'] == true && data['data_pengumuman'] != null) {
+  //         final pengumumanList = data['data_pengumuman'] as List;
+
+  //         if (pengumumanList.isNotEmpty) {
+  //           // Ambil pengumuman terbaru (index 0 karena sudah diurutkan dari API)
+  //           final latestPengumuman = pengumumanList[0];
+  //           final latestId = latestPengumuman['id'];
+  //           final latestCreatedAt = latestPengumuman['created_at'];
+
+  //           // Cek last check time dari SharedPreferences
+  //           final lastCheckTime = prefs.getInt('last_pengumuman_check') ?? 0;
+
+  //           // Jika ada pengumuman baru (created_at lebih besar dari last check)
+  //           if (latestCreatedAt > lastCheckTime) {
+  //             print(
+  //               'Background: New pengumuman found - ID: $latestId, Created At: $latestCreatedAt, Last Check: $lastCheckTime',
+  //             );
+  //             // Parse HTML content untuk body notification
+  //             final htmlContent = latestPengumuman['detail'] ?? '';
+  //             final document = html_parser.parse(htmlContent);
+  //             final plainText = document.body?.text ?? htmlContent;
+
+  //             // Buat notification
+  //             final notificationService = NotificationService();
+  //             await notificationService.showNotification(
+  //               // tambahkan 📣
+  //               title: latestPengumuman['judul'] ?? 'Pengumuman Baru',
+  //               body:
+  //                   plainText.length > 20
+  //                       ? '${plainText.substring(0, 20)}...'
+  //                       : plainText,
+  //               payload: 'splash',
+  //             );
+
+  //             // Update last check time dengan created_at pengumuman terbaru
+  //             await prefs.setInt('last_pengumuman_check', latestCreatedAt);
+
+  //             print(
+  //               'Background: Notification sent for pengumuman ID $latestId',
+  //             );
+  //           } else {
+  //             print('Background: No new pengumuman found');
+  //           }
+  //         }
+  //       }
+  //     } else {
+  //       print('Background: API error - Status: ${response.statusCode}');
+  //     }
+  //   } catch (e) {
+  //     print('Background: Error checking pengumuman - $e');
+  //   }
+  // }
+
+  // // Fungsi untuk trigger pertama kali dari dashboard
+  // static Future<void> initializePengumumanSync() async {
+  //   try {
+  //     final prefs = await SharedPreferences.getInstance();
+
+  //     // Set last check time ke waktu sekarang jika belum ada
+  //     if (!prefs.containsKey('last_pengumuman_check')) {
+  //       final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+  //       await prefs.setInt('last_pengumuman_check', now);
+  //       print('Initialized pengumuman sync with current time: $now');
+  //     }
+
+  //     // Langsung check pengumuman terbaru
+  //     await checkLatestPengumuman();
+  //   } catch (e) {
+  //     print('Error initializing pengumuman sync: $e');
+  //   }
+  // }
 }

@@ -6,22 +6,48 @@ import 'package:syc/screens/profile_edit_screen.dart';
 import 'package:syc/screens/test_screen4.dart';
 import 'package:syc/services/notification_service.dart'
     show NotificationService;
+import 'package:syc/services/background_task_service.dart';
 import 'package:syc/utils/app_colors.dart';
+import 'package:background_fetch/background_fetch.dart';
 
 import 'orientation_guard.dart';
 import 'screens/login_screen.dart';
 import 'screens/splash_screen.dart';
 
-// void main() {
-//   runApp(const MyApp());
+// Background fetch callback
+// @pragma('vm:entry-point')
+// void backgroundFetchHeadlessTask(HeadlessTask task) async {
+//   String taskId = task.taskId;
+//   bool isTimeout = task.timeout;
+
+//   if (isTimeout) {
+//     print("[BackgroundFetch] Headless task timed-out: $taskId");
+//     BackgroundFetch.finish(taskId);
+//     return;
+//   }
+
+//   print('[BackgroundFetch] Headless event received: $taskId');
+
+//   // Check for latest pengumuman
+//   await NotificationService.checkLatestPengumuman();
+
+//   BackgroundFetch.finish(taskId);
 // }
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
+  // Initialize notification service
   await NotificationService().initialize();
+
+  // Initialize background task service
+  // await BackgroundTaskService.initialize();
+
+  // // Register background fetch headless task
+  // BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
+
   runApp(const MyApp());
-  // runApp(OrientationGuard(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {

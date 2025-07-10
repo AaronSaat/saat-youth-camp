@@ -3,8 +3,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/screens/form_komitmen_screen.dart';
 import 'package:syc/services/notification_service.dart'
     show NotificationService;
+import 'package:syc/services/background_task_service.dart';
 import 'package:url_launcher/url_launcher.dart'
     show canLaunchUrl, LaunchMode, launchUrl;
+import 'package:background_fetch/background_fetch.dart';
 import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
 import '../widgets/custom_not_found.dart';
@@ -50,6 +52,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     initAll();
+    // print('[BackgroundSync] Dashboard dibuka pada: ${DateTime.now()}');
+    // setupBackgroundSync(); // Setup background sync untuk pengumuman
     _acaraController.addListener(() {
       double itemWidth;
       if (countAcara <= 2) {
@@ -120,6 +124,57 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _dataUser = userData;
     });
   }
+
+  // Setup background sync untuk pengumuman
+  // Future<void> setupBackgroundSync() async {
+  //   try {
+  //     print(
+  //       '[BackgroundSync] setupBackgroundSync dipanggil pada: ${DateTime.now()}',
+  //     );
+  //     // Initialize pengumuman sync (set last check time pertama kali)
+  //     await NotificationService.initializePengumumanSync();
+
+  //     // Register periodic background task (workmanager)
+  //     await BackgroundTaskService.registerPeriodicTask();
+
+  //     // Configure background fetch (iOS dan Android)
+  //     BackgroundFetch.configure(
+  //           BackgroundFetchConfig(
+  //             minimumFetchInterval: 15, // 15 menit (minimum yang diizinkan)
+  //             forceAlarmManager: false,
+  //             stopOnTerminate: false,
+  //             startOnBoot: true,
+  //             enableHeadless: true,
+  //           ),
+  //           (String taskId) async {
+  //             print('[BackgroundFetch] Event received: $taskId');
+  //             // Check pengumuman terbaru
+  //             await NotificationService.checkLatestPengumuman();
+  //             // Always finish task
+  //             BackgroundFetch.finish(taskId);
+  //           },
+  //         )
+  //         .then((int status) {
+  //           print('[BackgroundFetch] configure success: $status');
+  //         })
+  //         .catchError((e) {
+  //           print('[BackgroundFetch] configure ERROR: $e');
+  //         });
+
+  //     // Start background fetch
+  //     BackgroundFetch.start()
+  //         .then((int status) {
+  //           print('[BackgroundFetch] start success: $status');
+  //         })
+  //         .catchError((e) {
+  //           print('[BackgroundFetch] start ERROR: $e');
+  //         });
+
+  //     print('Background sync setup completed');
+  //   } catch (e) {
+  //     print('Error setting up background sync: $e');
+  //   }
+  // }
 
   Future<void> loadBrm() async {
     if (!mounted) return;
