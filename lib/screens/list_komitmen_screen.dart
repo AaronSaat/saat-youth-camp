@@ -202,24 +202,24 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
                                       });
                                     } else {
                                       // Cek tanggal dan jam
-                                      // DateTime now = DateTime.now();
-                                      final now = DateTime(
-                                        2026,
-                                        01,
-                                        01,
-                                        11,
-                                        0,
-                                        0,
-                                      ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
+                                      DateTime now = DateTime.now();
+                                      // final now = DateTime(
+                                      //   2026,
+                                      //   01,
+                                      //   01,
+                                      //   11,
+                                      //   0,
+                                      //   0,
+                                      // ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
                                       DateTime tanggalKomitmen = DateTime.parse(
-                                        '$tanggal 20:00:00',
+                                        '$tanggal 15:00:00',
                                       );
 
-                                      // Komitmen hanya bisa diisi pada tanggal yang sama atau setelahnya, dan setelah jam 8 malam
+                                      // Komitmen hanya bisa diisi pada tanggal yang sama atau setelahnya, dan setelah jam 3 sore
                                       if (now.isBefore(tanggalKomitmen)) {
                                         showCustomSnackBar(
                                           context,
-                                          'Komitmen hanya dapat diisi pada tanggal ${tanggal} pukul 20:00.',
+                                          'Komitmen hanya dapat diisi pada tanggal ${tanggal} pukul 15:00.',
                                           isSuccess: false,
                                         );
                                       } else {

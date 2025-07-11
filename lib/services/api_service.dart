@@ -15,8 +15,8 @@ import '../widgets/custom_snackbar.dart';
 class ApiService {
   // static const String baseurl = 'http://172.172.52.9:82/reg-new/api-syc2025/';
   // static const String baseurlLocal = 'http://172.172.52.9/website_backup/api/';
-  static const String baseurl = 'http://172.172.52.11:8080/api-syc2025/';
-  // static const String baseurl = 'http://reg.seabs.ac.id/api-syc2025/';
+  // static const String baseurl = 'http://172.172.52.11:8080/api-syc2025/';
+  static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
 
   static Future<Map<String, dynamic>> loginUser(
     String username,
@@ -126,11 +126,12 @@ class ApiService {
         'Sesi login Anda telah habis. Silakan login kembali.',
       );
       await handleUnauthorized(context);
-      // throw Exception('Unauthorized');
-      return false;
+      throw Exception('Unauthorized');
+      // return false;
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to validate token');
+      // return false;
     }
   }
 

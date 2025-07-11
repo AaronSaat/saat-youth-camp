@@ -4,9 +4,9 @@ import 'package:syc/screens/form_komitmen_screen.dart';
 import 'package:syc/services/notification_service.dart'
     show NotificationService;
 import 'package:syc/services/background_task_service.dart';
+import 'package:syc/widgets/custom_snackbar.dart';
 import 'package:url_launcher/url_launcher.dart'
     show canLaunchUrl, LaunchMode, launchUrl;
-import 'package:background_fetch/background_fetch.dart';
 import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
 import '../widgets/custom_not_found.dart';
@@ -228,9 +228,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       setState(() {
         print('Acara Date List: $acaraList');
 
-        // final today = DateTime.now().toIso8601String().substring(0, 10);
-        final today =
-            "2025-12-31"; // hardcoded untuk testing, [DEVELOPMENT NOTES] nanti hapus
+        final today = DateTime.now().toIso8601String().substring(0, 10);
+        // final today = "2025-12-31";
+        // hardcoded untuk testing, [DEVELOPMENT NOTES] nanti hapus
 
         // Ambil list tanggal dan hari unik
         final List<Map<String, dynamic>> tanggalHariList = [];
@@ -423,9 +423,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // ini adalah notifikasi pasti yaitu:
   // 1. Notifikasi acara 15 menit sebelum acara hari 1 - 4 (untuk semua role)
-  // 2. Notifikasi evaluasi 2 jam setelah acara dimulai hari 1 - 4 (untuk peserta, pembina)
+  // 2. Notifikasi evaluasi 1 jam setelah acara dimulai hari 1 - 4 (untuk peserta, pembina)
   // 3. Notifikasi evaluasi keseluruhan 1x hari terakhir jam 12 siang (untuk peserta, pembina)
-  // 4. Notifikasi komitmen setiap hari tiap jam 8 malam (untuk peserta)
+  // 4. Notifikasi komitmen setiap hari tiap jam 3 sore (untuk peserta)
   Future<void> setupAllNotification() async {
     try {
       final notificationService = NotificationService();
@@ -465,7 +465,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       final userRole = _dataUser['role']?.toLowerCase() ?? '';
       // Evaluasi
-      // Notifikasi evaluasi 2 jam setelah acara dimulai
+      // Notifikasi evaluasi 1 jam setelah acara dimulai
       // Hanya untuk role peserta atau pembina
       if (userRole == 'peserta' || userRole == 'pembina') {
         for (final acara in _acaraListAll) {
@@ -480,8 +480,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             scheduledTime = DateTime.parse(
               '$tanggal ${waktu.length == 5 ? waktu : '00:00'}:00',
             );
-            // Tambahkan 2 jam setelah acara dimulai
-            scheduledTime = scheduledTime.add(const Duration(hours: 2));
+            // Tambahkan 1 jam setelah acara dimulai
+            scheduledTime = scheduledTime.add(const Duration(hours: 1));
           } catch (e) {
             print(
               '❌ Gagal parsing tanggal/waktu evaluasi: $tanggal $waktu ($e)',
@@ -489,7 +489,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             continue;
           }
           print(
-            '🔔 Jadwalkan notif evaluasi 2 jam setelah acara "$namaAcara" pada $scheduledTime',
+            '🔔 Jadwalkan notif evaluasi 1 jam setelah acara "$namaAcara" pada $scheduledTime',
           );
           if (scheduledTime.isAfter(DateTime.now())) {
             await notificationService.scheduledNotification(
@@ -516,7 +516,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           try {
             // Set jam 12:00 siang pada tanggal tersebut
             // Jika tanggal == '2026-01-02', set scheduledTime ke 2 Januari 2026 jam 12:00:00
-            final scheduledTime = DateTime.parse('2026-01-02 12:00:00');
+            final scheduledTime = DateTime.parse('2025-07-17 12:00:00');
             print(
               '🔔 Jadwalkan notif evaluasi keseluruhan pada $scheduledTime',
             );
@@ -538,7 +538,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
 
       // Komitmen harian
-      // Notifikasi komitmen harian: iterasi semua komitmen, jadwalkan pada tanggal terkait jam 20:00
+      // Notifikasi komitmen harian: iterasi semua komitmen, jadwalkan pada tanggal terkait jam 15:00
       // Komitmen harian: hanya untuk role peserta
       if (userRole == 'peserta') {
         for (final komitmen in _komitmenListAll) {
@@ -546,8 +546,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           final hariKomitmen = komitmen['hari'] ?? '0';
           if (tanggal != null && tanggal is String && tanggal.isNotEmpty) {
             try {
-              // Set jam 20:00 (8 malam) pada tanggal tersebut
-              final scheduledTime = DateTime.parse('$tanggal 20:00:00');
+              // Set jam 15:00 (3 sore) pada tanggal tersebut
+              final scheduledTime = DateTime.parse('$tanggal 15:00:00');
               if (scheduledTime.isAfter(DateTime.now())) {
                 await notificationService.scheduledNotification(
                   title: '🙏 Reminder Komitmen!',
@@ -748,102 +748,102 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       const SizedBox(height: 24),
 
                       // Notifikasi
-                      // Padding(
-                      //   padding: const EdgeInsets.symmetric(horizontal: 24),
-                      //   child: Column(
-                      //     children: [
-                      //       // Test Notification Button
-                      //       SizedBox(
-                      //         width: double.infinity,
-                      //         child: ElevatedButton.icon(
-                      //           onPressed: () {
-                      //             NotificationService().showNotification(
-                      //               title: 'Test Notification',
-                      //               body:
-                      //                   'This is a text notification from SYC App.',
-                      //               payload: 'splash',
-                      //             );
-                      //           },
-                      //           icon: const Icon(Icons.notifications, size: 16),
-                      //           label: const Text('Test Notifications'),
-                      //           style: ElevatedButton.styleFrom(
-                      //             backgroundColor: AppColors.secondary,
-                      //             foregroundColor: Colors.white,
-                      //             padding: const EdgeInsets.symmetric(
-                      //               vertical: 12,
-                      //             ),
-                      //           ),
-                      //         ),
-                      //       ),
-                      //       const SizedBox(height: 12),
-                      //       // Schedule Notification Button (5s)
-                      //       SizedBox(
-                      //         width: double.infinity,
-                      //         child: ElevatedButton.icon(
-                      //           onPressed: () {
-                      //             NotificationService().scheduledNotification(
-                      //               title:
-                      //                   'Scheduled Notification: 30 seconds later',
-                      //               body:
-                      //                   'This notification is scheduled for 30 seconds later.',
-                      //               scheduledTime: DateTime.now().add(
-                      //                 const Duration(seconds: 30),
-                      //               ),
-                      //               payload: 'splash',
-                      //             );
-                      //           },
-                      //           icon: const Icon(Icons.schedule, size: 16),
-                      //           label: const Text(
-                      //             'Schedule Notification: 30s Later',
-                      //           ),
-                      //           style: ElevatedButton.styleFrom(
-                      //             backgroundColor: AppColors.secondary,
-                      //             foregroundColor: Colors.white,
-                      //             padding: const EdgeInsets.symmetric(
-                      //               vertical: 12,
-                      //             ),
-                      //           ),
-                      //         ),
-                      //       ),
-                      //       const SizedBox(height: 12),
-                      //       // Schedule Notification Button (9 July 2025 07:40 WIB)
-                      //       SizedBox(
-                      //         width: double.infinity,
-                      //         child: ElevatedButton.icon(
-                      //           onPressed: () {
-                      //             // 07:40 WIB = UTC+7
-                      //             final scheduledTime = DateTime.utc(
-                      //               2025,
-                      //               7,
-                      //               9,
-                      //               0,
-                      //               40,
-                      //             );
-                      //             NotificationService().scheduledNotification(
-                      //               title: 'Notifikasi Terjadwal',
-                      //               body:
-                      //                   'Ini notifikasi untuk 9 Juli 2025 jam 07.40 WIB.',
-                      //               scheduledTime: scheduledTime,
-                      //               payload: 'splash',
-                      //             );
-                      //           },
-                      //           icon: const Icon(Icons.schedule_send, size: 16),
-                      //           label: const Text(
-                      //             'Schedule Notif 9 Juli 2025 07:40 WIB',
-                      //           ),
-                      //           style: ElevatedButton.styleFrom(
-                      //             backgroundColor: AppColors.secondary,
-                      //             foregroundColor: Colors.white,
-                      //             padding: const EdgeInsets.symmetric(
-                      //               vertical: 12,
-                      //             ),
-                      //           ),
-                      //         ),
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
-                      // const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Column(
+                          children: [
+                            // Test Notification Button
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  NotificationService().showNotification(
+                                    title: 'Test Notification',
+                                    body:
+                                        'This is a text notification from SYC App.',
+                                    payload: 'splash',
+                                  );
+                                },
+                                icon: const Icon(Icons.notifications, size: 16),
+                                label: const Text('Test Notifications'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.secondary,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            // const SizedBox(height: 12),
+                            // // Schedule Notification Button (5s)
+                            // SizedBox(
+                            //   width: double.infinity,
+                            //   child: ElevatedButton.icon(
+                            //     onPressed: () {
+                            //       NotificationService().scheduledNotification(
+                            //         title:
+                            //             'Scheduled Notification: 30 seconds later',
+                            //         body:
+                            //             'This notification is scheduled for 30 seconds later.',
+                            //         scheduledTime: DateTime.now().add(
+                            //           const Duration(seconds: 30),
+                            //         ),
+                            //         payload: 'splash',
+                            //       );
+                            //     },
+                            //     icon: const Icon(Icons.schedule, size: 16),
+                            //     label: const Text(
+                            //       'Schedule Notification: 30s Later',
+                            //     ),
+                            //     style: ElevatedButton.styleFrom(
+                            //       backgroundColor: AppColors.secondary,
+                            //       foregroundColor: Colors.white,
+                            //       padding: const EdgeInsets.symmetric(
+                            //         vertical: 12,
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
+                            // const SizedBox(height: 12),
+                            // // Schedule Notification Button (9 July 2025 07:40 WIB)
+                            // SizedBox(
+                            //   width: double.infinity,
+                            //   child: ElevatedButton.icon(
+                            //     onPressed: () {
+                            //       // 07:40 WIB = UTC+7
+                            //       final scheduledTime = DateTime.utc(
+                            //         2025,
+                            //         7,
+                            //         9,
+                            //         0,
+                            //         40,
+                            //       );
+                            //       NotificationService().scheduledNotification(
+                            //         title: 'Notifikasi Terjadwal',
+                            //         body:
+                            //             'Ini notifikasi untuk 9 Juli 2025 jam 07.40 WIB.',
+                            //         scheduledTime: scheduledTime,
+                            //         payload: 'splash',
+                            //       );
+                            //     },
+                            //     icon: const Icon(Icons.schedule_send, size: 16),
+                            //     label: const Text(
+                            //       'Schedule Notif 9 Juli 2025 07:40 WIB',
+                            //     ),
+                            //     style: ElevatedButton.styleFrom(
+                            //       backgroundColor: AppColors.secondary,
+                            //       foregroundColor: Colors.white,
+                            //       padding: const EdgeInsets.symmetric(
+                            //         vertical: 12,
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
 
                       // Bacaan Hari Ini (BRM)
                       Padding(
@@ -1129,6 +1129,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             children: [
                               InkWell(
                                 onTap: () {
+                                  // Cek apakah sudah jam 15:00 pada hari ini
+                                  final now = DateTime.now();
+                                  final aksesTime = DateTime(
+                                    now.year,
+                                    now.month,
+                                    now.day,
+                                    15,
+                                    0,
+                                  );
+                                  if (now.isBefore(aksesTime)) {
+                                    // Belum jam 15:00, tampilkan custom snackbar
+                                    showCustomSnackBar(
+                                      context,
+                                      'Tidak bisa akses komitmen sebelum ${DateFormatter.ubahTanggal(now.toIso8601String().substring(0, 10))} pukul 15:00',
+                                    );
+                                    return;
+                                  }
                                   if (_komitmenDone) {
                                     Navigator.push(
                                       context,
@@ -1138,8 +1155,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                 EvaluasiKomitmenViewScreen(
                                                   type: 'Komitmen',
                                                   userId: userId,
-                                                  acaraHariId:
-                                                      day, //dari loadDayHariIni
+                                                  acaraHariId: day,
                                                 ),
                                       ),
                                     );
@@ -1150,13 +1166,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         builder:
                                             (context) => FormKomitmenScreen(
                                               userId: userId,
-                                              acaraHariId:
-                                                  day, //dari loadDayHariIni
+                                              acaraHariId: day,
                                             ),
                                       ),
                                     ).then((result) {
                                       if (result == 'reload') {
-                                        initAll(); // reload dashboard
+                                        initAll();
                                       }
                                     });
                                   }

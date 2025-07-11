@@ -351,21 +351,23 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                                     .trim()
                                                     .replaceAll('/', '-')
                                                     .replaceAll('.', ':'),
-                                              );
+                                              ).add(
+                                                const Duration(hours: 1),
+                                              ); // tambah 1 jam
                                             } catch (_) {
                                               acaraDateTime = null;
                                             }
                                             // final now = DateTime.now();
-                                            // final now =
-                                            //     DateTime.now(); // Gunakan waktu real
-                                            final now = DateTime(
-                                              2026,
-                                              01,
-                                              02,
-                                              0,
-                                              0,
-                                              0,
-                                            ); // [DEVELOPMENT CODE]
+                                            final now =
+                                                DateTime.now(); // Gunakan waktu real
+                                            // final now = DateTime(
+                                            //   2026,
+                                            //   01,
+                                            //   02,
+                                            //   0,
+                                            //   0,
+                                            //   0,
+                                            // ); // [DEVELOPMENT CODE]
                                             final diff =
                                                 acaraDateTime != null
                                                     ? now
@@ -416,7 +418,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                                       : () {
                                                         showCustomSnackBar(
                                                           context,
-                                                          'Evaluasi dapat diakses 1 jam setelah acara dimulai.',
+                                                          'Evaluasi dapat diakses 1 jam setelah acara dimulai. $tanggalStr $waktuStr',
                                                         );
                                                       },
                                               child: const Text(

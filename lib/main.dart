@@ -8,7 +8,6 @@ import 'package:syc/services/notification_service.dart'
     show NotificationService;
 import 'package:syc/services/background_task_service.dart';
 import 'package:syc/utils/app_colors.dart';
-import 'package:background_fetch/background_fetch.dart';
 
 import 'orientation_guard.dart';
 import 'screens/login_screen.dart';
@@ -36,7 +35,7 @@ import 'screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  // await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   // Initialize notification service
   await NotificationService().initialize();

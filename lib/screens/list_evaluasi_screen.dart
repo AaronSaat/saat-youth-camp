@@ -344,15 +344,15 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
                                         acaraDateTime = DateTime.parse(
                                           '$tanggal $waktu',
                                         );
-                                        // final now = DateTime.now();
-                                        final now = DateTime(
-                                          2025,
-                                          12,
-                                          31,
-                                          0,
-                                          0,
-                                          0,
-                                        ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
+                                        final now = DateTime.now();
+                                        // final now = DateTime(
+                                        //   2025,
+                                        //   12,
+                                        //   31,
+                                        //   0,
+                                        //   0,
+                                        //   0,
+                                        // ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
                                         if (now.isAfter(
                                           acaraDateTime.add(
                                             const Duration(hours: 1),
@@ -367,28 +367,28 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
                                             widget.userId &&
                                         acara['hari'] == 99) {
                                       final batasWaktu = DateTime(
-                                        2026,
-                                        1,
-                                        2,
-                                        12,
+                                        2025,
+                                        7,
+                                        17,
+                                        15,
                                         0,
                                         0,
                                       );
-                                      // final now = DateTime.now();
-                                      final now = DateTime(
-                                        2025,
-                                        12,
-                                        31,
-                                        0,
-                                        0,
-                                        0,
-                                      ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
+                                      final now = DateTime.now();
+                                      // final now = DateTime(
+                                      //   2025,
+                                      //   12,
+                                      //   31,
+                                      //   0,
+                                      //   0,
+                                      //   0,
+                                      // ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
                                       if (now.isBefore(batasWaktu)) {
                                         setState(() {
                                           if (!mounted) return;
                                           showCustomSnackBar(
                                             context,
-                                            'Evaluasi keseluruhan dapat dilakukan pada 02 Januari 2026 pukul 12.00.',
+                                            'Evaluasi keseluruhan dapat dilakukan pada 17 Juli 2025 pukul 12.00.',
                                             isSuccess: false,
                                           );
                                         });
@@ -401,7 +401,7 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
                                           if (!mounted) return;
                                           showCustomSnackBar(
                                             context,
-                                            'Evaluasi ${acara['acara_nama']} dapat dilakukan pada $time.',
+                                            'Evaluasi ${acara['acara_nama']} dapat dilakukan pada $time (1 jam setelah acara).',
                                             isSuccess: false,
                                           );
                                         });

@@ -251,15 +251,15 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                                         final acaraDateTime = DateTime.parse(
                                           dateTimeString,
                                         );
-                                        // final now = DateTime.now();
-                                        final now = DateTime(
-                                          2026,
-                                          12,
-                                          31,
-                                          0,
-                                          0,
-                                          0,
-                                        ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
+                                        final now = DateTime.now();
+                                        // final now = DateTime(
+                                        //   2026,
+                                        //   12,
+                                        //   31,
+                                        //   0,
+                                        //   0,
+                                        //   0,
+                                        // ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
                                         final diff =
                                             acaraDateTime
                                                 .difference(now)
@@ -268,26 +268,36 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                                         print(
                                           'MBEK: ${now} - Tanggal: $tanggal - Waktu: $waktu - Diff: $diff',
                                         );
-                                        if (diff <= 60 && diff <= 0) {
-                                          //kurang dari itu maksudnya udah lewat jam
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (
-                                                    context,
-                                                  ) => DetailAcaraScreen(
-                                                    id: acara["id"].toString(),
-                                                    userId: userId,
-                                                  ),
-                                            ),
-                                          );
-                                        } else {
-                                          showCustomSnackBar(
-                                            context,
-                                            'Detail acara hanya bisa dibuka 1 jam sebelum acara dimulai.',
-                                          );
-                                        }
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) => DetailAcaraScreen(
+                                                  id: acara["id"].toString(),
+                                                  userId: userId,
+                                                ),
+                                          ),
+                                        );
+                                        // if (diff <= 60 && diff <= 0) {
+                                        //   //kurang dari itu maksudnya udah lewat jam
+                                        //   Navigator.push(
+                                        //     context,
+                                        //     MaterialPageRoute(
+                                        //       builder:
+                                        //           (
+                                        //             context,
+                                        //           ) => DetailAcaraScreen(
+                                        //             id: acara["id"].toString(),
+                                        //             userId: userId,
+                                        //           ),
+                                        //     ),
+                                        //   );
+                                        // } else {
+                                        //   showCustomSnackBar(
+                                        //     context,
+                                        //     'Detail acara hanya bisa dibuka 1 jam sebelum acara dimulai.',
+                                        //   );
+                                        // }
                                       } catch (e) {
                                         showCustomSnackBar(
                                           context,
