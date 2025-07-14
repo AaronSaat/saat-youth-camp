@@ -6,6 +6,7 @@ import 'package:syc/utils/app_colors.dart';
 import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
 import '../widgets/custom_alert_dialog.dart';
+import '../widgets/custom_not_found.dart';
 import '../widgets/custom_snackbar.dart';
 import '../widgets/custom_text_field.dart';
 import 'bible_reading_list_screen.dart';
@@ -227,10 +228,18 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
     final role = _dataUser['role'] ?? '-';
     Widget buildBibleContent() {
       if (_isLoading) {
-        return const Center(child: CircularProgressIndicator());
+        return const Center(
+          child: CircularProgressIndicator(color: Colors.white),
+        );
       }
       if (_dataBible == null) {
-        return const Center(child: Text('Tidak ada data Alkitab.'));
+        return Center(
+          child: CustomNotFound(
+            text: "Gagal memuat data bacaan hari ini :(",
+            textColor: Colors.white,
+            imagePath: 'assets/images/data_not_found.png',
+          ),
+        );
       }
 
       // final List<dynamic> books = [];

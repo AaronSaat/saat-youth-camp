@@ -33,12 +33,12 @@ import 'screens/splash_screen.dart';
 //   BackgroundFetch.finish(taskId);
 // }
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
   // await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   // Initialize notification service
-  await NotificationService().initialize();
+  // await NotificationService().initialize();
 
   // Initialize background task service
   // await BackgroundTaskService.initialize();

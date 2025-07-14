@@ -51,6 +51,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
+    initNotificationService();
     initAll();
     // print('[BackgroundSync] Dashboard dibuka pada: ${DateTime.now()}');
     // setupBackgroundSync(); // Setup background sync untuk pengumuman
@@ -69,6 +70,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
+  Future<void> initNotificationService() async {
+    final notificationService = NotificationService();
+    await notificationService.initialize();
+
+    print('🔔[NotificationService] Initialized');
+  }
+
   Future<void> initAll() async {
     setState(() => _isLoading = true);
     try {
@@ -83,7 +91,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       // untuk keperluan notifikasi
       await loadAllAcara();
       await loadAllKomitmen();
-      await setupAllNotification();
 
       //setup notifications
       // await setupDailyNotification();
@@ -434,6 +441,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
       // CANCEL SEMUA NOTIFIKASI LAMA TERLEBIH DAHULU
       await notificationService.cancelNotification();
 
+      // Debug: Jadwalkan notifikasi dengan waktu yang diinputkan sendiri
+      // Ganti tanggal dan waktu sesuai kebutuhan debug
+      final debugScheduledTime = DateTime(
+        2025,
+        7,
+        14,
+        13,
+        28,
+        0,
+      ); // contoh: 20 Juli 2025 jam 10:00
+      if (debugScheduledTime.isAfter(DateTime.now())) {
+        await notificationService.scheduledNotification(
+          title: '🔔 Debug Notification',
+          body: 'Ini adalah notifikasi debug pada $debugScheduledTime',
+          scheduledTime: debugScheduledTime,
+          payload: 'splash',
+        );
+        print('🔔 Debug notification scheduled at $debugScheduledTime');
+      }
+
       // 15 menit sebelum acara
       for (final acara in _acaraListAll) {
         final hari = acara['hari']?.toString();
@@ -757,6 +784,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               width: double.infinity,
                               child: ElevatedButton.icon(
                                 onPressed: () {
+                                  print('🔔 Test Notification Button Pressed');
+                                  print('🔔 Test Notification Button Pressed');
+                                  print('Datetime now: ${DateTime.now()}');
                                   NotificationService().showNotification(
                                     title: 'Test Notification',
                                     body:
@@ -775,71 +805,75 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                               ),
                             ),
-                            // const SizedBox(height: 12),
-                            // // Schedule Notification Button (5s)
-                            // SizedBox(
-                            //   width: double.infinity,
-                            //   child: ElevatedButton.icon(
-                            //     onPressed: () {
-                            //       NotificationService().scheduledNotification(
-                            //         title:
-                            //             'Scheduled Notification: 30 seconds later',
-                            //         body:
-                            //             'This notification is scheduled for 30 seconds later.',
-                            //         scheduledTime: DateTime.now().add(
-                            //           const Duration(seconds: 30),
-                            //         ),
-                            //         payload: 'splash',
-                            //       );
-                            //     },
-                            //     icon: const Icon(Icons.schedule, size: 16),
-                            //     label: const Text(
-                            //       'Schedule Notification: 30s Later',
-                            //     ),
-                            //     style: ElevatedButton.styleFrom(
-                            //       backgroundColor: AppColors.secondary,
-                            //       foregroundColor: Colors.white,
-                            //       padding: const EdgeInsets.symmetric(
-                            //         vertical: 12,
-                            //       ),
-                            //     ),
-                            //   ),
-                            // ),
-                            // const SizedBox(height: 12),
-                            // // Schedule Notification Button (9 July 2025 07:40 WIB)
-                            // SizedBox(
-                            //   width: double.infinity,
-                            //   child: ElevatedButton.icon(
-                            //     onPressed: () {
-                            //       // 07:40 WIB = UTC+7
-                            //       final scheduledTime = DateTime.utc(
-                            //         2025,
-                            //         7,
-                            //         9,
-                            //         0,
-                            //         40,
-                            //       );
-                            //       NotificationService().scheduledNotification(
-                            //         title: 'Notifikasi Terjadwal',
-                            //         body:
-                            //             'Ini notifikasi untuk 9 Juli 2025 jam 07.40 WIB.',
-                            //         scheduledTime: scheduledTime,
-                            //         payload: 'splash',
-                            //       );
-                            //     },
-                            //     icon: const Icon(Icons.schedule_send, size: 16),
-                            //     label: const Text(
-                            //       'Schedule Notif 9 Juli 2025 07:40 WIB',
-                            //     ),
-                            //     style: ElevatedButton.styleFrom(
-                            //       backgroundColor: AppColors.secondary,
-                            //       foregroundColor: Colors.white,
-                            //       padding: const EdgeInsets.symmetric(
-                            //         vertical: 12,
-                            //       ),
-                            //     ),
-                            //   ),
-                            // ),
+                            const SizedBox(height: 12),
+                            // Schedule Notification Button (5s)
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  NotificationService().scheduledNotification(
+                                    title:
+                                        'Scheduled Notification: 5 seconds later',
+                                    body:
+                                        'This notification is scheduled for 5 seconds later.',
+                                    scheduledTime: DateTime.now().add(
+                                      const Duration(seconds: 5),
+                                    ),
+                                    payload: 'splash',
+                                  );
+                                },
+                                icon: const Icon(Icons.schedule, size: 16),
+                                label: const Text(
+                                  'Schedule Notification: 5 Later',
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.secondary,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            // Schedule Notification Button (9 July 2025 07:40 WIB)
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  // 07:40 WIB = UTC+7
+                                  final scheduledTime = DateTime.utc(
+                                    2025,
+                                    7,
+                                    14,
+                                    6,
+                                    26,
+                                  );
+                                  NotificationService().scheduledNotification(
+                                    title: 'Notifikasi Terjadwal',
+                                    body:
+                                        'Ini notifikasi untuk 14 Juli 2025 jam 13.26 WIB.',
+                                    scheduledTime: scheduledTime,
+                                    payload: 'splash',
+                                  );
+                                  showCustomSnackBar(
+                                    context,
+                                    'Notifikasi berhasil dijadwalkan pada ${scheduledTime.toLocal()}',
+                                  );
+                                },
+                                icon: const Icon(Icons.schedule_send, size: 16),
+                                label: const Text(
+                                  'Schedule Notif 14 Juli 2025 13.26 WIB',
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.secondary,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),

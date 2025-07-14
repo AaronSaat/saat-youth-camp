@@ -283,7 +283,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Text(
               _dataBrm.isNotEmpty
-                  ? DateFormatter.ubahTanggal(_dataBrm![0]['tanggal'])
+                  ? DateFormatter.ubahTanggal(_dataBrm![day - 1]['tanggal'])
                   : 'Tanggal???',
               style: const TextStyle(
                 fontSize: 12,

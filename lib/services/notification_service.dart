@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart'
-    show GlobalKey, NavigatorState, Navigator, MaterialPageRoute;
+    show BuildContext, GlobalKey, MaterialPageRoute, Navigator, NavigatorState;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show
         AndroidInitializationSettings,
@@ -17,6 +17,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:syc/screens/splash_screen.dart';
 import 'package:syc/utils/global_variables.dart';
+import 'package:syc/widgets/custom_snackbar.dart' show showCustomSnackBar;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:http/http.dart' as http;
@@ -37,12 +38,16 @@ class NotificationService {
   Future<void> initialize() async {
     if (_isInitialized) return; // Prevent re-initialization
 
+    // try {1q
     tz.initializeTimeZones();
     final String timeZoneName = await FlutterTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(timeZoneName));
 
+    // const initializationSettingsAndroid = AndroidInitializationSettings(
+    //   'iconsmall.png',
+    // );
     const initializationSettingsAndroid = AndroidInitializationSettings(
-      'app_icon',
+      '@mipmap/ic_launcher',
     );
 
     const initializationSettingsIOS = DarwinInitializationSettings(
@@ -58,6 +63,12 @@ class NotificationService {
 
     await notificationPlugin.initialize(initializationSettings);
     _isInitialized = true;
+    // } catch (e) {
+    //   final context = NotificationService.navigatorKey.currentContext;
+    //   if (context != null) {
+    //     showCustomSnackBar(context, 'Gagal inisialisasi notifikasi: $e');
+    //   }
+    // }
   }
 
   // Notification Details
@@ -123,29 +134,43 @@ class NotificationService {
     required DateTime scheduledTime,
     required String payload,
   }) async {
-    // get current date and time in local timezone
-    final now = tz.TZDateTime.now(tz.local);
+    // Pastikan timezone WIB (Asia/Jakarta)
+    final wib = tz.getLocation('Asia/Jakarta');
+    final now = tz.TZDateTime.now(wib);
+    print('Current time (WIB): $now');
 
-    var scheduledDateTime = tz.TZDateTime.from(scheduledTime, tz.local);
+    // Konversi scheduledTime ke WIB
+    var scheduledDateTime = tz.TZDateTime.from(scheduledTime, wib);
+    print('Scheduled time (WIB): $scheduledDateTime');
 
-    await notificationPlugin.zonedSchedule(
-      DateTime.now().millisecondsSinceEpoch ~/ 1000,
-      title,
-      body,
-      scheduledDateTime.isBefore(now)
-          ? now.add(const Duration(seconds: 1))
-          : scheduledDateTime,
-      notificationDetails(),
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-      // androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+    try {
+      await notificationPlugin.zonedSchedule(
+        DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        title,
+        body,
+        scheduledDateTime,
+        notificationDetails(),
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
+    } catch (e) {
+      print('Exact alarm not permitted, fallback to inexact: $e');
+      await notificationPlugin.zonedSchedule(
+        DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        title,
+        body,
+        scheduledDateTime.isBefore(now)
+            ? now.add(const Duration(seconds: 1))
+            : scheduledDateTime,
+        notificationDetails(),
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
+    }
 
-      // repeat this everyday sama time
-      matchDateTimeComponents: DateTimeComponents.time,
+    print(
+      'Scheduled notification for $title at ${scheduledDateTime.toLocal()} (WIB)',
     );
-
-    // print(
-    //   'Scheduled notification for $title at ${scheduledDateTime.toLocal()}',
-    // );
   }
 
   Future<void> cancelNotification() async {
