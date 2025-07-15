@@ -202,15 +202,15 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
                                       });
                                     } else {
                                       // Cek tanggal dan jam
-                                      DateTime now = DateTime.now();
-                                      // final now = DateTime(
-                                      //   2026,
-                                      //   01,
-                                      //   01,
-                                      //   11,
-                                      //   0,
-                                      //   0,
-                                      // ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
+                                      // DateTime now = DateTime.now();
+                                      final now = DateTime(
+                                        2026,
+                                        01,
+                                        02,
+                                        11,
+                                        0,
+                                        0,
+                                      ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
                                       DateTime tanggalKomitmen = DateTime.parse(
                                         '$tanggal 15:00:00',
                                       );

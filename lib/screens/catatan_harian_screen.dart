@@ -15,7 +15,9 @@ import 'anggota_gereja_screen.dart';
 
 class CatatanHarianScreen extends StatefulWidget {
   final String role;
-  const CatatanHarianScreen({Key? key, required this.role}) : super(key: key);
+  final String id;
+  const CatatanHarianScreen({Key? key, required this.role, required this.id})
+    : super(key: key);
 
   @override
   _CatatanHarianScreenState createState() => _CatatanHarianScreenState();
@@ -26,6 +28,12 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
 
   // loadingnya jadi satu saja (tidak perlu dipisah dengan data panitia)
   bool _isLoading = true;
+
+  //untuk pagination
+  bool _isLoadingMore = false;
+  bool _hasMore = true;
+  int _page = 1;
+  final int _pageSize = 10;
 
   DateTime _selectedDate = DateTime.now();
 
@@ -57,6 +65,9 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
   Future<void> initAll() async {
     setState(() {
       _isLoading = true;
+      _isLoadingMore = false;
+      _page = 1;
+      _hasMore = true;
     });
 
     if (widget.role.toLowerCase().contains('panitia')) {
@@ -69,6 +80,9 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
       final dataCatatan = await ApiService.getBrmByDay(
         context,
         _selectedDate.toIso8601String().substring(0, 10),
+        widget.id,
+        _page,
+        _pageSize,
       );
 
       if (widget.role.toLowerCase().contains('panitia')) {
@@ -88,8 +102,12 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
       if (!mounted) return;
       setState(() {
         _dataCatatanHarian = dataCatatan;
-        print("Data catatan: ${_dataCatatanHarian}");
+        // print("Data catatan: ${_dataCatatanHarian}");
         print("Data bacaan: ${_bacaanDoneMapPanitia}");
+
+        print(
+          'LENGTH CATATAN LOAD PERTAMA: ${_dataCatatanHarian['data_notes'].length}',
+        );
         _isLoading = false;
       });
     } catch (e) {
@@ -152,6 +170,36 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
 
   String _formatDate(DateTime date) {
     return "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}";
+  }
+
+  void _fetchMoreNotes() async {
+    if (_isLoadingMore || !_hasMore) return;
+    setState(() => _isLoadingMore = true);
+    final newNotes = await ApiService.getBrmByDay(
+      context,
+      _selectedDate.toIso8601String().substring(0, 10),
+      widget.id,
+      _page + 1,
+      _pageSize,
+    );
+    final newDataNotes = newNotes['data_notes'];
+    if (newDataNotes is List) {
+      if (newDataNotes.isEmpty || newDataNotes.length < _pageSize) {
+        _hasMore = false;
+      }
+      if (newDataNotes.length < _pageSize) {
+        print("📦 Tidak ada data tambahan. Pagination berhenti.");
+      }
+      setState(() {
+        _page++;
+        _isLoadingMore = false;
+        _dataCatatanHarian['data_notes'].addAll(newNotes['data_notes']);
+
+        print(
+          'LENGTH CATATAN LOAD BERIKUT: ${_dataCatatanHarian['data_notes'].length}',
+        );
+      });
+    }
   }
 
   @override
@@ -412,136 +460,167 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount:
                                 (_dataCatatanHarian['data_notes'] as List)
-                                    .length,
+                                    .length +
+                                (_hasMore ? 1 : 0),
                             itemBuilder: (context, index) {
-                              final note =
-                                  _dataCatatanHarian['data_notes'][index];
-                              final time = timeago.format(
-                                DateTime.parse(note['created_at'].toString()),
-                                locale: 'id',
-                              );
-
-                              if (note["notes"] != null &&
-                                  note["notes"].toString().trim().isNotEmpty) {
-                                return Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  margin: const EdgeInsets.symmetric(
-                                    vertical: 8,
-                                  ),
-                                  color:
-                                      pastelDarkColors[index %
-                                          pastelDarkColors.length],
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                              if (index <
+                                  _dataCatatanHarian['data_notes'].length) {
+                                final note =
+                                    _dataCatatanHarian['data_notes'][index];
+                                if (note["notes"] != null &&
+                                    note["notes"]
+                                        .toString()
+                                        .trim()
+                                        .isNotEmpty) {
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
                                       children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              flex: 3,
+                                              child: Column(
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
-                                                  Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
+                                                  Row(
                                                     children: [
+                                                      if (note['user_id']
+                                                              .toString() ==
+                                                          widget.id)
+                                                        Container(
+                                                          width: 24,
+                                                          height: 24,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                                shape:
+                                                                    BoxShape
+                                                                        .circle,
+                                                                color:
+                                                                    AppColors
+                                                                        .primary,
+                                                              ),
+                                                          child: const Icon(
+                                                            Icons.person,
+                                                            color: Colors.white,
+                                                            size: 16,
+                                                          ),
+                                                        ),
+                                                      if (note['user_id']
+                                                              .toString() ==
+                                                          widget.id)
+                                                        const SizedBox(
+                                                          width: 8,
+                                                        ),
                                                       Text(
                                                         note['nama'] ?? '-',
                                                         style: const TextStyle(
+                                                          color:
+                                                              AppColors.primary,
                                                           fontWeight:
                                                               FontWeight.w900,
-                                                          fontSize: 24,
-                                                          color: Colors.white,
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        "Kelompok: ${note['kelompok'] ?? '-'}",
-                                                        style: const TextStyle(
-                                                          fontSize: 12,
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.w500,
+                                                          fontSize: 16,
                                                         ),
                                                       ),
                                                     ],
                                                   ),
-                                                  const SizedBox(width: 32),
-                                                  Flexible(
-                                                    child: Text(
-                                                      note['created_at'] != null
-                                                          ? timeago.format(
-                                                            DateTime.fromMillisecondsSinceEpoch(
-                                                              int.parse(
-                                                                    note['created_at']
-                                                                        .toString(),
-                                                                  ) *
-                                                                  1000,
-                                                            ),
-                                                            locale: 'id',
-                                                          )
-                                                          : '',
-                                                      style: const TextStyle(
-                                                        fontSize: 12,
-                                                        color: Colors.white,
-                                                      ),
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    "Kelompok: ${note['kelompok'] ?? '-'}",
+                                                    style: const TextStyle(
+                                                      color: AppColors.primary,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    note["notes"] ?? '',
+                                                    style: const TextStyle(
+                                                      color: AppColors.brown1,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      fontSize: 14,
                                                     ),
                                                   ),
                                                 ],
                                               ),
-                                              const SizedBox(height: 24),
-                                              Text(
-                                                "${note['notes'] ?? '-'}",
+                                            ),
+                                            Expanded(
+                                              flex: 1,
+                                              child: Text(
+                                                note['created_at'] != null
+                                                    ? timeago.format(
+                                                      DateTime.fromMillisecondsSinceEpoch(
+                                                        int.parse(
+                                                              note['created_at']
+                                                                  .toString(),
+                                                            ) *
+                                                            1000,
+                                                      ),
+                                                      locale: 'id',
+                                                    )
+                                                    : '',
+                                                textAlign: TextAlign.end,
                                                 style: const TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.white,
+                                                  color: AppColors.primary,
+                                                  fontWeight: FontWeight.w300,
+                                                  fontSize: 10,
                                                 ),
                                               ),
-                                            ],
-                                          ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 16),
+                                        const Divider(
+                                          color: AppColors.grey2,
+                                          height: 2,
                                         ),
                                       ],
                                     ),
+                                  );
+                                } else {
+                                  return const SizedBox.shrink();
+                                }
+                              } else {
+                                WidgetsBinding.instance.addPostFrameCallback((
+                                  _,
+                                ) {
+                                  _fetchMoreNotes();
+                                });
+                                return const Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      color: AppColors.primary,
+                                    ),
                                   ),
                                 );
-                              } else {
-                                return const SizedBox.shrink();
                               }
                             },
                           )
-                          : Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  'assets/images/data_not_found.png',
-                                  height: 100,
+                          : Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                'assets/images/data_not_found.png',
+                                height: 100,
+                              ),
+                              const SizedBox(height: 12),
+                              const Text(
+                                "Tidak ada data catatan harian.",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  color: AppColors.brown1,
+                                  fontSize: 16,
                                 ),
-                                const SizedBox(height: 12),
-                                const Text(
-                                  "Tidak ada data catatan harian.",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    color: AppColors.brown1,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                     ],
                   ),

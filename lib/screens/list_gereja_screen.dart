@@ -66,11 +66,22 @@ class _ListGerejaScreenState extends State<ListGerejaScreen> {
               child: SingleChildScrollView(
                 physics: AlwaysScrollableScrollPhysics(),
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0),
+                  padding: const EdgeInsets.only(
+                    left: 24.0,
+                    right: 24.0,
+                    bottom: 24.0,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(children: [Image.asset('assets/texts/daftar_gereja.png', height: 128)]),
+                      Column(
+                        children: [
+                          Image.asset(
+                            'assets/texts/daftar_gereja.png',
+                            height: 128,
+                          ),
+                        ],
+                      ),
                       // Tidak ada day selector di desain ini
                       const SizedBox(height: 8),
                       _isLoading
@@ -80,7 +91,10 @@ class _ListGerejaScreenState extends State<ListGerejaScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Image.asset('assets/images/data_not_found.png', height: 100),
+                                Image.asset(
+                                  'assets/images/data_not_found.png',
+                                  height: 100,
+                                ),
                                 const SizedBox(height: 12),
                                 Text(
                                   "Gagal memuat daftar gereja :(",
@@ -100,13 +114,16 @@ class _ListGerejaScreenState extends State<ListGerejaScreen> {
                             itemBuilder: (context, index) {
                               final gereja = _gerejaList[index];
                               return CustomCard(
-                                text: gereja['nama_gereja'] ?? 'Gereja???',
+                                text: gereja['nama_gereja'] ?? '',
                                 icon: Icons.church,
                                 onTap: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => AnggotaGerejaScreen(id: gereja['gereja_id'] ?? 'Gereja???'),
+                                      builder:
+                                          (context) => AnggotaGerejaScreen(
+                                            id: gereja['gereja_id'] ?? '',
+                                          ),
                                     ),
                                   );
                                 },
@@ -143,7 +160,10 @@ Widget buildListShimmer(BuildContext context) {
               highlightColor: Colors.grey[100]!,
               child: Container(
                 height: 70,
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
               ),
             ),
           );

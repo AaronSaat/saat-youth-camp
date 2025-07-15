@@ -305,6 +305,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context,
       MaterialPageRoute(builder: (context) => const LoginScreen()),
     );
+    //reset
+    setState(() {
+      GlobalVariables.currentIndex = 0;
+    });
   }
 
   @override
@@ -740,8 +744,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder:
-                                      (context) =>
-                                          CatatanHarianScreen(role: role),
+                                      (context) => CatatanHarianScreen(
+                                        role: role,
+                                        id: id,
+                                      ),
                                 ),
                               );
                             },
@@ -778,7 +784,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           style: const TextStyle(
                                             fontWeight: FontWeight.w900,
                                             color: Colors.white,
-                                            fontSize: 24,
+                                            fontSize: 22,
                                           ),
                                           maxLines: 2,
                                           textAlign: TextAlign.right,

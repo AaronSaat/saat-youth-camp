@@ -244,14 +244,9 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
                           value: answer?.toString() ?? '',
                         );
                       } else if (type == "2") {
-                        return CustomCheckboxCard(
+                        return CustomTextCard(
                           text: question,
-                          value:
-                              answer == true ? 'Ya' : 'Tidak', // atau 'tidak'
-                          textStyle: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                          ), // opsional
+                          value: answer == true ? 'Ya' : 'Tidak',
                         );
                       } else if ([
                         "3",
@@ -268,9 +263,12 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
                         "14",
                         "15",
                       ].contains(type)) {
+                        final answerValue =
+                            answer is double ? answer.toInt() : answer;
                         return CustomTextCard(
                           text: question,
-                          value: '${answer?.toString() ?? '0'} dari ${scale}',
+                          value:
+                              '${answerValue?.toString() ?? '0'} dari ${scale}',
                           backgroundColor: AppColors.brown1, // opsional
                         );
                       } else if (type == "16") {

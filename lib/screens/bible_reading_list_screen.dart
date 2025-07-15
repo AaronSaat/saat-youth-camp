@@ -11,6 +11,7 @@ import '../utils/date_formatter.dart';
 import '../widgets/custom_card.dart';
 import '../widgets/custom_not_found.dart';
 import '../widgets/custom_snackbar.dart';
+import 'catatan_harian_screen.dart';
 import 'evaluasi_komitmen_view_screen.dart';
 
 class BibleReadingListScreen extends StatefulWidget {
@@ -256,6 +257,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
   @override
   Widget build(BuildContext context) {
     final id = _dataUser['id'] ?? '';
+    final role = _dataUser['role'] ?? '';
     return Scaffold(
       extendBodyBehindAppBar: true,
 
@@ -284,7 +286,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
             child: Text(
               _dataBrm.isNotEmpty
                   ? DateFormatter.ubahTanggal(_dataBrm![day - 1]['tanggal'])
-                  : 'Tanggal???',
+                  : '',
               style: const TextStyle(
                 fontSize: 12,
                 color: Colors.white,
@@ -363,7 +365,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                                                   .isNotEmpty)
                                           ? _dataBrm[day - 1]['passage']
                                               .toString()
-                                          : 'Bacaan???',
+                                          : '',
                                   // _dataBrm.isNotEmpty &&
                                   //         _dataBrm[0]['passage'] != null
                                   //     ? _dataBrm[0]['passage'].toString()
@@ -410,35 +412,22 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                                   showCheckIcon: false,
                                 ),
                                 CustomCard(
-                                  text:
-                                      (_dataBrm.length >= day &&
-                                              _dataProgress['brm_report'] !=
-                                                  null)
-                                          ? (() {
-                                            final brmId =
-                                                _dataBrm[day - 1]?['id'];
-                                            final brmReports =
-                                                _dataProgress['brm_report']
-                                                    as List<dynamic>;
-                                            final report = brmReports
-                                                .firstWhere(
-                                                  (r) => r['brm_id'] == brmId,
-                                                  orElse: () => null,
-                                                );
-                                            if (report != null &&
-                                                report['notes'] != null &&
-                                                report['notes']
-                                                    .toString()
-                                                    .isNotEmpty) {
-                                              return 'Catatan: ${report['notes']}';
-                                            } else {
-                                              return 'Tidak ada catatan';
-                                            }
-                                          })()
-                                          : 'Notes???',
+                                  text: 'Catatan Harian',
                                   icon: Icons.sticky_note_2_rounded,
                                   iconBackgroundColor: AppColors.brown1,
                                   showCheckIcon: false,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => CatatanHarianScreen(
+                                              role: role,
+                                              id: id,
+                                            ),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ],
                             ),

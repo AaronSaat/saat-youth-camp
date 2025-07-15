@@ -114,7 +114,7 @@ class _ListGroupScreenState extends State<ListGroupScreen> {
                             itemBuilder: (context, index) {
                               final group = _groupList[index];
                               return CustomCard(
-                                text: group['gereja_nama'] ?? 'group???',
+                                text: group['gereja_nama'] ?? '',
                                 icon: Icons.church,
                                 onTap: () {
                                   Navigator.push(
@@ -124,7 +124,7 @@ class _ListGroupScreenState extends State<ListGroupScreen> {
                                           (context) => AnggotaGroupScreen(
                                             id:
                                                 group['group_id'].toString() ??
-                                                'group???',
+                                                '',
                                           ),
                                     ),
                                   );

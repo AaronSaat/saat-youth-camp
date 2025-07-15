@@ -344,15 +344,15 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
                                         acaraDateTime = DateTime.parse(
                                           '$tanggal $waktu',
                                         );
-                                        final now = DateTime.now();
-                                        // final now = DateTime(
-                                        //   2025,
-                                        //   12,
-                                        //   31,
-                                        //   0,
-                                        //   0,
-                                        //   0,
-                                        // ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
+                                        // final now = DateTime.now();
+                                        final now = DateTime(
+                                          2025,
+                                          12,
+                                          31,
+                                          0,
+                                          0,
+                                          0,
+                                        ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
                                         if (now.isAfter(
                                           acaraDateTime.add(
                                             const Duration(hours: 1),

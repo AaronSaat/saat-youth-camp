@@ -6,6 +6,7 @@ import 'package:syc/screens/review_komitmen_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 import '../services/api_service.dart';
 import '../widgets/custom_checkbox.dart';
+import '../widgets/custom_single_choice.dart';
 import '../widgets/custom_slider.dart';
 import '../widgets/custom_text_field.dart';
 import 'review_evaluasi_screen.dart';
@@ -299,21 +300,32 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                                         );
                                       } else if (item['type'].toString() ==
                                           '2') {
-                                        // Checkbox
+                                        // CustomSingleChoice Ya/Tidak
                                         return Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            CustomCheckbox(
-                                              value:
-                                                  _checkbox_answer[id] ?? false,
-                                              onChanged:
-                                                  (val) => setState(() {
-                                                    _checkbox_answer[id] = val;
-                                                    print(
-                                                      'Checkbox $id changed to $val',
-                                                    );
-                                                    _onChangedDebounced(id);
-                                                  }),
-                                              label: question,
+                                            Text(
+                                              question,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 8),
+                                            CustomSingleChoice(
+                                              options: const ['Ya', 'Tidak'],
+                                              onSelected: (label) {
+                                                setState(() {
+                                                  _checkbox_answer[id] =
+                                                      (label == 'Ya');
+                                                  print(
+                                                    'CustomSingleChoice $id changed to $label',
+                                                  );
+                                                  _onChangedDebounced(id);
+                                                });
+                                              },
                                             ),
                                             const Divider(
                                               color: Colors.white,

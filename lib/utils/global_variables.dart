@@ -1,6 +1,7 @@
 class GlobalVariables {
   static const String serverUrl = 'https://reg.seabs.ac.id/';
-  // static const String serverUrl = 'http://172.172.52.11:8080/';
+  // static const String serverUrl = 'http://172.172.52.11:90/';
+  static int currentIndex = 0; // Untuk BottomNavigationBar main_screen.dart
 }
 
 // Contoh penggunaan di file lain:

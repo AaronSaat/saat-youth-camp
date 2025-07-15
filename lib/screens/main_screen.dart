@@ -9,6 +9,7 @@ import 'package:syc/screens/list_kelompok_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 
 import '../services/api_service.dart';
+import '../utils/global_variables.dart';
 import 'login_screen.dart';
 import 'dashboard_screen.dart';
 import 'anggota_gereja_screen.dart';
@@ -38,6 +39,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void initState() {
+    _currentIndex = GlobalVariables.currentIndex;
     super.initState();
     loadRoleAndSetup();
   }
@@ -133,8 +135,8 @@ class _MainScreenState extends State<MainScreen> {
     return BottomNavigationBarItem(
       icon: SvgPicture.asset(
         asset,
-        height: 28,
-        width: 28,
+        height: 36,
+        width: 36,
         colorFilter: ColorFilter.mode(
           _currentIndex == index ? AppColors.primary : Colors.grey,
           BlendMode.srcIn,
@@ -272,6 +274,11 @@ class _MainScreenState extends State<MainScreen> {
                       selectedItemColor: AppColors.primary,
                       unselectedItemColor: Colors.grey,
                       showUnselectedLabels: true,
+                      selectedLabelStyle: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      unselectedLabelStyle: TextStyle(fontSize: 8),
                     ),
                   ),
                 ),

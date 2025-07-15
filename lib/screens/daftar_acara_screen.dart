@@ -60,6 +60,11 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
       if (!mounted) return;
       setState(() {
         _acaraList = acaraList;
+        final List<String> tanggalList =
+            acaraList
+                .map<String>((acara) => acara['tanggal']?.toString() ?? '')
+                .toList();
+        print('Tanggal List: $tanggalList');
         _isLoading = false;
       });
     } catch (e) {
@@ -108,6 +113,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
 
   Widget _buildDaySelector() {
     final List<int> days = List.generate(_countAcara, (index) => index + 1);
+    print('TEST: $days');
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
       child: Row(
@@ -155,15 +161,6 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
   Widget build(BuildContext context) {
     final userId = _dataUser['id'] ?? '-';
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading:
-            Navigator.canPop(context)
-                ? BackButton(color: AppColors.primary)
-                : null,
-      ),
       body: Stack(
         children: [
           Positioned(
@@ -181,7 +178,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
               backgroundColor: Colors.white,
               child: SingleChildScrollView(
                 child: Padding(
-                  padding: EdgeInsets.only(bottom: 64),
+                  padding: EdgeInsets.only(top: 32, bottom: 64),
                   child: Column(
                     children: [
                       // Padding(

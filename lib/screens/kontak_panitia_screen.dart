@@ -23,15 +23,15 @@ class KontakPanitiaScreen extends StatefulWidget {
 }
 
 class _KontakPanitiaScreenState extends State<KontakPanitiaScreen> {
-  Map<String, dynamic> _dataCatatanHarian = {
-    "success": true,
-    "message": "Data ditemukan",
-    "data_notes": [
-      {"nama": "Aaron", "peran": "BPH", "nomor": "+62 812-3453-602"},
-      {"nama": "Aaron", "peran": "Kesehatan", "nomor": "029-964-1153"},
-      {"nama": "Aaron", "peran": "Perlengkapan", "nomor": "029-964-1153"},
-    ],
-  };
+  // Map<String, dynamic> _dataCatatanHarian = {
+  //   "success": true,
+  //   "message": "Data ditemukan",
+  //   "data_notes": [
+  //     {"nama": "Aaron", "peran": "BPH", "nomor": "+62 812-3453-602"},
+  //     {"nama": "Aaron", "peran": "Kesehatan", "nomor": "029-964-1153"},
+  //     {"nama": "Aaron", "peran": "Perlengkapan", "nomor": "029-964-1153"},
+  //   ],
+  // };
 
   // loadingnya jadi satu saja (tidak perlu dipisah dengan data panitia)
   bool _isLoading = false;
@@ -39,15 +39,13 @@ class _KontakPanitiaScreenState extends State<KontakPanitiaScreen> {
   DateTime _selectedDate = DateTime.now();
 
   // progress untuk panitia
-  Map<String, String> _bacaanDoneMapPanitia = {};
-  Map<String, String> _countUserMapPanitia = {};
+  List<dynamic> _dataPanitiaHarian = [];
 
   @override
   void initState() {
     timeago.setLocaleMessages('id', timeago.IdMessages());
     super.initState();
-    // initAll();
-    print("Data Kontak: $_dataCatatanHarian");
+    initAll();
   }
 
   Future<void> initAll() async {
@@ -56,44 +54,22 @@ class _KontakPanitiaScreenState extends State<KontakPanitiaScreen> {
     });
 
     try {
-      print(
-        "Fetching data for date: ${_selectedDate.toIso8601String().substring(0, 10)}",
-      );
-      final dataCatatan = await ApiService.getBrmByDay(
-        context,
-        _selectedDate.toIso8601String().substring(0, 10),
-      );
+      final dataPanitia = await ApiService.getPanitia(context);
 
       if (!mounted) return;
       setState(() {
-        _dataCatatanHarian = dataCatatan;
-        print("Data Kontak: ${_dataCatatanHarian}");
-        // print("Data bacaan: ${_bacaanDoneMapPanitia}");
+        _dataPanitiaHarian = dataPanitia;
+        print("Data Panitia: $_dataPanitiaHarian");
         _isLoading = false;
       });
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _dataCatatanHarian = {};
-        print("Error fetching data");
+        _dataPanitiaHarian = [];
+        print("Error fetching data panitia : $e");
         _isLoading = false;
       });
     }
-  }
-
-  Future<void> loadCountUser() async {
-    if (!mounted) return;
-    setState(() {});
-    try {
-      final _countUser = await ApiService.getCountUser(context);
-      if (!mounted) return;
-      setState(() {
-        _countUserMapPanitia = _countUser.map(
-          (key, value) => MapEntry(key.toString(), value.toString()),
-        );
-        print('Count User Map: $_countUserMapPanitia');
-      });
-    } catch (e) {}
   }
 
   @override
@@ -142,11 +118,7 @@ class _KontakPanitiaScreenState extends State<KontakPanitiaScreen> {
                     children: [
                       _isLoading
                           ? buildListShimmer(context)
-                          : (_dataCatatanHarian['success'] == false ||
-                              _dataCatatanHarian['data_notes'] == null ||
-                              !(_dataCatatanHarian['data_notes'] is List) ||
-                              (_dataCatatanHarian['data_notes'] as List)
-                                  .isEmpty)
+                          : (_dataPanitiaHarian.isEmpty)
                           ? Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -170,22 +142,28 @@ class _KontakPanitiaScreenState extends State<KontakPanitiaScreen> {
                           : ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount:
-                                (_dataCatatanHarian['data_notes'] as List)
-                                    .length,
+                            itemCount: _dataPanitiaHarian.length,
                             itemBuilder: (context, index) {
-                              final note =
-                                  _dataCatatanHarian['data_notes'][index];
-
+                              final panitia = _dataPanitiaHarian[index];
+                              String? rawNomor = panitia['hp'];
+                              if (rawNomor != null) {
+                                rawNomor = rawNomor.replaceAll(
+                                  RegExp(r'[^0-9+]'),
+                                  '',
+                                );
+                                if (rawNomor.startsWith('0')) {
+                                  rawNomor = '+62${rawNomor.substring(1)}';
+                                } else if (!rawNomor.startsWith('+62')) {
+                                  rawNomor = '+62$rawNomor';
+                                }
+                              }
+                              final nomor = rawNomor;
                               return InkWell(
                                 borderRadius: BorderRadius.circular(16),
                                 onTap: () async {
-                                  final nomor = note['nomor']?.replaceAll(
-                                    RegExp(r'[^0-9]'),
-                                    '',
-                                  );
                                   if (nomor != null && nomor.isNotEmpty) {
-                                    final waUrl = 'https://wa.me/$nomor';
+                                    final waUrl =
+                                        'https://wa.me/${nomor.replaceAll('+', '')}';
                                     if (await canLaunchUrl(Uri.parse(waUrl))) {
                                       await launchUrl(
                                         Uri.parse(waUrl),
@@ -219,7 +197,7 @@ class _KontakPanitiaScreenState extends State<KontakPanitiaScreen> {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                note['nama'] ?? '-',
+                                                panitia['nama'] ?? '-',
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 20,
@@ -228,7 +206,7 @@ class _KontakPanitiaScreenState extends State<KontakPanitiaScreen> {
                                               ),
                                               const SizedBox(height: 4),
                                               Text(
-                                                "Peran: ${note['peran'] ?? '-'}",
+                                                "Divisi: ${panitia['divisi'] ?? '-'}",
                                                 style: const TextStyle(
                                                   fontSize: 14,
                                                   color: Colors.white70,
@@ -245,7 +223,7 @@ class _KontakPanitiaScreenState extends State<KontakPanitiaScreen> {
                                                   ),
                                                   const SizedBox(width: 8),
                                                   Text(
-                                                    note['nomor'] ?? '-',
+                                                    nomor ?? '-',
                                                     style: const TextStyle(
                                                       fontSize: 16,
                                                       fontWeight:

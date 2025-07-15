@@ -279,7 +279,7 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Text(
-                                          'Form Evaluasi Hari ke-${_acara['hari']}\nNama Acara: ${_acara['acara_nama'] ?? 'Nama Acara???'}',
+                                          'Form Evaluasi Hari ke-${_acara['hari']}\nNama Acara: ${_acara['acara_nama'] ?? ''}',
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.w600,
@@ -347,15 +347,18 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                         // Checkbox
                                         return Column(
                                           children: [
-                                            CustomCheckbox(
-                                              value:
-                                                  _checkbox_answer[id] ?? false,
-                                              onChanged:
-                                                  (val) => setState(() {
-                                                    _checkbox_answer[id] = val;
-                                                    _onChangedDebounced(id);
-                                                  }),
-                                              label: question,
+                                            CustomSingleChoice(
+                                              options: const ['Ya', 'Tidak'],
+                                              onSelected: (label) {
+                                                setState(() {
+                                                  _checkbox_answer[id] =
+                                                      (label == 'Ya');
+                                                  print(
+                                                    'CustomSingleChoice $id changed to $label',
+                                                  );
+                                                  _onChangedDebounced(id);
+                                                });
+                                              },
                                             ),
                                             const Divider(
                                               color: Colors.white,
@@ -407,12 +410,12 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                             questionType['min_value']
                                                 ?.toString()
                                                 .trim() ??
-                                            'Sangat Tidak ???';
+                                            '';
                                         final String maxValue =
                                             questionType['max_value']
                                                 ?.toString()
                                                 .trim() ??
-                                            'Sangat ???';
+                                            '';
 
                                         // Label on change di tengah (ga dipake)
                                         // List<String> labels =

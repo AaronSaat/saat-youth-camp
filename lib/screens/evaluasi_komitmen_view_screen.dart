@@ -168,7 +168,7 @@ class _EvaluasiKomitmenViewScreenState
                                 )
                               else if (widget.type == 'Komitmen')
                                 Text(
-                                  'Komitmen Hari: ${widget.acaraHariId ?? '???'}',
+                                  'Komitmen Hari: ${widget.acaraHariId ?? ''}',
                                   style: const TextStyle(color: Colors.white),
                                 ),
                             ],
@@ -198,11 +198,9 @@ class _EvaluasiKomitmenViewScreenState
                         );
                       } else if (type == "2") {
                         // Checkbox answer
-                        return CustomCheckboxCard(
+                        return CustomTextCard(
                           text: question,
-                          value: answer == "1" ? "Ya" : "Tidak",
-                          textStyle: const TextStyle(color: Colors.white),
-                          backgroundColor: AppColors.brown1,
+                          value: answer == true ? 'Ya' : 'Tidak',
                         );
                       } else if ([
                         "3",

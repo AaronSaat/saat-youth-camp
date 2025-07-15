@@ -205,14 +205,9 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
                           value: answer?.toString() ?? '',
                         );
                       } else if (type == "2") {
-                        return CustomCheckboxCard(
+                        return CustomTextCard(
                           text: question,
-                          value:
-                              answer == true ? 'Ya' : 'Tidak', // atau 'tidak'
-                          textStyle: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                          ), // opsional
+                          value: answer == true ? 'Ya' : 'Tidak',
                         );
                       } else {
                         return const SizedBox.shrink();

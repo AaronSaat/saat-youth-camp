@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/screens/form_komitmen_screen.dart';
+import 'package:syc/screens/main_screen.dart';
 import 'package:syc/services/notification_service.dart'
     show NotificationService;
 import 'package:syc/services/background_task_service.dart';
+import 'package:syc/utils/global_variables.dart';
 import 'package:syc/widgets/custom_snackbar.dart';
 import 'package:url_launcher/url_launcher.dart'
     show canLaunchUrl, LaunchMode, launchUrl;
@@ -235,8 +237,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       setState(() {
         print('Acara Date List: $acaraList');
 
-        final today = DateTime.now().toIso8601String().substring(0, 10);
-        // final today = "2025-12-31";
+        // final today = DateTime.now().toIso8601String().substring(0, 10);
+        final today = "2025-12-31";
         // hardcoded untuk testing, [DEVELOPMENT NOTES] nanti hapus
 
         // Ambil list tanggal dan hari unik
@@ -731,7 +733,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                           ) ==
                                                       true)
                                                   ? 'Pembina'
-                                                  : 'role???',
+                                                  : '',
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.w900,
                                                 color: Colors.white,
@@ -754,7 +756,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                           ) ==
                                                       true)
                                                   ? '${_dataUser['gereja_nama'] ?? ''}'
-                                                  : 'nama???',
+                                                  : '',
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.w500,
                                                 color: Colors.white,
@@ -775,109 +777,109 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       const SizedBox(height: 24),
 
                       // Notifikasi
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Column(
-                          children: [
-                            // Test Notification Button
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  print('🔔 Test Notification Button Pressed');
-                                  print('🔔 Test Notification Button Pressed');
-                                  print('Datetime now: ${DateTime.now()}');
-                                  NotificationService().showNotification(
-                                    title: 'Test Notification',
-                                    body:
-                                        'This is a text notification from SYC App.',
-                                    payload: 'splash',
-                                  );
-                                },
-                                icon: const Icon(Icons.notifications, size: 16),
-                                label: const Text('Test Notifications'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.secondary,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            // Schedule Notification Button (5s)
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  NotificationService().scheduledNotification(
-                                    title:
-                                        'Scheduled Notification: 5 seconds later',
-                                    body:
-                                        'This notification is scheduled for 5 seconds later.',
-                                    scheduledTime: DateTime.now().add(
-                                      const Duration(seconds: 5),
-                                    ),
-                                    payload: 'splash',
-                                  );
-                                },
-                                icon: const Icon(Icons.schedule, size: 16),
-                                label: const Text(
-                                  'Schedule Notification: 5 Later',
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.secondary,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            // Schedule Notification Button (9 July 2025 07:40 WIB)
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  // 07:40 WIB = UTC+7
-                                  final scheduledTime = DateTime.utc(
-                                    2025,
-                                    7,
-                                    14,
-                                    6,
-                                    26,
-                                  );
-                                  NotificationService().scheduledNotification(
-                                    title: 'Notifikasi Terjadwal',
-                                    body:
-                                        'Ini notifikasi untuk 14 Juli 2025 jam 13.26 WIB.',
-                                    scheduledTime: scheduledTime,
-                                    payload: 'splash',
-                                  );
-                                  showCustomSnackBar(
-                                    context,
-                                    'Notifikasi berhasil dijadwalkan pada ${scheduledTime.toLocal()}',
-                                  );
-                                },
-                                icon: const Icon(Icons.schedule_send, size: 16),
-                                label: const Text(
-                                  'Schedule Notif 14 Juli 2025 13.26 WIB',
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.secondary,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
+                      // Padding(
+                      //   padding: const EdgeInsets.symmetric(horizontal: 24),
+                      //   child: Column(
+                      //     children: [
+                      //       // Test Notification Button
+                      //       SizedBox(
+                      //         width: double.infinity,
+                      //         child: ElevatedButton.icon(
+                      //           onPressed: () {
+                      //             print('🔔 Test Notification Button Pressed');
+                      //             print('🔔 Test Notification Button Pressed');
+                      //             print('Datetime now: ${DateTime.now()}');
+                      //             NotificationService().showNotification(
+                      //               title: 'Test Notification',
+                      //               body:
+                      //                   'This is a text notification from SYC App.',
+                      //               payload: 'splash',
+                      //             );
+                      //           },
+                      //           icon: const Icon(Icons.notifications, size: 16),
+                      //           label: const Text('Test Notifications'),
+                      //           style: ElevatedButton.styleFrom(
+                      //             backgroundColor: AppColors.secondary,
+                      //             foregroundColor: Colors.white,
+                      //             padding: const EdgeInsets.symmetric(
+                      //               vertical: 12,
+                      //             ),
+                      //           ),
+                      //         ),
+                      //       ),
+                      //       const SizedBox(height: 12),
+                      //       // Schedule Notification Button (5s)
+                      //       SizedBox(
+                      //         width: double.infinity,
+                      //         child: ElevatedButton.icon(
+                      //           onPressed: () {
+                      //             NotificationService().scheduledNotification(
+                      //               title:
+                      //                   'Scheduled Notification: 5 seconds later',
+                      //               body:
+                      //                   'This notification is scheduled for 5 seconds later.',
+                      //               scheduledTime: DateTime.now().add(
+                      //                 const Duration(seconds: 5),
+                      //               ),
+                      //               payload: 'splash',
+                      //             );
+                      //           },
+                      //           icon: const Icon(Icons.schedule, size: 16),
+                      //           label: const Text(
+                      //             'Schedule Notification: 5 Later',
+                      //           ),
+                      //           style: ElevatedButton.styleFrom(
+                      //             backgroundColor: AppColors.secondary,
+                      //             foregroundColor: Colors.white,
+                      //             padding: const EdgeInsets.symmetric(
+                      //               vertical: 12,
+                      //             ),
+                      //           ),
+                      //         ),
+                      //       ),
+                      //       const SizedBox(height: 12),
+                      //       // Schedule Notification Button (9 July 2025 07:40 WIB)
+                      //       SizedBox(
+                      //         width: double.infinity,
+                      //         child: ElevatedButton.icon(
+                      //           onPressed: () {
+                      //             // 07:40 WIB = UTC+7
+                      //             final scheduledTime = DateTime.utc(
+                      //               2025,
+                      //               7,
+                      //               14,
+                      //               6,
+                      //               26,
+                      //             );
+                      //             NotificationService().scheduledNotification(
+                      //               title: 'Notifikasi Terjadwal',
+                      //               body:
+                      //                   'Ini notifikasi untuk 14 Juli 2025 jam 13.26 WIB.',
+                      //               scheduledTime: scheduledTime,
+                      //               payload: 'splash',
+                      //             );
+                      //             showCustomSnackBar(
+                      //               context,
+                      //               'Notifikasi berhasil dijadwalkan pada ${scheduledTime.toLocal()}',
+                      //             );
+                      //           },
+                      //           icon: const Icon(Icons.schedule_send, size: 16),
+                      //           label: const Text(
+                      //             'Schedule Notif 14 Juli 2025 13.26 WIB',
+                      //           ),
+                      //           style: ElevatedButton.styleFrom(
+                      //             backgroundColor: AppColors.secondary,
+                      //             foregroundColor: Colors.white,
+                      //             padding: const EdgeInsets.symmetric(
+                      //               vertical: 12,
+                      //             ),
+                      //           ),
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
+                      // const SizedBox(height: 16),
 
                       // Bacaan Hari Ini (BRM)
                       Padding(
@@ -1334,14 +1336,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                       if (day >= 1 && day <= 4) const SizedBox(height: 24),
 
-                      // Acara Hari Ini (batasi sampai hari ke-4, hari 99 gausah)
+                      // Acara Mendatang (batasi sampai hari ke-4, hari 99 gausah)
                       if (day >= 1 && day <= 4)
                         _isLoading
                             ? buildAcaraShimmer()
                             : _acaraList.isEmpty
                             ? Center(
                               child: const CustomNotFound(
-                                text: "Gagal memuat data acara hari ini :(",
+                                text: "Gagal memuat data acara mendatang :(",
                                 textColor: AppColors.brown1,
                                 imagePath: 'assets/images/data_not_found.png',
                               ),
@@ -1360,40 +1362,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Row(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            left: 8.0,
+                                    InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          GlobalVariables.currentIndex = 1;
+                                        });
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) => const MainScreen(),
                                           ),
-                                          child: Text(
-                                            'Acara Hari Ini',
-                                            style: TextStyle(
-                                              fontSize: 24,
-                                              fontWeight: FontWeight.w900,
-                                              color: AppColors.brown1,
+                                        );
+                                      },
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Row(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 8.0,
+                                            ),
+                                            child: Text(
+                                              'Acara Mendatang',
+                                              style: TextStyle(
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.w900,
+                                                color: AppColors.brown1,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        const Spacer(),
-                                        IconButton(
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder:
-                                                    (context) =>
-                                                        const DaftarAcaraScreen(),
-                                              ),
-                                            );
-                                          },
-                                          icon: const Icon(
+                                          const Spacer(),
+                                          const Icon(
                                             Icons.arrow_forward_ios,
                                             color: AppColors.black1,
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
+                                    const SizedBox(height: 8),
                                     SizedBox(
                                       height: 160,
                                       child: ListView.builder(
@@ -1572,7 +1578,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                                   Flexible(
                                                                     child: Text(
                                                                       _acaraList[index]['acara_nama'] ??
-                                                                          'Acara ${index + 1}???',
+                                                                          // 'Acara ${index + 1}???',
+                                                                          '',
                                                                       textAlign:
                                                                           TextAlign
                                                                               .left,
@@ -1893,8 +1900,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                       CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
-                                                      pengumuman["judul"] ??
-                                                          'Judul Pengumuman???',
+                                                      pengumuman["judul"] ?? '',
                                                       style: const TextStyle(
                                                         color:
                                                             AppColors.primary,

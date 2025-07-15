@@ -98,7 +98,6 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
         } else {
           _dataBible = null;
         }
-        _isLoading = false;
       });
     } catch (e) {
       if (!mounted) return;
@@ -227,21 +226,6 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
   Widget build(BuildContext context) {
     final role = _dataUser['role'] ?? '-';
     Widget buildBibleContent() {
-      if (_isLoading) {
-        return const Center(
-          child: CircularProgressIndicator(color: Colors.white),
-        );
-      }
-      if (_dataBible == null) {
-        return Center(
-          child: CustomNotFound(
-            text: "Gagal memuat data bacaan hari ini :(",
-            textColor: Colors.white,
-            imagePath: 'assets/images/data_not_found.png',
-          ),
-        );
-      }
-
       // final List<dynamic> books = [];
       // // final books = _dataBible?['book'] != null ? [_dataBible?['book']] : [];
       // // final books = <Map<String, dynamic>>[];
@@ -261,7 +245,6 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
 
       return ListView(
         children: [
-          const SizedBox(height: 16),
           // ...books.map<Widget>((book) {
           ..._books.map<Widget>((book) {
             final bookName = book['@attributes']?['name'] ?? '';
@@ -446,198 +429,223 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                       ),
                       automaticallyImplyLeading: true,
                       actions: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => BibleReadingListScreen(
-                                      userId: widget.userId,
-                                    ),
+                        _isLoading
+                            ? SizedBox(
+                              width: 120,
+                              height: 36,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: AppColors.secondary,
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(8),
+                                  ),
+                                ),
                               ),
-                            ).then((result) {
-                              if (result == 'reload') {
-                                initAll(); // reload dashboard
-                              }
-                            });
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: AppColors.secondary,
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(8),
+                            )
+                            : GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => BibleReadingListScreen(
+                                          userId: widget.userId,
+                                        ),
+                                  ),
+                                ).then((result) {
+                                  if (result == 'reload') {
+                                    initAll(); // reload dashboard
+                                  }
+                                });
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: AppColors.secondary,
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(8),
+                                  ),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                child: Text(
+                                  _dataBrm != null && _dataBrm!.isNotEmpty
+                                      ? DateFormatter.ubahTanggal(
+                                        _dataBrm![0]['tanggal'],
+                                      )
+                                      : '',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            child: Text(
-                              _dataBrm != null && _dataBrm!.isNotEmpty
-                                  ? DateFormatter.ubahTanggal(
-                                    _dataBrm![0]['tanggal'],
-                                  )
-                                  : '',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
                       ],
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        //             Positioned.fill(
-                        //   child: Image.asset(
-                        //     'assets/images/background_read_more.jpg',
-                        //     width: MediaQuery.of(context).size.width,
-                        //     height: MediaQuery.of(context).size.height,
-                        //     fit: BoxFit.fill,
-                        //   ),
-                        // ),
-                        // Font size control icons in a rounded card above the content
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 8.0,
+                    _isLoading
+                        ? Padding(
+                          padding: EdgeInsets.only(
+                            top: MediaQuery.of(context).size.height * 0.4,
                           ),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: SizedBox(
-                              width: 120, // Set lebar card di sini
-                              height: 50, // Set tinggi card di sini
-                              child: Card(
-                                color: AppColors.secondary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8.0,
-                                    vertical: 2.0,
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: Icon(
-                                          Icons.remove,
-                                          color: Colors.white,
-                                          size: 24,
-                                        ),
-                                        onPressed: () {
-                                          setState(() {
-                                            if (fontSize_judul > 18) {
-                                              fontSize_judul -= 2;
-                                              fontSize_subjudul -= 1;
-                                              fontSize_ayat -= 1;
-                                              fontSize_isi_ayat -= 1;
-                                            } else {
-                                              showCustomSnackBar(
-                                                context,
-                                                "Font size terlalu kecil",
-                                              );
-                                            }
-                                          });
-                                        },
-                                      ),
-                                      IconButton(
-                                        icon: Icon(
-                                          Icons.add,
-                                          color: Colors.white,
-                                          size: 24,
-                                        ),
-                                        onPressed: () {
-                                          setState(() {
-                                            if (fontSize_judul < 42) {
-                                              fontSize_judul += 2;
-                                              fontSize_subjudul += 1;
-                                              fontSize_ayat += 1;
-                                              fontSize_isi_ayat += 1;
-                                            } else {
-                                              showCustomSnackBar(
-                                                context,
-                                                "Font size mencapai batas maksimal",
-                                              );
-                                            }
-                                          });
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            right: 24,
-                            left: 24,
-                            bottom: 24,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                height:
-                                    countRead == 0
-                                        ? MediaQuery.of(context).size.height *
-                                            0.7
-                                        : MediaQuery.of(context).size.height *
-                                            0.6,
-                                child: buildBibleContent(),
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (countRead > 0)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                            ),
-                            child: Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
+                          child: const Center(
+                            child: CircularProgressIndicator(
                               color: Colors.white,
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'Bagian berkat yang kamu dapatkan dari bacaan hari ini:',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        fontStyle: FontStyle.italic,
-                                        color: AppColors.grey4,
-                                      ),
-                                      textAlign: TextAlign.left,
+                            ),
+                          ),
+                        )
+                        : _dataBible == null
+                        ? Center(
+                          child: CustomNotFound(
+                            text: "Gagal memuat data bacaan hari ini :(",
+                            textColor: Colors.white,
+                            imagePath: 'assets/images/data_not_found.png',
+                          ),
+                        )
+                        : Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0,
+                                vertical: 8.0,
+                              ),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: SizedBox(
+                                  width: 120,
+                                  height: 55,
+                                  child: Card(
+                                    color: AppColors.secondary,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      notes.isNotEmpty ? notes : 'Notes???',
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w400,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0,
+                                        vertical: 2.0,
                                       ),
-                                      textAlign: TextAlign.left,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(
+                                            icon: Icon(
+                                              Icons.remove,
+                                              color: Colors.white,
+                                              size: 24,
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                if (fontSize_judul > 18) {
+                                                  fontSize_judul -= 2;
+                                                  fontSize_subjudul -= 1;
+                                                  fontSize_ayat -= 1;
+                                                  fontSize_isi_ayat -= 1;
+                                                } else {
+                                                  showCustomSnackBar(
+                                                    context,
+                                                    "Font size terlalu kecil",
+                                                  );
+                                                }
+                                              });
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: Icon(
+                                              Icons.add,
+                                              color: Colors.white,
+                                              size: 24,
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                if (fontSize_judul < 42) {
+                                                  fontSize_judul += 2;
+                                                  fontSize_subjudul += 1;
+                                                  fontSize_ayat += 1;
+                                                  fontSize_isi_ayat += 1;
+                                                } else {
+                                                  showCustomSnackBar(
+                                                    context,
+                                                    "Font size mencapai batas maksimal",
+                                                  );
+                                                }
+                                              });
+                                            },
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                      ],
-                    ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                right: 24,
+                                left: 24,
+                                bottom: 24,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const SizedBox(height: 8),
+                                  SizedBox(
+                                    height:
+                                        countRead == 0
+                                            ? MediaQuery.of(
+                                                  context,
+                                                ).size.height *
+                                                0.7
+                                            : MediaQuery.of(
+                                                  context,
+                                                ).size.height *
+                                                0.6,
+                                    child: buildBibleContent(),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  if (countRead > 0)
+                                    Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      color: Colors.white,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const Text(
+                                              'Bagian berkat yang kamu dapatkan dari bacaan hari ini:',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                fontStyle: FontStyle.italic,
+                                                color: AppColors.grey4,
+                                              ),
+                                              textAlign: TextAlign.left,
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              notes.isNotEmpty ? notes : '',
+                                              style: const TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                              textAlign: TextAlign.left,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                   ],
                 ),
               ),

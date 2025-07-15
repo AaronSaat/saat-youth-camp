@@ -15,8 +15,8 @@ import '../widgets/custom_snackbar.dart';
 class ApiService {
   // static const String baseurl = 'http://172.172.52.9:82/reg-new/api-syc2025/';
   // static const String baseurlLocal = 'http://172.172.52.9/website_backup/api/';
-  static const String baseurl = 'http://172.172.52.11:90/api-syc2025/';
-  // static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
+  // static const String baseurl = 'http://172.172.52.11:90/api-syc2025/';
+  static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
 
   static Future<Map<String, dynamic>> loginUser(
     String username,
@@ -215,6 +215,9 @@ class ApiService {
   static Future<Map<String, dynamic>> getBrmByDay(
     BuildContext context,
     String day,
+    String userId,
+    int page,
+    int pageSize,
   ) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -222,7 +225,9 @@ class ApiService {
       throw Exception('Token not found in SharedPreferences');
     }
 
-    final url = Uri.parse('${baseurl}brm-by-day?day=$day');
+    final url = Uri.parse(
+      '${baseurl}brm-by-day?day=$day&user_id=$userId&page=$page&page_size=$pageSize',
+    );
     final response = await http.get(
       url,
       headers: {
@@ -234,6 +239,8 @@ class ApiService {
     print('url: $url');
     if (response.statusCode == 200) {
       final Map<String, dynamic> dataBacaan = json.decode(response.body);
+      final List<dynamic> datanotes = dataBacaan['data_notes'];
+      print('AARON: $datanotes');
 
       // print('✅ Data bacaan $day berhasil dimuat: $_dataBacaan');
       return dataBacaan;
@@ -1379,6 +1386,43 @@ class ApiService {
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load gereja');
+    }
+  }
+
+  static Future<List<dynamic>> getPanitia(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}panitia');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> decoded = json.decode(response.body);
+      final List<dynamic> dataPanitia = decoded['data'] ?? [];
+
+      print('✅ Data panitia berhasil dimuat: $dataPanitia');
+
+      return dataPanitia;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      // throw Exception('Unauthorized');
+      return [];
+    } else {
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load panitia');
     }
   }
 
