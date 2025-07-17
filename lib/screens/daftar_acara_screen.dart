@@ -22,6 +22,7 @@ class DaftarAcaraScreen extends StatefulWidget {
 
 class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
   List<dynamic> _acaraList = [];
+  List<dynamic> _tanggalList = [];
   int _countAcara = 0;
   bool _isLoading = true;
   int day = 1;
@@ -39,8 +40,47 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
     });
     try {
       await loadCountAcara();
-      await loadAcara();
       await loadUserData();
+
+      // Ambil tanggal hari ini dan set day jika ada di tanggalList
+      final tanggalListResponse = await ApiService.getTanggalAcara(context);
+
+      List<dynamic> tanggalList = [];
+      if (tanggalListResponse.isNotEmpty) {
+        if (tanggalListResponse[0] is List) {
+          tanggalList = tanggalListResponse[0];
+        } else if (tanggalListResponse[0] is Map) {
+          // Jika API mengembalikan Map tanggal -> hari, ubah ke List
+          final mapTanggal = tanggalListResponse[0] as Map;
+          tanggalList =
+              mapTanggal.entries.map((e) {
+                final val = e.value;
+                if (val is Map) {
+                  return val;
+                } else {
+                  return {'tanggal': e.key, 'hari': val};
+                }
+              }).toList();
+        }
+      }
+      _tanggalList = tanggalList;
+      print('Tanggal List: $_tanggalList');
+      // final today = DateTime.now().toIso8601String().substring(0, 10);
+      // [DEVELOPMENT NOTES] nanti hapus
+      final today = "2025-12-31";
+      final match = _tanggalList.firstWhere(
+        (item) => item['tanggal'] == today,
+        orElse: () => null,
+      );
+      print('Match today: $today');
+      print('Match: $match');
+      if (match != null && match['hari'] != null) {
+        day = match['hari'];
+      } else {
+        day = 1;
+      }
+
+      await loadAcara();
     } catch (e) {
       // handle error jika perlu
     }
@@ -55,16 +95,13 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
     setState(() {
       _isLoading = true;
     });
+    print('Loading acara for day: $day');
     try {
       final acaraList = await ApiService.getAcaraByDay(context, day);
       if (!mounted) return;
       setState(() {
         _acaraList = acaraList;
-        final List<String> tanggalList =
-            acaraList
-                .map<String>((acara) => acara['tanggal']?.toString() ?? '')
-                .toList();
-        print('Tanggal List: $tanggalList');
+        print('Acara List: $_acaraList');
         _isLoading = false;
       });
     } catch (e) {
@@ -113,7 +150,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
 
   Widget _buildDaySelector() {
     final List<int> days = List.generate(_countAcara, (index) => index + 1);
-    print('TEST: $days');
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
       child: Row(

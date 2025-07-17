@@ -152,15 +152,26 @@ class _MateriScreenState extends State<MateriScreen> {
                                     onTap: () async {
                                       const url =
                                           'https://library.seabs.ac.id/';
-                                      if (await canLaunchUrl(Uri.parse(url))) {
-                                        await launchUrl(
-                                          Uri.parse(url),
+                                      final uri = Uri.parse(url);
+                                      bool launched = false;
+                                      try {
+                                        launched = await launchUrl(
+                                          uri,
                                           mode: LaunchMode.externalApplication,
                                         );
-                                      } else {
+                                      } catch (_) {}
+                                      if (!launched) {
+                                        try {
+                                          launched = await launchUrl(
+                                            uri,
+                                            mode: LaunchMode.platformDefault,
+                                          );
+                                        } catch (_) {}
+                                      }
+                                      if (!launched) {
                                         showCustomSnackBar(
                                           context,
-                                          'Tidak dapat membuka Buku',
+                                          'Tidak dapat membuka link. Pastikan ada browser di perangkat Anda.',
                                         );
                                       }
                                     },
@@ -173,15 +184,26 @@ class _MateriScreenState extends State<MateriScreen> {
                                     onTap: () async {
                                       const url =
                                           'https://seabs.ac.id/resources/youtube-channel/';
-                                      if (await canLaunchUrl(Uri.parse(url))) {
-                                        await launchUrl(
-                                          Uri.parse(url),
+                                      final uri = Uri.parse(url);
+                                      bool launched = false;
+                                      try {
+                                        launched = await launchUrl(
+                                          uri,
                                           mode: LaunchMode.externalApplication,
                                         );
-                                      } else {
+                                      } catch (_) {}
+                                      if (!launched) {
+                                        try {
+                                          launched = await launchUrl(
+                                            uri,
+                                            mode: LaunchMode.platformDefault,
+                                          );
+                                        } catch (_) {}
+                                      }
+                                      if (!launched) {
                                         showCustomSnackBar(
                                           context,
-                                          'Tidak dapat membuka Youtube',
+                                          'Tidak dapat membuka Youtube. Pastikan ada browser di perangkat Anda.',
                                         );
                                       }
                                     },
@@ -194,15 +216,26 @@ class _MateriScreenState extends State<MateriScreen> {
                                     onTap: () async {
                                       const url =
                                           'https://seabs.ac.id/resources/berita/';
-                                      if (await canLaunchUrl(Uri.parse(url))) {
-                                        await launchUrl(
-                                          Uri.parse(url),
+                                      final uri = Uri.parse(url);
+                                      bool launched = false;
+                                      try {
+                                        launched = await launchUrl(
+                                          uri,
                                           mode: LaunchMode.externalApplication,
                                         );
-                                      } else {
+                                      } catch (_) {}
+                                      if (!launched) {
+                                        try {
+                                          launched = await launchUrl(
+                                            uri,
+                                            mode: LaunchMode.platformDefault,
+                                          );
+                                        } catch (_) {}
+                                      }
+                                      if (!launched) {
                                         showCustomSnackBar(
                                           context,
-                                          'Tidak dapat membuka Berita',
+                                          'Tidak dapat membuka Berita. Pastikan ada browser di perangkat Anda.',
                                         );
                                       }
                                     },

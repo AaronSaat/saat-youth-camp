@@ -164,7 +164,7 @@ class _MainScreenState extends State<MainScreen> {
           'Kelompok',
           2,
         ),
-        const BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Materi'),
+        buildSvgNavItem('assets/icons/navigation_bar/materi.svg', 'Materi', 3),
         buildSvgNavItem('assets/icons/navigation_bar/profile.svg', 'Profil', 4),
       ];
     } else if (role == 'Pembina') {
@@ -179,12 +179,12 @@ class _MainScreenState extends State<MainScreen> {
           'Acara',
           1,
         ),
-        // buildSvgNavItem('assets/icons/navigation_bar/gereja.svg', 'Gereja', 2),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.app_registration),
-          label: 'Group',
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/kelompok_pendaftaran.svg',
+          'Group',
+          2,
         ),
-        const BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Materi'),
+        buildSvgNavItem('assets/icons/navigation_bar/materi.svg', 'Materi', 3),
         buildSvgNavItem('assets/icons/navigation_bar/profile.svg', 'Profil', 4),
       ];
     } else if (role == 'Panitia') {
@@ -199,17 +199,17 @@ class _MainScreenState extends State<MainScreen> {
           'Acara',
           1,
         ),
-        // buildSvgNavItem('assets/icons/navigation_bar/gereja.svg', 'Gereja', 2),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.app_registration),
-          label: 'Group',
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/kelompok_pendaftaran.svg',
+          'Group',
+          2,
         ),
         buildSvgNavItem(
           'assets/icons/navigation_bar/kelompok.svg',
           'Kelompok',
           3,
         ),
-        const BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Materi'),
+        buildSvgNavItem('assets/icons/navigation_bar/materi.svg', 'Materi', 4),
         // const BottomNavigationBarItem(
         //   icon: Icon(Icons.campaign),
         //   label: 'Broadcast',

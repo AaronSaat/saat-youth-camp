@@ -15,8 +15,8 @@ import '../widgets/custom_snackbar.dart';
 class ApiService {
   // static const String baseurl = 'http://172.172.52.9:82/reg-new/api-syc2025/';
   // static const String baseurlLocal = 'http://172.172.52.9/website_backup/api/';
-  // static const String baseurl = 'http://172.172.52.11:90/api-syc2025/';
-  static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
+  static const String baseurl = 'http://172.172.52.11:90/api-syc2025/';
+  // static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
 
   static Future<Map<String, dynamic>> loginUser(
     String username,
@@ -211,13 +211,10 @@ class ApiService {
     }
   }
 
-  // untuk notes_harian
+  // untuk catatan list supaya tidak loading lama
   static Future<Map<String, dynamic>> getBrmByDay(
     BuildContext context,
     String day,
-    String userId,
-    int page,
-    int pageSize,
   ) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -225,9 +222,7 @@ class ApiService {
       throw Exception('Token not found in SharedPreferences');
     }
 
-    final url = Uri.parse(
-      '${baseurl}brm-by-day?day=$day&user_id=$userId&page=$page&page_size=$pageSize',
-    );
+    final url = Uri.parse('${baseurl}brm-by-day?day=$day');
     final response = await http.get(
       url,
       headers: {
@@ -239,10 +234,7 @@ class ApiService {
     print('url: $url');
     if (response.statusCode == 200) {
       final Map<String, dynamic> dataBacaan = json.decode(response.body);
-      final List<dynamic> datanotes = dataBacaan['data_notes'];
-      print('AARON: $datanotes');
 
-      // print('✅ Data bacaan $day berhasil dimuat: $_dataBacaan');
       return dataBacaan;
     } else if (response.statusCode == 401) {
       showCustomSnackBar(
@@ -254,7 +246,7 @@ class ApiService {
       return {};
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
-      throw Exception('Failed to load data catatan harian');
+      throw Exception('Failed to load data brm by day');
     }
   }
 
@@ -372,6 +364,48 @@ class ApiService {
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load count brm report by day');
+    }
+  }
+
+  // untuk dashboaard bacaan
+  static Future<Map<String, dynamic>> getBrmReportByPesertaByDay(
+    BuildContext context,
+    String userId,
+    String day,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse(
+      '${baseurl}brm-report-by-peserta-by-day?user_id=$userId&day=$day',
+    );
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('BRM url: $url');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> databrm = json.decode(response.body);
+
+      return databrm;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      // throw Exception('Unauthorized');
+      return {};
+    } else {
+      print('❌ Error test: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load brm report by day');
     }
   }
 
@@ -590,6 +624,53 @@ class ApiService {
     }
   }
 
+  // untuk notes_harian
+  static Future<Map<String, dynamic>> getBrmNotesByDay(
+    BuildContext context,
+    String day,
+    String userId,
+    int page,
+    int pageSize,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse(
+      '${baseurl}brm-notes-by-day?day=$day&user_id=$userId&page=$page&page_size=$pageSize',
+    );
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('url: $url');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> dataBacaan = json.decode(response.body);
+      final List<dynamic> datanotes = dataBacaan['data_notes'];
+      print('AARON: $datanotes');
+
+      // print('✅ Data bacaan $day berhasil dimuat: $_dataBacaan');
+      return dataBacaan;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      // throw Exception('Unauthorized');
+      return {};
+    } else {
+      print('❌ Error test: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load data brm notes by day');
+    }
+  }
+
   static Future<List<dynamic>> getAcara(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -786,6 +867,45 @@ class ApiService {
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load acara by id');
+    }
+  }
+
+  static Future<List<dynamic>> getTanggalAcara(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}tanggal-acara');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('url $url');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> decoded = json.decode(response.body);
+      final dataAcara = decoded['data_acara'] ?? {};
+
+      print('✅ Tanggal acara berhasil dimuat: $dataAcara');
+
+      // Kembalikan dalam bentuk list agar konsisten dengan return type
+      return [dataAcara];
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      // throw Exception('Unauthorized');
+      return [];
+    } else {
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load tanggal acara');
     }
   }
 

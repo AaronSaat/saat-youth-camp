@@ -126,7 +126,7 @@ class _PengumumanListScreenState extends State<PengumumanListScreen> {
                       leading: IconButton(
                         icon: const Icon(Icons.arrow_back_ios),
                         onPressed: () {
-                          Navigator.of(context).pop();
+                          Navigator.pop(context, 'reload');
                         },
                       ),
                       automaticallyImplyLeading: false,

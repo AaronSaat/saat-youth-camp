@@ -62,6 +62,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
       await loadUserData();
       await loadBrmByBulan();
       await loadBrmReportByPesertaByBulan();
+      await loadReportCountBrmByPesertaByDay();
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -108,6 +109,37 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
       setState(() {
         _dataBrm = brm;
         print('Data Brm Bulanan: $_dataBrm');
+      });
+    } catch (e) {}
+  }
+
+  Future<void> loadReportCountBrmByPesertaByDay() async {
+    try {
+      final now = DateTime.now();
+      final year = now.year;
+      final month = now.month;
+      List<String> dateList = List.generate(_jumlahHari, (i) {
+        final day = i + 1;
+        return DateTime(year, month, day).toIso8601String().substring(0, 10);
+      });
+
+      List<int> countList = [];
+      for (final date in dateList) {
+        try {
+          final count = await ApiService.getBrmReportCountByPesertaByDay(
+            context,
+            widget.userId,
+            date,
+          );
+          countList.add(count);
+        } catch (e) {
+          countList.add(0);
+        }
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _dataProgressBacaan = countList;
       });
     } catch (e) {}
   }

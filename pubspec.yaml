@@ -97,7 +97,9 @@ flutter:
     - assets/icons/navigation_bar/dashboard.svg
     - assets/icons/navigation_bar/gereja.svg
     - assets/icons/navigation_bar/kelompok.svg
+    - assets/icons/navigation_bar/kelompok_pendaftaran.svg
     - assets/icons/navigation_bar/list_acara.svg
+    - assets/icons/navigation_bar/materi.svg
     - assets/icons/navigation_bar/profile.svg
     
     # icons for profile

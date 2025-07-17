@@ -344,9 +344,17 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                         );
                                       } else if (item['type'].toString() ==
                                           '2') {
-                                        // Checkbox
+                                        // radio button
                                         return Column(
                                           children: [
+                                            Text(
+                                              question,
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
                                             CustomSingleChoice(
                                               options: const ['Ya', 'Tidak'],
                                               onSelected: (label) {

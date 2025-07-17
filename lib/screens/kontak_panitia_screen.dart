@@ -164,15 +164,23 @@ class _KontakPanitiaScreenState extends State<KontakPanitiaScreen> {
                                   if (nomor != null && nomor.isNotEmpty) {
                                     final waUrl =
                                         'https://wa.me/${nomor.replaceAll('+', '')}';
+                                    final telUrl = 'tel:$nomor';
                                     if (await canLaunchUrl(Uri.parse(waUrl))) {
                                       await launchUrl(
                                         Uri.parse(waUrl),
                                         mode: LaunchMode.externalApplication,
                                       );
+                                    } else if (await canLaunchUrl(
+                                      Uri.parse(telUrl),
+                                    )) {
+                                      await launchUrl(
+                                        Uri.parse(telUrl),
+                                        mode: LaunchMode.externalApplication,
+                                      );
                                     } else {
                                       showCustomSnackBar(
                                         context,
-                                        'Tidak dapat membuka WhatsApp',
+                                        'Tidak dapat membuka WhatsApp atau Telepon',
                                       );
                                     }
                                   }
