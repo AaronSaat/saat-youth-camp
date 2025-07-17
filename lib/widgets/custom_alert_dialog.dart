@@ -5,55 +5,37 @@ import '../utils/app_colors.dart';
 class CustomAlertDialog extends StatelessWidget {
   final String title;
   final String content;
-  final String cancelText;
+  final String? cancelText; // ubah jadi nullable
   final String confirmText;
-  final VoidCallback onCancel;
+  final VoidCallback? onCancel; // ubah jadi nullable
   final VoidCallback onConfirm;
 
   const CustomAlertDialog({
     Key? key,
     required this.title,
     required this.content,
-    required this.cancelText,
+    this.cancelText, // tidak required
     required this.confirmText,
-    required this.onCancel,
+    this.onCancel, // tidak required
     required this.onConfirm,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor:
-          Colors.white, // Ganti sesuai warna background yang diinginkan
-      title: Text(
-        title,
-        style: TextStyle(
-          color: AppColors.brown1, // Warna judul
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      content: Text(
-        content,
-        style: TextStyle(
-          color: AppColors.brown1, // Warna konten
-          fontWeight: FontWeight.w400,
-        ),
-      ),
+      backgroundColor: Colors.white,
+      title: Text(title, style: TextStyle(color: AppColors.brown1, fontWeight: FontWeight.bold)),
+      content: Text(content, style: TextStyle(color: AppColors.brown1, fontWeight: FontWeight.w400)),
       actions: [
-        TextButton(
-          onPressed: onCancel,
-          style: TextButton.styleFrom(
-            foregroundColor: AppColors.accent, // Warna teks tombol cancel
+        if (cancelText != null)
+          TextButton(
+            onPressed: onCancel ?? () => Navigator.of(context).pop(),
+            style: TextButton.styleFrom(foregroundColor: AppColors.accent),
+            child: Text(cancelText!),
           ),
-          child: Text(cancelText),
-        ),
         ElevatedButton(
           onPressed: onConfirm,
-          style: ElevatedButton.styleFrom(
-            backgroundColor:
-                AppColors.brown1, // Warna background tombol confirm
-            foregroundColor: AppColors.secondary, // Warna teks tombol confirm
-          ),
+          style: ElevatedButton.styleFrom(backgroundColor: AppColors.brown1, foregroundColor: AppColors.secondary),
           child: Text(confirmText),
         ),
       ],

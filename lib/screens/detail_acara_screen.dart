@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart'
-    show SharedPreferences;
+import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
 import 'package:syc/screens/form_evaluasi_screen.dart';
 import 'package:syc/widgets/custom_count_up.dart';
 import 'package:syc/widgets/custom_snackbar.dart';
@@ -26,12 +25,14 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
   Map<String, String> _evaluasiDoneMap = {};
   Map<String, String> _countUserMapPanitia = {};
 
+  // [DEVELOPMENT NOTES] nanti hapus
+  // DateTime _today = DateTime.now();
+  DateTime _now = DateTime(2025, 12, 31, 0, 0, 0);
+
   @override
   void initState() {
     super.initState();
-    print(
-      '🎯 DetailAcaraScreen initialized with: ID=${widget.id}, UserId=${widget.userId}',
-    );
+    print('🎯 DetailAcaraScreen initialized with: ID=${widget.id}, UserId=${widget.userId}');
     initAll();
   }
 
@@ -56,11 +57,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
       setState(() {
         _isLoading = false;
       });
-      showCustomSnackBar(
-        context,
-        'Gagal memuat data. Silakan coba lagi.',
-        isSuccess: false,
-      );
+      showCustomSnackBar(context, 'Gagal memuat data. Silakan coba lagi.', isSuccess: false);
     }
   }
 
@@ -93,10 +90,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
     setState(() {});
 
     try {
-      final List<dynamic> acaraList = await ApiService.getAcaraById(
-        context,
-        widget.id,
-      );
+      final List<dynamic> acaraList = await ApiService.getAcaraById(context, widget.id);
       if (!mounted) return;
       setState(() {
         _dataAcara = acaraList;
@@ -108,11 +102,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
       setState(() {
         _dataAcara = [];
       });
-      showCustomSnackBar(
-        context,
-        'Gagal memuat detail acara. Silakan coba lagi.',
-        isSuccess: false,
-      );
+      showCustomSnackBar(context, 'Gagal memuat detail acara. Silakan coba lagi.', isSuccess: false);
     }
   }
 
@@ -121,31 +111,17 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
     setState(() {});
 
     try {
-      final evaluasiDone = await ApiService.getEvaluasiByPesertaByAcara(
-        context,
-        widget.userId,
-        widget.id,
-      );
+      final evaluasiDone = await ApiService.getEvaluasiByPesertaByAcara(context, widget.userId, widget.id);
 
-      final evaluasiList = await ApiService.getCountEvaluasiAnsweredByAcara(
-        context,
-        widget.id.toString(),
-      );
+      final evaluasiList = await ApiService.getCountEvaluasiAnsweredByAcara(context, widget.id.toString());
 
       final _countUser = await ApiService.getCountUser(context);
       if (!mounted) return;
       setState(() {
-        _evaluasiDone =
-            evaluasiDone['status'] == 404
-                ? false
-                : (evaluasiDone['success'] ?? false);
+        _evaluasiDone = evaluasiDone['status'] == 404 ? false : (evaluasiDone['success'] ?? false);
 
-        _evaluasiDoneMap = evaluasiList.map(
-          (key, value) => MapEntry(key.toString(), value.toString()),
-        );
-        _countUserMapPanitia = _countUser.map(
-          (key, value) => MapEntry(key.toString(), value.toString()),
-        );
+        _evaluasiDoneMap = evaluasiList.map((key, value) => MapEntry(key.toString(), value.toString()));
+        _countUserMapPanitia = _countUser.map((key, value) => MapEntry(key.toString(), value.toString()));
 
         print('✅ Evaluasi Done: $_evaluasiDone');
         print('✅ Count User Map: $_countUserMapPanitia');
@@ -172,12 +148,8 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
         title:
             _isLoading
                 ? const SizedBox.shrink()
-                : Text(
-                  _dataAcara?[0]["acara_nama"] ?? '-',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-        leading:
-            Navigator.canPop(context) ? BackButton(color: Colors.white) : null,
+                : Text(_dataAcara?[0]["acara_nama"] ?? '-', style: TextStyle(fontSize: 18, color: Colors.white)),
+        leading: Navigator.canPop(context) ? BackButton(color: Colors.white) : null,
       ),
       body: Stack(
         children: [
@@ -197,12 +169,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
               child: SingleChildScrollView(
                 physics: AlwaysScrollableScrollPhysics(),
                 child: Padding(
-                  padding: const EdgeInsets.only(
-                    left: 16.0,
-                    right: 16.0,
-                    bottom: 16.0,
-                    top: 250.0,
-                  ),
+                  padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0, top: 250.0),
                   child:
                       _isLoading
                           ? const Center(child: CircularProgressIndicator())
@@ -211,10 +178,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Image.asset(
-                                  'assets/images/data_not_found.png',
-                                  height: 100,
-                                ),
+                                Image.asset('assets/images/data_not_found.png', height: 100),
                                 const SizedBox(height: 12),
                                 Text(
                                   "Gagal memuat detail acara :(",
@@ -232,54 +196,29 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                             children: [
                               Text(
                                 _dataAcara?[0]["acara_nama"] ?? '-',
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 8),
                               Text(
                                 'Hari ke-${_dataAcara?[0]["hari"] ?? '-'}, Jam ${_dataAcara?[0]["waktu"] ?? '-'}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.normal,
-                                ),
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
                               ),
                               const SizedBox(height: 8),
-                              Text(
-                                'Tempat: ${_dataAcara?[0]["tempat"] ?? '-'}',
-                                style: const TextStyle(fontSize: 14),
-                              ),
+                              Text('Tempat: ${_dataAcara?[0]["tempat"] ?? '-'}', style: const TextStyle(fontSize: 14)),
                               const SizedBox(height: 16),
                               const Divider(),
                               const SizedBox(height: 16),
-                              const Text(
-                                'Deskripsi',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                              const Text('Deskripsi', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
 
                               const SizedBox(height: 4),
-                              Text(
-                                _dataAcara?[0]["acara_deskripsi"] ?? '-',
-                                style: const TextStyle(fontSize: 12),
-                              ),
+                              Text(_dataAcara?[0]["acara_deskripsi"] ?? '-', style: const TextStyle(fontSize: 12)),
                               const SizedBox(height: 16),
                               if (_dataAcara != null &&
                                   _dataAcara![0]["pembicara"] != null &&
-                                  (_dataAcara![0]["pembicara"] as String)
-                                      .isNotEmpty) ...[
+                                  (_dataAcara![0]["pembicara"] as String).isNotEmpty) ...[
                                 const Divider(),
                                 const SizedBox(height: 16),
-                                const Text(
-                                  'Pembicara',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                                const Text('Pembicara', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                                 const SizedBox(height: 12),
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -296,20 +235,13 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             _dataAcara![0]["pembicara"],
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                                           ),
-                                          const Text(
-                                            'Title / Jabatan Pembicara',
-                                            style: TextStyle(fontSize: 12),
-                                          ),
+                                          const Text('Title / Jabatan Pembicara', style: TextStyle(fontSize: 12)),
                                         ],
                                       ),
                                     ),
@@ -319,19 +251,13 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                               const SizedBox(height: 24),
                               if (_userData != null &&
                                   _userData!['role'] != null &&
-                                  (_userData!['role']!.toLowerCase().contains(
-                                        'peserta',
-                                      ) ||
-                                      _userData!['role']!
-                                          .toLowerCase()
-                                          .contains('pembina')) &&
+                                  (_userData!['role']!.toLowerCase().contains('peserta') ||
+                                      _userData!['role']!.toLowerCase().contains('pembina')) &&
                                   !_evaluasiDone)
                                 Column(
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                      ),
+                                      padding: const EdgeInsets.symmetric(horizontal: 16),
                                       child: SizedBox(
                                         width: double.infinity,
                                         height: 50,
@@ -339,10 +265,8 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                           builder: (context) {
                                             // Ambil tanggal dan waktu dari _dataAcara[0]
                                             final acara = _dataAcara![0];
-                                            final tanggalStr =
-                                                acara['tanggal'] ?? '';
-                                            final waktuStr =
-                                                acara['waktu'] ?? '';
+                                            final tanggalStr = acara['tanggal'] ?? '';
+                                            final waktuStr = acara['waktu'] ?? '';
                                             DateTime? acaraDateTime;
                                             try {
                                               // Asumsi format tanggal: yyyy-MM-dd, waktu: HH:mm
@@ -351,46 +275,20 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                                     .trim()
                                                     .replaceAll('/', '-')
                                                     .replaceAll('.', ':'),
-                                              ).add(
-                                                const Duration(hours: 1),
-                                              ); // tambah 1 jam
+                                              ).add(const Duration(hours: 1)); // tambah 1 jam
                                             } catch (_) {
                                               acaraDateTime = null;
                                             }
-                                            // final now = DateTime.now();
-                                            final now =
-                                                DateTime.now(); // Gunakan waktu real
-                                            // final now = DateTime(
-                                            //   2026,
-                                            //   01,
-                                            //   02,
-                                            //   0,
-                                            //   0,
-                                            //   0,
-                                            // ); // [DEVELOPMENT CODE]
                                             final diff =
-                                                acaraDateTime != null
-                                                    ? now
-                                                        .difference(
-                                                          acaraDateTime,
-                                                        )
-                                                        .inMinutes
-                                                    : null;
-                                            final canEvaluate =
-                                                diff != null && diff > 60;
+                                                acaraDateTime != null ? _now.difference(acaraDateTime).inMinutes : null;
+                                            final canEvaluate = diff != null && diff > 60;
                                             print(
-                                              'Acara DateTime: $acaraDateTime, Now: $now, Diff: $diff minutes, Can Evaluate: $canEvaluate',
+                                              'Acara DateTime: $acaraDateTime, Now: $_now, Diff: $diff minutes, Can Evaluate: $canEvaluate',
                                             );
                                             return ElevatedButton(
                                               style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    canEvaluate
-                                                        ? AppColors.brown1
-                                                        : AppColors.grey4,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(32),
-                                                ),
+                                                backgroundColor: canEvaluate ? AppColors.brown1 : AppColors.grey4,
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
                                               ),
                                               onPressed:
                                                   canEvaluate
@@ -399,18 +297,13 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                                           context,
                                                           MaterialPageRoute(
                                                             builder:
-                                                                (
-                                                                  context,
-                                                                ) => FormEvaluasiScreen(
-                                                                  userId:
-                                                                      _userData!['id']!,
-                                                                  acaraHariId:
-                                                                      _dataAcara![0]['id'],
+                                                                (context) => FormEvaluasiScreen(
+                                                                  userId: _userData!['id']!,
+                                                                  acaraHariId: _dataAcara![0]['id'],
                                                                 ),
                                                           ),
                                                         ).then((result) {
-                                                          if (result ==
-                                                              'reload') {
+                                                          if (result == 'reload') {
                                                             initAll(); // reload dashboard
                                                           }
                                                         });
@@ -423,10 +316,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                                       },
                                               child: const Text(
                                                 'EVALUASI',
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 12,
-                                                ),
+                                                style: TextStyle(color: Colors.white, fontSize: 12),
                                               ),
                                             );
                                           },
@@ -437,30 +327,19 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                 ),
                               const SizedBox(height: 4),
                               // counter evaluasi card
-                              if (_userData!['role']!.toLowerCase().contains(
-                                'panitia',
-                              ))
+                              if (_userData!['role']!.toLowerCase().contains('panitia'))
                                 Center(
                                   child: Card(
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(16),
-                                      side: BorderSide(
-                                        color: AppColors.primary,
-                                        width: 1,
-                                      ),
+                                      side: BorderSide(color: AppColors.primary, width: 1),
                                     ),
                                     elevation: 1,
-                                    margin: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                    ),
+                                    margin: const EdgeInsets.symmetric(vertical: 16),
                                     child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 24,
-                                        vertical: 16,
-                                      ),
+                                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                                       child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           const Text(
                                             'Konter evaluasi acara ini:',
@@ -475,12 +354,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
                                               CustomCountUp(
-                                                target:
-                                                    int.tryParse(
-                                                      _evaluasiDoneMap["count"] ??
-                                                          '0',
-                                                    ) ??
-                                                    0,
+                                                target: int.tryParse(_evaluasiDoneMap["count"] ?? '0') ?? 0,
                                                 duration: Duration(seconds: 2),
                                                 style: const TextStyle(
                                                   fontSize: 32,
@@ -489,13 +363,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                                 ),
                                               ),
                                               const SizedBox(width: 8),
-                                              const Text(
-                                                '/',
-                                                style: TextStyle(
-                                                  fontSize: 28,
-                                                  color: AppColors.primary,
-                                                ),
-                                              ),
+                                              const Text('/', style: TextStyle(fontSize: 28, color: AppColors.primary)),
                                               const SizedBox(width: 8),
                                               Text(
                                                 '${_countUserMapPanitia["count"]}',

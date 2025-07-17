@@ -23,13 +23,16 @@ class ListEvaluasiScreen extends StatefulWidget {
 class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
   List<dynamic> _acaraList = [];
   List<dynamic> _evaluasiDoneList = [];
-  List<dynamic> _acaraIdList =
-      []; // untuk menyimpan acara ID supaya di listnya tau selesai atau belum
+  List<dynamic> _acaraIdList = []; // untuk menyimpan acara ID supaya di listnya tau selesai atau belum
   Map<String, String> _dataUser = {};
   bool _isLoading = true;
   int day = 1; // default day
   int _countAcara = 1;
   int _countAcaraAll = 1;
+
+  // [DEVELOPMENT NOTES] nanti hapus
+  // DateTime _today = DateTime.now();
+  DateTime _now = DateTime(2025, 12, 31, 0, 0, 0);
 
   @override
   void initState() {
@@ -64,11 +67,7 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
       _evaluasiDoneList = List.filled(acaraList.length ?? 0, false);
       for (int i = 0; i < _evaluasiDoneList.length; i++) {
         try {
-          final result = await ApiService.getEvaluasiByPesertaByAcara(
-            context,
-            widget.userId,
-            _acaraIdList[i],
-          );
+          final result = await ApiService.getEvaluasiByPesertaByAcara(context, widget.userId, _acaraIdList[i]);
           if (!mounted) return;
           if (result != null && result['success'] == true) {
             _evaluasiDoneList[i] = true;
@@ -101,11 +100,7 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
       _evaluasiDoneList = List.filled(acaraList.length ?? 0, false);
       for (int i = 0; i < _evaluasiDoneList.length; i++) {
         try {
-          final result = await ApiService.getEvaluasiByPesertaByAcara(
-            context,
-            widget.userId,
-            _acaraIdList[i],
-          );
+          final result = await ApiService.getEvaluasiByPesertaByAcara(context, widget.userId, _acaraIdList[i]);
           if (result != null && result['success'] == true) {
             _evaluasiDoneList[i] = true;
           }
@@ -176,11 +171,7 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
       if (selectedIdx != -1 && _scrollController.hasClients) {
         double offset = (selectedIdx * 108.0) - 16.0; // 100(width) + 8(spacing)
         if (offset < 0) offset = 0;
-        _scrollController.animateTo(
-          offset,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.ease,
-        );
+        _scrollController.animateTo(offset, duration: const Duration(milliseconds: 200), curve: Curves.ease);
       }
     });
 
@@ -217,11 +208,7 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
                 alignment: Alignment.center,
                 child: Text(
                   d == 99 ? 'Keseluruhan' : 'Hari ke-$d',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                 ),
               ),
             );
@@ -264,19 +251,11 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
                 physics: AlwaysScrollableScrollPhysics(),
 
                 child: Padding(
-                  padding: const EdgeInsets.only(
-                    left: 24.0,
-                    right: 24.0,
-                    bottom: 24.0,
-                  ),
+                  padding: const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
-                        children: [
-                          Image.asset('assets/texts/evaluasi.png', height: 96),
-                        ],
-                      ),
+                      Column(children: [Image.asset('assets/texts/evaluasi.png', height: 96)]),
                       const SizedBox(height: 16),
                       _buildDaySelector(),
                       const SizedBox(height: 16),
@@ -294,16 +273,12 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
                               if (acara['hari'] == 99) {
                                 item = '${acara['acara_nama'] ?? '-'}';
                               } else {
-                                item =
-                                    '${acara['acara_nama'] ?? '-'} (Hari ${acara['hari'] ?? '-'})';
+                                item = '${acara['acara_nama'] ?? '-'} (Hari ${acara['hari'] ?? '-'})';
                               }
                               status = _evaluasiDoneList[index];
                               return CustomCard(
                                 text: item,
-                                icon:
-                                    status == true
-                                        ? Icons.check
-                                        : Icons.arrow_outward_rounded,
+                                icon: status == true ? Icons.check : Icons.arrow_outward_rounded,
                                 onTap: () {
                                   String userId = widget.userId;
                                   int acaraHariId;
@@ -313,12 +288,11 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
                                       context,
                                       MaterialPageRoute(
                                         builder:
-                                            (context) =>
-                                                EvaluasiKomitmenViewScreen(
-                                                  type: "Evaluasi",
-                                                  userId: userId,
-                                                  acaraHariId: acaraHariId,
-                                                ),
+                                            (context) => EvaluasiKomitmenViewScreen(
+                                              type: "Evaluasi",
+                                              userId: userId,
+                                              acaraHariId: acaraHariId,
+                                            ),
                                       ),
                                     );
                                   } else {
@@ -327,8 +301,7 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
                                     String? waktu = acara['waktu'];
                                     DateTime? acaraDateTime;
                                     bool evaluate = false;
-                                    String? time =
-                                        '${acara['tanggal']} ${acara['waktu']}';
+                                    String? time = '${acara['tanggal']} ${acara['waktu']}';
                                     if (_dataUser['id'] != widget.userId) {
                                       setState(() {
                                         if (!mounted) return;
@@ -338,52 +311,18 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
                                           isSuccess: false,
                                         );
                                       });
-                                    } else if (tanggal != null &&
-                                        waktu != null) {
+                                    } else if (tanggal != null && waktu != null) {
                                       try {
-                                        acaraDateTime = DateTime.parse(
-                                          '$tanggal $waktu',
-                                        );
-                                        // final now = DateTime.now();
-                                        final now = DateTime(
-                                          2026,
-                                          01,
-                                          01,
-                                          0,
-                                          0,
-                                          0,
-                                        ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
-                                        if (now.isAfter(
-                                          acaraDateTime.add(
-                                            const Duration(hours: 1),
-                                          ),
-                                        )) {
+                                        acaraDateTime = DateTime.parse('$tanggal $waktu');
+                                        if (_now.isAfter(acaraDateTime.add(const Duration(hours: 1)))) {
                                           evaluate = true;
                                         }
                                       } catch (e) {
                                         // ignore error, keep evaluate as false
                                       }
-                                    } else if (_dataUser['id'] ==
-                                            widget.userId &&
-                                        acara['hari'] == 99) {
-                                      final batasWaktu = DateTime(
-                                        2025,
-                                        7,
-                                        17,
-                                        15,
-                                        0,
-                                        0,
-                                      );
-                                      final now = DateTime.now();
-                                      // final now = DateTime(
-                                      //   2025,
-                                      //   12,
-                                      //   31,
-                                      //   0,
-                                      //   0,
-                                      //   0,
-                                      // ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
-                                      if (now.isBefore(batasWaktu)) {
+                                    } else if (_dataUser['id'] == widget.userId && acara['hari'] == 99) {
+                                      final batasWaktu = DateTime(2025, 7, 17, 15, 0, 0);
+                                      if (_now.isBefore(batasWaktu)) {
                                         setState(() {
                                           if (!mounted) return;
                                           showCustomSnackBar(
@@ -410,10 +349,8 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
                                           context,
                                           MaterialPageRoute(
                                             builder:
-                                                (context) => FormEvaluasiScreen(
-                                                  userId: userId,
-                                                  acaraHariId: acaraHariId,
-                                                ),
+                                                (context) =>
+                                                    FormEvaluasiScreen(userId: userId, acaraHariId: acaraHariId),
                                           ),
                                         ).then((result) {
                                           if (result == 'reload') {
@@ -452,10 +389,7 @@ Widget buildShimmerList() {
           highlightColor: Colors.grey[100]!,
           child: Container(
             height: 72,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
           ),
         ),
       );

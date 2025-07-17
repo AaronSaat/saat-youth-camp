@@ -26,6 +26,10 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
   Map<String, String> _dataUser = {};
   bool _isLoading = true;
 
+  // [DEVELOPMENT NOTES] nanti hapus
+  // DateTime _today = DateTime.now();
+  DateTime _now = DateTime(2025, 12, 31, 0, 0, 0);
+
   @override
   void initState() {
     super.initState();
@@ -59,11 +63,7 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
       _komitmenDoneList = List.filled(komitmenList.length ?? 0, false);
       for (int i = 0; i < _komitmenDoneList.length; i++) {
         try {
-          final result = await ApiService.getKomitmenByPesertaByDay(
-            context,
-            widget.userId,
-            i + 1,
-          );
+          final result = await ApiService.getKomitmenByPesertaByDay(context, widget.userId, i + 1);
           if (result != null && result['success'] == true) {
             _komitmenDoneList[i] = true;
           }
@@ -139,19 +139,11 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
                 physics: AlwaysScrollableScrollPhysics(),
 
                 child: Padding(
-                  padding: const EdgeInsets.only(
-                    left: 24.0,
-                    right: 24.0,
-                    bottom: 24.0,
-                  ),
+                  padding: const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
-                        children: [
-                          Image.asset('assets/texts/komitmen.png', height: 96),
-                        ],
-                      ),
+                      Column(children: [Image.asset('assets/texts/komitmen.png', height: 96)]),
                       const SizedBox(height: 16),
                       _isLoading
                           ? buildShimmerList()
@@ -169,10 +161,7 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
                               status = _komitmenDoneList[index];
                               return CustomCard(
                                 text: item,
-                                icon:
-                                    status == true
-                                        ? Icons.check
-                                        : Icons.arrow_outward_rounded,
+                                icon: status == true ? Icons.check : Icons.arrow_outward_rounded,
                                 onTap: () {
                                   String userId = widget.userId;
                                   int acaraHariId;
@@ -182,12 +171,11 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
                                       context,
                                       MaterialPageRoute(
                                         builder:
-                                            (context) =>
-                                                EvaluasiKomitmenViewScreen(
-                                                  type: "Komitmen",
-                                                  userId: userId,
-                                                  acaraHariId: acaraHariId,
-                                                ),
+                                            (context) => EvaluasiKomitmenViewScreen(
+                                              type: "Komitmen",
+                                              userId: userId,
+                                              acaraHariId: acaraHariId,
+                                            ),
                                       ),
                                     );
                                   } else {
@@ -201,22 +189,11 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
                                         );
                                       });
                                     } else {
-                                      // Cek tanggal dan jam
-                                      // DateTime now = DateTime.now();
-                                      final now = DateTime(
-                                        2026,
-                                        01,
-                                        02,
-                                        11,
-                                        0,
-                                        0,
-                                      ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
-                                      DateTime tanggalKomitmen = DateTime.parse(
-                                        '$tanggal 15:00:00',
-                                      );
+                                      // hDEVELOPMENT NOTES] nanti setting
+                                      DateTime tanggalKomitmen = DateTime.parse('$tanggal 15:00:00');
 
                                       // Komitmen hanya bisa diisi pada tanggal yang sama atau setelahnya, dan setelah jam 3 sore
-                                      if (now.isBefore(tanggalKomitmen)) {
+                                      if (_now.isBefore(tanggalKomitmen)) {
                                         showCustomSnackBar(
                                           context,
                                           'Komitmen hanya dapat diisi pada tanggal ${tanggal} pukul 15:00.',
@@ -227,10 +204,8 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
                                           context,
                                           MaterialPageRoute(
                                             builder:
-                                                (context) => FormKomitmenScreen(
-                                                  userId: userId,
-                                                  acaraHariId: acaraHariId,
-                                                ),
+                                                (context) =>
+                                                    FormKomitmenScreen(userId: userId, acaraHariId: acaraHariId),
                                           ),
                                         ).then((result) {
                                           if (result == 'reload') {
@@ -269,10 +244,7 @@ Widget buildShimmerList() {
           highlightColor: Colors.grey[100]!,
           child: Container(
             height: 72,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
           ),
         ),
       );

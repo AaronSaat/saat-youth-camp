@@ -7,6 +7,7 @@ import 'package:syc/screens/list_gereja_screen.dart';
 import 'package:syc/screens/list_group_screen.dart';
 import 'package:syc/screens/list_kelompok_screen.dart';
 import 'package:syc/utils/app_colors.dart';
+import 'package:syc/widgets/custom_alert_dialog.dart';
 
 import '../services/api_service.dart';
 import '../utils/global_variables.dart';
@@ -33,7 +34,6 @@ class _MainScreenState extends State<MainScreen> {
   String? id;
   String? role;
   List<dynamic> _kelompokList = [];
-  bool _isLoading = true;
 
   List<Widget> _pages = [];
 
@@ -44,44 +44,17 @@ class _MainScreenState extends State<MainScreen> {
     loadRoleAndSetup();
   }
 
-  Future<String?> loadKelompok() async {
-    setState(() {
-      _isLoading = true;
-    });
-    try {
-      final kelompokList = await ApiService.getKelompok(context);
-      setState(() {
-        _kelompokList = kelompokList ?? [];
-        _isLoading = false;
-      });
-      if (_kelompokList.isNotEmpty && _kelompokList[0]['id'] != null) {
-        return _kelompokList[0]['id'].toString();
-      }
-      return null;
-    } catch (e) {
-      print(
-        '❌ Gagal memuat kelompok pada bottom navigation bar untuk panitia: $e',
-      );
-      setState(() {
-        _isLoading = false;
-      });
-      return null;
-    }
-  }
-
   Future<void> loadRoleAndSetup() async {
     final prefs = await SharedPreferences.getInstance();
     id = prefs.getString('id');
     role = prefs.getString('role');
 
     if (role == 'Peserta') {
-      id = prefs.getString('kelompok_id');
+      id = prefs.getString('kelompok_id') ?? "1"; // Default value if no kelompok found
     } else if (role == 'Pembimbing Kelompok') {
-      id = prefs.getString('kelompok_id');
+      id = prefs.getString('kelompok_id') ?? "1"; // Default value if no kelompok found
     } else if (role == 'Pembina') {
-      id = prefs.getString('group_id');
-    } else if (role == 'Panitia') {
-      id = await loadKelompok();
+      id = prefs.getString('group_id') ?? "1"; // Default value if no group found
     }
 
     if (role == 'Peserta') {
@@ -127,20 +100,13 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {});
   }
 
-  BottomNavigationBarItem buildSvgNavItem(
-    String asset,
-    String label,
-    int index,
-  ) {
+  BottomNavigationBarItem buildSvgNavItem(String asset, String label, int index) {
     return BottomNavigationBarItem(
       icon: SvgPicture.asset(
         asset,
         height: 36,
         width: 36,
-        colorFilter: ColorFilter.mode(
-          _currentIndex == index ? AppColors.primary : Colors.grey,
-          BlendMode.srcIn,
-        ),
+        colorFilter: ColorFilter.mode(_currentIndex == index ? AppColors.primary : Colors.grey, BlendMode.srcIn),
       ),
       label: label,
     );
@@ -149,66 +115,26 @@ class _MainScreenState extends State<MainScreen> {
   List<BottomNavigationBarItem> _buildNavItems() {
     if (role == 'Peserta' || role == 'Pembimbing Kelompok') {
       return [
-        buildSvgNavItem(
-          'assets/icons/navigation_bar/dashboard.svg',
-          'Dashboard',
-          0,
-        ),
-        buildSvgNavItem(
-          'assets/icons/navigation_bar/list_acara.svg',
-          'Acara',
-          1,
-        ),
-        buildSvgNavItem(
-          'assets/icons/navigation_bar/kelompok.svg',
-          'Kelompok',
-          2,
-        ),
+        buildSvgNavItem('assets/icons/navigation_bar/dashboard.svg', 'Dashboard', 0),
+        buildSvgNavItem('assets/icons/navigation_bar/list_acara.svg', 'Acara', 1),
+        buildSvgNavItem('assets/icons/navigation_bar/kelompok.svg', 'Kelompok', 2),
         buildSvgNavItem('assets/icons/navigation_bar/materi.svg', 'Materi', 3),
         buildSvgNavItem('assets/icons/navigation_bar/profile.svg', 'Profil', 4),
       ];
     } else if (role == 'Pembina') {
       return [
-        buildSvgNavItem(
-          'assets/icons/navigation_bar/dashboard.svg',
-          'Dashboard',
-          0,
-        ),
-        buildSvgNavItem(
-          'assets/icons/navigation_bar/list_acara.svg',
-          'Acara',
-          1,
-        ),
-        buildSvgNavItem(
-          'assets/icons/navigation_bar/kelompok_pendaftaran.svg',
-          'Group',
-          2,
-        ),
+        buildSvgNavItem('assets/icons/navigation_bar/dashboard.svg', 'Dashboard', 0),
+        buildSvgNavItem('assets/icons/navigation_bar/list_acara.svg', 'Acara', 1),
+        buildSvgNavItem('assets/icons/navigation_bar/kelompok_pendaftaran.svg', 'Group', 2),
         buildSvgNavItem('assets/icons/navigation_bar/materi.svg', 'Materi', 3),
         buildSvgNavItem('assets/icons/navigation_bar/profile.svg', 'Profil', 4),
       ];
     } else if (role == 'Panitia') {
       return [
-        buildSvgNavItem(
-          'assets/icons/navigation_bar/dashboard.svg',
-          'Dashboard',
-          0,
-        ),
-        buildSvgNavItem(
-          'assets/icons/navigation_bar/list_acara.svg',
-          'Acara',
-          1,
-        ),
-        buildSvgNavItem(
-          'assets/icons/navigation_bar/kelompok_pendaftaran.svg',
-          'Group',
-          2,
-        ),
-        buildSvgNavItem(
-          'assets/icons/navigation_bar/kelompok.svg',
-          'Kelompok',
-          3,
-        ),
+        buildSvgNavItem('assets/icons/navigation_bar/dashboard.svg', 'Dashboard', 0),
+        buildSvgNavItem('assets/icons/navigation_bar/list_acara.svg', 'Acara', 1),
+        buildSvgNavItem('assets/icons/navigation_bar/kelompok_pendaftaran.svg', 'Group', 2),
+        buildSvgNavItem('assets/icons/navigation_bar/kelompok.svg', 'Kelompok', 3),
         buildSvgNavItem('assets/icons/navigation_bar/materi.svg', 'Materi', 4),
         // const BottomNavigationBarItem(
         //   icon: Icon(Icons.campaign),
@@ -256,13 +182,7 @@ class _MainScreenState extends State<MainScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                      boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: const Offset(0, 4))],
                     ),
                     child: BottomNavigationBar(
                       currentIndex: _currentIndex,
@@ -274,10 +194,7 @@ class _MainScreenState extends State<MainScreen> {
                       selectedItemColor: AppColors.primary,
                       unselectedItemColor: Colors.grey,
                       showUnselectedLabels: true,
-                      selectedLabelStyle: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      selectedLabelStyle: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
                       unselectedLabelStyle: TextStyle(fontSize: 8),
                     ),
                   ),

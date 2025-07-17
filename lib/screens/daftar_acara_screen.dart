@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:shared_preferences/shared_preferences.dart'
-    show SharedPreferences;
+import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
 import 'package:shimmer/shimmer.dart';
-import 'package:syc/services/notification_service.dart'
-    show NotificationService;
+import 'package:syc/services/notification_service.dart' show NotificationService;
 import 'package:syc/utils/app_colors.dart';
 import 'package:syc/widgets/custom_panel_shape.dart';
 
@@ -27,6 +25,10 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
   bool _isLoading = true;
   int day = 1;
   Map<String, String> _dataUser = {};
+
+  // DateTime _today = DateTime.now();
+  DateTime _today = DateTime(2026, 01, 01);
+  // [DEVELOPMENT NOTES] nanti hapus
 
   @override
   void initState() {
@@ -65,14 +67,11 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
       }
       _tanggalList = tanggalList;
       print('Tanggal List: $_tanggalList');
-      // final today = DateTime.now().toIso8601String().substring(0, 10);
-      // [DEVELOPMENT NOTES] nanti hapus
-      final today = "2025-12-31";
       final match = _tanggalList.firstWhere(
-        (item) => item['tanggal'] == today,
+        (item) => item['tanggal'] == _today.toIso8601String().substring(0, 10),
         orElse: () => null,
       );
-      print('Match today: $today');
+      print('Match today: ${_today.toIso8601String().substring(0, 10)}');
       print('Match: $match');
       if (match != null && match['hari'] != null) {
         day = match['hari'];
@@ -240,10 +239,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                           children: [
                             Align(
                               alignment: Alignment.centerLeft,
-                              child: Image.asset(
-                                'assets/texts/daftar_acara.png',
-                                height: 100,
-                              ),
+                              child: Image.asset('assets/texts/daftar_acara.png', height: 100),
                             ),
                           ],
                         ),
@@ -274,17 +270,12 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                                 child: GestureDetector(
                                   onTap: () {
                                     // Cek jika acara['tanggal'] dan acara['waktu'] adalah 1 jam sebelum sekarang
-                                    if (acara['tanggal'] != null &&
-                                        acara['waktu'] != null) {
+                                    if (acara['tanggal'] != null && acara['waktu'] != null) {
                                       try {
-                                        final tanggal =
-                                            acara['tanggal'].toString();
+                                        final tanggal = acara['tanggal'].toString();
                                         final waktu = acara['waktu'].toString();
-                                        final dateTimeString =
-                                            '$tanggal $waktu';
-                                        final acaraDateTime = DateTime.parse(
-                                          dateTimeString,
-                                        );
+                                        final dateTimeString = '$tanggal $waktu';
+                                        final acaraDateTime = DateTime.parse(dateTimeString);
                                         final now = DateTime.now();
                                         // final now = DateTime(
                                         //   2026,
@@ -294,22 +285,15 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                                         //   0,
                                         //   0,
                                         // ); // hardcode, [DEVELOPMENT NOTES] nanti hapus
-                                        final diff =
-                                            acaraDateTime
-                                                .difference(now)
-                                                .inMinutes;
+                                        final diff = acaraDateTime.difference(now).inMinutes;
 
-                                        print(
-                                          'MBEK: ${now} - Tanggal: $tanggal - Waktu: $waktu - Diff: $diff',
-                                        );
+                                        print('MBEK: ${now} - Tanggal: $tanggal - Waktu: $waktu - Diff: $diff');
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                             builder:
-                                                (context) => DetailAcaraScreen(
-                                                  id: acara["id"].toString(),
-                                                  userId: userId,
-                                                ),
+                                                (context) =>
+                                                    DetailAcaraScreen(id: acara["id"].toString(), userId: userId),
                                           ),
                                         );
                                         // if (diff <= 60 && diff <= 0) {
@@ -333,73 +317,41 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                                         //   );
                                         // }
                                       } catch (e) {
-                                        showCustomSnackBar(
-                                          context,
-                                          'Format tanggal/waktu acara tidak valid.',
-                                        );
+                                        showCustomSnackBar(context, 'Format tanggal/waktu acara tidak valid.');
                                       }
                                     } else {
-                                      showCustomSnackBar(
-                                        context,
-                                        'Tanggal atau waktu acara tidak tersedia.',
-                                      );
+                                      showCustomSnackBar(context, 'Tanggal atau waktu acara tidak tersedia.');
                                     }
                                   },
                                   child: Container(
                                     width: MediaQuery.of(context).size.width,
-                                    height:
-                                        MediaQuery.of(context).size.height *
-                                        0.2,
+                                    height: MediaQuery.of(context).size.height * 0.2,
                                     decoration: BoxDecoration(
                                       color: Colors.white,
                                       borderRadius: BorderRadius.circular(24),
                                       image: DecorationImage(
                                         image: () {
-                                          final nama =
-                                              acara['acara_nama']?.toString() ??
-                                              '';
-                                          if (nama ==
-                                              'Pendaftaran Ulang dan Kedatangan') {
-                                            return Image.asset(
-                                              'assets/mockups/daftar.jpg',
-                                            ).image;
+                                          final nama = acara['acara_nama']?.toString() ?? '';
+                                          if (nama == 'Pendaftaran Ulang dan Kedatangan') {
+                                            return Image.asset('assets/mockups/daftar.jpg').image;
                                           } else if (nama == 'Opening') {
-                                            return Image.asset(
-                                              'assets/mockups/opening.jpg',
-                                            ).image;
+                                            return Image.asset('assets/mockups/opening.jpg').image;
                                           } else if (nama == 'KKR 1') {
-                                            return Image.asset(
-                                              'assets/mockups/kkr1.jpg',
-                                            ).image;
+                                            return Image.asset('assets/mockups/kkr1.jpg').image;
                                           } else if (nama == 'KKR 2') {
-                                            return Image.asset(
-                                              'assets/mockups/kkr2.jpg',
-                                            ).image;
+                                            return Image.asset('assets/mockups/kkr2.jpg').image;
                                           } else if (nama == 'KKR 3') {
-                                            return Image.asset(
-                                              'assets/mockups/kkr3.jpg',
-                                            ).image;
+                                            return Image.asset('assets/mockups/kkr3.jpg').image;
                                           } else if (nama == 'Saat Teduh') {
-                                            return Image.asset(
-                                              'assets/mockups/saat_teduh1.jpg',
-                                            ).image;
+                                            return Image.asset('assets/mockups/saat_teduh1.jpg').image;
                                           } else if (nama == 'Drama Musikal') {
-                                            return Image.asset(
-                                              'assets/mockups/drama_musikal.jpg',
-                                            ).image;
-                                          } else if (nama ==
-                                              'New Year Countdown') {
-                                            return Image.asset(
-                                              'assets/mockups/new_year.jpg',
-                                            ).image;
+                                            return Image.asset('assets/mockups/drama_musikal.jpg').image;
+                                          } else if (nama == 'New Year Countdown') {
+                                            return Image.asset('assets/mockups/new_year.jpg').image;
                                           } else if (nama == 'Closing') {
-                                            return Image.asset(
-                                              'assets/mockups/closing.jpg',
-                                            ).image;
+                                            return Image.asset('assets/mockups/closing.jpg').image;
                                           } else {
-                                            return Image.asset(
-                                              'assets/images/event.jpg',
-                                            ).image;
+                                            return Image.asset('assets/images/event.jpg').image;
                                           }
                                         }(),
                                         fit: BoxFit.cover,
@@ -411,28 +363,17 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                                         gradient: LinearGradient(
                                           begin: Alignment.bottomCenter,
                                           end: Alignment.topCenter,
-                                          colors: [
-                                            Colors.black.withOpacity(0.6),
-                                            Colors.transparent,
-                                          ],
+                                          colors: [Colors.black.withOpacity(0.6), Colors.transparent],
                                         ),
                                       ),
                                       child: Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                          24,
-                                          0,
-                                          16,
-                                          20,
-                                        ),
+                                        padding: const EdgeInsets.fromLTRB(24, 0, 16, 20),
                                         child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              acara['acara_nama']?.toString() ??
-                                                  '',
+                                              acara['acara_nama']?.toString() ?? '',
                                               style: const TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 22,
@@ -442,67 +383,38 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                                             const SizedBox(height: 4),
                                             Text(
                                               () {
-                                                final desc =
-                                                    acara['acara_deskripsi']
-                                                        ?.toString() ??
-                                                    '';
+                                                final desc = acara['acara_deskripsi']?.toString() ?? '';
                                                 if (desc.length > 40) {
-                                                  return desc.substring(0, 40) +
-                                                      '...';
+                                                  return desc.substring(0, 40) + '...';
                                                 }
                                                 return desc;
                                               }(),
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 14,
-                                              ),
+                                              style: const TextStyle(color: Colors.white, fontSize: 14),
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                             Row(
                                               children: [
-                                                Icon(
-                                                  Icons.calendar_today,
-                                                  color: Colors.white,
-                                                  size: 16,
-                                                ),
+                                                Icon(Icons.calendar_today, color: Colors.white, size: 16),
                                                 const SizedBox(width: 4),
                                                 Text(
                                                   '${acara['tanggal'] ?? '-'}',
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 12,
-                                                  ),
+                                                  style: const TextStyle(color: Colors.white, fontSize: 12),
                                                 ),
                                                 const SizedBox(width: 12),
-                                                Icon(
-                                                  Icons.access_time,
-                                                  color: Colors.white,
-                                                  size: 16,
-                                                ),
+                                                Icon(Icons.access_time, color: Colors.white, size: 16),
                                                 const SizedBox(width: 4),
                                                 Text(
                                                   '${acara['waktu'] ?? '-'}',
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 12,
-                                                  ),
+                                                  style: const TextStyle(color: Colors.white, fontSize: 12),
                                                 ),
                                                 const SizedBox(width: 12),
-                                                Icon(
-                                                  Icons.place,
-                                                  color: Colors.white,
-                                                  size: 16,
-                                                ),
+                                                Icon(Icons.place, color: Colors.white, size: 16),
                                                 const SizedBox(width: 4),
                                                 Expanded(
                                                   child: Text(
                                                     '${acara['tempat'] ?? '-'}',
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 12,
-                                                    ),
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
+                                                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                                                    overflow: TextOverflow.ellipsis,
                                                   ),
                                                 ),
                                               ],
@@ -704,10 +616,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                   child: Container(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height * 0.2,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                    ),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
                   ),
                 ),
                 Positioned(
@@ -720,21 +629,13 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                       Shimmer.fromColors(
                         baseColor: Colors.grey[300]!,
                         highlightColor: Colors.grey[100]!,
-                        child: Container(
-                          width: 120,
-                          height: 20,
-                          color: Colors.white,
-                        ),
+                        child: Container(width: 120, height: 20, color: Colors.white),
                       ),
                       const SizedBox(height: 4),
                       Shimmer.fromColors(
                         baseColor: Colors.grey[300]!,
                         highlightColor: Colors.grey[100]!,
-                        child: Container(
-                          width: 180,
-                          height: 10,
-                          color: Colors.white,
-                        ),
+                        child: Container(width: 180, height: 10, color: Colors.white),
                       ),
                     ],
                   ),
@@ -745,11 +646,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey[300]!,
                     highlightColor: Colors.grey[100]!,
-                    child: Container(
-                      width: 80,
-                      height: 16,
-                      color: Colors.white,
-                    ),
+                    child: Container(width: 80, height: 16, color: Colors.white),
                   ),
                 ),
               ],
