@@ -7,6 +7,7 @@ import 'package:syc/utils/app_colors.dart';
 import 'package:syc/widgets/custom_panel_shape.dart';
 
 import '../services/api_service.dart';
+import '../utils/global_variables.dart';
 import '../widgets/custom_not_found.dart';
 import '../widgets/custom_snackbar.dart';
 import 'detail_acara_screen.dart';
@@ -27,12 +28,17 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
   Map<String, String> _dataUser = {};
 
   // DateTime _today = DateTime.now();
-  DateTime _today = DateTime(2026, 01, 01);
+  // DateTime _today = DateTime(2026, 01, 01);
+  late DateTime _today;
   // [DEVELOPMENT NOTES] nanti hapus
 
   @override
   void initState() {
     super.initState();
+    //[DEVELOPMENT NOTES] untuk testing, nanti dihapus
+    setState(() {
+      _today = GlobalVariables.today;
+    });
     initAll();
   }
 

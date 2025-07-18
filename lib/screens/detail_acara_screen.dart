@@ -5,6 +5,7 @@ import 'package:syc/widgets/custom_count_up.dart';
 import 'package:syc/widgets/custom_snackbar.dart';
 import '../services/api_service.dart';
 import '../utils/app_colors.dart';
+import '../utils/global_variables.dart';
 
 class DetailAcaraScreen extends StatefulWidget {
   final String id;
@@ -27,11 +28,20 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
 
   // [DEVELOPMENT NOTES] nanti hapus
   // DateTime _today = DateTime.now();
-  DateTime _now = DateTime(2025, 12, 31, 0, 0, 0);
+  late DateTime _today;
+  late TimeOfDay _timeOfDay;
+  late DateTime _now;
 
   @override
   void initState() {
     super.initState();
+
+    //[DEVELOPMENT NOTES] untuk testing, nanti dihapus
+    setState(() {
+      _today = GlobalVariables.today;
+      _timeOfDay = GlobalVariables.timeOfDay;
+      _now = DateTime(_today.year, _today.month, _today.day, _timeOfDay.hour, _timeOfDay.minute);
+    });
     print('🎯 DetailAcaraScreen initialized with: ID=${widget.id}, UserId=${widget.userId}');
     initAll();
   }

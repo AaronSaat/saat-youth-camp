@@ -5,9 +5,7 @@ import 'package:syc/screens/anggota_kelompok_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 import 'package:syc/widgets/custom_count_up.dart' show CustomCountUp;
 import 'package:syc/widgets/custom_snackbar.dart';
-import 'package:timeago/timeago.dart'
-    as timeago
-    show IdMessages, format, setLocaleMessages;
+import 'package:timeago/timeago.dart' as timeago show IdMessages, format, setLocaleMessages;
 
 import '../services/api_service.dart';
 import '../widgets/custom_card.dart';
@@ -16,8 +14,7 @@ import 'anggota_gereja_screen.dart';
 class CatatanHarianScreen extends StatefulWidget {
   final String role;
   final String id;
-  const CatatanHarianScreen({Key? key, required this.role, required this.id})
-    : super(key: key);
+  const CatatanHarianScreen({Key? key, required this.role, required this.id}) : super(key: key);
 
   @override
   _CatatanHarianScreenState createState() => _CatatanHarianScreenState();
@@ -41,6 +38,8 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
   Map<String, String> _bacaanDoneMapPanitia = {};
   Map<String, String> _countUserMapPanitia = {};
 
+  final ScrollController _scrollController = ScrollController();
+
   // 10 pastel colors, cenderung gelap, cocok untuk latar text putih
   final List<Color> pastelDarkColors = [
     const Color(0xFF6D8B74), // Deep Sage
@@ -59,6 +58,11 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
   void initState() {
     timeago.setLocaleMessages('id', timeago.IdMessages());
     super.initState();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+        _fetchMoreNotes();
+      }
+    });
     initAll();
   }
 
@@ -74,9 +78,7 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
       await loadCountUser();
     }
     try {
-      print(
-        "Fetching data for date: ${_selectedDate.toIso8601String().substring(0, 10)}",
-      );
+      print("Fetching data for date: ${_selectedDate.toIso8601String().substring(0, 10)}");
       final dataCatatan = await ApiService.getBrmNotesByDay(
         context,
         _selectedDate.toIso8601String().substring(0, 10),
@@ -93,21 +95,15 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
 
         if (!mounted) return;
         setState(() {
-          _bacaanDoneMapPanitia = dataBacaan.map(
-            (key, value) => MapEntry(key.toString(), value.toString()),
-          );
+          _bacaanDoneMapPanitia = dataBacaan.map((key, value) => MapEntry(key.toString(), value.toString()));
         });
       }
 
       if (!mounted) return;
       setState(() {
         _dataCatatanHarian = dataCatatan;
-        // print("Data catatan: ${_dataCatatanHarian}");
-        print("Data bacaan: ${_bacaanDoneMapPanitia}");
-
-        print(
-          'LENGTH CATATAN LOAD PERTAMA: ${_dataCatatanHarian['data_notes'].length}',
-        );
+        // print("📦 LENGTH Data catatan. ${_dataCatatanHarian['data_notes']}");
+        print('LENGTH CATATAN LOAD PERTAMA: ${_dataCatatanHarian['data_notes'].length}');
         _isLoading = false;
       });
     } catch (e) {
@@ -127,9 +123,7 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
       final _countUser = await ApiService.getCountUser(context);
       if (!mounted) return;
       setState(() {
-        _countUserMapPanitia = _countUser.map(
-          (key, value) => MapEntry(key.toString(), value.toString()),
-        );
+        _countUserMapPanitia = _countUser.map((key, value) => MapEntry(key.toString(), value.toString()));
         print('Count User Map: $_countUserMapPanitia');
       });
     } catch (e) {}
@@ -137,17 +131,10 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
 
   void _goToPreviousDate() async {
     final now = DateTime.now();
-    final tenDaysAgo = DateTime(
-      now.year,
-      now.month,
-      now.day,
-    ).subtract(const Duration(days: 19));
+    final tenDaysAgo = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 19));
     final previousDate = _selectedDate.subtract(const Duration(days: 1));
     if (previousDate.isBefore(tenDaysAgo)) {
-      showCustomSnackBar(
-        context,
-        "Hanya bisa melihat catatan 10 hari terakhir.",
-      );
+      showCustomSnackBar(context, "Hanya bisa melihat catatan 10 hari terakhir.");
       return;
     }
     setState(() {
@@ -195,11 +182,16 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
         _isLoadingMore = false;
         _dataCatatanHarian['data_notes'].addAll(newNotes['data_notes']);
 
-        print(
-          'LENGTH CATATAN LOAD BERIKUT: ${_dataCatatanHarian['data_notes'].length}',
-        );
+        // print("📦 LENGTH Data catatan. ${_dataCatatanHarian['data_notes']}");
+        print('LENGTH CATATAN LOAD BERIKUT: ${_dataCatatanHarian['data_notes'].length}');
       });
     }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -208,13 +200,7 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: const Text(
-          'Catatan Harian',
-          style: TextStyle(
-            color: AppColors.brown1,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title: const Text('Catatan Harian', style: TextStyle(color: AppColors.brown1, fontWeight: FontWeight.bold)),
         centerTitle: true,
         elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.brown1),
@@ -234,396 +220,280 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
               onRefresh: () => initAll(),
               color: AppColors.brown1,
               backgroundColor: Colors.white,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    left: 16.0,
-                    right: 16.0,
-                    bottom: 24.0,
-                    top: 16.0,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 4,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: IconButton(
-                              icon: const Icon(
-                                Icons.arrow_back_ios_new_rounded,
-                                color: AppColors.brown1,
-                              ),
-                              onPressed: _goToPreviousDate,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(24),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 4,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Text(
-                              'Tanggal: ${_formatDate(_selectedDate)}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.brown1,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 4,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: IconButton(
-                              icon: const Icon(
-                                Icons.arrow_forward_ios_rounded,
-                                color: AppColors.brown1,
-                              ),
-                              onPressed: _goToNextDate,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      if (_dataCatatanHarian['data_brm'] != null &&
-                          _dataCatatanHarian['data_brm']['passage'] != null)
+              child: Padding(
+                padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 24.0, top: 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
                         Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          margin: const EdgeInsets.only(top: 8),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 4,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
+                            shape: BoxShape.circle,
+                            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
                           ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.menu_book_rounded,
-                                color: AppColors.brown1,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Text(
-                                  "${_dataCatatanHarian['data_brm']['passage']}",
-                                  style: TextStyle(
-                                    color: AppColors.brown1,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 14,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 2,
-                                ),
-                              ),
-                            ],
+                          child: IconButton(
+                            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.brown1),
+                            onPressed: _goToPreviousDate,
                           ),
                         ),
-                      if (widget.role.toLowerCase().contains('panitia'))
-                        _isLoading
-                            ? buildProgresBacaanPanitiaShimmerCard(context)
-                            : (() {
-                              final progresPesertaStr =
-                                  _bacaanDoneMapPanitia['count_peserta'] ?? '0';
-                              final progresPembinaStr =
-                                  _bacaanDoneMapPanitia['count_pembina'] ?? '0';
-                              final totalStr =
-                                  _countUserMapPanitia['count_peserta'] ?? '0';
-                              final progresPeserta =
-                                  int.tryParse(progresPesertaStr) ?? 0;
-                              final progresPembina =
-                                  int.tryParse(progresPembinaStr) ?? 0;
-                              final totalProgres =
-                                  progresPeserta + progresPembina;
-                              final total = int.tryParse(totalStr) ?? 0;
-                              return Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(16),
-                                margin: const EdgeInsets.only(top: 8),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black12,
-                                      blurRadius: 4,
-                                      offset: Offset(0, 2),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                          ),
+                          child: Text(
+                            'Tanggal: ${_formatDate(_selectedDate)}',
+                            style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.brown1, fontSize: 16),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                          ),
+                          child: IconButton(
+                            icon: const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.brown1),
+                            onPressed: _goToNextDate,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    if (_dataCatatanHarian['data_brm'] != null && _dataCatatanHarian['data_brm']['passage'] != null)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        margin: const EdgeInsets.only(top: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.menu_book_rounded, color: AppColors.brown1, size: 20),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Text(
+                                "${_dataCatatanHarian['data_brm']['passage']}",
+                                style: TextStyle(color: AppColors.brown1, fontWeight: FontWeight.w500, fontSize: 14),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    if (widget.role.toLowerCase().contains('panitia'))
+                      _isLoading
+                          ? buildProgresBacaanPanitiaShimmerCard(context)
+                          : (() {
+                            final progresPesertaStr = _bacaanDoneMapPanitia['count_peserta'] ?? '0';
+                            final progresPembinaStr = _bacaanDoneMapPanitia['count_pembina'] ?? '0';
+                            final totalStr = _countUserMapPanitia['count_peserta'] ?? '0';
+                            final progresPeserta = int.tryParse(progresPesertaStr) ?? 0;
+                            final progresPembina = int.tryParse(progresPembinaStr) ?? 0;
+                            final totalProgres = progresPeserta + progresPembina;
+                            final total = int.tryParse(totalStr) ?? 0;
+                            return Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              margin: const EdgeInsets.only(top: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.check_circle_rounded, color: AppColors.brown1, size: 20),
+                                  const SizedBox(width: 16),
+                                  CustomCountUp(
+                                    target: totalProgres,
+                                    duration: Duration(seconds: 2),
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w900,
+                                      color: AppColors.primary,
                                     ),
-                                  ],
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.check_circle_rounded,
-                                      color: AppColors.brown1,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 16),
-                                    CustomCountUp(
-                                      target: totalProgres,
-                                      duration: Duration(seconds: 2),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Flexible(
+                                    child: Text(
+                                      "/ $total menyelesaikan bacaannya hari ini",
                                       style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w900,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
                                         color: AppColors.primary,
                                       ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    const SizedBox(width: 4),
-                                    Flexible(
-                                      child: Text(
-                                        "/ $total menyelesaikan bacaannya hari ini",
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                          color: AppColors.primary,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            );
+                          })(),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child:
+                          _isLoading
+                              ? buildListShimmer(context)
+                              : (_dataCatatanHarian['success'] == false ||
+                                  _dataCatatanHarian['status'] == 'Not Found' ||
+                                  _dataCatatanHarian['data_notes'] == null ||
+                                  !(_dataCatatanHarian['data_notes'] is List) ||
+                                  (_dataCatatanHarian['data_notes'] as List).isEmpty)
+                              ? Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset('assets/images/data_not_found.png', height: 100),
+                                    const SizedBox(height: 12),
+                                    const Text(
+                                      "Gagal memuat data catatan harian :(",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        color: AppColors.brown1,
+                                        fontSize: 16,
                                       ),
                                     ),
                                   ],
                                 ),
-                              );
-                            })(),
-                      const SizedBox(height: 16),
-                      _isLoading
-                          ? buildListShimmer(context)
-                          : (_dataCatatanHarian['success'] == false ||
-                              _dataCatatanHarian['status'] == 'Not Found' ||
-                              _dataCatatanHarian['data_notes'] == null ||
-                              !(_dataCatatanHarian['data_notes'] is List) ||
-                              (_dataCatatanHarian['data_notes'] as List)
-                                  .isEmpty)
-                          ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  'assets/images/data_not_found.png',
-                                  height: 100,
-                                ),
-                                const SizedBox(height: 12),
-                                const Text(
-                                  "Gagal memuat data catatan harian :(",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    color: AppColors.brown1,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                          : (_dataCatatanHarian['data_notes'] is List &&
-                              _dataCatatanHarian['data_notes'] != null)
-                          ? ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount:
-                                (_dataCatatanHarian['data_notes'] as List)
-                                    .length +
-                                (_hasMore ? 1 : 0),
-                            itemBuilder: (context, index) {
-                              if (index <
-                                  _dataCatatanHarian['data_notes'].length) {
-                                final note =
-                                    _dataCatatanHarian['data_notes'][index];
-                                if (note["notes"] != null &&
-                                    note["notes"]
-                                        .toString()
-                                        .trim()
-                                        .isNotEmpty) {
-                                  return Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      children: [
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                              )
+                              : (_dataCatatanHarian['data_notes'] is List && _dataCatatanHarian['data_notes'] != null)
+                              ? ListView.builder(
+                                controller: _scrollController,
+                                // shrinkWrap: true,
+                                // physics: const NeverScrollableScrollPhysics(),
+                                itemCount: (_dataCatatanHarian['data_notes'] as List).length + (_hasMore ? 1 : 0),
+                                itemBuilder: (context, index) {
+                                  if (index < _dataCatatanHarian['data_notes'].length) {
+                                    final note = _dataCatatanHarian['data_notes'][index];
+                                    if (note["notes"] != null && note["notes"].toString().trim().isNotEmpty) {
+                                      return Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
                                           children: [
-                                            Expanded(
-                                              flex: 3,
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Row(
+                                            Row(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Expanded(
+                                                  flex: 3,
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: [
-                                                      if (note['user_id']
-                                                              .toString() ==
-                                                          widget.id)
-                                                        Container(
-                                                          width: 24,
-                                                          height: 24,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                                shape:
-                                                                    BoxShape
-                                                                        .circle,
-                                                                color:
-                                                                    AppColors
-                                                                        .primary,
+                                                      Row(
+                                                        children: [
+                                                          if (note['user_id'].toString() == widget.id)
+                                                            Container(
+                                                              width: 24,
+                                                              height: 24,
+                                                              decoration: BoxDecoration(
+                                                                shape: BoxShape.circle,
+                                                                color: AppColors.primary,
                                                               ),
-                                                          child: const Icon(
-                                                            Icons.person,
-                                                            color: Colors.white,
-                                                            size: 16,
+                                                              child: const Icon(
+                                                                Icons.person,
+                                                                color: Colors.white,
+                                                                size: 16,
+                                                              ),
+                                                            ),
+                                                          if (note['user_id'].toString() == widget.id)
+                                                            const SizedBox(width: 8),
+                                                          Text(
+                                                            note['nama'] ?? '-',
+                                                            style: const TextStyle(
+                                                              color: AppColors.primary,
+                                                              fontWeight: FontWeight.w900,
+                                                              fontSize: 16,
+                                                            ),
                                                           ),
-                                                        ),
-                                                      if (note['user_id']
-                                                              .toString() ==
-                                                          widget.id)
-                                                        const SizedBox(
-                                                          width: 8,
-                                                        ),
+                                                        ],
+                                                      ),
+                                                      const SizedBox(height: 4),
                                                       Text(
-                                                        note['nama'] ?? '-',
+                                                        "Kelompok: ${note['kelompok'] ?? '-'}",
                                                         style: const TextStyle(
-                                                          color:
-                                                              AppColors.primary,
-                                                          fontWeight:
-                                                              FontWeight.w900,
-                                                          fontSize: 16,
+                                                          color: AppColors.primary,
+                                                          fontWeight: FontWeight.w500,
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 4),
+                                                      Text(
+                                                        note["notes"] ?? '',
+                                                        style: const TextStyle(
+                                                          color: AppColors.brown1,
+                                                          fontWeight: FontWeight.w400,
+                                                          fontSize: 14,
                                                         ),
                                                       ),
                                                     ],
                                                   ),
-                                                  const SizedBox(height: 4),
-                                                  Text(
-                                                    "Kelompok: ${note['kelompok'] ?? '-'}",
+                                                ),
+                                                Expanded(
+                                                  flex: 1,
+                                                  child: Text(
+                                                    note['created_at'] != null
+                                                        ? timeago.format(
+                                                          DateTime.fromMillisecondsSinceEpoch(
+                                                            int.parse(note['created_at'].toString()) * 1000,
+                                                          ),
+                                                          locale: 'id',
+                                                        )
+                                                        : '',
+                                                    textAlign: TextAlign.end,
                                                     style: const TextStyle(
                                                       color: AppColors.primary,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      fontSize: 12,
+                                                      fontWeight: FontWeight.w300,
+                                                      fontSize: 10,
                                                     ),
                                                   ),
-                                                  const SizedBox(height: 4),
-                                                  Text(
-                                                    note["notes"] ?? '',
-                                                    style: const TextStyle(
-                                                      color: AppColors.brown1,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            Expanded(
-                                              flex: 1,
-                                              child: Text(
-                                                note['created_at'] != null
-                                                    ? timeago.format(
-                                                      DateTime.fromMillisecondsSinceEpoch(
-                                                        int.parse(
-                                                              note['created_at']
-                                                                  .toString(),
-                                                            ) *
-                                                            1000,
-                                                      ),
-                                                      locale: 'id',
-                                                    )
-                                                    : '',
-                                                textAlign: TextAlign.end,
-                                                style: const TextStyle(
-                                                  color: AppColors.primary,
-                                                  fontWeight: FontWeight.w300,
-                                                  fontSize: 10,
                                                 ),
-                                              ),
+                                              ],
                                             ),
+                                            const SizedBox(height: 16),
+                                            const Divider(color: AppColors.grey2, height: 2),
                                           ],
                                         ),
-                                        const SizedBox(height: 16),
-                                        const Divider(
-                                          color: AppColors.grey2,
-                                          height: 2,
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                } else {
-                                  return const SizedBox.shrink();
-                                }
-                              } else {
-                                WidgetsBinding.instance.addPostFrameCallback((
-                                  _,
-                                ) {
-                                  _fetchMoreNotes();
-                                });
-                                return const Padding(
-                                  padding: EdgeInsets.all(16.0),
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      color: AppColors.primary,
+                                      );
+                                    } else {
+                                      return const SizedBox.shrink();
+                                    }
+                                  } else {
+                                    // WidgetsBinding.instance.addPostFrameCallback((_) {
+                                    //   _fetchMoreNotes();
+                                    // });
+                                    return Center(child: CircularProgressIndicator(color: AppColors.primary));
+                                  }
+                                },
+                              )
+                              : Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Image.asset('assets/images/data_not_found.png', height: 100),
+                                  const SizedBox(height: 12),
+                                  const Text(
+                                    "Tidak ada data catatan harian.",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      color: AppColors.brown1,
+                                      fontSize: 16,
                                     ),
                                   ),
-                                );
-                              }
-                            },
-                          )
-                          : Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                'assets/images/data_not_found.png',
-                                height: 100,
+                                ],
                               ),
-                              const SizedBox(height: 12),
-                              const Text(
-                                "Tidak ada data catatan harian.",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.brown1,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -651,10 +521,7 @@ Widget buildListShimmer(BuildContext context) {
               highlightColor: Colors.grey[100]!,
               child: Container(
                 height: 70,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
               ),
             ),
           );
@@ -681,10 +548,7 @@ Widget buildProgresBacaanPanitiaShimmerCard(BuildContext context) {
               highlightColor: Colors.grey[100]!,
               child: Container(
                 height: 70,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
               ),
             ),
           );

@@ -55,11 +55,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // ini dipakai untuk acara hari ini statis, kartu komitmen, kartu dokumentasi
   // [DEVELOPMENT NOTES] nanti hapus
+  // untuk testing, set di global variables.dart
   // DateTime _today = DateTime.now();
   // DateTime _today = DateTime(2025, 12, 31);
-  DateTime _today = DateTime(2026, 01, 01);
+  late DateTime _today;
   // TimeOfDay _timeOfDay = TimeOfDay.now();
-  TimeOfDay _timeOfDay = TimeOfDay(hour: 2, minute: 0);
+  late TimeOfDay _timeOfDay;
   ScrollController _acaraStatisHari1Controller = ScrollController();
   ScrollController _acaraStatisHari2Controller = ScrollController();
   ScrollController _acaraStatisHari3Controller = ScrollController();
@@ -172,6 +173,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
+
+    //[DEVELOPMENT NOTES] untuk testing, nanti dihapus
+    setState(() {
+      _today = GlobalVariables.today;
+      _timeOfDay = GlobalVariables.timeOfDay;
+    });
+
     initNotificationService();
     initAll();
     // print('[BackgroundSync] Dashboard dibuka pada: ${DateTime.now()}');
@@ -815,11 +823,234 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                       ),
 
-                      // [DEVELOPMENT NOTES] Nanti setting
-                      if ((_today.isAfter(DateTime(2026, 1, 2)) || _today == DateTime(2026, 1, 2)) &&
-                          _timeOfDay.hour >= 12)
-                        const SizedBox(height: 24),
+                      //[DEVELOPMENT NOTES] untuk testing, nanti dihapus
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                        child: const Text(
+                          "Tombol Testing (nanti dihapus)",
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+                        ),
+                      ),
 
+                      //[DEVELOPMENT NOTES] untuk testing, nanti dihapus
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.secondary,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                      textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                    ),
+                                    onPressed: () {
+                                      GlobalVariables.today = DateTime(2025, 12, 30);
+                                      GlobalVariables.timeOfDay = const TimeOfDay(hour: 6, minute: 0);
+                                      _today = GlobalVariables.today;
+                                      _timeOfDay = GlobalVariables.timeOfDay;
+                                      setState(() {});
+                                      if (mounted) {
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => const MainScreen()),
+                                        );
+                                      }
+                                    },
+                                    child: const Text('30-12-2025\n06:00', textAlign: TextAlign.center),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.secondary,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                      textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                    ),
+                                    onPressed: () {
+                                      GlobalVariables.today = DateTime(2025, 12, 30);
+                                      GlobalVariables.timeOfDay = const TimeOfDay(hour: 21, minute: 0);
+                                      _today = GlobalVariables.today;
+                                      _timeOfDay = GlobalVariables.timeOfDay;
+                                      setState(() {});
+                                      if (mounted) {
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => const MainScreen()),
+                                        );
+                                      }
+                                    },
+                                    child: const Text('30-12-2025\n21:00', textAlign: TextAlign.center),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.secondary,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                      textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                    ),
+                                    onPressed: () {
+                                      GlobalVariables.today = DateTime(2025, 12, 31);
+                                      GlobalVariables.timeOfDay = const TimeOfDay(hour: 3, minute: 0);
+                                      _today = GlobalVariables.today;
+                                      _timeOfDay = GlobalVariables.timeOfDay;
+                                      setState(() {});
+                                      if (mounted) {
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => const MainScreen()),
+                                        );
+                                      }
+                                    },
+                                    child: const Text('31-12-2025\n03:00', textAlign: TextAlign.center),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.secondary,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                      textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                    ),
+                                    onPressed: () {
+                                      GlobalVariables.today = DateTime(2025, 12, 31);
+                                      GlobalVariables.timeOfDay = const TimeOfDay(hour: 21, minute: 0);
+                                      _today = GlobalVariables.today;
+                                      _timeOfDay = GlobalVariables.timeOfDay;
+                                      setState(() {});
+                                      if (mounted) {
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => const MainScreen()),
+                                        );
+                                      }
+                                    },
+                                    child: const Text('31-12-2025\n21:00', textAlign: TextAlign.center),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.secondary,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                      textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                    ),
+                                    onPressed: () {
+                                      GlobalVariables.today = DateTime(2026, 1, 1);
+                                      GlobalVariables.timeOfDay = const TimeOfDay(hour: 3, minute: 0);
+                                      _today = GlobalVariables.today;
+                                      _timeOfDay = GlobalVariables.timeOfDay;
+                                      setState(() {});
+                                      if (mounted) {
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => const MainScreen()),
+                                        );
+                                      }
+                                    },
+                                    child: const Text('01-01-2026\n03:00', textAlign: TextAlign.center),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.secondary,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                      textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                    ),
+                                    onPressed: () {
+                                      GlobalVariables.today = DateTime(2026, 1, 1);
+                                      GlobalVariables.timeOfDay = const TimeOfDay(hour: 21, minute: 0);
+                                      _today = GlobalVariables.today;
+                                      _timeOfDay = GlobalVariables.timeOfDay;
+                                      setState(() {});
+                                      if (mounted) {
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => const MainScreen()),
+                                        );
+                                      }
+                                    },
+                                    child: const Text('01-01-2026\n21:00', textAlign: TextAlign.center),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.secondary,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                      textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                    ),
+                                    onPressed: () {
+                                      GlobalVariables.today = DateTime(2026, 1, 2);
+                                      GlobalVariables.timeOfDay = const TimeOfDay(hour: 3, minute: 0);
+                                      _today = GlobalVariables.today;
+                                      _timeOfDay = GlobalVariables.timeOfDay;
+                                      setState(() {});
+                                      if (mounted) {
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => const MainScreen()),
+                                        );
+                                      }
+                                    },
+                                    child: const Text('02-01-2026\n03:00', textAlign: TextAlign.center),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.secondary,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                      textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                    ),
+                                    onPressed: () {
+                                      GlobalVariables.today = DateTime(2026, 1, 2);
+                                      GlobalVariables.timeOfDay = const TimeOfDay(hour: 16, minute: 0);
+                                      _today = GlobalVariables.today;
+                                      _timeOfDay = GlobalVariables.timeOfDay;
+                                      setState(() {});
+                                      if (mounted) {
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => const MainScreen()),
+                                        );
+                                      }
+                                    },
+                                    child: const Text('02-01-2026\n16:00', textAlign: TextAlign.center),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      //[DEVELOPMENT NOTES] untuk testing, nanti dihapus
+                      const SizedBox(height: 24),
+
+                      // [DEVELOPMENT NOTES] Nanti setting
                       if ((_today.isAfter(DateTime(2026, 1, 2)) || _today == DateTime(2026, 1, 2)) &&
                           _timeOfDay.hour >= 12)
                         // Dokumentasi Card
@@ -905,11 +1136,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
 
-                      // Pembina Pembimbing Card
-                      if (role.toLowerCase().contains('pembina') == true ||
-                          role.toLowerCase().contains('pembimbing') == true)
+                      if ((_today.isAfter(DateTime(2026, 1, 2)) || _today == DateTime(2026, 1, 2)) &&
+                          _timeOfDay.hour >= 12)
                         const SizedBox(height: 24),
 
+                      // Pembina Pembimbing Card
                       if (role.toLowerCase().contains('pembina') == true ||
                           role.toLowerCase().contains('pembimbing') == true)
                         Padding(
@@ -983,13 +1214,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       // Tampilkan Komitmen Card hanya jika:
                       // - BUKAN panitia, pembimbing, pembina
                       // - day antara 1 sampai 3 (inklusif)
-                      if ((day >= 1 && day <= 3) &&
-                          !role.toLowerCase().contains('panitia') &&
-                          !role.toLowerCase().contains('pembimbing') &&
-                          !role.toLowerCase().contains('pembina') &&
-                          (_timeOfDay.hour >= 20 && _timeOfDay.hour < 24))
-                        const SizedBox(height: 24),
-
                       if ((day >= 1 && day <= 3) &&
                           !role.toLowerCase().contains('panitia') &&
                           !role.toLowerCase().contains('pembimbing') &&
@@ -1132,6 +1356,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ],
                           ),
                         ),
+
+                      if ((day >= 1 && day <= 3) &&
+                          !role.toLowerCase().contains('panitia') &&
+                          !role.toLowerCase().contains('pembimbing') &&
+                          !role.toLowerCase().contains('pembina') &&
+                          (_timeOfDay.hour >= 20 && _timeOfDay.hour < 24))
+                        const SizedBox(height: 24),
 
                       // Notifikasi
                       // Padding(
