@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
@@ -26,9 +27,11 @@ class _MateriScreenState extends State<MateriScreen> {
   bool _isLoading = true;
   int day = 1;
   Map<String, String> _dataUser = {};
+  DateTime? _lastBackPressed;
 
   @override
   void initState() {
+    _lastBackPressed = null;
     super.initState();
     initAll();
   }
@@ -74,185 +77,213 @@ class _MateriScreenState extends State<MateriScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // body: Center(child: Text("TES - ${_dataUser['id']}")),
-      body: Stack(
-        children: [
-          Positioned(
-            child: Image.asset(
-              'assets/images/background_fade.jpg',
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              fit: BoxFit.fill,
+    _lastBackPressed = null;
+
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (!didPop) {
+          final now = DateTime.now();
+          if (_lastBackPressed == null ||
+              now.difference(_lastBackPressed!) > Duration(seconds: 2)) {
+            _lastBackPressed = now;
+            showCustomSnackBar(
+              context,
+              "Tekan 2x tombol kembali untuk keluar aplikasi",
+            );
+          } else {
+            // Keluar aplikasi
+            Future.delayed(const Duration(milliseconds: 100), () {
+              // ignore: use_build_context_synchronously
+              SystemNavigator.pop();
+            });
+          }
+        }
+      },
+      child: Scaffold(
+        // body: Center(child: Text("TES - ${_dataUser['id']}")),
+        body: Stack(
+          children: [
+            Positioned(
+              child: Image.asset(
+                'assets/images/background_fade.jpg',
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                fit: BoxFit.fill,
+              ),
             ),
-          ),
-          SafeArea(
-            child: RefreshIndicator(
-              onRefresh: () => initAll(),
-              color: AppColors.brown1,
-              backgroundColor: Colors.white,
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    top: 24.0,
-                    bottom: 84,
-                    left: 16,
-                    right: 16,
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8),
-                            child: Image.asset(
-                              'assets/texts/materi.png',
-                              height: 84,
+            SafeArea(
+              child: RefreshIndicator(
+                onRefresh: () => initAll(),
+                color: AppColors.brown1,
+                backgroundColor: Colors.white,
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      top: 24.0,
+                      bottom: 84,
+                      left: 16,
+                      right: 16,
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: Image.asset(
+                                'assets/texts/materi.png',
+                                height: 84,
+                              ),
                             ),
-                          ),
-                          // Padding(
-                          //   padding: const EdgeInsets.only(right: 8),
-                          //   child: Container(
-                          //     height: 48,
-                          //     width: 48,
-                          //     decoration: BoxDecoration(`
-                          //       color: Colors.white,
-                          //       borderRadius: BorderRadius.circular(16),
-                          //     ),
-                          //     child: Icon(
-                          //       Icons.search,
-                          //       color: AppColors.primary,
-                          //       size: 32,
-                          //     ),
-                          //   ),
-                          // ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      _isLoading
-                          ? buildAcaraShimmer(context)
-                          //     : _acaraList.isEmpty
-                          //     ? Center(
-                          //       child: CustomNotFound(
-                          //         text: "Gagal memuat daftar materi :(",
-                          //         textColor: AppColors.brown1,
-                          //         imagePath: 'assets/images/data_not_found.png',
-                          //         onBack: initAll,
-                          //         backText: 'Reload Materi',
-                          //       ),
-                          //     )
-                          : Builder(
-                            builder: (context) {
-                              return Column(
-                                children: [
-                                  MateriMenuCard(
-                                    title: 'Tautan',
-                                    imagePath: 'assets/mockups/materi_buku.jpg',
-                                    onTap: () async {
-                                      const url =
-                                          'https://library.seabs.ac.id/';
-                                      final uri = Uri.parse(url);
-                                      bool launched = false;
-                                      try {
-                                        launched = await launchUrl(
-                                          uri,
-                                          mode: LaunchMode.externalApplication,
-                                        );
-                                      } catch (_) {}
-                                      if (!launched) {
+                            // Padding(
+                            //   padding: const EdgeInsets.only(right: 8),
+                            //   child: Container(
+                            //     height: 48,
+                            //     width: 48,
+                            //     decoration: BoxDecoration(`
+                            //       color: Colors.white,
+                            //       borderRadius: BorderRadius.circular(16),
+                            //     ),
+                            //     child: Icon(
+                            //       Icons.search,
+                            //       color: AppColors.primary,
+                            //       size: 32,
+                            //     ),
+                            //   ),
+                            // ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        _isLoading
+                            ? buildAcaraShimmer(context)
+                            //     : _acaraList.isEmpty
+                            //     ? Center(
+                            //       child: CustomNotFound(
+                            //         text: "Gagal memuat daftar materi :(",
+                            //         textColor: AppColors.brown1,
+                            //         imagePath: 'assets/images/data_not_found.png',
+                            //         onBack: initAll,
+                            //         backText: 'Reload Materi',
+                            //       ),
+                            //     )
+                            : Builder(
+                              builder: (context) {
+                                return Column(
+                                  children: [
+                                    MateriMenuCard(
+                                      title: 'Tautan',
+                                      imagePath:
+                                          'assets/mockups/materi_buku.jpg',
+                                      onTap: () async {
+                                        const url =
+                                            'https://library.seabs.ac.id/';
+                                        final uri = Uri.parse(url);
+                                        bool launched = false;
                                         try {
                                           launched = await launchUrl(
                                             uri,
-                                            mode: LaunchMode.platformDefault,
+                                            mode:
+                                                LaunchMode.externalApplication,
                                           );
                                         } catch (_) {}
-                                      }
-                                      if (!launched) {
-                                        showCustomSnackBar(
-                                          context,
-                                          'Tidak dapat membuka link. Pastikan ada browser di perangkat Anda.',
-                                        );
-                                      }
-                                    },
-                                    withProgress: false,
-                                  ),
-                                  MateriMenuCard(
-                                    title: 'Youtube',
-                                    imagePath:
-                                        'assets/mockups/materi_youtube.jpg',
-                                    onTap: () async {
-                                      const url =
-                                          'https://seabs.ac.id/resources/youtube-channel/';
-                                      final uri = Uri.parse(url);
-                                      bool launched = false;
-                                      try {
-                                        launched = await launchUrl(
-                                          uri,
-                                          mode: LaunchMode.externalApplication,
-                                        );
-                                      } catch (_) {}
-                                      if (!launched) {
+                                        if (!launched) {
+                                          try {
+                                            launched = await launchUrl(
+                                              uri,
+                                              mode: LaunchMode.platformDefault,
+                                            );
+                                          } catch (_) {}
+                                        }
+                                        if (!launched) {
+                                          showCustomSnackBar(
+                                            context,
+                                            'Tidak dapat membuka link. Pastikan ada browser di perangkat Anda.',
+                                          );
+                                        }
+                                      },
+                                      withProgress: false,
+                                    ),
+                                    MateriMenuCard(
+                                      title: 'Youtube',
+                                      imagePath:
+                                          'assets/mockups/materi_youtube.jpg',
+                                      onTap: () async {
+                                        const url =
+                                            'https://seabs.ac.id/resources/youtube-channel/';
+                                        final uri = Uri.parse(url);
+                                        bool launched = false;
                                         try {
                                           launched = await launchUrl(
                                             uri,
-                                            mode: LaunchMode.platformDefault,
+                                            mode:
+                                                LaunchMode.externalApplication,
                                           );
                                         } catch (_) {}
-                                      }
-                                      if (!launched) {
-                                        showCustomSnackBar(
-                                          context,
-                                          'Tidak dapat membuka Youtube. Pastikan ada browser di perangkat Anda.',
-                                        );
-                                      }
-                                    },
-                                    withProgress: false,
-                                  ),
-                                  MateriMenuCard(
-                                    title: 'Berita',
-                                    imagePath:
-                                        'assets/mockups/materi_berita.jpg',
-                                    onTap: () async {
-                                      const url =
-                                          'https://seabs.ac.id/resources/berita/';
-                                      final uri = Uri.parse(url);
-                                      bool launched = false;
-                                      try {
-                                        launched = await launchUrl(
-                                          uri,
-                                          mode: LaunchMode.externalApplication,
-                                        );
-                                      } catch (_) {}
-                                      if (!launched) {
+                                        if (!launched) {
+                                          try {
+                                            launched = await launchUrl(
+                                              uri,
+                                              mode: LaunchMode.platformDefault,
+                                            );
+                                          } catch (_) {}
+                                        }
+                                        if (!launched) {
+                                          showCustomSnackBar(
+                                            context,
+                                            'Tidak dapat membuka Youtube. Pastikan ada browser di perangkat Anda.',
+                                          );
+                                        }
+                                      },
+                                      withProgress: false,
+                                    ),
+                                    MateriMenuCard(
+                                      title: 'Berita',
+                                      imagePath:
+                                          'assets/mockups/materi_berita.jpg',
+                                      onTap: () async {
+                                        const url =
+                                            'https://seabs.ac.id/resources/berita/';
+                                        final uri = Uri.parse(url);
+                                        bool launched = false;
                                         try {
                                           launched = await launchUrl(
                                             uri,
-                                            mode: LaunchMode.platformDefault,
+                                            mode:
+                                                LaunchMode.externalApplication,
                                           );
                                         } catch (_) {}
-                                      }
-                                      if (!launched) {
-                                        showCustomSnackBar(
-                                          context,
-                                          'Tidak dapat membuka Berita. Pastikan ada browser di perangkat Anda.',
-                                        );
-                                      }
-                                    },
-                                    // Progress belum tersedia untuk Bacaan Harian
-                                    withProgress: false,
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                    ],
+                                        if (!launched) {
+                                          try {
+                                            launched = await launchUrl(
+                                              uri,
+                                              mode: LaunchMode.platformDefault,
+                                            );
+                                          } catch (_) {}
+                                        }
+                                        if (!launched) {
+                                          showCustomSnackBar(
+                                            context,
+                                            'Tidak dapat membuka Berita. Pastikan ada browser di perangkat Anda.',
+                                          );
+                                        }
+                                      },
+                                      // Progress belum tersedia untuk Bacaan Harian
+                                      withProgress: false,
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
