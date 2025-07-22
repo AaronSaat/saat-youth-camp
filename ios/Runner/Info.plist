@@ -56,5 +56,10 @@
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Aplikasi ini memerlukan akses ke galeri untuk memilih foto profil</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

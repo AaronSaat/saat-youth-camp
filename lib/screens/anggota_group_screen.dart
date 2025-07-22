@@ -28,6 +28,7 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
 
   @override
   void initState() {
+    print('[SCREEN] AnggotaGroupcreen initState');
     super.initState();
     _initAll();
   }

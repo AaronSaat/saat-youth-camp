@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syc/screens/anggota_group_main_screen.dart';
 import 'package:syc/screens/anggota_group_screen.dart';
+import 'package:syc/screens/anggota_kelompok_main_screen.dart';
 import 'package:syc/screens/anggota_kelompok_screen.dart';
 import 'package:syc/screens/list_gereja_screen.dart';
 import 'package:syc/screens/list_group_screen.dart';
@@ -50,11 +52,16 @@ class _MainScreenState extends State<MainScreen> {
     role = prefs.getString('role');
 
     if (role == 'Peserta') {
-      id = prefs.getString('kelompok_id') ?? "1"; // Default value if no kelompok found
+      id =
+          prefs.getString('kelompok_id') ??
+          "1"; // Default value if no kelompok found
     } else if (role == 'Pembimbing Kelompok') {
-      id = prefs.getString('kelompok_id') ?? "1"; // Default value if no kelompok found
+      id =
+          prefs.getString('kelompok_id') ??
+          "1"; // Default value if no kelompok found
     } else if (role == 'Pembina') {
-      id = prefs.getString('group_id') ?? "1"; // Default value if no group found
+      id =
+          prefs.getString('group_id') ?? "1"; // Default value if no group found
     }
 
     if (role == 'Peserta') {
@@ -70,7 +77,10 @@ class _MainScreenState extends State<MainScreen> {
       _pages = [
         const DashboardScreen(),
         const DaftarAcaraScreen(),
-        AnggotaKelompokScreen(id: id), //nantt masukkan parameter kelompoknya
+        // baca IMPORTANT NOTES di filenya
+        AnggotaKelompokMainScreen(
+          id: id,
+        ), //nantt masukkan parameter kelompoknya
         MateriScreen(userId: id.toString()),
         const ProfileScreen(),
       ];
@@ -78,7 +88,8 @@ class _MainScreenState extends State<MainScreen> {
       _pages = [
         const DashboardScreen(),
         const DaftarAcaraScreen(),
-        AnggotaGroupScreen(id: id), //nanti masukkan parameter gerejanya
+        // baca IMPORTANT NOTES di filenya
+        AnggotaGroupMainScreen(id: id), //nanti masukkan parameter gerejanya
         MateriScreen(userId: id),
         const ProfileScreen(),
       ];
@@ -100,13 +111,20 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {});
   }
 
-  BottomNavigationBarItem buildSvgNavItem(String asset, String label, int index) {
+  BottomNavigationBarItem buildSvgNavItem(
+    String asset,
+    String label,
+    int index,
+  ) {
     return BottomNavigationBarItem(
       icon: SvgPicture.asset(
         asset,
         height: 36,
         width: 36,
-        colorFilter: ColorFilter.mode(_currentIndex == index ? AppColors.primary : Colors.grey, BlendMode.srcIn),
+        colorFilter: ColorFilter.mode(
+          _currentIndex == index ? AppColors.primary : Colors.grey,
+          BlendMode.srcIn,
+        ),
       ),
       label: label,
     );
@@ -115,26 +133,66 @@ class _MainScreenState extends State<MainScreen> {
   List<BottomNavigationBarItem> _buildNavItems() {
     if (role == 'Peserta' || role == 'Pembimbing Kelompok') {
       return [
-        buildSvgNavItem('assets/icons/navigation_bar/dashboard.svg', 'Dashboard', 0),
-        buildSvgNavItem('assets/icons/navigation_bar/list_acara.svg', 'Acara', 1),
-        buildSvgNavItem('assets/icons/navigation_bar/kelompok.svg', 'Kelompok', 2),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/dashboard.svg',
+          'Dashboard',
+          0,
+        ),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/list_acara.svg',
+          'Acara',
+          1,
+        ),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/kelompok.svg',
+          'Kelompok',
+          2,
+        ),
         buildSvgNavItem('assets/icons/navigation_bar/materi.svg', 'Materi', 3),
         buildSvgNavItem('assets/icons/navigation_bar/profile.svg', 'Profil', 4),
       ];
     } else if (role == 'Pembina') {
       return [
-        buildSvgNavItem('assets/icons/navigation_bar/dashboard.svg', 'Dashboard', 0),
-        buildSvgNavItem('assets/icons/navigation_bar/list_acara.svg', 'Acara', 1),
-        buildSvgNavItem('assets/icons/navigation_bar/kelompok_pendaftaran.svg', 'Group', 2),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/dashboard.svg',
+          'Dashboard',
+          0,
+        ),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/list_acara.svg',
+          'Acara',
+          1,
+        ),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/kelompok_pendaftaran.svg',
+          'Group',
+          2,
+        ),
         buildSvgNavItem('assets/icons/navigation_bar/materi.svg', 'Materi', 3),
         buildSvgNavItem('assets/icons/navigation_bar/profile.svg', 'Profil', 4),
       ];
     } else if (role == 'Panitia') {
       return [
-        buildSvgNavItem('assets/icons/navigation_bar/dashboard.svg', 'Dashboard', 0),
-        buildSvgNavItem('assets/icons/navigation_bar/list_acara.svg', 'Acara', 1),
-        buildSvgNavItem('assets/icons/navigation_bar/kelompok_pendaftaran.svg', 'Group', 2),
-        buildSvgNavItem('assets/icons/navigation_bar/kelompok.svg', 'Kelompok', 3),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/dashboard.svg',
+          'Dashboard',
+          0,
+        ),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/list_acara.svg',
+          'Acara',
+          1,
+        ),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/kelompok_pendaftaran.svg',
+          'Group',
+          2,
+        ),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/kelompok.svg',
+          'Kelompok',
+          3,
+        ),
         buildSvgNavItem('assets/icons/navigation_bar/materi.svg', 'Materi', 4),
         // const BottomNavigationBarItem(
         //   icon: Icon(Icons.campaign),
@@ -182,7 +240,13 @@ class _MainScreenState extends State<MainScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: const Offset(0, 4))],
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: BottomNavigationBar(
                       currentIndex: _currentIndex,
@@ -194,7 +258,10 @@ class _MainScreenState extends State<MainScreen> {
                       selectedItemColor: AppColors.primary,
                       unselectedItemColor: Colors.grey,
                       showUnselectedLabels: true,
-                      selectedLabelStyle: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                      selectedLabelStyle: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
                       unselectedLabelStyle: TextStyle(fontSize: 8),
                     ),
                   ),

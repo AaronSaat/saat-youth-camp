@@ -5,7 +5,9 @@ import 'package:syc/screens/anggota_kelompok_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 import 'package:syc/widgets/custom_count_up.dart' show CustomCountUp;
 import 'package:syc/widgets/custom_snackbar.dart';
-import 'package:timeago/timeago.dart' as timeago show IdMessages, format, setLocaleMessages;
+import 'package:timeago/timeago.dart'
+    as timeago
+    show IdMessages, format, setLocaleMessages;
 
 import '../services/api_service.dart';
 import '../widgets/custom_card.dart';
@@ -14,7 +16,13 @@ import 'anggota_gereja_screen.dart';
 class CatatanHarianScreen extends StatefulWidget {
   final String role;
   final String id;
-  const CatatanHarianScreen({Key? key, required this.role, required this.id}) : super(key: key);
+  final DateTime initialDate;
+  const CatatanHarianScreen({
+    Key? key,
+    required this.role,
+    required this.id,
+    required this.initialDate,
+  }) : super(key: key);
 
   @override
   _CatatanHarianScreenState createState() => _CatatanHarianScreenState();
@@ -57,9 +65,11 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
   @override
   void initState() {
     timeago.setLocaleMessages('id', timeago.IdMessages());
+    _selectedDate = widget.initialDate;
     super.initState();
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200) {
         _fetchMoreNotes();
       }
     });
@@ -78,7 +88,9 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
       await loadCountUser();
     }
     try {
-      print("Fetching data for date: ${_selectedDate.toIso8601String().substring(0, 10)}");
+      print(
+        "Fetching data for date: ${_selectedDate.toIso8601String().substring(0, 10)}",
+      );
       final dataCatatan = await ApiService.getBrmNotesByDay(
         context,
         _selectedDate.toIso8601String().substring(0, 10),
@@ -95,7 +107,9 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
 
         if (!mounted) return;
         setState(() {
-          _bacaanDoneMapPanitia = dataBacaan.map((key, value) => MapEntry(key.toString(), value.toString()));
+          _bacaanDoneMapPanitia = dataBacaan.map(
+            (key, value) => MapEntry(key.toString(), value.toString()),
+          );
         });
       }
 
@@ -103,7 +117,9 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
       setState(() {
         _dataCatatanHarian = dataCatatan;
         // print("📦 LENGTH Data catatan. ${_dataCatatanHarian['data_notes']}");
-        print('LENGTH CATATAN LOAD PERTAMA: ${_dataCatatanHarian['data_notes'].length}');
+        print(
+          'LENGTH CATATAN LOAD PERTAMA: ${_dataCatatanHarian['data_notes'].length}',
+        );
         _isLoading = false;
       });
     } catch (e) {
@@ -123,7 +139,9 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
       final _countUser = await ApiService.getCountUser(context);
       if (!mounted) return;
       setState(() {
-        _countUserMapPanitia = _countUser.map((key, value) => MapEntry(key.toString(), value.toString()));
+        _countUserMapPanitia = _countUser.map(
+          (key, value) => MapEntry(key.toString(), value.toString()),
+        );
         print('Count User Map: $_countUserMapPanitia');
       });
     } catch (e) {}
@@ -131,10 +149,17 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
 
   void _goToPreviousDate() async {
     final now = DateTime.now();
-    final tenDaysAgo = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 19));
+    final tenDaysAgo = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(const Duration(days: 19));
     final previousDate = _selectedDate.subtract(const Duration(days: 1));
     if (previousDate.isBefore(tenDaysAgo)) {
-      showCustomSnackBar(context, "Hanya bisa melihat catatan 10 hari terakhir.");
+      showCustomSnackBar(
+        context,
+        "Hanya bisa melihat catatan 10 hari terakhir.",
+      );
       return;
     }
     setState(() {
@@ -183,7 +208,9 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
         _dataCatatanHarian['data_notes'].addAll(newNotes['data_notes']);
 
         // print("📦 LENGTH Data catatan. ${_dataCatatanHarian['data_notes']}");
-        print('LENGTH CATATAN LOAD BERIKUT: ${_dataCatatanHarian['data_notes'].length}');
+        print(
+          'LENGTH CATATAN LOAD BERIKUT: ${_dataCatatanHarian['data_notes'].length}',
+        );
       });
     }
   }
@@ -200,7 +227,13 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: const Text('Catatan Harian', style: TextStyle(color: AppColors.brown1, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Catatan Harian',
+          style: TextStyle(
+            color: AppColors.brown1,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         centerTitle: true,
         elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.brown1),
@@ -221,7 +254,12 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
               color: AppColors.brown1,
               backgroundColor: Colors.white,
               child: Padding(
-                padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 24.0, top: 16.0),
+                padding: const EdgeInsets.only(
+                  left: 16.0,
+                  right: 16.0,
+                  bottom: 24.0,
+                  top: 16.0,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -232,24 +270,46 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
-                            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 4,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
                           ),
                           child: IconButton(
-                            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.brown1),
+                            icon: const Icon(
+                              Icons.arrow_back_ios_new_rounded,
+                              color: AppColors.brown1,
+                            ),
                             onPressed: _goToPreviousDate,
                           ),
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(24),
-                            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 4,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
                           ),
                           child: Text(
                             'Tanggal: ${_formatDate(_selectedDate)}',
-                            style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.brown1, fontSize: 16),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.brown1,
+                              fontSize: 16,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -257,17 +317,27 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
-                            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 4,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
                           ),
                           child: IconButton(
-                            icon: const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.brown1),
+                            icon: const Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              color: AppColors.brown1,
+                            ),
                             onPressed: _goToNextDate,
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    if (_dataCatatanHarian['data_brm'] != null && _dataCatatanHarian['data_brm']['passage'] != null)
+                    if (_dataCatatanHarian['data_brm'] != null &&
+                        _dataCatatanHarian['data_brm']['passage'] != null)
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
@@ -275,16 +345,30 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
-                          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.menu_book_rounded, color: AppColors.brown1, size: 20),
+                            const Icon(
+                              Icons.menu_book_rounded,
+                              color: AppColors.brown1,
+                              size: 20,
+                            ),
                             const SizedBox(width: 16),
                             Expanded(
                               child: Text(
                                 "${_dataCatatanHarian['data_brm']['passage']}",
-                                style: TextStyle(color: AppColors.brown1, fontWeight: FontWeight.w500, fontSize: 14),
+                                style: TextStyle(
+                                  color: AppColors.brown1,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                ),
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 2,
                               ),
@@ -296,12 +380,18 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                       _isLoading
                           ? buildProgresBacaanPanitiaShimmerCard(context)
                           : (() {
-                            final progresPesertaStr = _bacaanDoneMapPanitia['count_peserta'] ?? '0';
-                            final progresPembinaStr = _bacaanDoneMapPanitia['count_pembina'] ?? '0';
-                            final totalStr = _countUserMapPanitia['count_peserta'] ?? '0';
-                            final progresPeserta = int.tryParse(progresPesertaStr) ?? 0;
-                            final progresPembina = int.tryParse(progresPembinaStr) ?? 0;
-                            final totalProgres = progresPeserta + progresPembina;
+                            final progresPesertaStr =
+                                _bacaanDoneMapPanitia['count_peserta'] ?? '0';
+                            final progresPembinaStr =
+                                _bacaanDoneMapPanitia['count_pembina'] ?? '0';
+                            final totalStr =
+                                _countUserMapPanitia['count_peserta'] ?? '0';
+                            final progresPeserta =
+                                int.tryParse(progresPesertaStr) ?? 0;
+                            final progresPembina =
+                                int.tryParse(progresPembinaStr) ?? 0;
+                            final totalProgres =
+                                progresPeserta + progresPembina;
                             final total = int.tryParse(totalStr) ?? 0;
                             return Container(
                               width: double.infinity,
@@ -310,11 +400,21 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(16),
-                                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 4,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.check_circle_rounded, color: AppColors.brown1, size: 20),
+                                  const Icon(
+                                    Icons.check_circle_rounded,
+                                    color: AppColors.brown1,
+                                    size: 20,
+                                  ),
                                   const SizedBox(width: 16),
                                   CustomCountUp(
                                     target: totalProgres,
@@ -350,12 +450,16 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                                   _dataCatatanHarian['status'] == 'Not Found' ||
                                   _dataCatatanHarian['data_notes'] == null ||
                                   !(_dataCatatanHarian['data_notes'] is List) ||
-                                  (_dataCatatanHarian['data_notes'] as List).isEmpty)
+                                  (_dataCatatanHarian['data_notes'] as List)
+                                      .isEmpty)
                               ? Center(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Image.asset('assets/images/data_not_found.png', height: 100),
+                                    Image.asset(
+                                      'assets/images/data_not_found.png',
+                                      height: 100,
+                                    ),
                                     const SizedBox(height: 12),
                                     const Text(
                                       "Gagal memuat data catatan harian :(",
@@ -368,51 +472,80 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                                   ],
                                 ),
                               )
-                              : (_dataCatatanHarian['data_notes'] is List && _dataCatatanHarian['data_notes'] != null)
+                              : (_dataCatatanHarian['data_notes'] is List &&
+                                  _dataCatatanHarian['data_notes'] != null)
                               ? ListView.builder(
                                 controller: _scrollController,
                                 // shrinkWrap: true,
                                 // physics: const NeverScrollableScrollPhysics(),
-                                itemCount: (_dataCatatanHarian['data_notes'] as List).length + (_hasMore ? 1 : 0),
+                                itemCount:
+                                    (_dataCatatanHarian['data_notes'] as List)
+                                        .length +
+                                    (_hasMore ? 1 : 0),
                                 itemBuilder: (context, index) {
-                                  if (index < _dataCatatanHarian['data_notes'].length) {
-                                    final note = _dataCatatanHarian['data_notes'][index];
-                                    if (note["notes"] != null && note["notes"].toString().trim().isNotEmpty) {
+                                  if (index <
+                                      _dataCatatanHarian['data_notes'].length) {
+                                    final note =
+                                        _dataCatatanHarian['data_notes'][index];
+                                    if (note["notes"] != null &&
+                                        note["notes"]
+                                            .toString()
+                                            .trim()
+                                            .isNotEmpty) {
                                       return Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Column(
                                           children: [
                                             Row(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 Expanded(
                                                   flex: 3,
                                                   child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       Row(
                                                         children: [
-                                                          if (note['user_id'].toString() == widget.id)
+                                                          if (note['user_id']
+                                                                  .toString() ==
+                                                              widget.id)
                                                             Container(
                                                               width: 24,
                                                               height: 24,
                                                               decoration: BoxDecoration(
-                                                                shape: BoxShape.circle,
-                                                                color: AppColors.primary,
+                                                                shape:
+                                                                    BoxShape
+                                                                        .circle,
+                                                                color:
+                                                                    AppColors
+                                                                        .primary,
                                                               ),
                                                               child: const Icon(
                                                                 Icons.person,
-                                                                color: Colors.white,
+                                                                color:
+                                                                    Colors
+                                                                        .white,
                                                                 size: 16,
                                                               ),
                                                             ),
-                                                          if (note['user_id'].toString() == widget.id)
-                                                            const SizedBox(width: 8),
+                                                          if (note['user_id']
+                                                                  .toString() ==
+                                                              widget.id)
+                                                            const SizedBox(
+                                                              width: 8,
+                                                            ),
                                                           Text(
                                                             note['nama'] ?? '-',
                                                             style: const TextStyle(
-                                                              color: AppColors.primary,
-                                                              fontWeight: FontWeight.w900,
+                                                              color:
+                                                                  AppColors
+                                                                      .primary,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w900,
                                                               fontSize: 16,
                                                             ),
                                                           ),
@@ -422,8 +555,10 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                                                       Text(
                                                         "Kelompok: ${note['kelompok'] ?? '-'}",
                                                         style: const TextStyle(
-                                                          color: AppColors.primary,
-                                                          fontWeight: FontWeight.w500,
+                                                          color:
+                                                              AppColors.primary,
+                                                          fontWeight:
+                                                              FontWeight.w500,
                                                           fontSize: 12,
                                                         ),
                                                       ),
@@ -431,8 +566,10 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                                                       Text(
                                                         note["notes"] ?? '',
                                                         style: const TextStyle(
-                                                          color: AppColors.brown1,
-                                                          fontWeight: FontWeight.w400,
+                                                          color:
+                                                              AppColors.brown1,
+                                                          fontWeight:
+                                                              FontWeight.w400,
                                                           fontSize: 14,
                                                         ),
                                                       ),
@@ -445,7 +582,11 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                                                     note['created_at'] != null
                                                         ? timeago.format(
                                                           DateTime.fromMillisecondsSinceEpoch(
-                                                            int.parse(note['created_at'].toString()) * 1000,
+                                                            int.parse(
+                                                                  note['created_at']
+                                                                      .toString(),
+                                                                ) *
+                                                                1000,
                                                           ),
                                                           locale: 'id',
                                                         )
@@ -453,7 +594,8 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                                                     textAlign: TextAlign.end,
                                                     style: const TextStyle(
                                                       color: AppColors.primary,
-                                                      fontWeight: FontWeight.w300,
+                                                      fontWeight:
+                                                          FontWeight.w300,
                                                       fontSize: 10,
                                                     ),
                                                   ),
@@ -461,7 +603,10 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                                               ],
                                             ),
                                             const SizedBox(height: 16),
-                                            const Divider(color: AppColors.grey2, height: 2),
+                                            const Divider(
+                                              color: AppColors.grey2,
+                                              height: 2,
+                                            ),
                                           ],
                                         ),
                                       );
@@ -472,7 +617,11 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                                     // WidgetsBinding.instance.addPostFrameCallback((_) {
                                     //   _fetchMoreNotes();
                                     // });
-                                    return Center(child: CircularProgressIndicator(color: AppColors.primary));
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        color: AppColors.primary,
+                                      ),
+                                    );
                                   }
                                 },
                               )
@@ -480,7 +629,10 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Image.asset('assets/images/data_not_found.png', height: 100),
+                                  Image.asset(
+                                    'assets/images/data_not_found.png',
+                                    height: 100,
+                                  ),
                                   const SizedBox(height: 12),
                                   const Text(
                                     "Tidak ada data catatan harian.",
@@ -521,7 +673,10 @@ Widget buildListShimmer(BuildContext context) {
               highlightColor: Colors.grey[100]!,
               child: Container(
                 height: 70,
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
               ),
             ),
           );
@@ -548,7 +703,10 @@ Widget buildProgresBacaanPanitiaShimmerCard(BuildContext context) {
               highlightColor: Colors.grey[100]!,
               child: Container(
                 height: 70,
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
               ),
             ),
           );

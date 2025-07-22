@@ -449,16 +449,32 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                                   iconBackgroundColor: AppColors.brown1,
                                   showCheckIcon: false,
                                   onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) => CatatanHarianScreen(
-                                              role: role,
-                                              id: id,
-                                            ),
-                                      ),
-                                    );
+                                    if (day <= _hariKe) {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) => CatatanHarianScreen(
+                                                role: role,
+                                                id: widget.userId,
+                                                initialDate: DateTime(
+                                                  DateTime.now().year,
+                                                  DateTime.now().month,
+                                                  day,
+                                                ),
+                                              ),
+                                        ),
+                                      );
+                                    } else {
+                                      setState(() {
+                                        if (!mounted) return;
+                                        showCustomSnackBar(
+                                          context,
+                                          'Hanya bisa mengakses catatan harian sebelum $_hariKe $_namaBulan',
+                                          isSuccess: false,
+                                        );
+                                      });
+                                    }
                                   },
                                 ),
                               ],

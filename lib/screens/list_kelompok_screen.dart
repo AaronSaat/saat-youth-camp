@@ -61,7 +61,10 @@ class _ListKelompokScreenState extends State<ListKelompokScreen> {
             _lastBackPressed = now;
             showCustomSnackBar(
               context,
-              "Tekan 2x tombol kembali untuk keluar aplikasi",
+              "Tekan sekali lagi untuk keluar aplikasi",
+              duration: const Duration(seconds: 5),
+              showDismissButton: false,
+              showAppIcon: true,
             );
           } else {
             // Keluar aplikasi

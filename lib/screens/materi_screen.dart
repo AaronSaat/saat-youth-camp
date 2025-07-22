@@ -1,6 +1,11 @@
+import 'package:any_link_preview/any_link_preview.dart'
+    show AnyLinkPreview, UIDirection;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:flutter_svg/svg.dart';
+import 'package:html/dom.dart' as dom show Element;
+import 'package:html/parser.dart' as html_parser show parse;
+import 'package:http/http.dart' as http show get;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:syc/screens/bible_reading_list_screen.dart';
@@ -75,6 +80,47 @@ class _MateriScreenState extends State<MateriScreen> {
     });
   }
 
+  Future<Map<String, String>> fetchMetaTags(String url) async {
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      final document = html_parser.parse(response.body);
+
+      String getMeta(String property) {
+        final meta = document.head
+            ?.getElementsByTagName('meta')
+            .firstWhere(
+              (e) =>
+                  e.attributes['property'] == property ||
+                  e.attributes['name'] == property,
+              orElse: () => dom.Element.tag('meta'),
+            );
+        if (meta != null &&
+            (meta.attributes['content'] != null &&
+                meta.attributes['content']!.isNotEmpty)) {
+          return meta.attributes['content']!;
+        }
+        return '';
+      }
+
+      final title =
+          document.head?.getElementsByTagName('title').first.text ?? '';
+      final description =
+          getMeta('og:description').isNotEmpty
+              ? getMeta('og:description')
+              : getMeta('description');
+      final image = getMeta('og:image');
+
+      // Print all values to debug console
+      print('Meta Title: $title');
+      print('Meta Description: $description');
+      print('Meta Image: $image');
+
+      return {'title': title, 'description': description, 'image': image};
+    } else {
+      throw Exception('Failed to load page');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     _lastBackPressed = null;
@@ -89,7 +135,10 @@ class _MateriScreenState extends State<MateriScreen> {
             _lastBackPressed = now;
             showCustomSnackBar(
               context,
-              "Tekan 2x tombol kembali untuk keluar aplikasi",
+              "Tekan sekali lagi untuk keluar aplikasi",
+              duration: const Duration(seconds: 5),
+              showDismissButton: false,
+              showAppIcon: true,
             );
           } else {
             // Keluar aplikasi
@@ -172,106 +221,292 @@ class _MateriScreenState extends State<MateriScreen> {
                               builder: (context) {
                                 return Column(
                                   children: [
-                                    MateriMenuCard(
-                                      title: 'Tautan',
-                                      imagePath:
-                                          'assets/mockups/materi_buku.jpg',
-                                      onTap: () async {
-                                        const url =
-                                            'https://library.seabs.ac.id/';
-                                        final uri = Uri.parse(url);
-                                        bool launched = false;
-                                        try {
-                                          launched = await launchUrl(
-                                            uri,
-                                            mode:
-                                                LaunchMode.externalApplication,
-                                          );
-                                        } catch (_) {}
-                                        if (!launched) {
+                                    // AnyLinkPreview for Instagram
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 8.0,
+                                      ),
+                                      child: GestureDetector(
+                                        onTap: () async {
+                                          const url =
+                                              'https://www.instagram.com/story_saat?igsh=MWw4ZHZyc2k5Znk5MA==';
+                                          final uri = Uri.parse(url);
+                                          bool launched = false;
+                                          // Instagram app intent
+                                          const instagramScheme =
+                                              'instagram://user?username=story_saat';
                                           try {
                                             launched = await launchUrl(
-                                              uri,
-                                              mode: LaunchMode.platformDefault,
+                                              Uri.parse(instagramScheme),
+                                              mode:
+                                                  LaunchMode
+                                                      .externalApplication,
                                             );
                                           } catch (_) {}
-                                        }
-                                        if (!launched) {
-                                          showCustomSnackBar(
-                                            context,
-                                            'Tidak dapat membuka link. Pastikan ada browser di perangkat Anda.',
-                                          );
-                                        }
-                                      },
-                                      withProgress: false,
-                                    ),
-                                    MateriMenuCard(
-                                      title: 'Youtube',
-                                      imagePath:
-                                          'assets/mockups/materi_youtube.jpg',
-                                      onTap: () async {
-                                        const url =
-                                            'https://seabs.ac.id/resources/youtube-channel/';
-                                        final uri = Uri.parse(url);
-                                        bool launched = false;
-                                        try {
-                                          launched = await launchUrl(
-                                            uri,
-                                            mode:
-                                                LaunchMode.externalApplication,
-                                          );
-                                        } catch (_) {}
-                                        if (!launched) {
-                                          try {
-                                            launched = await launchUrl(
-                                              uri,
-                                              mode: LaunchMode.platformDefault,
+                                          // WhatsApp app intent (contoh, jika link WhatsApp)
+                                          if (!launched &&
+                                              url.contains('wa.me')) {
+                                            final waUri = Uri.parse(
+                                              'whatsapp://send?phone=${uri.pathSegments.last}',
                                             );
-                                          } catch (_) {}
-                                        }
-                                        if (!launched) {
-                                          showCustomSnackBar(
-                                            context,
-                                            'Tidak dapat membuka Youtube. Pastikan ada browser di perangkat Anda.',
-                                          );
-                                        }
-                                      },
-                                      withProgress: false,
-                                    ),
-                                    MateriMenuCard(
-                                      title: 'Berita',
-                                      imagePath:
-                                          'assets/mockups/materi_berita.jpg',
-                                      onTap: () async {
-                                        const url =
-                                            'https://seabs.ac.id/resources/berita/';
-                                        final uri = Uri.parse(url);
-                                        bool launched = false;
-                                        try {
-                                          launched = await launchUrl(
-                                            uri,
-                                            mode:
-                                                LaunchMode.externalApplication,
-                                          );
-                                        } catch (_) {}
-                                        if (!launched) {
-                                          try {
-                                            launched = await launchUrl(
-                                              uri,
-                                              mode: LaunchMode.platformDefault,
+                                            try {
+                                              launched = await launchUrl(
+                                                waUri,
+                                                mode:
+                                                    LaunchMode
+                                                        .externalApplication,
+                                              );
+                                            } catch (_) {}
+                                          }
+                                          // Fallback to browser
+                                          if (!launched) {
+                                            try {
+                                              launched = await launchUrl(
+                                                uri,
+                                                mode:
+                                                    LaunchMode
+                                                        .externalApplication,
+                                              );
+                                            } catch (_) {}
+                                          }
+                                          if (!launched) {
+                                            showCustomSnackBar(
+                                              context,
+                                              'Tidak dapat membuka aplikasi terkait. Pastikan aplikasi atau browser tersedia di perangkat Anda.',
                                             );
-                                          } catch (_) {}
-                                        }
-                                        if (!launched) {
-                                          showCustomSnackBar(
-                                            context,
-                                            'Tidak dapat membuka Berita. Pastikan ada browser di perangkat Anda.',
-                                          );
-                                        }
-                                      },
-                                      // Progress belum tersedia untuk Bacaan Harian
-                                      withProgress: false,
+                                          }
+                                        },
+                                        child: AnyLinkPreview(
+                                          link:
+                                              'https://www.instagram.com/story_saat?igsh=MWw4ZHZyc2k5Znk5MA==',
+                                          displayDirection:
+                                              UIDirection.uiDirectionVertical,
+                                          showMultimedia: true,
+                                          bodyMaxLines: 2,
+                                          bodyTextOverflow:
+                                              TextOverflow.ellipsis,
+                                          titleStyle: TextStyle(
+                                            color: AppColors.primary,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                          bodyStyle: TextStyle(
+                                            color: AppColors.grey4,
+                                            fontSize: 14,
+                                          ),
+                                          errorBody:
+                                              'Tidak dapat menampilkan preview.',
+                                          errorTitle: 'Link tidak valid',
+                                          errorWidget: null,
+                                          cache: Duration(hours: 1),
+                                          backgroundColor: Colors.white,
+                                        ),
+                                      ),
                                     ),
+
+                                    // AnyLinkPreview for Youtube
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 8,
+                                      ),
+                                      child: AnyLinkPreview(
+                                        link:
+                                            'https://www.youtube.com/@STTSAATMalang/',
+                                        displayDirection:
+                                            UIDirection.uiDirectionVertical,
+                                        showMultimedia: true,
+                                        bodyMaxLines: 2,
+                                        bodyTextOverflow: TextOverflow.ellipsis,
+                                        titleStyle: TextStyle(
+                                          color: AppColors.primary,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                        bodyStyle: TextStyle(
+                                          color: AppColors.grey4,
+                                          fontSize: 14,
+                                        ),
+                                        errorBody:
+                                            'Tidak dapat menampilkan preview.',
+                                        errorTitle: 'Link tidak valid',
+                                        errorWidget: null,
+                                        cache: Duration(hours: 1),
+                                        backgroundColor: Colors.white,
+                                      ),
+                                    ),
+                                    // AnyLinkPreview for Berita
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 8,
+                                      ),
+                                      child: AnyLinkPreview(
+                                        link:
+                                            'https://seabs.ac.id/resources/berita/',
+                                        displayDirection:
+                                            UIDirection.uiDirectionVertical,
+                                        showMultimedia: true,
+                                        bodyMaxLines: 2,
+                                        bodyTextOverflow: TextOverflow.ellipsis,
+                                        titleStyle: TextStyle(
+                                          color: AppColors.primary,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                        bodyStyle: TextStyle(
+                                          color: AppColors.grey4,
+                                          fontSize: 14,
+                                        ),
+                                        errorBody:
+                                            'Tidak dapat menampilkan preview.',
+                                        errorTitle: 'Link tidak valid',
+                                        errorWidget: null,
+                                        cache: Duration(hours: 1),
+                                        backgroundColor: Colors.white,
+                                      ),
+                                    ),
+
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 8.0,
+                                      ),
+                                      child: FutureBuilder<Map<String, String>>(
+                                        future: fetchMetaTags(
+                                          'https://www.youtube.com/@STTSAATMalang',
+                                          // 'https://seabs.ac.id/resources/berita/',
+                                        ),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.connectionState ==
+                                              ConnectionState.waiting) {
+                                            return const Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            );
+                                          }
+                                          if (snapshot.hasError) {
+                                            return const Text(
+                                              'Gagal mengambil metadata',
+                                            );
+                                          }
+                                          final meta = snapshot.data!;
+                                          return Card(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                if (meta['image'] != null &&
+                                                    meta['image']!.isNotEmpty)
+                                                  ClipRRect(
+                                                    borderRadius:
+                                                        const BorderRadius.vertical(
+                                                          top: Radius.circular(
+                                                            12,
+                                                          ),
+                                                        ),
+                                                    child: Image.network(
+                                                      meta['image']!,
+                                                      height: 120,
+                                                      width: double.infinity,
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
+                                                ListTile(
+                                                  title: Text(
+                                                    meta['title'] ?? '',
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  subtitle: Text(
+                                                    meta['description'] ?? '',
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+
+                                    // Padding(
+                                    //   padding: const EdgeInsets.symmetric(
+                                    //     vertical: 8.0,
+                                    //   ),
+                                    //   child: Column(
+                                    //     crossAxisAlignment:
+                                    //         CrossAxisAlignment.start,
+                                    //     children: [
+                                    //       AnyLinkPreview(
+                                    //         link:
+                                    //             'https://seabs.ac.id/resources/berita/',
+                                    //         displayDirection:
+                                    //             UIDirection.uiDirectionVertical,
+                                    //         showMultimedia: true,
+                                    //         bodyMaxLines: 1, // Show the body
+                                    //         bodyTextOverflow:
+                                    //             TextOverflow.ellipsis,
+                                    //         titleStyle: TextStyle(
+                                    //           color: AppColors.primary,
+                                    //           fontWeight: FontWeight.bold,
+                                    //           fontSize: 16,
+                                    //         ),
+                                    //         bodyStyle: TextStyle(
+                                    //           color: AppColors.grey4,
+                                    //           fontSize: 14,
+                                    //         ),
+                                    //         errorBody:
+                                    //             'Tidak dapat menampilkan preview.',
+                                    //         errorTitle: 'Link tidak valid',
+                                    //         errorWidget: null,
+                                    //         cache: Duration(hours: 1),
+                                    //         backgroundColor: Colors.white,
+                                    //       ),
+                                    //       const SizedBox(height: 4),
+                                    //       const Text(
+                                    //         'Kumpulan berita terbaru dari SEABS.',
+                                    //         style: TextStyle(
+                                    //           color: Color(0xFF6D6D6D),
+                                    //           fontSize: 14,
+                                    //         ),
+                                    //       ),
+                                    //     ],
+                                    //   ),
+                                    // ),
+
+                                    // MateriMenuCard(
+                                    //   title: 'Berita',
+                                    //   imagePath:
+                                    //       'assets/mockups/materi_berita.jpg',
+                                    //   onTap: () async {
+                                    //     const url =
+                                    //         'https://seabs.ac.id/resources/berita/';
+                                    //     final uri = Uri.parse(url);
+                                    //     bool launched = false;
+                                    //     try {
+                                    //       launched = await launchUrl(
+                                    //         uri,
+                                    //         mode:
+                                    //             LaunchMode.externalApplication,
+                                    //       );
+                                    //     } catch (_) {}
+                                    //     if (!launched) {
+                                    //       try {
+                                    //         launched = await launchUrl(
+                                    //           uri,
+                                    //           mode: LaunchMode.platformDefault,
+                                    //         );
+                                    //       } catch (_) {}
+                                    //     }
+                                    //     if (!launched) {
+                                    //       showCustomSnackBar(
+                                    //         context,
+                                    //         'Tidak dapat membuka Berita. Pastikan ada browser di perangkat Anda.',
+                                    //       );
+                                    //     }
+                                    //   },
+                                    //   // Progress belum tersedia untuk Bacaan Harian
+                                    //   withProgress: false,
+                                    // ),
                                   ],
                                 );
                               },

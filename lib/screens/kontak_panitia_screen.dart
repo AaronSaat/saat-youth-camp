@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:syc/screens/anggota_kelompok_screen.dart';
@@ -162,12 +163,23 @@ class _KontakPanitiaScreenState extends State<KontakPanitiaScreen> {
                                 borderRadius: BorderRadius.circular(16),
                                 onTap: () async {
                                   if (nomor != null && nomor.isNotEmpty) {
-                                    final waUrl =
+                                    final waIntentUrl =
+                                        'whatsapp://send?phone=${nomor.replaceAll('+', '')}';
+                                    final waMeUrl =
                                         'https://wa.me/${nomor.replaceAll('+', '')}';
                                     final telUrl = 'tel:$nomor';
-                                    if (await canLaunchUrl(Uri.parse(waUrl))) {
+                                    if (await canLaunchUrl(
+                                      Uri.parse(waIntentUrl),
+                                    )) {
                                       await launchUrl(
-                                        Uri.parse(waUrl),
+                                        Uri.parse(waIntentUrl),
+                                        mode: LaunchMode.externalApplication,
+                                      );
+                                    } else if (await canLaunchUrl(
+                                      Uri.parse(waMeUrl),
+                                    )) {
+                                      await launchUrl(
+                                        Uri.parse(waMeUrl),
                                         mode: LaunchMode.externalApplication,
                                       );
                                     } else if (await canLaunchUrl(
@@ -224,8 +236,8 @@ class _KontakPanitiaScreenState extends State<KontakPanitiaScreen> {
                                               const SizedBox(height: 12),
                                               Row(
                                                 children: [
-                                                  const Icon(
-                                                    Icons.phone,
+                                                  const FaIcon(
+                                                    FontAwesomeIcons.whatsapp,
                                                     color: Colors.white70,
                                                     size: 18,
                                                   ),

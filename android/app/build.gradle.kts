@@ -1,3 +1,8 @@
+// Force NDK version to match plugin requirements
+android {
+    // ...existing config...
+    ndkVersion = "27.0.12077973"
+}
 plugins {
     id("com.android.application")
     id("kotlin-android")

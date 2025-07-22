@@ -23,6 +23,9 @@ import 'bible_reading_more_screen.dart';
 import 'evaluasi_komitmen_view_screen.dart';
 import 'pengumuman_detail_screen.dart';
 import 'pengumuman_list_screen.dart';
+import './dokumentasi_webview_screen.dart';
+
+import 'dokumentasi_webview_screen.dart';
 
 import 'package:html/parser.dart' as html_parser;
 
@@ -830,11 +833,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (!didPop) {
           final now = DateTime.now();
           if (_lastBackPressed == null ||
-              now.difference(_lastBackPressed!) > Duration(seconds: 2)) {
+              now.difference(_lastBackPressed!) > Duration(seconds: 5)) {
             _lastBackPressed = now;
             showCustomSnackBar(
               context,
-              "Tekan 2x tombol kembali untuk keluar aplikasi",
+              "Tekan sekali lagi untuk keluar aplikasi",
+              duration: const Duration(seconds: 5),
+              showDismissButton: false,
+              showAppIcon: true,
             );
           } else {
             // Keluar aplikasi
@@ -942,7 +948,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             const TimeOfDay(hour: 6, minute: 0);
                                         _today = GlobalVariables.today;
                                         _timeOfDay = GlobalVariables.timeOfDay;
-                                        setState(() {});
+                                        setState(() {
+                                          GlobalVariables.currentIndex = 0;
+                                        });
                                         if (mounted) {
                                           Navigator.pushReplacement(
                                             context,
@@ -987,7 +995,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         );
                                         _today = GlobalVariables.today;
                                         _timeOfDay = GlobalVariables.timeOfDay;
-                                        setState(() {});
+                                        setState(() {
+                                          GlobalVariables.currentIndex = 0;
+                                        });
                                         if (mounted) {
                                           Navigator.pushReplacement(
                                             context,
@@ -1029,7 +1039,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             const TimeOfDay(hour: 3, minute: 0);
                                         _today = GlobalVariables.today;
                                         _timeOfDay = GlobalVariables.timeOfDay;
-                                        setState(() {});
+                                        setState(() {
+                                          GlobalVariables.currentIndex = 0;
+                                        });
                                         if (mounted) {
                                           Navigator.pushReplacement(
                                             context,
@@ -1074,7 +1086,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         );
                                         _today = GlobalVariables.today;
                                         _timeOfDay = GlobalVariables.timeOfDay;
-                                        setState(() {});
+                                        setState(() {
+                                          GlobalVariables.currentIndex = 0;
+                                        });
                                         if (mounted) {
                                           Navigator.pushReplacement(
                                             context,
@@ -1120,7 +1134,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             const TimeOfDay(hour: 3, minute: 0);
                                         _today = GlobalVariables.today;
                                         _timeOfDay = GlobalVariables.timeOfDay;
-                                        setState(() {});
+                                        setState(() {
+                                          GlobalVariables.currentIndex = 0;
+                                        });
                                         if (mounted) {
                                           Navigator.pushReplacement(
                                             context,
@@ -1165,7 +1181,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         );
                                         _today = GlobalVariables.today;
                                         _timeOfDay = GlobalVariables.timeOfDay;
-                                        setState(() {});
+                                        setState(() {
+                                          GlobalVariables.currentIndex = 0;
+                                        });
                                         if (mounted) {
                                           Navigator.pushReplacement(
                                             context,
@@ -1207,7 +1225,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             const TimeOfDay(hour: 3, minute: 0);
                                         _today = GlobalVariables.today;
                                         _timeOfDay = GlobalVariables.timeOfDay;
-                                        setState(() {});
+                                        setState(() {
+                                          GlobalVariables.currentIndex = 0;
+                                        });
                                         if (mounted) {
                                           Navigator.pushReplacement(
                                             context,
@@ -1252,7 +1272,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         );
                                         _today = GlobalVariables.today;
                                         _timeOfDay = GlobalVariables.timeOfDay;
-                                        setState(() {});
+                                        setState(() {
+                                          GlobalVariables.currentIndex = 0;
+                                        });
                                         if (mounted) {
                                           Navigator.pushReplacement(
                                             context,
@@ -1278,6 +1300,106 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         //[DEVELOPMENT NOTES] untuk testing, nanti dihapus
                         const SizedBox(height: 24),
 
+                        // [DEVELOPMENT NOTES] Nanti setting
+                        if ((_today.isAfter(DateTime(2026, 1, 2)) ||
+                                _today == DateTime(2026, 1, 2)) &&
+                            _timeOfDay.hour >= 12)
+                          // Dokumentasi Card (InAppWebView)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    // Pastikan sudah menambahkan flutter_inappwebview di pubspec.yaml
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (
+                                              context,
+                                            ) => DokumentasiWebViewScreen(
+                                              url:
+                                                  'https://drive.google.com/drive/folders/1J7qIoUL7aI2YGy7tR_ZFQxX-7ylzVZrg?usp=sharing',
+                                            ),
+                                      ),
+                                    );
+                                  },
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        height: 180,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          image: const DecorationImage(
+                                            image: AssetImage(
+                                              'assets/images/card_dokumentasi.jpg',
+                                            ),
+                                            fit: BoxFit.fill,
+                                          ),
+                                        ),
+                                        child: Align(
+                                          alignment: Alignment.centerRight,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                              right: 8.0,
+                                            ),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: AppColors.secondary,
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  padding: const EdgeInsets.all(
+                                                    12,
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.arrow_forward_ios,
+                                                    color: Colors.white,
+                                                    size: 28,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 8),
+                                                const Text(
+                                                  'Dokumentasi Acara\nIn App Web View',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w900,
+                                                    color: Colors.white,
+                                                    fontSize: 16,
+                                                  ),
+                                                  textAlign: TextAlign.right,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                        if ((_today.isAfter(DateTime(2026, 1, 2)) ||
+                                _today == DateTime(2026, 1, 2)) &&
+                            _timeOfDay.hour >= 12)
+                          const SizedBox(height: 24),
+
+                        // inappwebview google drive
                         // [DEVELOPMENT NOTES] Nanti setting
                         if ((_today.isAfter(DateTime(2026, 1, 2)) ||
                                 _today == DateTime(2026, 1, 2)) &&
@@ -1396,87 +1518,106 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Stack(
-                                  children: [
-                                    Container(
-                                      height: 180,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(16),
-                                        image: const DecorationImage(
-                                          image: AssetImage(
-                                            'assets/images/card_dashboard_role.png',
-                                          ),
-                                          fit: BoxFit.fill,
+                                InkWell(
+                                  borderRadius: BorderRadius.circular(16),
+                                  onTap: () {
+                                    setState(() {
+                                      GlobalVariables.currentIndex = 2;
+                                    });
+                                    if (mounted) {
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) => const MainScreen(),
                                         ),
-                                      ),
-                                      child: Align(
-                                        alignment: Alignment.bottomRight,
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                            right: 16.0,
-                                            bottom: 16.0,
-                                            left: 48,
+                                      );
+                                    }
+                                  },
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        height: 180,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
                                           ),
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            children: [
-                                              Text(
-                                                (_dataUser['role']
-                                                            ?.toLowerCase()
-                                                            .contains(
-                                                              'pembimbing',
-                                                            ) ==
-                                                        true)
-                                                    ? 'Pembimbing'
-                                                    : (_dataUser['role']
-                                                            ?.toLowerCase()
-                                                            .contains(
-                                                              'pembina',
-                                                            ) ==
-                                                        true)
-                                                    ? 'Pembina'
-                                                    : '',
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w900,
-                                                  color: Colors.white,
-                                                  fontSize: 24,
-                                                ),
-                                                textAlign: TextAlign.right,
-                                              ),
-                                              Text(
-                                                (_dataUser['role']
-                                                            ?.toLowerCase()
-                                                            .contains(
-                                                              'pembimbing',
-                                                            ) ==
-                                                        true)
-                                                    ? '${_dataUser['kelompok_nama'] ?? ''}'
-                                                    : (_dataUser['role']
-                                                            ?.toLowerCase()
-                                                            .contains(
-                                                              'pembina',
-                                                            ) ==
-                                                        true)
-                                                    ? '${_dataUser['gereja_nama'] ?? ''}'
-                                                    : '',
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.white,
-                                                  fontSize: 16,
-                                                ),
-                                                textAlign: TextAlign.right,
-                                              ),
-                                            ],
+                                          image: const DecorationImage(
+                                            image: AssetImage(
+                                              'assets/images/card_dashboard_role.png',
+                                            ),
+                                            fit: BoxFit.fill,
                                           ),
                                         ),
+                                        child: Align(
+                                          alignment: Alignment.bottomRight,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                              right: 16.0,
+                                              bottom: 16.0,
+                                              left: 48,
+                                            ),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                Text(
+                                                  (_dataUser['role']
+                                                              ?.toLowerCase()
+                                                              .contains(
+                                                                'pembimbing',
+                                                              ) ==
+                                                          true)
+                                                      ? 'Pembimbing'
+                                                      : (_dataUser['role']
+                                                              ?.toLowerCase()
+                                                              .contains(
+                                                                'pembina',
+                                                              ) ==
+                                                          true)
+                                                      ? 'Pembina'
+                                                      : '',
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.w900,
+                                                    color: Colors.white,
+                                                    fontSize: 24,
+                                                  ),
+                                                  textAlign: TextAlign.right,
+                                                ),
+                                                Text(
+                                                  (_dataUser['role']
+                                                              ?.toLowerCase()
+                                                              .contains(
+                                                                'pembimbing',
+                                                              ) ==
+                                                          true)
+                                                      ? '${_dataUser['kelompok_nama'] ?? ''}'
+                                                      : (_dataUser['role']
+                                                              ?.toLowerCase()
+                                                              .contains(
+                                                                'pembina',
+                                                              ) ==
+                                                          true)
+                                                      ? '${_dataUser['gereja_nama'] ?? ''}'
+                                                      : '',
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.white,
+                                                    fontSize: 16,
+                                                  ),
+                                                  textAlign: TextAlign.right,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),

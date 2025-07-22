@@ -28,6 +28,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
 
   @override
   void initState() {
+    print('[SCREEN] AnggotaKelompokScreen initState');
     super.initState();
     _initAll();
   }
