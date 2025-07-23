@@ -1703,7 +1703,7 @@ class ApiService {
       return [];
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
-      throw Exception('Failed to load acara by id');
+      throw Exception('Failed to load pengumuman');
     }
   }
 
@@ -1835,6 +1835,44 @@ class ApiService {
     } catch (e) {
       print('HTTP error: $e');
       throw Exception('Network error: $e');
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> getMateri(
+    BuildContext context,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}materi');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('url $url');
+    print('response ${response.statusCode} - ${response.body}');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> decoded = json.decode(response.body);
+      final List materi = decoded['data_materi'] ?? [];
+      return List<Map<String, dynamic>>.from(materi);
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      // throw Exception('Unauthorized');
+      return [];
+    } else {
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load materi');
     }
   }
 }

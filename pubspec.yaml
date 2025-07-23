@@ -37,6 +37,7 @@ dependencies:
   font_awesome_flutter: ^10.8.0
   html: ^0.15.6
   dom_tools: ^2.3.5
+  share_plus: ^11.0.0
   # workmanager: ^0.8.0
   # background_fetch: ^1.3.8
 
@@ -78,6 +79,7 @@ flutter:
     - assets/images/card_catatan.png
     - assets/images/card_komitmen.png
     - assets/images/card_komitmen2.jpg
+    - assets/images/card_komitmen3.jpg
     - assets/images/card_bacaan.png
     - assets/images/card_kontak.jpg
     - assets/images/card_dokumentasi.jpg
@@ -186,6 +188,11 @@ flutter:
     - assets/mockups/materi_buku.jpg
     - assets/mockups/materi_youtube.jpg
     - assets/mockups/materi_berita.jpg
+
+    # share verse
+    - assets/shareverse/photo1.png
+    - assets/shareverse/photo2.png
+    - assets/shareverse/photo3.png
 
   fonts:
     - family: Roboto

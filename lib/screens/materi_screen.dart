@@ -33,6 +33,7 @@ class _MateriScreenState extends State<MateriScreen> {
   int day = 1;
   Map<String, String> _dataUser = {};
   DateTime? _lastBackPressed;
+  List<Map<String, dynamic>> _materiList = [];
 
   @override
   void initState() {
@@ -47,6 +48,7 @@ class _MateriScreenState extends State<MateriScreen> {
     });
     try {
       await loadUserData();
+      await loadMateri();
     } catch (e) {
       // handle error jika perlu
     }
@@ -80,6 +82,39 @@ class _MateriScreenState extends State<MateriScreen> {
     });
   }
 
+  Future<void> loadMateri() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final materiList = await ApiService.getMateri(context);
+      // Fetch meta tags untuk semua materi sekaligus
+      final materiWithMeta = await Future.wait(
+        materiList.map((materi) async {
+          try {
+            final meta = await fetchMetaTags(materi['url'] ?? '');
+            return {...materi, 'meta': meta};
+          } catch (e) {
+            return {...materi, 'meta': {}};
+          }
+        }),
+      );
+      if (!mounted) return;
+      setState(() {
+        _materiList = materiWithMeta;
+        _isLoading = false;
+        print('Materi List: $_materiList');
+      });
+    } catch (e) {
+      print('❌ Gagal memuat materi: $e');
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   Future<Map<String, String>> fetchMetaTags(String url) async {
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
@@ -110,11 +145,6 @@ class _MateriScreenState extends State<MateriScreen> {
               : getMeta('description');
       final image = getMeta('og:image');
 
-      // Print all values to debug console
-      print('Meta Title: $title');
-      print('Meta Description: $description');
-      print('Meta Image: $image');
-
       return {'title': title, 'description': description, 'image': image};
     } else {
       throw Exception('Failed to load page');
@@ -141,16 +171,13 @@ class _MateriScreenState extends State<MateriScreen> {
               showAppIcon: true,
             );
           } else {
-            // Keluar aplikasi
             Future.delayed(const Duration(milliseconds: 100), () {
-              // ignore: use_build_context_synchronously
               SystemNavigator.pop();
             });
           }
         }
       },
       child: Scaffold(
-        // body: Center(child: Text("TES - ${_dataUser['id']}")),
         body: Stack(
           children: [
             Positioned(
@@ -186,328 +213,157 @@ class _MateriScreenState extends State<MateriScreen> {
                                 height: 84,
                               ),
                             ),
-                            // Padding(
-                            //   padding: const EdgeInsets.only(right: 8),
-                            //   child: Container(
-                            //     height: 48,
-                            //     width: 48,
-                            //     decoration: BoxDecoration(`
-                            //       color: Colors.white,
-                            //       borderRadius: BorderRadius.circular(16),
-                            //     ),
-                            //     child: Icon(
-                            //       Icons.search,
-                            //       color: AppColors.primary,
-                            //       size: 32,
-                            //     ),
-                            //   ),
-                            // ),
                           ],
                         ),
                         const SizedBox(height: 16),
                         _isLoading
                             ? buildAcaraShimmer(context)
-                            //     : _acaraList.isEmpty
-                            //     ? Center(
-                            //       child: CustomNotFound(
-                            //         text: "Gagal memuat daftar materi :(",
-                            //         textColor: AppColors.brown1,
-                            //         imagePath: 'assets/images/data_not_found.png',
-                            //         onBack: initAll,
-                            //         backText: 'Reload Materi',
-                            //       ),
-                            //     )
+                            : _materiList.isEmpty
+                            ? Center(
+                              child: CustomNotFound(
+                                text: "Gagal memuat daftar materi :(",
+                                textColor: AppColors.brown1,
+                                imagePath: 'assets/images/data_not_found.png',
+                                onBack: initAll,
+                                backText: 'Reload Materi',
+                              ),
+                            )
                             : Builder(
                               builder: (context) {
                                 return Column(
-                                  children: [
-                                    // AnyLinkPreview for Instagram
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 8.0,
-                                      ),
-                                      child: GestureDetector(
-                                        onTap: () async {
-                                          const url =
-                                              'https://www.instagram.com/story_saat?igsh=MWw4ZHZyc2k5Znk5MA==';
-                                          final uri = Uri.parse(url);
-                                          bool launched = false;
-                                          // Instagram app intent
-                                          const instagramScheme =
-                                              'instagram://user?username=story_saat';
-                                          try {
-                                            launched = await launchUrl(
-                                              Uri.parse(instagramScheme),
-                                              mode:
-                                                  LaunchMode
-                                                      .externalApplication,
-                                            );
-                                          } catch (_) {}
-                                          // WhatsApp app intent (contoh, jika link WhatsApp)
-                                          if (!launched &&
-                                              url.contains('wa.me')) {
-                                            final waUri = Uri.parse(
-                                              'whatsapp://send?phone=${uri.pathSegments.last}',
-                                            );
-                                            try {
-                                              launched = await launchUrl(
-                                                waUri,
-                                                mode:
-                                                    LaunchMode
-                                                        .externalApplication,
-                                              );
-                                            } catch (_) {}
-                                          }
-                                          // Fallback to browser
-                                          if (!launched) {
-                                            try {
-                                              launched = await launchUrl(
-                                                uri,
-                                                mode:
-                                                    LaunchMode
-                                                        .externalApplication,
-                                              );
-                                            } catch (_) {}
-                                          }
-                                          if (!launched) {
-                                            showCustomSnackBar(
-                                              context,
-                                              'Tidak dapat membuka aplikasi terkait. Pastikan aplikasi atau browser tersedia di perangkat Anda.',
-                                            );
-                                          }
-                                        },
-                                        child: AnyLinkPreview(
-                                          link:
-                                              'https://www.instagram.com/story_saat?igsh=MWw4ZHZyc2k5Znk5MA==',
-                                          displayDirection:
-                                              UIDirection.uiDirectionVertical,
-                                          showMultimedia: true,
-                                          bodyMaxLines: 2,
-                                          bodyTextOverflow:
-                                              TextOverflow.ellipsis,
-                                          titleStyle: TextStyle(
-                                            color: AppColors.primary,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
+                                  children:
+                                      _materiList.map((materi) {
+                                        final meta =
+                                            materi['meta']
+                                                as Map<String, String>? ??
+                                            {};
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 8.0,
                                           ),
-                                          bodyStyle: TextStyle(
-                                            color: AppColors.grey4,
-                                            fontSize: 14,
-                                          ),
-                                          errorBody:
-                                              'Tidak dapat menampilkan preview.',
-                                          errorTitle: 'Link tidak valid',
-                                          errorWidget: null,
-                                          cache: Duration(hours: 1),
-                                          backgroundColor: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-
-                                    // AnyLinkPreview for Youtube
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 8,
-                                      ),
-                                      child: AnyLinkPreview(
-                                        link:
-                                            'https://www.youtube.com/@STTSAATMalang/',
-                                        displayDirection:
-                                            UIDirection.uiDirectionVertical,
-                                        showMultimedia: true,
-                                        bodyMaxLines: 2,
-                                        bodyTextOverflow: TextOverflow.ellipsis,
-                                        titleStyle: TextStyle(
-                                          color: AppColors.primary,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                        bodyStyle: TextStyle(
-                                          color: AppColors.grey4,
-                                          fontSize: 14,
-                                        ),
-                                        errorBody:
-                                            'Tidak dapat menampilkan preview.',
-                                        errorTitle: 'Link tidak valid',
-                                        errorWidget: null,
-                                        cache: Duration(hours: 1),
-                                        backgroundColor: Colors.white,
-                                      ),
-                                    ),
-                                    // AnyLinkPreview for Berita
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 8,
-                                      ),
-                                      child: AnyLinkPreview(
-                                        link:
-                                            'https://seabs.ac.id/resources/berita/',
-                                        displayDirection:
-                                            UIDirection.uiDirectionVertical,
-                                        showMultimedia: true,
-                                        bodyMaxLines: 2,
-                                        bodyTextOverflow: TextOverflow.ellipsis,
-                                        titleStyle: TextStyle(
-                                          color: AppColors.primary,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                        bodyStyle: TextStyle(
-                                          color: AppColors.grey4,
-                                          fontSize: 14,
-                                        ),
-                                        errorBody:
-                                            'Tidak dapat menampilkan preview.',
-                                        errorTitle: 'Link tidak valid',
-                                        errorWidget: null,
-                                        cache: Duration(hours: 1),
-                                        backgroundColor: Colors.white,
-                                      ),
-                                    ),
-
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 8.0,
-                                      ),
-                                      child: FutureBuilder<Map<String, String>>(
-                                        future: fetchMetaTags(
-                                          'https://www.youtube.com/@STTSAATMalang',
-                                          // 'https://seabs.ac.id/resources/berita/',
-                                        ),
-                                        builder: (context, snapshot) {
-                                          if (snapshot.connectionState ==
-                                              ConnectionState.waiting) {
-                                            return const Center(
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            );
-                                          }
-                                          if (snapshot.hasError) {
-                                            return const Text(
-                                              'Gagal mengambil metadata',
-                                            );
-                                          }
-                                          final meta = snapshot.data!;
-                                          return Card(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                if (meta['image'] != null &&
-                                                    meta['image']!.isNotEmpty)
-                                                  ClipRRect(
-                                                    borderRadius:
-                                                        const BorderRadius.vertical(
-                                                          top: Radius.circular(
-                                                            12,
+                                          child: GestureDetector(
+                                            onTap: () async {
+                                              final url = materi['url'] ?? '';
+                                              final jenis =
+                                                  (materi['jenis'] ?? '')
+                                                      .toLowerCase();
+                                              if (jenis == 'lainnya') {
+                                                if (await canLaunchUrl(
+                                                  Uri.parse(url),
+                                                )) {
+                                                  await launchUrl(
+                                                    Uri.parse(url),
+                                                    mode:
+                                                        LaunchMode
+                                                            .externalApplication,
+                                                  );
+                                                }
+                                              } else {
+                                                if (await canLaunchUrl(
+                                                  Uri.parse(url),
+                                                )) {
+                                                  final launched = await launchUrl(
+                                                    Uri.parse(url),
+                                                    mode:
+                                                        LaunchMode
+                                                            .externalApplication,
+                                                  );
+                                                  if (!launched) {
+                                                    await launchUrl(
+                                                      Uri.parse(url),
+                                                      mode:
+                                                          LaunchMode
+                                                              .platformDefault,
+                                                    );
+                                                  }
+                                                } else {
+                                                  await launchUrl(
+                                                    Uri.parse(url),
+                                                    mode:
+                                                        LaunchMode
+                                                            .platformDefault,
+                                                  );
+                                                }
+                                              }
+                                            },
+                                            child: Card(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  if (meta['image'] != null &&
+                                                      meta['image']!.isNotEmpty)
+                                                    ClipRRect(
+                                                      borderRadius:
+                                                          const BorderRadius.vertical(
+                                                            top:
+                                                                Radius.circular(
+                                                                  12,
+                                                                ),
                                                           ),
+                                                      child: Image.network(
+                                                        meta['image']!,
+                                                        height: 120,
+                                                        width: double.infinity,
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                    ),
+                                                  ListTile(
+                                                    title: Text(
+                                                      materi['nama'] ?? '',
+                                                      style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color:
+                                                            AppColors.primary,
+                                                      ),
+                                                    ),
+                                                    subtitle: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        if (meta['description'] !=
+                                                                null &&
+                                                            meta['description']!
+                                                                .isNotEmpty &&
+                                                            // Tambahkan pengecekan agar tidak menampilkan jika mengandung '@import' atau 'url('
+                                                            !meta['description']!
+                                                                .contains(
+                                                                  '@import',
+                                                                ) &&
+                                                            !meta['description']!
+                                                                .contains(
+                                                                  'url(',
+                                                                ))
+                                                          Text(
+                                                            meta['description']!,
+                                                            maxLines: 2,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                          ),
+                                                        const SizedBox(
+                                                          height: 4,
                                                         ),
-                                                    child: Image.network(
-                                                      meta['image']!,
-                                                      height: 120,
-                                                      width: double.infinity,
-                                                      fit: BoxFit.cover,
+                                                        Text(
+                                                          '${materi['created_at'] ?? '-'}',
+                                                          style:
+                                                              const TextStyle(
+                                                                fontSize: 12,
+                                                                color:
+                                                                    Colors.grey,
+                                                              ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ),
-                                                ListTile(
-                                                  title: Text(
-                                                    meta['title'] ?? '',
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                  subtitle: Text(
-                                                    meta['description'] ?? '',
-                                                  ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
                                             ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-
-                                    // Padding(
-                                    //   padding: const EdgeInsets.symmetric(
-                                    //     vertical: 8.0,
-                                    //   ),
-                                    //   child: Column(
-                                    //     crossAxisAlignment:
-                                    //         CrossAxisAlignment.start,
-                                    //     children: [
-                                    //       AnyLinkPreview(
-                                    //         link:
-                                    //             'https://seabs.ac.id/resources/berita/',
-                                    //         displayDirection:
-                                    //             UIDirection.uiDirectionVertical,
-                                    //         showMultimedia: true,
-                                    //         bodyMaxLines: 1, // Show the body
-                                    //         bodyTextOverflow:
-                                    //             TextOverflow.ellipsis,
-                                    //         titleStyle: TextStyle(
-                                    //           color: AppColors.primary,
-                                    //           fontWeight: FontWeight.bold,
-                                    //           fontSize: 16,
-                                    //         ),
-                                    //         bodyStyle: TextStyle(
-                                    //           color: AppColors.grey4,
-                                    //           fontSize: 14,
-                                    //         ),
-                                    //         errorBody:
-                                    //             'Tidak dapat menampilkan preview.',
-                                    //         errorTitle: 'Link tidak valid',
-                                    //         errorWidget: null,
-                                    //         cache: Duration(hours: 1),
-                                    //         backgroundColor: Colors.white,
-                                    //       ),
-                                    //       const SizedBox(height: 4),
-                                    //       const Text(
-                                    //         'Kumpulan berita terbaru dari SEABS.',
-                                    //         style: TextStyle(
-                                    //           color: Color(0xFF6D6D6D),
-                                    //           fontSize: 14,
-                                    //         ),
-                                    //       ),
-                                    //     ],
-                                    //   ),
-                                    // ),
-
-                                    // MateriMenuCard(
-                                    //   title: 'Berita',
-                                    //   imagePath:
-                                    //       'assets/mockups/materi_berita.jpg',
-                                    //   onTap: () async {
-                                    //     const url =
-                                    //         'https://seabs.ac.id/resources/berita/';
-                                    //     final uri = Uri.parse(url);
-                                    //     bool launched = false;
-                                    //     try {
-                                    //       launched = await launchUrl(
-                                    //         uri,
-                                    //         mode:
-                                    //             LaunchMode.externalApplication,
-                                    //       );
-                                    //     } catch (_) {}
-                                    //     if (!launched) {
-                                    //       try {
-                                    //         launched = await launchUrl(
-                                    //           uri,
-                                    //           mode: LaunchMode.platformDefault,
-                                    //         );
-                                    //       } catch (_) {}
-                                    //     }
-                                    //     if (!launched) {
-                                    //       showCustomSnackBar(
-                                    //         context,
-                                    //         'Tidak dapat membuka Berita. Pastikan ada browser di perangkat Anda.',
-                                    //       );
-                                    //     }
-                                    //   },
-                                    //   // Progress belum tersedia untuk Bacaan Harian
-                                    //   withProgress: false,
-                                    // ),
-                                  ],
+                                          ),
+                                        );
+                                      }).toList(),
                                 );
                               },
                             ),

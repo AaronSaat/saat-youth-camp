@@ -923,8 +923,297 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 16),
+
                             // day 1 - 3 untuk panitia
+                            // if (role.toLowerCase().contains('panitia'))
+                            //   _isLoading_progreskomitmenday1_panitia
+                            //       ? buildProgresKomitmenPanitiaShimmerCard(
+                            //         context,
+                            //       )
+                            //       : (() {
+                            //         // Ambil jumlah peserta yang sudah mengisi komitmen hari ke-1
+                            //         final progresDay1Str =
+                            //             _komitmenDoneDay1MapPanitia['count'] ??
+                            //             '0';
+                            //         final totalDay1Str =
+                            //             _countUserMapPanitia["count_peserta"] ??
+                            //             '0';
+                            //         final progresDay1 =
+                            //             int.tryParse(progresDay1Str) ?? 0;
+                            //         final totalDay1 =
+                            //             int.tryParse(totalDay1Str) ?? 1;
+                            //         final progressDay1Value =
+                            //             totalDay1 > 0
+                            //                 ? progresDay1 / totalDay1
+                            //                 : 0.0;
+
+                            //         // Ambil jumlah peserta yang sudah mengisi komitmen hari ke-2
+                            //         final progresDay2Str =
+                            //             _komitmenDoneDay2MapPanitia['count'] ??
+                            //             '0';
+                            //         final totalDay2Str =
+                            //             _countUserMapPanitia["count_peserta"] ??
+                            //             '0';
+                            //         final progresDay2 =
+                            //             int.tryParse(progresDay2Str) ?? 0;
+                            //         final totalDay2 =
+                            //             int.tryParse(totalDay2Str) ?? 1;
+                            //         final progressDay2Value =
+                            //             totalDay2 > 0
+                            //                 ? progresDay2 / totalDay2
+                            //                 : 0.0;
+
+                            //         // Ambil jumlah peserta yang sudah mengisi komitmen hari ke-2
+                            //         final progresDay3Str =
+                            //             _komitmenDoneDay3MapPanitia['count'] ??
+                            //             '0';
+                            //         final totalDay3Str =
+                            //             _countUserMapPanitia["count_peserta"] ??
+                            //             '0';
+                            //         final progresDay3 =
+                            //             int.tryParse(progresDay2Str) ?? 0;
+                            //         final totalDay3 =
+                            //             int.tryParse(totalDay3Str) ?? 1;
+                            //         final progressDay3Value =
+                            //             totalDay3 > 0
+                            //                 ? progresDay3 / totalDay3
+                            //                 : 0.0;
+
+                            //         return SizedBox(
+                            //           height: 180,
+                            //           child: Stack(
+                            //             children: [
+                            //               Positioned.fill(
+                            //                 child: ClipRRect(
+                            //                   borderRadius:
+                            //                       BorderRadius.circular(16),
+                            //                   child: Image.asset(
+                            //                     'assets/images/card_komitmen2.jpg',
+                            //                     fit: BoxFit.fill,
+                            //                   ),
+                            //                 ),
+                            //               ),
+                            //               Container(
+                            //                 padding: const EdgeInsets.only(
+                            //                   left: 96,
+                            //                   right: 16,
+                            //                   bottom: 16,
+                            //                 ),
+                            //                 decoration: BoxDecoration(
+                            //                   borderRadius:
+                            //                       BorderRadius.circular(16),
+                            //                 ),
+                            //                 child: Column(
+                            //                   mainAxisAlignment:
+                            //                       MainAxisAlignment.center,
+                            //                   children: [
+                            //                     Row(
+                            //                       mainAxisAlignment:
+                            //                           MainAxisAlignment.center,
+                            //                       crossAxisAlignment:
+                            //                           CrossAxisAlignment.center,
+                            //                       children: [
+                            //                         // day 1
+                            //                         Column(
+                            //                           mainAxisSize:
+                            //                               MainAxisSize.min,
+                            //                           crossAxisAlignment:
+                            //                               CrossAxisAlignment
+                            //                                   .center,
+                            //                           children: [
+                            //                             CustomCircularProgress(
+                            //                               progress:
+                            //                                   progressDay1Value
+                            //                                       .clamp(
+                            //                                         0.0,
+                            //                                         1.0,
+                            //                                       ),
+                            //                               size: 70,
+                            //                               color: Colors.white,
+                            //                               duration: Duration(
+                            //                                 milliseconds: 600,
+                            //                               ),
+                            //                               child: Column(
+                            //                                 mainAxisAlignment:
+                            //                                     MainAxisAlignment
+                            //                                         .center,
+                            //                                 children: [
+                            //                                   Text(
+                            //                                     '$progresDay1/$totalDay1',
+                            //                                     style: TextStyle(
+                            //                                       fontSize:
+                            //                                           totalDay1 >
+                            //                                                   500
+                            //                                               ? 8
+                            //                                               : 10,
+                            //                                       fontWeight:
+                            //                                           FontWeight
+                            //                                               .w900,
+                            //                                       color:
+                            //                                           Colors
+                            //                                               .white,
+                            //                                     ),
+                            //                                   ),
+                            //                                   Text(
+                            //                                     'Hari ke-1',
+                            //                                     style: TextStyle(
+                            //                                       fontSize: 10,
+                            //                                       fontWeight:
+                            //                                           FontWeight
+                            //                                               .w400,
+                            //                                       color:
+                            //                                           Colors
+                            //                                               .white,
+                            //                                     ),
+                            //                                   ),
+                            //                                 ],
+                            //                               ),
+                            //                             ),
+                            //                           ],
+                            //                         ),
+                            //                         SizedBox(width: 8),
+                            //                         // day 2
+                            //                         Column(
+                            //                           mainAxisSize:
+                            //                               MainAxisSize.min,
+                            //                           crossAxisAlignment:
+                            //                               CrossAxisAlignment
+                            //                                   .center,
+                            //                           children: [
+                            //                             CustomCircularProgress(
+                            //                               progress:
+                            //                                   progressDay2Value
+                            //                                       .clamp(
+                            //                                         0.0,
+                            //                                         1.0,
+                            //                                       ),
+                            //                               size: 70,
+                            //                               color: Colors.white,
+                            //                               duration: Duration(
+                            //                                 milliseconds: 600,
+                            //                               ),
+                            //                               child: Column(
+                            //                                 mainAxisAlignment:
+                            //                                     MainAxisAlignment
+                            //                                         .center,
+                            //                                 children: [
+                            //                                   Text(
+                            //                                     '$progresDay2/$totalDay2',
+                            //                                     style: TextStyle(
+                            //                                       fontSize:
+                            //                                           totalDay1 >
+                            //                                                   500
+                            //                                               ? 8
+                            //                                               : 10,
+                            //                                       fontWeight:
+                            //                                           FontWeight
+                            //                                               .w900,
+                            //                                       color:
+                            //                                           Colors
+                            //                                               .white,
+                            //                                     ),
+                            //                                   ),
+                            //                                   Text(
+                            //                                     'Hari ke-2',
+                            //                                     style: TextStyle(
+                            //                                       fontSize: 10,
+                            //                                       fontWeight:
+                            //                                           FontWeight
+                            //                                               .w400,
+                            //                                       color:
+                            //                                           Colors
+                            //                                               .white,
+                            //                                     ),
+                            //                                   ),
+                            //                                 ],
+                            //                               ),
+                            //                             ),
+                            //                           ],
+                            //                         ),
+                            //                         SizedBox(width: 8),
+                            //                         // day 3
+                            //                         Column(
+                            //                           mainAxisSize:
+                            //                               MainAxisSize.min,
+                            //                           crossAxisAlignment:
+                            //                               CrossAxisAlignment
+                            //                                   .center,
+                            //                           children: [
+                            //                             CustomCircularProgress(
+                            //                               progress:
+                            //                                   progressDay3Value
+                            //                                       .clamp(
+                            //                                         0.0,
+                            //                                         1.0,
+                            //                                       ),
+                            //                               size: 70,
+                            //                               color: Colors.white,
+                            //                               duration: Duration(
+                            //                                 milliseconds: 600,
+                            //                               ),
+                            //                               child: Column(
+                            //                                 mainAxisAlignment:
+                            //                                     MainAxisAlignment
+                            //                                         .center,
+                            //                                 children: [
+                            //                                   Text(
+                            //                                     '$progresDay3/$totalDay3',
+                            //                                     style: TextStyle(
+                            //                                       fontSize:
+                            //                                           totalDay1 >
+                            //                                                   500
+                            //                                               ? 8
+                            //                                               : 10,
+                            //                                       fontWeight:
+                            //                                           FontWeight
+                            //                                               .w900,
+                            //                                       color:
+                            //                                           Colors
+                            //                                               .white,
+                            //                                     ),
+                            //                                   ),
+                            //                                   Text(
+                            //                                     'Hari ke-3',
+                            //                                     style: TextStyle(
+                            //                                       fontSize: 10,
+                            //                                       fontWeight:
+                            //                                           FontWeight
+                            //                                               .w400,
+                            //                                       color:
+                            //                                           Colors
+                            //                                               .white,
+                            //                                     ),
+                            //                                   ),
+                            //                                 ],
+                            //                               ),
+                            //                             ),
+                            //                           ],
+                            //                         ),
+                            //                       ],
+                            //                     ),
+                            //                     const SizedBox(height: 8),
+                            //                   ],
+                            //                 ),
+                            //               ),
+                            //               Positioned(
+                            //                 right: 16,
+                            //                 bottom: 16,
+                            //                 child: Text(
+                            //                   'Pengisian Komitmen',
+                            //                   style: TextStyle(
+                            //                     fontSize: 22,
+                            //                     color: Colors.white,
+                            //                     fontWeight: FontWeight.w900,
+                            //                   ),
+                            //                   overflow: TextOverflow.ellipsis,
+                            //                   textAlign: TextAlign.center,
+                            //                 ),
+                            //               ),
+                            //             ],
+                            //           ),
+                            //         );
+                            //       })(),
+                            const SizedBox(height: 24),
                             if (role.toLowerCase().contains('panitia'))
                               _isLoading_progreskomitmenday1_panitia
                                   ? buildProgresKomitmenPanitiaShimmerCard(
@@ -988,299 +1277,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               borderRadius:
                                                   BorderRadius.circular(16),
                                               child: Image.asset(
-                                                'assets/images/card_komitmen2.jpg',
-                                                fit: BoxFit.fill,
-                                              ),
-                                            ),
-                                          ),
-                                          Container(
-                                            padding: const EdgeInsets.only(
-                                              left: 96,
-                                              right: 16,
-                                              bottom: 16,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(16),
-                                            ),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    // day 1
-                                                    Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        CustomCircularProgress(
-                                                          progress:
-                                                              progressDay1Value
-                                                                  .clamp(
-                                                                    0.0,
-                                                                    1.0,
-                                                                  ),
-                                                          size: 70,
-                                                          color: Colors.white,
-                                                          duration: Duration(
-                                                            milliseconds: 600,
-                                                          ),
-                                                          child: Column(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              Text(
-                                                                '$progresDay1/$totalDay1',
-                                                                style: TextStyle(
-                                                                  fontSize:
-                                                                      totalDay1 >
-                                                                              500
-                                                                          ? 8
-                                                                          : 10,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w900,
-                                                                  color:
-                                                                      Colors
-                                                                          .white,
-                                                                ),
-                                                              ),
-                                                              Text(
-                                                                'Hari ke-1',
-                                                                style: TextStyle(
-                                                                  fontSize: 10,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w400,
-                                                                  color:
-                                                                      Colors
-                                                                          .white,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    SizedBox(width: 8),
-                                                    // day 2
-                                                    Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        CustomCircularProgress(
-                                                          progress:
-                                                              progressDay2Value
-                                                                  .clamp(
-                                                                    0.0,
-                                                                    1.0,
-                                                                  ),
-                                                          size: 70,
-                                                          color: Colors.white,
-                                                          duration: Duration(
-                                                            milliseconds: 600,
-                                                          ),
-                                                          child: Column(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              Text(
-                                                                '$progresDay2/$totalDay2',
-                                                                style: TextStyle(
-                                                                  fontSize:
-                                                                      totalDay1 >
-                                                                              500
-                                                                          ? 8
-                                                                          : 10,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w900,
-                                                                  color:
-                                                                      Colors
-                                                                          .white,
-                                                                ),
-                                                              ),
-                                                              Text(
-                                                                'Hari ke-2',
-                                                                style: TextStyle(
-                                                                  fontSize: 10,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w400,
-                                                                  color:
-                                                                      Colors
-                                                                          .white,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    SizedBox(width: 8),
-                                                    // day 3
-                                                    Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        CustomCircularProgress(
-                                                          progress:
-                                                              progressDay3Value
-                                                                  .clamp(
-                                                                    0.0,
-                                                                    1.0,
-                                                                  ),
-                                                          size: 70,
-                                                          color: Colors.white,
-                                                          duration: Duration(
-                                                            milliseconds: 600,
-                                                          ),
-                                                          child: Column(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              Text(
-                                                                '$progresDay3/$totalDay3',
-                                                                style: TextStyle(
-                                                                  fontSize:
-                                                                      totalDay1 >
-                                                                              500
-                                                                          ? 8
-                                                                          : 10,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w900,
-                                                                  color:
-                                                                      Colors
-                                                                          .white,
-                                                                ),
-                                                              ),
-                                                              Text(
-                                                                'Hari ke-3',
-                                                                style: TextStyle(
-                                                                  fontSize: 10,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w400,
-                                                                  color:
-                                                                      Colors
-                                                                          .white,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                                const SizedBox(height: 8),
-                                              ],
-                                            ),
-                                          ),
-                                          Positioned(
-                                            right: 16,
-                                            bottom: 16,
-                                            child: Text(
-                                              'Pengisian Komitmen',
-                                              style: TextStyle(
-                                                fontSize: 22,
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w900,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  })(),
-
-                            const SizedBox(height: 24),
-                            if (role.toLowerCase().contains('panitia'))
-                              _isLoading_progreskomitmenday1_panitia
-                                  ? buildProgresKomitmenPanitiaShimmerCard(
-                                    context,
-                                  )
-                                  : (() {
-                                    // Ambil jumlah peserta yang sudah mengisi komitmen hari ke-1
-                                    final progresDay1Str =
-                                        _komitmenDoneDay1MapPanitia['count'] ??
-                                        '0';
-                                    final totalDay1Str =
-                                        _countUserMapPanitia["count_peserta"] ??
-                                        '0';
-                                    final progresDay1 =
-                                        int.tryParse(progresDay1Str) ?? 0;
-                                    final totalDay1 =
-                                        int.tryParse(totalDay1Str) ?? 1;
-                                    final progressDay1Value =
-                                        totalDay1 > 0
-                                            ? progresDay1 / totalDay1
-                                            : 0.0;
-
-                                    // Ambil jumlah peserta yang sudah mengisi komitmen hari ke-2
-                                    final progresDay2Str =
-                                        _komitmenDoneDay2MapPanitia['count'] ??
-                                        '0';
-                                    final totalDay2Str =
-                                        _countUserMapPanitia["count_peserta"] ??
-                                        '0';
-                                    final progresDay2 =
-                                        int.tryParse(progresDay2Str) ?? 0;
-                                    final totalDay2 =
-                                        int.tryParse(totalDay2Str) ?? 1;
-                                    final progressDay2Value =
-                                        totalDay2 > 0
-                                            ? progresDay2 / totalDay2
-                                            : 0.0;
-
-                                    // Ambil jumlah peserta yang sudah mengisi komitmen hari ke-2
-                                    final progresDay3Str =
-                                        _komitmenDoneDay3MapPanitia['count'] ??
-                                        '0';
-                                    final totalDay3Str =
-                                        _countUserMapPanitia["count_peserta"] ??
-                                        '0';
-                                    // final progresDay3 =
-                                    //     int.tryParse(progresDay2Str) ?? 0;
-                                    // final totalDay3 =
-                                    //     int.tryParse(totalDay3Str) ?? 1;
-                                    final progresDay3 = 500;
-                                    final totalDay3 = 1000;
-                                    final progressDay3Value =
-                                        totalDay3 > 0
-                                            ? progresDay3 / totalDay3
-                                            : 0.0;
-
-                                    return SizedBox(
-                                      height: 180,
-                                      child: Stack(
-                                        children: [
-                                          Positioned.fill(
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(16),
-                                              child: Image.asset(
-                                                'assets/images/card_komitmen2.jpg',
+                                                'assets/images/card_komitmen3.jpg',
                                                 fit: BoxFit.fill,
                                               ),
                                             ),
@@ -1298,7 +1295,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 const Text(
                                                   'Pengisian Komitmen',
                                                   style: TextStyle(
-                                                    fontSize: 16,
+                                                    fontSize: 20,
                                                     color: Colors.white,
                                                     fontWeight: FontWeight.w900,
                                                   ),
@@ -1315,6 +1312,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                       style: TextStyle(
                                                         color: Colors.white,
                                                         fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w900,
                                                       ),
                                                     ),
                                                     const SizedBox(width: 8),
@@ -1359,6 +1358,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                       style: TextStyle(
                                                         color: Colors.white,
                                                         fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w900,
                                                       ),
                                                     ),
                                                     const SizedBox(width: 8),
@@ -1403,6 +1404,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                       style: TextStyle(
                                                         color: Colors.white,
                                                         fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w900,
                                                       ),
                                                     ),
                                                     const SizedBox(width: 8),
