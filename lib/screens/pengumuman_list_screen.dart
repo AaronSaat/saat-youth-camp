@@ -99,270 +99,285 @@ class _PengumumanListScreenState extends State<PengumumanListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Positioned(
-            child: Image.asset(
-              'assets/images/background_pengumuman.jpg',
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              fit: BoxFit.fill,
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          Navigator.pop(context, 'reload');
+        }
+      },
+      child: Scaffold(
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned(
+              child: Image.asset(
+                'assets/images/background_pengumuman.jpg',
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                fit: BoxFit.fill,
+              ),
             ),
-          ),
-          SafeArea(
-            child: RefreshIndicator(
-              onRefresh: () => initAll(),
-              color: AppColors.brown1,
-              backgroundColor: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    AppBar(
-                      backgroundColor: Colors.transparent,
-                      elevation: 0,
-                      leading: IconButton(
-                        icon: const Icon(Icons.arrow_back_ios),
-                        onPressed: () {
-                          Navigator.pop(context, 'reload');
-                        },
-                      ),
-                      automaticallyImplyLeading: false,
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          top: 8.0,
-                          right: 16,
-                          left: 16,
+            SafeArea(
+              child: RefreshIndicator(
+                onRefresh: () => initAll(),
+                color: AppColors.brown1,
+                backgroundColor: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      AppBar(
+                        backgroundColor: Colors.transparent,
+                        elevation: 0,
+                        leading: IconButton(
+                          icon: const Icon(Icons.arrow_back_ios),
+                          onPressed: () {
+                            Navigator.pop(context, 'reload');
+                          },
                         ),
-                        child: Center(
-                          child: Column(
-                            children: [
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'PENGUMUMAN',
-                                      style: TextStyle(
-                                        color: AppColors.primary,
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.w900,
+                        automaticallyImplyLeading: false,
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            top: 8.0,
+                            right: 16,
+                            left: 16,
+                          ),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'PENGUMUMAN',
+                                        style: TextStyle(
+                                          color: AppColors.primary,
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w900,
+                                        ),
                                       ),
-                                    ),
-                                    Text(
-                                      'Info terbaru!',
-                                      style: TextStyle(
-                                        color: AppColors.primary,
-                                        fontSize: 20,
+                                      Text(
+                                        'Info terbaru!',
+                                        style: TextStyle(
+                                          color: AppColors.primary,
+                                          fontSize: 20,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 84),
-                              Expanded(
-                                child:
-                                    _isLoading
-                                        ? buildPengumumanShimmerList()
-                                        : (_pengumumanList.isEmpty
-                                            ? Center(
-                                              child: CustomNotFound(
-                                                text:
-                                                    "Gagal memuat daftar pengumuman :(",
-                                                textColor: AppColors.brown1,
-                                                imagePath:
-                                                    'assets/images/data_not_found.png',
-                                              ),
-                                            )
-                                            : ListView.builder(
-                                              itemCount: _pengumumanList.length,
-                                              itemBuilder: (context, index) {
-                                                final pengumuman =
-                                                    _pengumumanList[index];
-                                                final bool isRead =
-                                                    pengumuman["count_read"] >
-                                                    0;
-                                                return Padding(
-                                                  padding: const EdgeInsets.all(
-                                                    8.0,
-                                                  ),
-                                                  child: Column(
-                                                    children: [
-                                                      InkWell(
-                                                        onTap: () {
-                                                          Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                              builder:
-                                                                  (
-                                                                    context,
-                                                                  ) => PengumumanDetailScreen(
-                                                                    tanggal:
-                                                                        pengumuman['created_at']
-                                                                            ?.toString() ??
-                                                                        '',
-                                                                    judul:
-                                                                        pengumuman['judul'] ??
-                                                                        '',
-                                                                    deskripsi:
-                                                                        pengumuman['detail'] ??
-                                                                        '',
-                                                                    id:
-                                                                        pengumuman['id']
-                                                                            ?.toString() ??
-                                                                        '',
-                                                                    userId:
-                                                                        _dataUser['id'] ??
-                                                                        '',
-                                                                    read:
-                                                                        isRead,
-                                                                  ),
-                                                            ),
-                                                          ).then((result) {
-                                                            if (result ==
-                                                                'reload') {
-                                                              initAll();
-                                                            }
-                                                          });
-                                                        },
-                                                        child: Row(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Padding(
-                                                              padding:
-                                                                  const EdgeInsets.only(
-                                                                    right: 12.0,
-                                                                  ),
-                                                              child: Icon(
-                                                                Icons.campaign,
-                                                                color:
-                                                                    isRead
-                                                                        ? AppColors
-                                                                            .grey4
-                                                                        : AppColors
-                                                                            .primary,
-                                                                size: 40,
-                                                              ),
-                                                            ),
-                                                            Expanded(
-                                                              flex: 3,
-                                                              child: Column(
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  Text(
-                                                                    pengumuman['judul'] ??
-                                                                        '',
-                                                                    style: TextStyle(
-                                                                      color:
-                                                                          isRead
-                                                                              ? AppColors.grey4
-                                                                              : AppColors.primary,
-                                                                      fontWeight:
-                                                                          isRead
-                                                                              ? FontWeight.w500
-                                                                              : FontWeight.w900,
-                                                                    ),
-                                                                  ),
-                                                                  const SizedBox(
-                                                                    height: 4,
-                                                                  ),
-                                                                  Text(
-                                                                    pengumuman["detail"]
-                                                                        .replaceAll(
-                                                                          RegExp(
-                                                                            r'<[^>]*>',
-                                                                          ),
+                                const SizedBox(height: 84),
+                                Expanded(
+                                  child:
+                                      _isLoading
+                                          ? buildPengumumanShimmerList()
+                                          : (_pengumumanList.isEmpty
+                                              ? Center(
+                                                child: CustomNotFound(
+                                                  text:
+                                                      "Gagal memuat daftar pengumuman :(",
+                                                  textColor: AppColors.brown1,
+                                                  imagePath:
+                                                      'assets/images/data_not_found.png',
+                                                ),
+                                              )
+                                              : ListView.builder(
+                                                itemCount:
+                                                    _pengumumanList.length,
+                                                itemBuilder: (context, index) {
+                                                  final pengumuman =
+                                                      _pengumumanList[index];
+                                                  final bool isRead =
+                                                      pengumuman["count_read"] >
+                                                      0;
+                                                  return Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                          8.0,
+                                                        ),
+                                                    child: Column(
+                                                      children: [
+                                                        InkWell(
+                                                          onTap: () {
+                                                            Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                builder:
+                                                                    (
+                                                                      context,
+                                                                    ) => PengumumanDetailScreen(
+                                                                      tanggal:
+                                                                          pengumuman['created_at']
+                                                                              ?.toString() ??
                                                                           '',
+                                                                      judul:
+                                                                          pengumuman['judul'] ??
+                                                                          '',
+                                                                      deskripsi:
+                                                                          pengumuman['detail'] ??
+                                                                          '',
+                                                                      id:
+                                                                          pengumuman['id']
+                                                                              ?.toString() ??
+                                                                          '',
+                                                                      userId:
+                                                                          _dataUser['id'] ??
+                                                                          '',
+                                                                      read:
+                                                                          isRead,
+                                                                    ),
+                                                              ),
+                                                            ).then((result) {
+                                                              if (result ==
+                                                                  'reload') {
+                                                                initAll();
+                                                              }
+                                                            });
+                                                          },
+                                                          child: Row(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets.only(
+                                                                      right:
+                                                                          12.0,
+                                                                    ),
+                                                                child: Icon(
+                                                                  Icons
+                                                                      .campaign,
+                                                                  color:
+                                                                      isRead
+                                                                          ? AppColors
+                                                                              .grey4
+                                                                          : AppColors
+                                                                              .primary,
+                                                                  size: 40,
+                                                                ),
+                                                              ),
+                                                              Expanded(
+                                                                flex: 3,
+                                                                child: Column(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .start,
+                                                                  children: [
+                                                                    Text(
+                                                                      pengumuman['judul'] ??
+                                                                          '',
+                                                                      style: TextStyle(
+                                                                        color:
+                                                                            isRead
+                                                                                ? AppColors.grey4
+                                                                                : AppColors.primary,
+                                                                        fontWeight:
+                                                                            isRead
+                                                                                ? FontWeight.w500
+                                                                                : FontWeight.w900,
+                                                                      ),
+                                                                    ),
+                                                                    const SizedBox(
+                                                                      height: 4,
+                                                                    ),
+                                                                    Text(
+                                                                      pengumuman["detail"]
+                                                                          .replaceAll(
+                                                                            RegExp(
+                                                                              r'<[^>]*>',
+                                                                            ),
+                                                                            '',
+                                                                          )
+                                                                          .trim(),
+                                                                      maxLines:
+                                                                          2,
+                                                                      overflow:
+                                                                          TextOverflow
+                                                                              .ellipsis,
+                                                                      style: TextStyle(
+                                                                        color:
+                                                                            isRead
+                                                                                ? AppColors.grey4
+                                                                                : AppColors.primary,
+                                                                        fontWeight:
+                                                                            isRead
+                                                                                ? FontWeight.w400
+                                                                                : FontWeight.w700,
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                              Expanded(
+                                                                flex: 1,
+                                                                child: Center(
+                                                                  child: Text(
+                                                                    pengumuman['created_at'] !=
+                                                                            null
+                                                                        ? timeago.format(
+                                                                          DateTime.fromMillisecondsSinceEpoch(
+                                                                            int.parse(
+                                                                                  pengumuman['created_at'].toString(),
+                                                                                ) *
+                                                                                1000,
+                                                                          ),
+                                                                          locale:
+                                                                              'id',
                                                                         )
-                                                                        .trim(),
-                                                                    maxLines: 2,
-                                                                    overflow:
-                                                                        TextOverflow
-                                                                            .ellipsis,
+                                                                        : '',
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center,
                                                                     style: TextStyle(
                                                                       color:
                                                                           isRead
                                                                               ? AppColors.grey4
                                                                               : AppColors.primary,
                                                                       fontWeight:
-                                                                          isRead
-                                                                              ? FontWeight.w400
-                                                                              : FontWeight.w700,
+                                                                          FontWeight
+                                                                              .w300,
+                                                                      fontSize:
+                                                                          10,
                                                                     ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                            Expanded(
-                                                              flex: 1,
-                                                              child: Center(
-                                                                child: Text(
-                                                                  pengumuman['created_at'] !=
-                                                                          null
-                                                                      ? timeago.format(
-                                                                        DateTime.fromMillisecondsSinceEpoch(
-                                                                          int.parse(
-                                                                                pengumuman['created_at'].toString(),
-                                                                              ) *
-                                                                              1000,
-                                                                        ),
-                                                                        locale:
-                                                                            'id',
-                                                                      )
-                                                                      : '',
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .center,
-                                                                  style: TextStyle(
-                                                                    color:
-                                                                        isRead
-                                                                            ? AppColors.grey4
-                                                                            : AppColors.primary,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w300,
-                                                                    fontSize:
-                                                                        10,
                                                                   ),
                                                                 ),
                                                               ),
-                                                            ),
-                                                          ],
+                                                            ],
+                                                          ),
                                                         ),
-                                                      ),
-                                                      const SizedBox(
-                                                        height: 16,
-                                                      ),
-                                                      const Divider(
-                                                        color: AppColors.grey2,
-                                                        height: 2,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                );
-                                              },
-                                            )),
-                              ),
-                            ],
+                                                        const SizedBox(
+                                                          height: 16,
+                                                        ),
+                                                        const Divider(
+                                                          color:
+                                                              AppColors.grey2,
+                                                          height: 2,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                },
+                                              )),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -661,44 +661,27 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                                 ),
                               ),
                             )
-                            : GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => BibleReadingListScreen(
-                                          userId: widget.userId,
-                                        ),
-                                  ),
-                                ).then((result) {
-                                  if (result == 'reload') {
-                                    initAll(); // reload dashboard
-                                  }
-                                });
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: AppColors.secondary,
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(8),
-                                  ),
+                            : Container(
+                              decoration: BoxDecoration(
+                                color: AppColors.secondary,
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(8),
                                 ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
-                                child: Text(
-                                  _dataBrm != null && _dataBrm!.isNotEmpty
-                                      ? DateFormatter.ubahTanggal(
-                                        _dataBrm![0]['tanggal'],
-                                      )
-                                      : '',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              child: Text(
+                                _dataBrm != null && _dataBrm!.isNotEmpty
+                                    ? DateFormatter.ubahTanggal(
+                                      _dataBrm![0]['tanggal'],
+                                    )
+                                    : '',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),

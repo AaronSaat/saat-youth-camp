@@ -121,6 +121,7 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
           'LENGTH CATATAN LOAD PERTAMA: ${_dataCatatanHarian['data_notes'].length}',
         );
         _isLoading = false;
+        print('isloading: $_isLoading');
       });
     } catch (e) {
       if (!mounted) return;
@@ -187,30 +188,37 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
   void _fetchMoreNotes() async {
     if (_isLoadingMore || !_hasMore) return;
     setState(() => _isLoadingMore = true);
-    final newNotes = await ApiService.getBrmNotesByDay(
-      context,
-      _selectedDate.toIso8601String().substring(0, 10),
-      widget.id,
-      _page + 1,
-      _pageSize,
-    );
-    final newDataNotes = newNotes['data_notes'];
-    if (newDataNotes is List) {
-      if (newDataNotes.isEmpty || newDataNotes.length < _pageSize) {
-        _hasMore = false;
+    try {
+      final newNotes = await ApiService.getBrmNotesByDay(
+        context,
+        _selectedDate.toIso8601String().substring(0, 10),
+        widget.id,
+        _page + 1,
+        _pageSize,
+      );
+      final newDataNotes = newNotes['data_notes'];
+      if (newDataNotes is List) {
+        final int totalData =
+            int.tryParse(newNotes['count_data_notes']?.toString() ?? '0') ?? 0;
+        final int currentLength =
+            (_dataCatatanHarian['data_notes'] as List).length +
+            newDataNotes.length;
+        if (newDataNotes.isEmpty ||
+            newDataNotes.length < _pageSize ||
+            currentLength >= totalData) {
+          _hasMore = false;
+        }
+        setState(() {
+          _page++;
+          _dataCatatanHarian['data_notes'].addAll(newNotes['data_notes']);
+          _dataCatatanHarian['count_data_notes'] = totalData;
+        });
       }
-      if (newDataNotes.length < _pageSize) {
-        print("📦 Tidak ada data tambahan. Pagination berhenti.");
-      }
+    } catch (e) {
+      // handle error jika perlu
+    } finally {
       setState(() {
-        _page++;
         _isLoadingMore = false;
-        _dataCatatanHarian['data_notes'].addAll(newNotes['data_notes']);
-
-        // print("📦 LENGTH Data catatan. ${_dataCatatanHarian['data_notes']}");
-        print(
-          'LENGTH CATATAN LOAD BERIKUT: ${_dataCatatanHarian['data_notes'].length}',
-        );
       });
     }
   }
@@ -483,8 +491,9 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                                         .length +
                                     (_hasMore ? 1 : 0),
                                 itemBuilder: (context, index) {
-                                  if (index <
-                                      _dataCatatanHarian['data_notes'].length) {
+                                  final length =
+                                      _dataCatatanHarian['data_notes'].length;
+                                  if (index < length && !_isLoading) {
                                     final note =
                                         _dataCatatanHarian['data_notes'][index];
                                     if (note["notes"] != null &&
@@ -613,7 +622,7 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                                     } else {
                                       return const SizedBox.shrink();
                                     }
-                                  } else {
+                                  } else if (_isLoadingMore) {
                                     // WidgetsBinding.instance.addPostFrameCallback((_) {
                                     //   _fetchMoreNotes();
                                     // });

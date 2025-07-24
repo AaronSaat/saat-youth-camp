@@ -19,67 +19,75 @@ class EvaluasiKomitmenSuccessScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/images/answer_saved.png',
-                      width: size.width * 0.6,
-                      fit: BoxFit.contain,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      isSuccess
-                          ? '$type berhasil disimpan!'
-                          : '$type gagal disimpan.',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.black1,
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          Navigator.pop(context, 'reload');
+        }
+      },
+      child: Scaffold(
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        'assets/images/answer_saved.png',
+                        width: size.width * 0.6,
+                        fit: BoxFit.contain,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    GestureDetector(
-                      onTap: () async {
-                        Navigator.pop(context);
-                        Navigator.pop(context, 'reload');
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                        child: Container(
-                          width: MediaQuery.of(context).size.width * 0.5,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: AppColors.brown1,
-                            borderRadius: BorderRadius.circular(32),
-                          ),
-                          alignment: Alignment.center,
-                          child: const Text(
-                            'Kembali ke List',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
+                      const SizedBox(height: 16),
+                      Text(
+                        isSuccess
+                            ? '$type berhasil disimpan!'
+                            : '$type gagal disimpan.',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.black1,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      GestureDetector(
+                        onTap: () async {
+                          Navigator.pop(context);
+                          Navigator.pop(context, 'reload');
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.5,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: AppColors.brown1,
+                              borderRadius: BorderRadius.circular(32),
+                            ),
+                            alignment: Alignment.center,
+                            child: const Text(
+                              'Kembali ke List',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

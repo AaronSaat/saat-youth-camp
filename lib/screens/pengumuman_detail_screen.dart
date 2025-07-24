@@ -81,117 +81,126 @@ class _PengumumanDetailScreenState extends State<PengumumanDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // resizeToAvoidBottomInset: false,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          // Positioned(
-          //   child: Image.asset(
-          //     'assets/images/background_pengumuman.jpg',
-          //     width: MediaQuery.of(context).size.width,
-          //     height: MediaQuery.of(context).size.height,
-          //     fit: BoxFit.fill,
-          //   ),
-          // ),
-          SafeArea(
-            child:
-                _isLoading
-                    ? const Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.primary,
-                      ),
-                    )
-                    : Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: [
-                          AppBar(
-                            backgroundColor: Colors.transparent,
-                            elevation: 0,
-                            leading: IconButton(
-                              icon: const Icon(
-                                Icons.arrow_back_ios,
-                                color: AppColors.primary,
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          Navigator.pop(context, 'reload');
+        }
+      },
+      child: Scaffold(
+        // resizeToAvoidBottomInset: false,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Positioned(
+            //   child: Image.asset(
+            //     'assets/images/background_pengumuman.jpg',
+            //     width: MediaQuery.of(context).size.width,
+            //     height: MediaQuery.of(context).size.height,
+            //     fit: BoxFit.fill,
+            //   ),
+            // ),
+            SafeArea(
+              child:
+                  _isLoading
+                      ? const Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
+                        ),
+                      )
+                      : Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            AppBar(
+                              backgroundColor: Colors.transparent,
+                              elevation: 0,
+                              leading: IconButton(
+                                icon: const Icon(
+                                  Icons.arrow_back_ios,
+                                  color: AppColors.primary,
+                                ),
+                                onPressed: () {
+                                  Navigator.pop(context, 'reload');
+                                },
                               ),
-                              onPressed: () {
-                                Navigator.pop(context, 'reload');
-                              },
+                              automaticallyImplyLeading: false,
                             ),
-                            automaticallyImplyLeading: false,
-                          ),
-                          Expanded(
-                            child: Center(
-                              child: SingleChildScrollView(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      // ClipRRect(
-                                      //   borderRadius: BorderRadius.circular(16),
-                                      //   child: Image.asset(
-                                      //     'assets/images/event.jpg',
-                                      //     width:
-                                      //         MediaQuery.of(
-                                      //           context,
-                                      //         ).size.width *
-                                      //         0.8,
-                                      //     height: 200,
-                                      //     fit: BoxFit.cover,
-                                      //   ),
-                                      // ),
-                                      const SizedBox(height: 24),
-                                      Text(
-                                        widget.judul,
-                                        style: TextStyle(
-                                          color: AppColors.primary,
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w900,
-                                        ),
-                                      ),
-                                      Text(
-                                        timeago.format(
-                                          DateTime.fromMillisecondsSinceEpoch(
-                                            int.parse(
-                                                  widget.tanggal.toString(),
-                                                ) *
-                                                1000,
-                                          ),
-                                          locale: 'id',
-                                        ),
-                                        style: TextStyle(
-                                          color: AppColors.primary,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w300,
-                                        ),
-                                      ),
-
-                                      // Use flutter_html to render HTML content
-                                      // Add flutter_html to your pubspec.yaml dependencies
-                                      // import 'package:flutter_html/flutter_html.dart'; at the top
-                                      Html(
-                                        data: widget.deskripsi,
-                                        style: {
-                                          "body": Style(
+                            Expanded(
+                              child: Center(
+                                child: SingleChildScrollView(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        // ClipRRect(
+                                        //   borderRadius: BorderRadius.circular(16),
+                                        //   child: Image.asset(
+                                        //     'assets/images/event.jpg',
+                                        //     width:
+                                        //         MediaQuery.of(
+                                        //           context,
+                                        //         ).size.width *
+                                        //         0.8,
+                                        //     height: 200,
+                                        //     fit: BoxFit.cover,
+                                        //   ),
+                                        // ),
+                                        const SizedBox(height: 24),
+                                        Text(
+                                          widget.judul,
+                                          style: TextStyle(
                                             color: AppColors.primary,
-                                            fontSize: FontSize(16),
-                                            fontWeight: FontWeight.w400,
-                                            textAlign: TextAlign.left,
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.w900,
                                           ),
-                                        },
-                                      ),
-                                    ],
+                                        ),
+                                        Text(
+                                          timeago.format(
+                                            DateTime.fromMillisecondsSinceEpoch(
+                                              int.parse(
+                                                    widget.tanggal.toString(),
+                                                  ) *
+                                                  1000,
+                                            ),
+                                            locale: 'id',
+                                          ),
+                                          style: TextStyle(
+                                            color: AppColors.primary,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w300,
+                                          ),
+                                        ),
+
+                                        // Use flutter_html to render HTML content
+                                        // Add flutter_html to your pubspec.yaml dependencies
+                                        // import 'package:flutter_html/flutter_html.dart'; at the top
+                                        Html(
+                                          data: widget.deskripsi,
+                                          style: {
+                                            "body": Style(
+                                              color: AppColors.primary,
+                                              fontSize: FontSize(16),
+                                              fontWeight: FontWeight.w400,
+                                              textAlign: TextAlign.left,
+                                            ),
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }

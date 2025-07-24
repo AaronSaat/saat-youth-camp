@@ -24,6 +24,8 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _logoScaleAnimation;
   late Animation<double> _textFadeAnimation;
 
+  bool _isCheckingToken = false;
+
   @override
   void initState() {
     super.initState();
@@ -64,15 +66,16 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     Future.delayed(const Duration(seconds: 2), () async {
-      // Ambil token dari SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       final getToken = prefs.getString('token');
 
       if (getToken != null && getToken.isNotEmpty) {
+        setState(() => _isCheckingToken = true); // <-- Mulai loading
         final isValid = await ApiService.validateToken(
           context,
           token: getToken,
         );
+        setState(() => _isCheckingToken = false); // <-- Selesai loading
         if (isValid) {
           print('CEK TOKEN: VALID');
           if (mounted) {
@@ -161,7 +164,7 @@ class _SplashScreenState extends State<SplashScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo akan berpindah ke posisi terakhir sesuai animasi di atas
+                // Logo animasi
                 SlideTransition(
                   position: _logoPositionAnimation,
                   child: ScaleTransition(
@@ -181,7 +184,29 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 48),
+                // Loading hanya saat cek token
+                if (_isCheckingToken) ...[
+                  SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      backgroundColor: Colors.white24,
+                      strokeWidth: 3,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    "Memeriksa akun...",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

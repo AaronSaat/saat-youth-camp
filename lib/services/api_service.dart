@@ -1525,9 +1525,11 @@ class ApiService {
       },
     );
 
+    print('url: $url');
+    print('response: ${response.statusCode} - ${response.body}');
     if (response.statusCode == 200) {
       final Map<String, dynamic> decoded = json.decode(response.body);
-      final List<dynamic> dataPanitia = decoded['data'] ?? [];
+      final List<dynamic> dataPanitia = decoded['data_panitia'] ?? [];
 
       print('✅ Data panitia berhasil dimuat: $dataPanitia');
 

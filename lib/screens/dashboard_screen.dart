@@ -1297,103 +1297,103 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ],
                           ),
                         ),
+
                         //[DEVELOPMENT NOTES] untuk testing, nanti dihapus
-                        const SizedBox(height: 24),
+                        // const SizedBox(height: 24),
 
-                        // [DEVELOPMENT NOTES] Nanti setting
-                        if ((_today.isAfter(DateTime(2026, 1, 2)) ||
-                                _today == DateTime(2026, 1, 2)) &&
-                            _timeOfDay.hour >= 12)
-                          // Dokumentasi Card (InAppWebView)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    // Pastikan sudah menambahkan flutter_inappwebview di pubspec.yaml
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (
-                                              context,
-                                            ) => DokumentasiWebViewScreen(
-                                              url:
-                                                  'https://drive.google.com/drive/folders/1J7qIoUL7aI2YGy7tR_ZFQxX-7ylzVZrg?usp=sharing',
-                                            ),
-                                      ),
-                                    );
-                                  },
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: Stack(
-                                    children: [
-                                      Container(
-                                        height: 180,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          image: const DecorationImage(
-                                            image: AssetImage(
-                                              'assets/images/card_dokumentasi.jpg',
-                                            ),
-                                            fit: BoxFit.fill,
-                                          ),
-                                        ),
-                                        child: Align(
-                                          alignment: Alignment.centerRight,
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                              right: 8.0,
-                                            ),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                    color: AppColors.secondary,
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                  padding: const EdgeInsets.all(
-                                                    12,
-                                                  ),
-                                                  child: const Icon(
-                                                    Icons.arrow_forward_ios,
-                                                    color: Colors.white,
-                                                    size: 28,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 8),
-                                                const Text(
-                                                  'Dokumentasi Acara\nIn App Web View',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.w900,
-                                                    color: Colors.white,
-                                                    fontSize: 16,
-                                                  ),
-                                                  textAlign: TextAlign.right,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
+                        // // [DEVELOPMENT NOTES] Nanti setting
+                        // if ((_today.isAfter(DateTime(2026, 1, 2)) ||
+                        //         _today == DateTime(2026, 1, 2)) &&
+                        //     _timeOfDay.hour >= 12)
+                        //   // Dokumentasi Card (InAppWebView)
+                        //   Padding(
+                        //     padding: const EdgeInsets.symmetric(horizontal: 24),
+                        //     child: Column(
+                        //       crossAxisAlignment: CrossAxisAlignment.center,
+                        //       children: [
+                        //         InkWell(
+                        //           onTap: () {
+                        //             // Pastikan sudah menambahkan flutter_inappwebview di pubspec.yaml
+                        //             Navigator.push(
+                        //               context,
+                        //               MaterialPageRoute(
+                        //                 builder:
+                        //                     (
+                        //                       context,
+                        //                     ) => DokumentasiWebViewScreen(
+                        //                       url:
+                        //                           'https://drive.google.com/drive/folders/1J7qIoUL7aI2YGy7tR_ZFQxX-7ylzVZrg?usp=sharing',
+                        //                     ),
+                        //               ),
+                        //             );
+                        //           },
+                        //           borderRadius: BorderRadius.circular(16),
+                        //           child: Stack(
+                        //             children: [
+                        //               Container(
+                        //                 height: 180,
+                        //                 padding: const EdgeInsets.symmetric(
+                        //                   horizontal: 8,
+                        //                 ),
+                        //                 decoration: BoxDecoration(
+                        //                   borderRadius: BorderRadius.circular(
+                        //                     16,
+                        //                   ),
+                        //                   image: const DecorationImage(
+                        //                     image: AssetImage(
+                        //                       'assets/images/card_dokumentasi.jpg',
+                        //                     ),
+                        //                     fit: BoxFit.fill,
+                        //                   ),
+                        //                 ),
+                        //                 child: Align(
+                        //                   alignment: Alignment.centerRight,
+                        //                   child: Padding(
+                        //                     padding: const EdgeInsets.only(
+                        //                       right: 8.0,
+                        //                     ),
+                        //                     child: Column(
+                        //                       mainAxisSize: MainAxisSize.min,
+                        //                       mainAxisAlignment:
+                        //                           MainAxisAlignment.center,
+                        //                       crossAxisAlignment:
+                        //                           CrossAxisAlignment.end,
+                        //                       children: [
+                        //                         Container(
+                        //                           decoration: BoxDecoration(
+                        //                             color: AppColors.secondary,
+                        //                             shape: BoxShape.circle,
+                        //                           ),
+                        //                           padding: const EdgeInsets.all(
+                        //                             12,
+                        //                           ),
+                        //                           child: const Icon(
+                        //                             Icons.arrow_forward_ios,
+                        //                             color: Colors.white,
+                        //                             size: 28,
+                        //                           ),
+                        //                         ),
+                        //                         const SizedBox(height: 8),
+                        //                         const Text(
+                        //                           'Dokumentasi Acara\nIn App Web View',
+                        //                           style: TextStyle(
+                        //                             fontWeight: FontWeight.w900,
+                        //                             color: Colors.white,
+                        //                             fontSize: 16,
+                        //                           ),
+                        //                           textAlign: TextAlign.right,
+                        //                         ),
+                        //                       ],
+                        //                     ),
+                        //                   ),
+                        //                 ),
+                        //               ),
+                        //             ],
+                        //           ),
+                        //         ),
+                        //       ],
+                        //     ),
+                        //   ),
                         if ((_today.isAfter(DateTime(2026, 1, 2)) ||
                                 _today == DateTime(2026, 1, 2)) &&
                             _timeOfDay.hour >= 12)
