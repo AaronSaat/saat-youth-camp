@@ -1877,4 +1877,25 @@ class ApiService {
       throw Exception('Failed to load materi');
     }
   }
+
+  static Future<Map<String, dynamic>> getCheckVersion(
+    BuildContext context,
+  ) async {
+    final url = Uri.parse('${baseurl}check-version');
+    final response = await http.get(
+      url,
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    print('url $url');
+    print('response ${response.statusCode} - ${response.body}');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> dataVersion = json.decode(response.body);
+
+      return dataVersion;
+    } else {
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load materi');
+    }
+  }
 }

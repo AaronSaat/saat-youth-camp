@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
+import 'package:package_info_plus/package_info_plus.dart' show PackageInfo;
+import 'package:url_launcher/url_launcher.dart'
+    show canLaunchUrl, LaunchMode, launchUrl;
+
 import '../services/api_service.dart';
 import '../utils/app_colors.dart';
 import 'login_screen.dart';
@@ -25,6 +29,7 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _textFadeAnimation;
 
   bool _isCheckingToken = false;
+  bool _isCheckingVersion = false; // Tambahkan ini
 
   @override
   void initState() {
@@ -65,56 +70,34 @@ class _SplashScreenState extends State<SplashScreen>
       CurvedAnimation(parent: _textFadeController, curve: Curves.easeOut),
     );
 
-    Future.delayed(const Duration(seconds: 2), () async {
-      final prefs = await SharedPreferences.getInstance();
-      final getToken = prefs.getString('token');
+    // Cek versi dulu sebelum cek token
+    _checkAll();
+  }
 
-      if (getToken != null && getToken.isNotEmpty) {
-        setState(() => _isCheckingToken = true); // <-- Mulai loading
-        final isValid = await ApiService.validateToken(
-          context,
-          token: getToken,
-        );
-        setState(() => _isCheckingToken = false); // <-- Selesai loading
-        if (isValid) {
-          print('CEK TOKEN: VALID');
-          if (mounted) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const MainScreen()),
-            );
-          }
-        } else {
-          print('CEK TOKEN: TIDAK VALID');
-          // lakukan animasi
-          await _bgFadeController.forward();
-          await Future.wait([
-            _logoMoveController.forward(),
-            _textFadeController.forward(),
-          ]);
-          await Future.delayed(const Duration(milliseconds: 400));
-          if (mounted) {
-            Navigator.of(context).pushReplacement(
-              PageRouteBuilder(
-                pageBuilder:
-                    (context, animation, secondaryAnimation) =>
-                        const LoginScreen(),
-                transitionsBuilder: (
-                  context,
-                  animation,
-                  secondaryAnimation,
-                  child,
-                ) {
-                  return FadeTransition(opacity: animation, child: child);
-                },
-                transitionDuration: const Duration(milliseconds: 200),
-              ),
-            );
-          }
+  Future<void> _checkAll() async {
+    setState(() => _isCheckingVersion = true);
+    await getCheckVersion();
+    setState(() => _isCheckingVersion = false);
+
+    // Lanjut cek token (existing code)
+    final prefs = await SharedPreferences.getInstance();
+    final getToken = prefs.getString('token');
+
+    if (getToken != null && getToken.isNotEmpty) {
+      setState(() => _isCheckingToken = true); // <-- Mulai loading
+      final isValid = await ApiService.validateToken(context, token: getToken);
+      setState(() => _isCheckingToken = false); // <-- Selesai loading
+      if (isValid) {
+        print('CEK TOKEN: VALID');
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MainScreen()),
+          );
         }
       } else {
-        // Token tidak ada, langsung lakukan animasi
-        print('CEK TOKEN: TOKEN TIDAK ADA');
+        print('CEK TOKEN: TIDAK VALID');
+        // lakukan animasi
         await _bgFadeController.forward();
         await Future.wait([
           _logoMoveController.forward(),
@@ -140,7 +123,86 @@ class _SplashScreenState extends State<SplashScreen>
           );
         }
       }
-    });
+    } else {
+      // Token tidak ada, langsung lakukan animasi
+      print('CEK TOKEN: TOKEN TIDAK ADA');
+      await _bgFadeController.forward();
+      await Future.wait([
+        _logoMoveController.forward(),
+        _textFadeController.forward(),
+      ]);
+      await Future.delayed(const Duration(milliseconds: 400));
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          PageRouteBuilder(
+            pageBuilder:
+                (context, animation, secondaryAnimation) => const LoginScreen(),
+            transitionsBuilder: (
+              context,
+              animation,
+              secondaryAnimation,
+              child,
+            ) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+            transitionDuration: const Duration(milliseconds: 200),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> getCheckVersion() async {
+    setState(() => _isCheckingVersion = true); // Mulai loading versi
+    final info = await PackageInfo.fromPlatform();
+    final localVersion = info.version;
+
+    final response = await ApiService.getCheckVersion(context);
+    final latestVersion = response['latest_version'] ?? localVersion;
+    print('CEK VERSI: $localVersion vs $latestVersion');
+
+    if (localVersion != latestVersion) {
+      if (mounted) {
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder:
+              (ctx) => AlertDialog(
+                title: const Text('Update Tersedia'),
+                content: const Text(
+                  'Versi aplikasi terbaru tersedia. Silakan update aplikasi untuk melanjutkan.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () async {
+                      String url;
+                      if (Theme.of(context).platform == TargetPlatform.iOS) {
+                        url =
+                            response['update_url_ios'] ??
+                            'https://apps.apple.com/us/app/clash-of-clans/id529479190';
+                      } else {
+                        url =
+                            response['update_url_android'] ??
+                            'https://play.google.com/store/apps/details?id=com.supercell.clashofclans';
+                      }
+                      if (await canLaunchUrl(Uri.parse(url))) {
+                        await launchUrl(
+                          Uri.parse(url),
+                          mode: LaunchMode.externalApplication,
+                        );
+                      }
+                      // Jangan tutup dialog, biarkan user tetap di sini
+                    },
+                    child: const Text('Update'),
+                  ),
+                ],
+              ),
+        );
+      }
+      setState(() => _isCheckingVersion = false);
+      return; // Stop proses, user harus update dan buka ulang aplikasi
+    }
+    setState(() => _isCheckingVersion = false);
   }
 
   @override
@@ -185,8 +247,8 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
                 const SizedBox(height: 48),
-                // Loading hanya saat cek token
-                if (_isCheckingToken) ...[
+                // Loading saat cek versi atau cek token
+                if (_isCheckingVersion || _isCheckingToken) ...[
                   SizedBox(
                     width: 32,
                     height: 32,
@@ -197,9 +259,11 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    "Memeriksa akun...",
-                    style: TextStyle(
+                  Text(
+                    _isCheckingVersion
+                        ? "Memeriksa versi aplikasi..."
+                        : "Memeriksa akun...",
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w400,

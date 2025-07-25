@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../services/api_service.dart';
 import '../widgets/custom_snackbar.dart';
@@ -23,10 +24,19 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   bool isLoading = false;
   String errorMessage = '';
+  String _buildVersion = '';
 
   @override
   void initState() {
     super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      _buildVersion = info.version;
+    });
   }
 
   Future<void> _saveLoginData(
@@ -83,7 +93,10 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       print(usernameController.text);
       print(passwordController.text);
-      final response = await ApiService.loginUser(usernameController.text, passwordController.text);
+      final response = await ApiService.loginUser(
+        usernameController.text,
+        passwordController.text,
+      );
       print('Login response: $response');
 
       if (response['success'] == true) {
@@ -103,7 +116,10 @@ class _LoginScreenState extends State<LoginScreen> {
           response['user']['kelompok']?['nama_kelompok'] ?? 'Null',
         );
 
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainScreen()));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainScreen()),
+        );
       } else {
         // setState(() => errorMessage = response['message'] ?? 'Login gagal');
         setState(() => errorMessage = response['message'] ?? 'Login gagal');
@@ -147,7 +163,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(12),
-                        child: Image.asset('assets/logos/redeemed_text.png', fit: BoxFit.contain),
+                        child: Image.asset(
+                          'assets/logos/redeemed_text.png',
+                          fit: BoxFit.contain,
+                        ),
                       ),
                       // Container(
                       //   width: 350,
@@ -192,17 +211,27 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: const TextStyle(color: AppColors.primary),
                             decoration: InputDecoration(
                               hintText: 'Username atau Email',
-                              hintStyle: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w300),
+                              hintStyle: const TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w300,
+                              ),
                               border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
                             ),
                             onChanged: (value) {
                               final lower = value.toLowerCase();
                               if (value != lower) {
-                                usernameController.value = usernameController.value.copyWith(
-                                  text: lower,
-                                  selection: TextSelection.collapsed(offset: lower.length),
-                                );
+                                usernameController.value = usernameController
+                                    .value
+                                    .copyWith(
+                                      text: lower,
+                                      selection: TextSelection.collapsed(
+                                        offset: lower.length,
+                                      ),
+                                    );
                               }
                             },
                           ),
@@ -227,9 +256,15 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: const TextStyle(color: AppColors.primary),
                             decoration: InputDecoration(
                               hintText: 'Password',
-                              hintStyle: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w300),
+                              hintStyle: const TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w300,
+                              ),
                               border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
                               suffixIcon: IconButton(
                                 icon: SvgPicture.asset(
                                   _obscurePassword
@@ -237,7 +272,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                       : 'assets/icons/login/show_password.svg',
                                   width: 24,
                                   height: 24,
-                                  colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                                  colorFilter: const ColorFilter.mode(
+                                    AppColors.primary,
+                                    BlendMode.srcIn,
+                                  ),
                                 ),
                                 onPressed: () {
                                   setState(() {
@@ -249,10 +287,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             onChanged: (value) {
                               final lower = value.toLowerCase();
                               if (value != lower) {
-                                passwordController.value = passwordController.value.copyWith(
-                                  text: lower,
-                                  selection: TextSelection.collapsed(offset: lower.length),
-                                );
+                                passwordController.value = passwordController
+                                    .value
+                                    .copyWith(
+                                      text: lower,
+                                      selection: TextSelection.collapsed(
+                                        offset: lower.length,
+                                      ),
+                                    );
                               }
                             },
                           ),
@@ -268,14 +310,23 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Container(
                             width: double.infinity,
                             height: 50,
-                            decoration: BoxDecoration(color: AppColors.brown1, borderRadius: BorderRadius.circular(32)),
+                            decoration: BoxDecoration(
+                              color: AppColors.brown1,
+                              borderRadius: BorderRadius.circular(32),
+                            ),
                             alignment: Alignment.center,
                             child:
                                 isLoading
-                                    ? const CircularProgressIndicator(color: Colors.white)
+                                    ? const CircularProgressIndicator(
+                                      color: Colors.white,
+                                    )
                                     : const Text(
                                       'Login',
-                                      style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w500),
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                           ),
                         ),
@@ -286,10 +337,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text('Belum punya akun? ', style: TextStyle(color: AppColors.primary)),
+                          const Text(
+                            'Belum punya akun? ',
+                            style: TextStyle(color: AppColors.primary),
+                          ),
                           GestureDetector(
                             onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (_) => const CheckSecretScreen()));
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const CheckSecretScreen(),
+                                ),
+                              );
                             },
                             child: const Text(
                               'Daftar sekarang',
@@ -298,6 +357,27 @@ class _LoginScreenState extends State<LoginScreen> {
                                 fontWeight: FontWeight.bold,
                                 decoration: TextDecoration.underline,
                               ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      // Version Info
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.info_outline,
+                            color: AppColors.primary,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Versi Build $_buildVersion',
+                            style: const TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
