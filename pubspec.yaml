@@ -194,12 +194,15 @@ flutter:
     - assets/shareverse/photo1.png
     - assets/shareverse/photo2.png
     - assets/shareverse/photo3.png
+    - assets/shareverse/photo4.png
     - assets/shareverse/photostory1.png
     - assets/shareverse/photostory2.png
     - assets/shareverse/photostory3.png
+    - assets/shareverse/photostory4.png
     - assets/shareverse/photosquare1.png
     - assets/shareverse/photosquare2.png
     - assets/shareverse/photosquare3.png
+    - assets/shareverse/photosquare4.png
 
   fonts:
     - family: Roboto

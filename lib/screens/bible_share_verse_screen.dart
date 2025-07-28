@@ -31,19 +31,47 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
   int _selectedSettingIndex = 0;
   int _selectedLogoIndex = 0;
   int _selectedAspectRatioIndex = 0; // 0: 3/4, 1: 9/16, 2: 1/1
-  double? _fontSize = 18;
+
+  // Ayat settings
+  double? _fontSize = 12;
   TextAlign? _textAlign = TextAlign.center;
   FontWeight? _fontWeight = FontWeight.normal;
   FontStyle? _fontStyle = FontStyle.normal;
-  int _versePosition = 1; // 0: atas, 1: tengah (default), 2: bawah
-  int _perikopPosition =
-      2; // 0: Atas layar, 1: Bawah layar, 2: Atas ayat, 3: Bawah ayat (default: bawah ayat)
+  int _versePosition = 1; // 0: atas, 1: tengah, 2: bawah
 
-  final List<String> _photoAssets = [
-    'assets/shareverse/photo1.png',
-    'assets/shareverse/photo2.png',
-    'assets/shareverse/photo3.png',
+  // Perikop settings
+  int _perikopPosition =
+      3; // 0: Atas layar, 1: Bawah layar, 2: Atas ayat, 3: Bawah ayat (default: bawah ayat)
+  double? _perikopFontSize = 22;
+  TextAlign? _perikopTextAlign = TextAlign.center;
+  FontWeight? _perikopFontWeight = FontWeight.w900;
+  FontStyle? _perikopFontStyle = FontStyle.normal;
+
+  // List foto utama (hanya 3 jenis)
+  final List<String> _photoBaseNames = [
+    'photo1.png',
+    'photo2.png',
+    'photo3.png',
+    'photo4.png',
   ];
+
+  // Map rasio ke prefix asset
+  final Map<int, String> _ratioPrefix = {
+    0: '', // 3/4: photo1.png, photo2.png, photo3.png, photo4.png
+    1: 'photostory', // 9/16: photostory1.png, ...
+    2: 'photosquare', // 1/1: photosquare1.png, ...
+  };
+
+  // Fungsi untuk dapatkan asset sesuai rasio dan index
+  String getPhotoAsset(int ratioIndex, int photoIndex) {
+    if (ratioIndex == 0) {
+      return 'assets/shareverse/${_photoBaseNames[photoIndex]}';
+    } else {
+      final prefix = _ratioPrefix[ratioIndex]!;
+      final num = photoIndex + 1;
+      return 'assets/shareverse/$prefix$num.png';
+    }
+  }
 
   final List<String> _logoAssets = [
     'assets/logos/appicon4.png', // atas
@@ -65,12 +93,16 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
   // Tambahkan item Bagikan Gambar ke list setting
   final List<_SettingItem> _settingItems = [
     _SettingItem(Icons.image, 'Gambar'),
-    _SettingItem(Icons.edit, 'Edit Teks'),
-    _SettingItem(Icons.font_download, 'Font'),
+    _SettingItem(Icons.edit_note, 'Ayat'),
+    _SettingItem(Icons.edit, 'Perikop'),
     _SettingItem(Icons.aspect_ratio, 'Rasio'),
-    _SettingItem(Icons.info, 'Logo'), // <-- Tambahkan ini
+    _SettingItem(Icons.info, 'Logo'),
     _SettingItem(Icons.share, 'Bagikan'),
   ];
+
+  // Tambahkan state fontFamily untuk ayat dan perikop
+  String _ayatFontFamily = 'Roboto';
+  String _perikopFontFamily = 'Roboto';
 
   @override
   void initState() {
@@ -196,7 +228,7 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
           child: Stack(
             children: [
               Image.asset(
-                _photoAssets[_selectedPhotoIndex],
+                getPhotoAsset(_selectedAspectRatioIndex, _selectedPhotoIndex),
                 width: double.infinity,
                 fit: BoxFit.cover,
               ),
@@ -210,7 +242,11 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-          child: Column(mainAxisSize: MainAxisSize.max, children: children),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: children,
+          ),
         ),
         // Logo atas
         if (_logoIsAtas[_selectedLogoIndex]) ...[
@@ -335,21 +371,30 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          SizedBox(
-                            height: maxImageHeight,
-                            child: AspectRatio(
-                              aspectRatio:
-                                  _selectedAspectRatioIndex == 0
-                                      ? 3 / 4
-                                      : _selectedAspectRatioIndex == 1
-                                      ? 9 / 16
-                                      : 1 / 1,
-                              child: RepaintBoundary(
-                                key: _shareKey,
-                                child: buildShareDesign(),
+                          _selectedAspectRatioIndex == 0 ||
+                                  _selectedAspectRatioIndex == 1
+                              ? SizedBox(
+                                height: maxImageHeight,
+                                child: AspectRatio(
+                                  aspectRatio:
+                                      _selectedAspectRatioIndex == 0
+                                          ? 3 / 4
+                                          : 9 / 16,
+                                  child: RepaintBoundary(
+                                    key: _shareKey,
+                                    child: buildShareDesign(),
+                                  ),
+                                ),
+                              )
+                              : SizedBox(
+                                child: AspectRatio(
+                                  aspectRatio: 1,
+                                  child: RepaintBoundary(
+                                    key: _shareKey,
+                                    child: buildShareDesign(),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
                           const SizedBox(height: 24),
                         ],
                       ),
@@ -397,54 +442,129 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: List.generate(
-                                        _photoAssets.length,
-                                        (index) => GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              _selectedPhotoIndex = index;
-                                            });
-                                          },
-                                          child: Container(
-                                            width: 72,
-                                            height: 72,
-                                            margin: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              border: Border.all(
-                                                color:
-                                                    _selectedPhotoIndex == index
-                                                        ? AppColors.secondary
-                                                        : Colors.transparent,
-                                                width: 3,
-                                              ),
-                                              image: DecorationImage(
-                                                image: AssetImage(
-                                                  _photoAssets[index],
+                                        _photoBaseNames.length,
+                                        (index) => Expanded(
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              setState(() {
+                                                _selectedPhotoIndex = index;
+                                              });
+                                            },
+                                            child: Container(
+                                              height: 64,
+                                              margin:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 4,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                border: Border.all(
+                                                  color:
+                                                      _selectedPhotoIndex ==
+                                                              index
+                                                          ? AppColors.secondary
+                                                          : Colors.transparent,
+                                                  width: 3,
                                                 ),
-                                                fit: BoxFit.cover,
+                                                image: DecorationImage(
+                                                  image: AssetImage(
+                                                    getPhotoAsset(
+                                                      _selectedAspectRatioIndex,
+                                                      index,
+                                                    ),
+                                                  ),
+                                                  fit: BoxFit.cover,
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
                                       ),
                                     );
-                                  case 1: // Edit Teks
+                                  case 1: // Edit Teks Ayat
                                     return SingleChildScrollView(
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
+                                          // Font Family
                                           Row(
                                             children: [
-                                              const Text('Font Size:'),
+                                              const Text('Jenis:'),
+                                              const SizedBox(width: 8),
+                                              ...['Roboto', 'Geist'].map((
+                                                font,
+                                              ) {
+                                                final selected =
+                                                    _ayatFontFamily == font;
+                                                return GestureDetector(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      _ayatFontFamily = font;
+                                                    });
+                                                  },
+                                                  child: Container(
+                                                    margin:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 4,
+                                                        ),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          vertical: 4,
+                                                          horizontal: 10,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          selected
+                                                              ? AppColors
+                                                                  .primary
+                                                              : Colors.white,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            8,
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      font,
+                                                      style: TextStyle(
+                                                        color:
+                                                            selected
+                                                                ? Colors.white
+                                                                : AppColors
+                                                                    .primary,
+                                                        fontWeight:
+                                                            selected
+                                                                ? FontWeight
+                                                                    .bold
+                                                                : FontWeight
+                                                                    .normal,
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              }),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 8),
+                                          // Font Size
+                                          Row(
+                                            children: [
+                                              const Text('Ukuran:'),
                                               Expanded(
                                                 child: Slider(
                                                   min: 12,
-                                                  max: 24,
-                                                  value: _fontSize ?? 18,
+                                                  max: getAyatMaxFontSize(
+                                                    widget.ayatText,
+                                                  ),
+                                                  value: (_fontSize ?? 12)
+                                                      .clamp(
+                                                        12,
+                                                        getAyatMaxFontSize(
+                                                          widget.ayatText,
+                                                        ),
+                                                      ),
                                                   onChanged: (val) {
                                                     setState(() {
                                                       _fontSize = val;
@@ -453,7 +573,7 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
                                                 ),
                                               ),
                                               Text(
-                                                '${_fontSize?.toInt() ?? 18}',
+                                                '${_fontSize?.toInt() ?? 12}',
                                               ),
                                             ],
                                           ),
@@ -462,7 +582,7 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
                                           Row(
                                             children: [
                                               const Text('Align:'),
-                                              const SizedBox(width: 8),
+                                              const SizedBox(width: 4),
                                               ...[
                                                 {
                                                   'icon':
@@ -504,7 +624,7 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
                                                     padding:
                                                         const EdgeInsets.symmetric(
                                                           vertical: 4,
-                                                          horizontal: 8,
+                                                          horizontal: 4,
                                                         ),
                                                     decoration: BoxDecoration(
                                                       color:
@@ -562,8 +682,8 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
                                           // Font Weight
                                           Row(
                                             children: [
-                                              const Text('Weight:'),
-                                              const SizedBox(width: 8),
+                                              const Text('Berat:'),
+                                              const SizedBox(width: 4),
                                               ...[
                                                 {
                                                   'label': 'Normal',
@@ -601,7 +721,7 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
                                                     padding:
                                                         const EdgeInsets.symmetric(
                                                           vertical: 4,
-                                                          horizontal: 8,
+                                                          horizontal: 4,
                                                         ),
                                                     decoration: BoxDecoration(
                                                       color:
@@ -640,7 +760,7 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
                                           // Font Style
                                           Row(
                                             children: [
-                                              const Text('Style:'),
+                                              const Text('Gaya:'),
                                               const SizedBox(width: 8),
                                               ...[
                                                 {
@@ -730,7 +850,7 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
                                           // Posisi Ayat
                                           Row(
                                             children: [
-                                              const Text('Posisi Ayat:'),
+                                              const Text('Posisi:'),
                                               const SizedBox(width: 8),
                                               ...[
                                                 {'label': 'Atas', 'value': 0},
@@ -790,21 +910,369 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
                                               }),
                                             ],
                                           ),
+                                        ],
+                                      ),
+                                    );
+                                  case 2: // Edit Teks Perikop
+                                    return SingleChildScrollView(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          // Font Family
+                                          Row(
+                                            children: [
+                                              const Text('Jenis:'),
+                                              const SizedBox(width: 8),
+                                              ...['Roboto', 'Geist'].map((
+                                                font,
+                                              ) {
+                                                final selected =
+                                                    _perikopFontFamily == font;
+                                                return GestureDetector(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      _perikopFontFamily = font;
+                                                    });
+                                                  },
+                                                  child: Container(
+                                                    margin:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 4,
+                                                        ),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          vertical: 4,
+                                                          horizontal: 10,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          selected
+                                                              ? AppColors
+                                                                  .primary
+                                                              : Colors.white,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            8,
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      font,
+                                                      style: TextStyle(
+                                                        color:
+                                                            selected
+                                                                ? Colors.white
+                                                                : AppColors
+                                                                    .primary,
+                                                        fontWeight:
+                                                            selected
+                                                                ? FontWeight
+                                                                    .bold
+                                                                : FontWeight
+                                                                    .normal,
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              }),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 8),
+                                          // Font Size
+                                          Row(
+                                            children: [
+                                              const Text('Ukuran:'),
+                                              Expanded(
+                                                child: Slider(
+                                                  min: 14,
+                                                  max: 28,
+                                                  value: _perikopFontSize ?? 16,
+                                                  onChanged: (val) {
+                                                    setState(() {
+                                                      _perikopFontSize = val;
+                                                    });
+                                                  },
+                                                ),
+                                              ),
+                                              Text(
+                                                '${_perikopFontSize?.toInt() ?? 22}',
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 8),
+                                          // Align
+                                          Row(
+                                            children: [
+                                              const Text('Align:'),
+                                              const SizedBox(width: 4),
+                                              ...[
+                                                {
+                                                  'icon':
+                                                      Icons.format_align_left,
+                                                  'label': 'Kiri',
+                                                  'value': TextAlign.left,
+                                                },
+                                                {
+                                                  'icon':
+                                                      Icons.format_align_center,
+                                                  'label': 'Tengah',
+                                                  'value': TextAlign.center,
+                                                },
+                                                {
+                                                  'icon':
+                                                      Icons.format_align_right,
+                                                  'label': 'Kanan',
+                                                  'value': TextAlign.right,
+                                                },
+                                              ].map((item) {
+                                                final selected =
+                                                    _perikopTextAlign ==
+                                                    item['value'];
+                                                return GestureDetector(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      _perikopTextAlign =
+                                                          item['value']
+                                                              as TextAlign;
+                                                    });
+                                                  },
+                                                  child: Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          vertical: 4,
+                                                          horizontal: 4,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          selected
+                                                              ? AppColors
+                                                                  .primary
+                                                              : Colors.white,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            8,
+                                                          ),
+                                                    ),
+                                                    child: Row(
+                                                      children: [
+                                                        Icon(
+                                                          item['icon']
+                                                              as IconData,
+                                                          color:
+                                                              selected
+                                                                  ? Colors.white
+                                                                  : AppColors
+                                                                      .primary,
+                                                          size: 18,
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 2,
+                                                        ),
+                                                        Text(
+                                                          item['label']
+                                                              as String,
+                                                          style: TextStyle(
+                                                            color:
+                                                                selected
+                                                                    ? Colors
+                                                                        .white
+                                                                    : AppColors
+                                                                        .primary,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                selected
+                                                                    ? FontWeight
+                                                                        .bold
+                                                                    : FontWeight
+                                                                        .normal,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                );
+                                              }),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 8),
+                                          // Font Weight
+                                          Row(
+                                            children: [
+                                              const Text('Berat:'),
+                                              const SizedBox(width: 4),
+                                              ...[
+                                                {
+                                                  'label': 'Normal',
+                                                  'value': FontWeight.normal,
+                                                },
+                                                {
+                                                  'label': 'Bold',
+                                                  'value': FontWeight.bold,
+                                                },
+                                                {
+                                                  'label': 'W500',
+                                                  'value': FontWeight.w500,
+                                                },
+                                                {
+                                                  'label': 'W900',
+                                                  'value': FontWeight.w900,
+                                                },
+                                              ].map((item) {
+                                                final selected =
+                                                    _perikopFontWeight ==
+                                                    item['value'];
+                                                return GestureDetector(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      _perikopFontWeight =
+                                                          item['value']
+                                                              as FontWeight;
+                                                    });
+                                                  },
+                                                  child: Container(
+                                                    margin:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 4,
+                                                        ),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          vertical: 4,
+                                                          horizontal: 4,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          selected
+                                                              ? AppColors
+                                                                  .primary
+                                                              : Colors.white,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            8,
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      item['label'] as String,
+                                                      style: TextStyle(
+                                                        color:
+                                                            selected
+                                                                ? Colors.white
+                                                                : AppColors
+                                                                    .primary,
+                                                        fontWeight:
+                                                            selected
+                                                                ? FontWeight
+                                                                    .bold
+                                                                : FontWeight
+                                                                    .normal,
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              }),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 8),
+                                          // Font Style
+                                          Row(
+                                            children: [
+                                              const Text('Gaya:'),
+                                              const SizedBox(width: 8),
+                                              ...[
+                                                {
+                                                  'label': 'Normal',
+                                                  'value': FontStyle.normal,
+                                                  'icon': Icons.text_fields,
+                                                },
+                                                {
+                                                  'label': 'Italic',
+                                                  'value': FontStyle.italic,
+                                                  'icon': Icons.format_italic,
+                                                },
+                                              ].map((item) {
+                                                final selected =
+                                                    _perikopFontStyle ==
+                                                    item['value'];
+                                                return GestureDetector(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      _perikopFontStyle =
+                                                          item['value']
+                                                              as FontStyle;
+                                                    });
+                                                  },
+                                                  child: Container(
+                                                    margin:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 4,
+                                                        ),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          vertical: 4,
+                                                          horizontal: 8,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          selected
+                                                              ? AppColors
+                                                                  .primary
+                                                              : Colors.white,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            8,
+                                                          ),
+                                                    ),
+                                                    child: Row(
+                                                      children: [
+                                                        Icon(
+                                                          item['icon']
+                                                              as IconData,
+                                                          color:
+                                                              selected
+                                                                  ? Colors.white
+                                                                  : AppColors
+                                                                      .primary,
+                                                          size: 18,
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 2,
+                                                        ),
+                                                        Text(
+                                                          item['label']
+                                                              as String,
+                                                          style: TextStyle(
+                                                            color:
+                                                                selected
+                                                                    ? Colors
+                                                                        .white
+                                                                    : AppColors
+                                                                        .primary,
+                                                            fontSize: 12,
+                                                            fontWeight:
+                                                                selected
+                                                                    ? FontWeight
+                                                                        .bold
+                                                                    : FontWeight
+                                                                        .normal,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                );
+                                              }),
+                                            ],
+                                          ),
                                           const SizedBox(height: 8),
                                           // Posisi Perikop
                                           Row(
                                             children: [
-                                              const Text('Posisi Perikop:'),
+                                              const Text('Posisi:'),
                                               const SizedBox(width: 8),
                                               ...[
-                                                {
-                                                  'label': 'Atas Layar',
-                                                  'value': 0,
-                                                },
-                                                {
-                                                  'label': 'Bawah Layar',
-                                                  'value': 1,
-                                                },
+                                                {'label': 'Atas', 'value': 0},
+                                                {'label': 'Bawah', 'value': 1},
                                                 {
                                                   'label': 'Atas Ayat',
                                                   'value': 2,
@@ -855,7 +1323,7 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
                                                                     .bold
                                                                 : FontWeight
                                                                     .normal,
-                                                        fontSize: 8,
+                                                        fontSize: 10,
                                                       ),
                                                     ),
                                                   ),
@@ -866,7 +1334,6 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
                                         ],
                                       ),
                                     );
-
                                   case 4: // Logo
                                     return SingleChildScrollView(
                                       child: Column(
@@ -983,6 +1450,15 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
                                                   });
                                                 },
                                                 child: Container(
+                                                  // width: 120,
+                                                  // height:
+                                                  //     _selectedAspectRatioIndex ==
+                                                  //             0
+                                                  //         ? 120 * 4 / 3
+                                                  //         : _selectedAspectRatioIndex ==
+                                                  //             1
+                                                  //         ? 120 * 16 / 9
+                                                  //         : 120,
                                                   decoration: BoxDecoration(
                                                     color:
                                                         selected
@@ -1125,6 +1601,7 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
   Widget _buildAyatWidget() => Text(
     widget.ayatText,
     style: TextStyle(
+      fontFamily: _ayatFontFamily,
       fontSize: _fontSize ?? 18,
       color: Colors.white,
       fontWeight: _fontWeight ?? FontWeight.normal,
@@ -1136,18 +1613,30 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
     textAlign: _textAlign ?? TextAlign.center,
   );
 
+  // Ubah _buildPerikopWidget agar pakai setting perikop
   Widget _buildPerikopWidget() => Text(
     widget.perikop.toUpperCase(),
-    style: const TextStyle(
-      fontWeight: FontWeight.w900,
-      fontSize: 22,
+    style: TextStyle(
+      fontFamily: _perikopFontFamily,
+      fontWeight: _perikopFontWeight ?? FontWeight.w900,
+      fontSize: _perikopFontSize ?? 22,
       color: Colors.white,
-      shadows: [
+      fontStyle: _perikopFontStyle ?? FontStyle.normal,
+      shadows: const [
         Shadow(blurRadius: 3, color: AppColors.black1, offset: Offset(1, 1)),
       ],
     ),
-    textAlign: TextAlign.center,
+    textAlign: _perikopTextAlign ?? TextAlign.center,
   );
+
+  // Tambahkan fungsi untuk menentukan max font size ayat
+  double getAyatMaxFontSize(String ayat) {
+    final len = ayat.length;
+    if (len < 100) return 24;
+    if (len < 200) return 20;
+    if (len < 300) return 16;
+    return 14;
+  }
 }
 
 class _SettingItem {
