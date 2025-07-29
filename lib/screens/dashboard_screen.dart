@@ -355,72 +355,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // count read tidak bisa disimpan 10 hari, harus terupdate setiap hari
   Future<void> loadReportBrmByPesertaByDay() async {
-    if (!mounted) return;
-    setState(() => _isLoadingBrm = true);
-    // ambil data bacaan dari shared preferences (nanti hapus)
     final prefs = await SharedPreferences.getInstance();
     final today = DateTime.now().toIso8601String().substring(0, 10);
+    final bacaanTodayKey = 'bacaan_$today';
+    final bacaanToday = prefs.getString(bacaanTodayKey);
+
+    if (bacaanToday != null && bacaanToday.isNotEmpty) {
+      // Data hari ini sudah ada di SharedPreferences
+      setState(() {
+        _dataBrm = [
+          {'tanggal': today, 'passage': bacaanToday},
+        ];
+        print('[BRM] Load 1 dari shared pref: $_dataBrm');
+        _isLoadingBrm = false;
+      });
+      return;
+    }
+
+    // Data hari ini belum ada, fetch 10 hari ke depan dari API
+    List<Map<String, dynamic>> brmList = [];
     for (int i = 0; i < 10; i++) {
       final date = DateTime.now().add(Duration(days: i));
       final dateStr = date.toIso8601String().substring(0, 10);
-      final bacaanKey = 'bacaan_$dateStr';
-      final bacaan = prefs.getString(bacaanKey);
-      print('[BRM Shared Pref] $bacaanKey = $bacaan');
-    }
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final today = DateTime.now().toIso8601String().substring(0, 10);
-      final bacaanKey = 'bacaan_' + today;
-      final bacaan = prefs.getString(bacaanKey);
-
-      if (bacaan != null) {
-        // Jika ada di shared preferences, gunakan data ini
-        print(
-          '[BRM] Bacaan hari ini ($today) diambil dari SharedPreferences: passage="$bacaan"',
-        );
-        if (!mounted) return;
-        setState(() {
-          _dataBrm = [
-            {'tanggal': today, 'passage': bacaan},
-          ];
-          _isLoadingBrm = false;
-        });
-        return;
+      final report = await ApiService.getBrmByDay(context, dateStr);
+      String passage = '';
+      if (report != null && report['data_brm'] != null) {
+        passage = report['data_brm']['passage'] ?? '';
       }
-
-      // Jika tidak ada, ambil 10x data dari API (10 hari ke belakang)
-      print(
-        '[BRM] Bacaan hari ini ($today) tidak ditemukan di SharedPreferences, fetch 10 hari terakhir dari API...',
-      );
-      List<Map<String, dynamic>> brmList = [];
-      for (int i = 0; i < 10; i++) {
-        final date = DateTime.now().add(Duration(days: i));
-        final dateStr = date.toIso8601String().substring(0, 10);
-        final report = await ApiService.getBrmByDay(context, dateStr);
-        String passage = '';
-        if (report != null && report['data_brm'] != null) {
-          passage = report['data_brm']['passage'] ?? '';
-        }
-        // Jika response 404 atau success false, passage tetap kosong
-        await prefs.setString('bacaan_' + dateStr, passage);
-        // Untuk hari ini, update state
-        if (i == 0) {
-          brmList.add({'tanggal': dateStr, 'passage': passage});
-        }
+      await prefs.setString('bacaan_$dateStr', passage);
+      if (i == 0) {
+        brmList.add({'tanggal': dateStr, 'passage': passage});
       }
-      print(
-        '[BRM] Bacaan hari ini ($today) diambil dari hasil fetch API, passage="${brmList.isNotEmpty ? brmList[0]['passage'] : ''}"',
-      );
-      if (!mounted) return;
-      setState(() {
-        _dataBrm = brmList.isNotEmpty ? brmList : [];
-        _isLoadingBrm = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _isLoadingBrm = false);
     }
+    setState(() {
+      _dataBrm = brmList;
+      print('[BRM] Load 10 dari shared api: $_dataBrm');
+      _isLoadingBrm = false;
+    });
   }
 
   // untuk load acara berdasarkan hari ini
@@ -899,612 +870,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
 
-                        //[DEVELOPMENT NOTES] untuk testing, nanti dihapus
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 8,
-                          ),
-                          child: const Text(
-                            "Tombol Testing (nanti dihapus)",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.red,
-                            ),
-                          ),
-                        ),
-
-                        //[DEVELOPMENT NOTES] untuk testing, nanti dihapus
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 8,
-                          ),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.secondary,
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 12,
-                                        ),
-                                        textStyle: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        GlobalVariables.today = DateTime(
-                                          2025,
-                                          12,
-                                          30,
-                                        );
-                                        GlobalVariables.timeOfDay =
-                                            const TimeOfDay(hour: 6, minute: 0);
-                                        _today = GlobalVariables.today;
-                                        _timeOfDay = GlobalVariables.timeOfDay;
-                                        setState(() {
-                                          GlobalVariables.currentIndex = 0;
-                                        });
-                                        if (mounted) {
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (context) =>
-                                                      const MainScreen(),
-                                            ),
-                                          );
-                                        }
-                                      },
-                                      child: const Text(
-                                        '30-12-2025\n06:00',
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.secondary,
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 12,
-                                        ),
-                                        textStyle: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        GlobalVariables.today = DateTime(
-                                          2025,
-                                          12,
-                                          30,
-                                        );
-                                        GlobalVariables
-                                            .timeOfDay = const TimeOfDay(
-                                          hour: 21,
-                                          minute: 0,
-                                        );
-                                        _today = GlobalVariables.today;
-                                        _timeOfDay = GlobalVariables.timeOfDay;
-                                        setState(() {
-                                          GlobalVariables.currentIndex = 0;
-                                        });
-                                        if (mounted) {
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (context) =>
-                                                      const MainScreen(),
-                                            ),
-                                          );
-                                        }
-                                      },
-                                      child: const Text(
-                                        '30-12-2025\n21:00',
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.secondary,
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 12,
-                                        ),
-                                        textStyle: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        GlobalVariables.today = DateTime(
-                                          2025,
-                                          12,
-                                          31,
-                                        );
-                                        GlobalVariables.timeOfDay =
-                                            const TimeOfDay(hour: 3, minute: 0);
-                                        _today = GlobalVariables.today;
-                                        _timeOfDay = GlobalVariables.timeOfDay;
-                                        setState(() {
-                                          GlobalVariables.currentIndex = 0;
-                                        });
-                                        if (mounted) {
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (context) =>
-                                                      const MainScreen(),
-                                            ),
-                                          );
-                                        }
-                                      },
-                                      child: const Text(
-                                        '31-12-2025\n03:00',
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.secondary,
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 12,
-                                        ),
-                                        textStyle: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        GlobalVariables.today = DateTime(
-                                          2025,
-                                          12,
-                                          31,
-                                        );
-                                        GlobalVariables
-                                            .timeOfDay = const TimeOfDay(
-                                          hour: 21,
-                                          minute: 0,
-                                        );
-                                        _today = GlobalVariables.today;
-                                        _timeOfDay = GlobalVariables.timeOfDay;
-                                        setState(() {
-                                          GlobalVariables.currentIndex = 0;
-                                        });
-                                        if (mounted) {
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (context) =>
-                                                      const MainScreen(),
-                                            ),
-                                          );
-                                        }
-                                      },
-                                      child: const Text(
-                                        '31-12-2025\n21:00',
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.secondary,
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 12,
-                                        ),
-                                        textStyle: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        GlobalVariables.today = DateTime(
-                                          2026,
-                                          1,
-                                          1,
-                                        );
-                                        GlobalVariables.timeOfDay =
-                                            const TimeOfDay(hour: 3, minute: 0);
-                                        _today = GlobalVariables.today;
-                                        _timeOfDay = GlobalVariables.timeOfDay;
-                                        setState(() {
-                                          GlobalVariables.currentIndex = 0;
-                                        });
-                                        if (mounted) {
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (context) =>
-                                                      const MainScreen(),
-                                            ),
-                                          );
-                                        }
-                                      },
-                                      child: const Text(
-                                        '01-01-2026\n03:00',
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.secondary,
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 12,
-                                        ),
-                                        textStyle: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        GlobalVariables.today = DateTime(
-                                          2026,
-                                          1,
-                                          1,
-                                        );
-                                        GlobalVariables
-                                            .timeOfDay = const TimeOfDay(
-                                          hour: 21,
-                                          minute: 0,
-                                        );
-                                        _today = GlobalVariables.today;
-                                        _timeOfDay = GlobalVariables.timeOfDay;
-                                        setState(() {
-                                          GlobalVariables.currentIndex = 0;
-                                        });
-                                        if (mounted) {
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (context) =>
-                                                      const MainScreen(),
-                                            ),
-                                          );
-                                        }
-                                      },
-                                      child: const Text(
-                                        '01-01-2026\n21:00',
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.secondary,
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 12,
-                                        ),
-                                        textStyle: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        GlobalVariables.today = DateTime(
-                                          2026,
-                                          1,
-                                          2,
-                                        );
-                                        GlobalVariables.timeOfDay =
-                                            const TimeOfDay(hour: 3, minute: 0);
-                                        _today = GlobalVariables.today;
-                                        _timeOfDay = GlobalVariables.timeOfDay;
-                                        setState(() {
-                                          GlobalVariables.currentIndex = 0;
-                                        });
-                                        if (mounted) {
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (context) =>
-                                                      const MainScreen(),
-                                            ),
-                                          );
-                                        }
-                                      },
-                                      child: const Text(
-                                        '02-01-2026\n03:00',
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.secondary,
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 12,
-                                        ),
-                                        textStyle: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        GlobalVariables.today = DateTime(
-                                          2026,
-                                          1,
-                                          2,
-                                        );
-                                        GlobalVariables
-                                            .timeOfDay = const TimeOfDay(
-                                          hour: 16,
-                                          minute: 0,
-                                        );
-                                        _today = GlobalVariables.today;
-                                        _timeOfDay = GlobalVariables.timeOfDay;
-                                        setState(() {
-                                          GlobalVariables.currentIndex = 0;
-                                        });
-                                        if (mounted) {
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (context) =>
-                                                      const MainScreen(),
-                                            ),
-                                          );
-                                        }
-                                      },
-                                      child: const Text(
-                                        '02-01-2026\n16:00',
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        //[DEVELOPMENT NOTES] untuk testing, nanti dihapus
-                        // const SizedBox(height: 24),
-
-                        // // [DEVELOPMENT NOTES] Nanti setting
-                        // if ((_today.isAfter(DateTime(2026, 1, 2)) ||
-                        //         _today == DateTime(2026, 1, 2)) &&
-                        //     _timeOfDay.hour >= 12)
-                        //   // Dokumentasi Card (InAppWebView)
-                        //   Padding(
-                        //     padding: const EdgeInsets.symmetric(horizontal: 24),
-                        //     child: Column(
-                        //       crossAxisAlignment: CrossAxisAlignment.center,
-                        //       children: [
-                        //         InkWell(
-                        //           onTap: () {
-                        //             // Pastikan sudah menambahkan flutter_inappwebview di pubspec.yaml
-                        //             Navigator.push(
-                        //               context,
-                        //               MaterialPageRoute(
-                        //                 builder:
-                        //                     (
-                        //                       context,
-                        //                     ) => DokumentasiWebViewScreen(
-                        //                       url:
-                        //                           'https://drive.google.com/drive/folders/1J7qIoUL7aI2YGy7tR_ZFQxX-7ylzVZrg?usp=sharing',
-                        //                     ),
-                        //               ),
-                        //             );
-                        //           },
-                        //           borderRadius: BorderRadius.circular(16),
-                        //           child: Stack(
-                        //             children: [
-                        //               Container(
-                        //                 height: 180,
-                        //                 padding: const EdgeInsets.symmetric(
-                        //                   horizontal: 8,
-                        //                 ),
-                        //                 decoration: BoxDecoration(
-                        //                   borderRadius: BorderRadius.circular(
-                        //                     16,
-                        //                   ),
-                        //                   image: const DecorationImage(
-                        //                     image: AssetImage(
-                        //                       'assets/images/card_dokumentasi.jpg',
-                        //                     ),
-                        //                     fit: BoxFit.fill,
-                        //                   ),
-                        //                 ),
-                        //                 child: Align(
-                        //                   alignment: Alignment.centerRight,
-                        //                   child: Padding(
-                        //                     padding: const EdgeInsets.only(
-                        //                       right: 8.0,
-                        //                     ),
-                        //                     child: Column(
-                        //                       mainAxisSize: MainAxisSize.min,
-                        //                       mainAxisAlignment:
-                        //                           MainAxisAlignment.center,
-                        //                       crossAxisAlignment:
-                        //                           CrossAxisAlignment.end,
-                        //                       children: [
-                        //                         Container(
-                        //                           decoration: BoxDecoration(
-                        //                             color: AppColors.secondary,
-                        //                             shape: BoxShape.circle,
-                        //                           ),
-                        //                           padding: const EdgeInsets.all(
-                        //                             12,
-                        //                           ),
-                        //                           child: const Icon(
-                        //                             Icons.arrow_forward_ios,
-                        //                             color: Colors.white,
-                        //                             size: 28,
-                        //                           ),
-                        //                         ),
-                        //                         const SizedBox(height: 8),
-                        //                         const Text(
-                        //                           'Dokumentasi Acara\nIn App Web View',
-                        //                           style: TextStyle(
-                        //                             fontWeight: FontWeight.w900,
-                        //                             color: Colors.white,
-                        //                             fontSize: 16,
-                        //                           ),
-                        //                           textAlign: TextAlign.right,
-                        //                         ),
-                        //                       ],
-                        //                     ),
-                        //                   ),
-                        //                 ),
-                        //               ),
-                        //             ],
-                        //           ),
-                        //         ),
-                        //       ],
-                        //     ),
-                        //   ),
-                        if ((_today.isAfter(DateTime(2026, 1, 2)) ||
-                                _today == DateTime(2026, 1, 2)) &&
-                            _timeOfDay.hour >= 12)
-                          const SizedBox(height: 24),
-
-                        // inappwebview google drive
-                        // [DEVELOPMENT NOTES] Nanti setting
-                        if ((_today.isAfter(DateTime(2026, 1, 2)) ||
-                                _today == DateTime(2026, 1, 2)) &&
-                            _timeOfDay.hour >= 12)
-                          // Dokumentasi Card
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                InkWell(
-                                  onTap: () async {
-                                    const url =
-                                        'https://drive.google.com/drive/folders/1J7qIoUL7aI2YGy7tR_ZFQxX-7ylzVZrg?usp=sharing';
-                                    final uri = Uri.parse(url);
-                                    bool launched = false;
-                                    try {
-                                      launched = await launchUrl(
-                                        uri,
-                                        mode: LaunchMode.externalApplication,
-                                      );
-                                    } catch (_) {}
-                                    if (!launched) {
-                                      try {
-                                        launched = await launchUrl(
-                                          uri,
-                                          mode: LaunchMode.platformDefault,
-                                        );
-                                      } catch (_) {}
-                                    }
-                                    if (!launched) {
-                                      showCustomSnackBar(
-                                        context,
-                                        'Tidak dapat membuka link. Pastikan ada browser di perangkat Anda.',
-                                      );
-                                    }
-                                  },
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: Stack(
-                                    children: [
-                                      Container(
-                                        height: 180,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          image: const DecorationImage(
-                                            image: AssetImage(
-                                              'assets/images/card_dokumentasi.jpg',
-                                            ),
-                                            fit: BoxFit.fill,
-                                          ),
-                                        ),
-                                        child: Align(
-                                          alignment: Alignment.centerRight,
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                              right: 8.0,
-                                            ),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                    color: AppColors.secondary,
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                  padding: const EdgeInsets.all(
-                                                    12,
-                                                  ),
-                                                  child: const Icon(
-                                                    Icons.arrow_forward_ios,
-                                                    color: Colors.white,
-                                                    size: 28,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 8),
-                                                const Text(
-                                                  'Dokumentasi Acara',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.w900,
-                                                    color: Colors.white,
-                                                    fontSize: 16,
-                                                  ),
-                                                  textAlign: TextAlign.right,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
                         if ((_today.isAfter(DateTime(2026, 1, 2)) ||
                                 _today == DateTime(2026, 1, 2)) &&
                             _timeOfDay.hour >= 12)
@@ -1819,12 +1184,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                           ),
 
-                        if ((day >= 1 && day <= 3) &&
-                            !role.toLowerCase().contains('panitia') &&
-                            !role.toLowerCase().contains('pembimbing') &&
-                            !role.toLowerCase().contains('pembina') &&
-                            (_timeOfDay.hour >= 20 && _timeOfDay.hour < 24))
-                          const SizedBox(height: 24),
+                        // if ((day >= 1 && day <= 3) &&
+                        //     !role.toLowerCase().contains('panitia') &&
+                        //     !role.toLowerCase().contains('pembimbing') &&
+                        //     !role.toLowerCase().contains('pembina') &&
+                        //     (_timeOfDay.hour >= 20 && _timeOfDay.hour < 24))
+                        //   const SizedBox(height: 24),
 
                         // Notifikasi
                         // Padding(
@@ -2324,176 +1689,180 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           'assets/images/data_not_found.png',
                                     ),
                                   )
-                                  : InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) =>
-                                                  BibleReadingMoreScreen(
-                                                    userId: userId,
-                                                  ),
-                                        ),
-                                      ).then((result) {
-                                        if (result == 'reload') {
-                                          initAll(); // reload dashboard
-                                        }
-                                      });
-                                    },
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: Stack(
-                                      children: [
-                                        Container(
-                                          height: 180,
-                                          padding: const EdgeInsets.only(
-                                            left: 24,
-                                            right: 24,
-                                            bottom: 16,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.primary.withAlpha(
-                                              70,
+                                  : Column(
+                                    children: [
+                                      const SizedBox(height: 24),
+                                      InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      BibleReadingMoreScreen(
+                                                        userId: userId,
+                                                      ),
                                             ),
-                                            gradient: LinearGradient(
-                                              begin: Alignment.bottomCenter,
-                                              end: Alignment.center,
-                                              colors: [
-                                                Colors.black.withAlpha(100),
-                                                Colors.black.withAlpha(10),
-                                              ],
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                              16,
-                                            ),
-                                            image: const DecorationImage(
-                                              image: AssetImage(
-                                                'assets/mockups/bible_reading.jpg',
+                                          ).then((result) {
+                                            if (result == 'reload') {
+                                              initAll(); // reload dashboard
+                                            }
+                                          });
+                                        },
+                                        borderRadius: BorderRadius.circular(16),
+                                        child: Stack(
+                                          children: [
+                                            Container(
+                                              height: 180,
+                                              padding: const EdgeInsets.only(
+                                                left: 24,
+                                                right: 24,
+                                                bottom: 16,
                                               ),
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                          child: Align(
-                                            alignment: Alignment.bottomLeft,
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              children: [
-                                                if (_dataBrm.isNotEmpty) ...[
-                                                  Text(
-                                                    'Bacaan Hari Ini',
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.white,
-                                                      fontSize: 20,
-                                                    ),
+                                              decoration: BoxDecoration(
+                                                color: AppColors.primary
+                                                    .withAlpha(70),
+                                                gradient: LinearGradient(
+                                                  begin: Alignment.bottomCenter,
+                                                  end: Alignment.center,
+                                                  colors: [
+                                                    Colors.black.withAlpha(100),
+                                                    Colors.black.withAlpha(10),
+                                                  ],
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                                image: const DecorationImage(
+                                                  image: AssetImage(
+                                                    'assets/mockups/bible_reading.jpg',
                                                   ),
-                                                  const SizedBox(height: 8),
-                                                  Text(
-                                                    _dataBrm[0]['passage'] ??
-                                                        '',
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      color: Colors.white,
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                ] else ...[
-                                                  const Text(
-                                                    "Tidak ada data BRM hari ini",
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.white,
-                                                      fontSize: 16,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        // if (countRead > 0)
-                                        //   Positioned(
-                                        //     top: 0,
-                                        //     left: 0,
-                                        //     child: Container(
-                                        //       decoration: BoxDecoration(
-                                        //         color: Colors.green,
-                                        //         borderRadius:
-                                        //             const BorderRadius.only(
-                                        //               topLeft: Radius.circular(
-                                        //                 16,
-                                        //               ),
-                                        //               bottomRight:
-                                        //                   Radius.circular(8),
-                                        //             ),
-                                        //       ),
-                                        //       padding: const EdgeInsets.symmetric(
-                                        //         horizontal: 12,
-                                        //         vertical: 8,
-                                        //       ),
-                                        //       child: Row(
-                                        //         children: const [
-                                        //           Icon(
-                                        //             Icons.check_circle,
-                                        //             color: Colors.white,
-                                        //             size: 16,
-                                        //           ),
-                                        //           SizedBox(width: 4),
-                                        //           Text(
-                                        //             'Sudah dibaca',
-                                        //             style: TextStyle(
-                                        //               fontSize: 12,
-                                        //               color: Colors.white,
-                                        //               fontWeight: FontWeight.bold,
-                                        //             ),
-                                        //           ),
-                                        //         ],
-                                        //       ),
-                                        //     ),
-                                        //   ),
-                                        Positioned(
-                                          top: 0,
-                                          right: 0,
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              color: AppColors.secondary,
-                                              borderRadius:
-                                                  const BorderRadius.only(
-                                                    topRight: Radius.circular(
-                                                      16,
-                                                    ),
-                                                    bottomLeft: Radius.circular(
-                                                      8,
-                                                    ),
-                                                  ),
-                                            ),
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 8,
-                                            ),
-                                            child: Text(
-                                              _dataBrm.isNotEmpty
-                                                  ? DateFormatter.ubahTanggal(
-                                                    _dataBrm[0]['tanggal'],
-                                                  )
-                                                  : '',
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                              child: Align(
+                                                alignment: Alignment.bottomLeft,
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  children: [
+                                                    if (_dataBrm
+                                                        .isNotEmpty) ...[
+                                                      Text(
+                                                        'Bacaan Hari Ini',
+                                                        style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: Colors.white,
+                                                          fontSize: 20,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 8),
+                                                      Text(
+                                                        _dataBrm[0]['passage'] ??
+                                                            '',
+                                                        style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w400,
+                                                          color: Colors.white,
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                    ] else ...[
+                                                      const Text(
+                                                        "Tidak ada data BRM hari ini",
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: Colors.white,
+                                                          fontSize: 16,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ],
+                                                ),
                                               ),
                                             ),
-                                          ),
+                                            // if (countRead > 0)
+                                            //   Positioned(
+                                            //     top: 0,
+                                            //     left: 0,
+                                            //     child: Container(
+                                            //       decoration: BoxDecoration(
+                                            //         color: Colors.green,
+                                            //         borderRadius:
+                                            //             const BorderRadius.only(
+                                            //               topLeft: Radius.circular(
+                                            //                 16,
+                                            //               ),
+                                            //               bottomRight:
+                                            //                   Radius.circular(8),
+                                            //             ),
+                                            //       ),
+                                            //       padding: const EdgeInsets.symmetric(
+                                            //         horizontal: 12,
+                                            //         vertical: 8,
+                                            //       ),
+                                            //       child: Row(
+                                            //         children: const [
+                                            //           Icon(
+                                            //             Icons.check_circle,
+                                            //             color: Colors.white,
+                                            //             size: 16,
+                                            //           ),
+                                            //           SizedBox(width: 4),
+                                            //           Text(
+                                            //             'Sudah dibaca',
+                                            //             style: TextStyle(
+                                            //               fontSize: 12,
+                                            //               color: Colors.white,
+                                            //               fontWeight: FontWeight.bold,
+                                            //             ),
+                                            //           ),
+                                            //         ],
+                                            //       ),
+                                            //     ),
+                                            //   ),
+                                            Positioned(
+                                              top: 0,
+                                              right: 0,
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: AppColors.secondary,
+                                                  borderRadius:
+                                                      const BorderRadius.only(
+                                                        topRight:
+                                                            Radius.circular(16),
+                                                        bottomLeft:
+                                                            Radius.circular(8),
+                                                      ),
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 12,
+                                                      vertical: 8,
+                                                    ),
+                                                child: Text(
+                                                  _dataBrm.isNotEmpty
+                                                      ? DateFormatter.ubahTanggal(
+                                                        _dataBrm[0]['tanggal'],
+                                                      )
+                                                      : '',
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                         ),
 
@@ -4010,125 +3379,236 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                             ),
                           ),
-
-                        const SizedBox(height: 24),
-
                         // Pengumuman
                         _isLoading
                             ? buildPengumumanShimmer()
                             : _pengumumanList.isEmpty
                             ? const SizedBox.shrink()
                             : countUnreadPengumuman > 0
-                            ? SizedBox(
-                              height: 140,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: _pengumumanList.length,
-                                itemBuilder: (context, index) {
-                                  final pengumuman = _pengumumanList[index];
-                                  return InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) =>
-                                                  PengumumanListScreen(),
-                                        ),
-                                      ).then((result) {
-                                        if (result == 'reload') {
-                                          initAll();
-                                        }
-                                      });
-                                    },
-                                    child: Stack(
-                                      children: [
-                                        Container(
-                                          width:
-                                              MediaQuery.of(context).size.width,
-                                          height: 140,
-                                          decoration: BoxDecoration(
-                                            color: AppColors.secondary,
-                                          ),
-                                          padding: const EdgeInsets.all(16.0),
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                              left: 8,
-                                              right: 128,
-                                              top: 8,
-                                              bottom: 8,
+                            ? Column(
+                              children: [
+                                const SizedBox(height: 24),
+                                SizedBox(
+                                  height: 140,
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: _pengumumanList.length,
+                                    itemBuilder: (context, index) {
+                                      final pengumuman = _pengumumanList[index];
+                                      return InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      PengumumanListScreen(),
                                             ),
-                                            child: Row(
-                                              children: [
-                                                Expanded(
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        pengumuman["judul"] ??
-                                                            '',
-                                                        style: const TextStyle(
-                                                          color:
-                                                              AppColors.primary,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 20,
-                                                        ),
-                                                        maxLines: 2,
-                                                        overflow:
-                                                            TextOverflow
-                                                                .ellipsis,
-                                                      ),
-                                                      const SizedBox(height: 8),
-                                                      Text(
-                                                        pengumuman["detail"]
-                                                            .replaceAll(
-                                                              RegExp(
-                                                                r'<[^>]*>',
-                                                              ),
-                                                              '',
-                                                            )
-                                                            .trim(),
-                                                        style: const TextStyle(
-                                                          color:
-                                                              AppColors.primary,
-                                                          fontSize: 14,
-                                                        ),
-                                                        maxLines: 2,
-                                                        overflow:
-                                                            TextOverflow
-                                                                .ellipsis,
-                                                      ),
-                                                    ],
-                                                  ),
+                                          ).then((result) {
+                                            if (result == 'reload') {
+                                              initAll();
+                                            }
+                                          });
+                                        },
+                                        child: Stack(
+                                          children: [
+                                            Container(
+                                              width:
+                                                  MediaQuery.of(
+                                                    context,
+                                                  ).size.width,
+                                              height: 140,
+                                              decoration: BoxDecoration(
+                                                color: AppColors.secondary,
+                                              ),
+                                              padding: const EdgeInsets.all(
+                                                16.0,
+                                              ),
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                  left: 8,
+                                                  right: 128,
+                                                  top: 8,
+                                                  bottom: 8,
                                                 ),
-                                              ],
+                                                child: Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            pengumuman["judul"] ??
+                                                                '',
+                                                            style: const TextStyle(
+                                                              color:
+                                                                  AppColors
+                                                                      .primary,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 20,
+                                                            ),
+                                                            maxLines: 2,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 8,
+                                                          ),
+                                                          Text(
+                                                            pengumuman["detail"]
+                                                                .replaceAll(
+                                                                  RegExp(
+                                                                    r'<[^>]*>',
+                                                                  ),
+                                                                  '',
+                                                                )
+                                                                .trim(),
+                                                            style: const TextStyle(
+                                                              color:
+                                                                  AppColors
+                                                                      .primary,
+                                                              fontSize: 14,
+                                                            ),
+                                                            maxLines: 2,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
                                             ),
-                                          ),
+                                            Positioned(
+                                              bottom: -15,
+                                              right: -15,
+                                              child: Image.asset(
+                                                'assets/images/megaphone.png',
+                                                width: 180,
+                                                height: 180,
+                                                fit: BoxFit.contain,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        Positioned(
-                                          bottom: -15,
-                                          right: -15,
-                                          child: Image.asset(
-                                            'assets/images/megaphone.png',
-                                            width: 180,
-                                            height: 180,
-                                            fit: BoxFit.contain,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
                             )
                             : SizedBox.shrink(),
-                        const SizedBox(height: 16),
+
+                        const SizedBox(height: 24),
+
+                        // Dokumentasi Card
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              InkWell(
+                                onTap: () async {
+                                  const url =
+                                      'https://drive.google.com/drive/folders/1J7qIoUL7aI2YGy7tR_ZFQxX-7ylzVZrg?usp=sharing';
+                                  final uri = Uri.parse(url);
+                                  bool launched = false;
+                                  try {
+                                    launched = await launchUrl(
+                                      uri,
+                                      mode: LaunchMode.externalApplication,
+                                    );
+                                  } catch (_) {}
+                                  if (!launched) {
+                                    try {
+                                      launched = await launchUrl(
+                                        uri,
+                                        mode: LaunchMode.platformDefault,
+                                      );
+                                    } catch (_) {}
+                                  }
+                                  if (!launched) {
+                                    showCustomSnackBar(
+                                      context,
+                                      'Tidak dapat membuka link. Pastikan ada browser di perangkat Anda.',
+                                    );
+                                  }
+                                },
+                                borderRadius: BorderRadius.circular(16),
+                                child: Stack(
+                                  children: [
+                                    Container(
+                                      height: 180,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(16),
+                                        image: const DecorationImage(
+                                          image: AssetImage(
+                                            'assets/images/card_dokumentasi.jpg',
+                                          ),
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                      child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: 8.0,
+                                          ),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color: AppColors.secondary,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                padding: const EdgeInsets.all(
+                                                  12,
+                                                ),
+                                                child: const Icon(
+                                                  Icons.arrow_forward_ios,
+                                                  color: Colors.white,
+                                                  size: 28,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              const Text(
+                                                'Dokumentasi Acara',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w900,
+                                                  color: Colors.white,
+                                                  fontSize: 16,
+                                                ),
+                                                textAlign: TextAlign.right,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -4287,53 +3767,70 @@ Widget buildAcaraShimmer() {
 }
 
 Widget buildPengumumanShimmer() {
-  return SizedBox(
-    height: 140,
-    child: ListView.builder(
-      scrollDirection: Axis.horizontal,
-      itemCount: 2,
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.only(right: 16.0),
-          child: Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
-            period: const Duration(milliseconds: 800),
-            child: Stack(
-              children: [
-                Container(
-                  width: MediaQuery.of(context).size.width * 0.85,
-                  height: 140,
-                  decoration: BoxDecoration(
-                    color: AppColors.secondary,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.all(16.0),
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      left: 8,
-                      right: 128,
-                      top: 8,
-                      bottom: 8,
+  return Column(
+    children: [
+      const SizedBox(height: 24),
+      SizedBox(
+        height: 140,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: 2,
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                period: const Duration(milliseconds: 800),
+                child: Stack(
+                  children: [
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.85,
+                      height: 140,
+                      decoration: BoxDecoration(
+                        color: AppColors.secondary,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.all(16.0),
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          left: 8,
+                          right: 128,
+                          top: 8,
+                          bottom: 8,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 180,
+                              height: 24,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(height: 12),
+                            Container(
+                              width: 120,
+                              height: 16,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              width: 100,
+                              height: 16,
+                              color: Colors.white,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(width: 180, height: 24, color: Colors.white),
-                        const SizedBox(height: 12),
-                        Container(width: 120, height: 16, color: Colors.white),
-                        const SizedBox(height: 8),
-                        Container(width: 100, height: 16, color: Colors.white),
-                      ],
-                    ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        );
-      },
-    ),
+              ),
+            );
+          },
+        ),
+      ),
+    ],
   );
 }
