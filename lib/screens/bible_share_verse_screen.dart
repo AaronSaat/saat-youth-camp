@@ -170,8 +170,8 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
       await SharePlus.instance.share(
         ShareParams(
           files: [XFile(file.path)],
-          subject: 'Ayat Alkitab',
-          text: 'Ini generated dari aplikasi SYC 2025',
+          // subject: 'Ayat Alkitab',
+          // text: 'Ini generated dari aplikasi SYC 2025',
         ),
       );
     } catch (e) {

@@ -53,6 +53,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int countUnreadPengumuman = 0;
   bool _isLoading = true;
   bool _isLoadingBrm = true;
+  bool _isLoadingPengumuman = true;
   List<Map<String, dynamic>> _dataBrm = [];
   Map<String, dynamic> _dataBrm10Hari = {}; //load dari shared preferences
   Map<String, String> _dataUser = {};
@@ -220,6 +221,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() {
       _isLoading = true;
       _isLoadingBrm = true;
+      _isLoadingPengumuman = true;
     });
     print(
       '_today: ${_today.toIso8601String().substring(0, 10)}, acaraStatisHari1[0][tanggal]: ${acaraStatisHari1[0]["tanggal"]}, eq: ${_today.toIso8601String().substring(0, 10) == acaraStatisHari1[0]["tanggal"].toString().substring(0, 10)}',
@@ -245,7 +247,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       // 2. Notifikasi evaluasi 2 jam menit setelah acara dimulai hari 1 - 4 (untuk peserta, pembina)
       // 3. Notifikasi evaluasi keseluruhan 1x hari terakhir jam 12 siang (untuk peserta, pembina)
       // 4. Notifikasi komitmen setiap hari tiap jam 8 malam (untuk peserta)
-      await setupAllNotification();
+      // await setupAllNotification();
     } catch (e) {
       // handle error jika perlu
     }
@@ -253,6 +255,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() {
       _isLoading = false;
       _isLoadingBrm = false;
+      _isLoadingPengumuman = false;
     });
   }
 
@@ -332,8 +335,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // }
 
   Future<void> loadBrm() async {
-    if (!mounted) return;
-    setState(() => _isLoading = true);
     try {
       final brm = await ApiService.getBrmToday(context);
       if (!mounted) return;
@@ -515,10 +516,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> loadPengumumanByUserId() async {
-    if (!mounted) return;
-    setState(() {
-      _isLoading = true;
-    });
     try {
       final pengumumanList = await ApiService.getPengumuman(
         context,
@@ -540,7 +537,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       print('❌ Gagal memuat pengumuman: $e');
       if (!mounted) return;
       setState(() {
-        _isLoading = false;
+        _isLoadingPengumuman = false;
       });
     }
   }
@@ -3380,7 +3377,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                           ),
                         // Pengumuman
-                        _isLoading
+                        _isLoadingPengumuman
                             ? buildPengumumanShimmer()
                             : _pengumumanList.isEmpty
                             ? const SizedBox.shrink()
@@ -3679,27 +3676,32 @@ Widget buildBrmShimmer() {
     baseColor: Colors.grey[300]!,
     highlightColor: Colors.grey[100]!,
     period: const Duration(milliseconds: 800),
-    child: Container(
-      height: 180,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Container(width: 120, height: 24, color: Colors.white),
-            const SizedBox(height: 8),
-            Container(width: 200, height: 16, color: Colors.white),
-            const SizedBox(height: 8),
-            Container(width: 80, height: 16, color: Colors.white),
-          ],
+    child: Column(
+      children: [
+        const SizedBox(height: 24),
+        Container(
+          height: 180,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(width: 120, height: 24, color: Colors.white),
+                const SizedBox(height: 8),
+                Container(width: 200, height: 16, color: Colors.white),
+                const SizedBox(height: 8),
+                Container(width: 80, height: 16, color: Colors.white),
+              ],
+            ),
+          ),
         ),
-      ),
+      ],
     ),
   );
 }
