@@ -89,7 +89,11 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
         );
         _text_answer[item['id'].toString()] = controller;
       } else if (item['type'].toString() == '2') {
-        _checkbox_answer[item['id'].toString()] = prefs.getBool(key) ?? false;
+        // Ya/Tidak (disimpan sebagai String)
+        final saved = prefs.getString(key);
+        if (saved != null) {
+          _checkbox_answer[item['id'].toString()] = (saved == 'Ya');
+        }
       } else if (item['type'].toString() == '3' ||
           item['type'].toString() == '4' ||
           item['type'].toString() == '5' ||
@@ -128,7 +132,10 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
       if (item['type'].toString() == '1') {
         await prefs.setString(key, _text_answer[idStr]?.text ?? '');
       } else if (item['type'].toString() == '2') {
-        await prefs.setBool(key, _checkbox_answer[idStr] ?? false);
+        // Simpan sebagai String 'Ya' atau 'Tidak'
+        final value = (_checkbox_answer[idStr] ?? false) ? 'Ya' : 'Tidak';
+        await prefs.setString(key, value);
+        print('Save Ya/Tidak: $key = $value');
       } else if (item['type'].toString() == '3' ||
           item['type'].toString() == '4' ||
           item['type'].toString() == '5' ||
@@ -219,7 +226,9 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
           SafeArea(
             child:
                 _isLoading
-                    ? const Center(child: CircularProgressIndicator())
+                    ? const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    )
                     : _dataEvaluasi.isEmpty
                     ? CustomNotFound(
                       text:
@@ -357,6 +366,13 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                             ),
                                             CustomSingleChoice(
                                               options: const ['Ya', 'Tidak'],
+                                              selectedValue:
+                                                  _checkbox_answer[id] == true
+                                                      ? 'Ya'
+                                                      : _checkbox_answer[id] ==
+                                                          false
+                                                      ? 'Tidak'
+                                                      : null,
                                               onSelected: (label) {
                                                 setState(() {
                                                   _checkbox_answer[id] =

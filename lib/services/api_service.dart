@@ -1,7 +1,6 @@
 // lib/services/api_service.dart
 
 import 'dart:convert';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,7 +15,8 @@ class ApiService {
   // static const String baseurl = 'http://172.172.52.9:82/reg-new/api-syc2025/';
   // static const String baseurlLocal = 'http://172.172.52.9/website_backup/api/';
   // static const String baseurl = 'http://172.172.52.11:90/api-syc2025/';
-  static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
+  // static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
+  static const String baseurl = 'https://netunim.seabs.ac.id/api-syc2025/';
 
   static Future<Map<String, dynamic>> loginUser(
     String username,
@@ -49,31 +49,6 @@ class ApiService {
       return json.decode(response.body);
     } else {
       throw Exception('Login failed');
-    }
-  }
-
-  static Future<Map<String, dynamic>> loginUserDio(
-    String username,
-    String password,
-  ) async {
-    final dio = Dio();
-    final url = '${baseurl}check-user';
-    print('Login URL (Dio): $url');
-    try {
-      final response = await dio.post(
-        url,
-        data: {'username': username, 'password': password},
-        options: Options(headers: {'Content-Type': 'application/json'}),
-      );
-      print('Login response status (Dio): ${response.statusCode}');
-      if (response.statusCode == 200) {
-        return response.data;
-      } else {
-        throw Exception('Login failed');
-      }
-    } on DioException catch (e) {
-      print('Dio error: $e');
-      throw Exception('Network error: $e');
     }
   }
 
@@ -208,6 +183,44 @@ class ApiService {
     } else {
       print('❌ Error test: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load bacaan harian');
+    }
+  }
+
+  // untuk bacaan harian dashboard supaya tidak loading lama
+  static Future<Map<String, dynamic>> getBrmTenDays(
+    BuildContext context,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}brm-ten-days');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('url: $url');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> dataBacaan = json.decode(response.body);
+
+      return dataBacaan;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      // throw Exception('Unauthorized');
+      return {};
+    } else {
+      print('❌ Error test: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load data brm ten days');
     }
   }
 
@@ -1706,6 +1719,45 @@ class ApiService {
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load pengumuman');
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> getPengumumanNotRead(
+    BuildContext context,
+    id,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}pengumuman-not-read?user_id=$id');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('url $url');
+    print('response ${response.statusCode} - ${response.body}');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> decoded = json.decode(response.body);
+      final List pengumuman = decoded['data_pengumuman'] ?? [];
+      return List<Map<String, dynamic>>.from(pengumuman);
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      // throw Exception('Unauthorized');
+      return [];
+    } else {
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load pengumuman not read');
     }
   }
 

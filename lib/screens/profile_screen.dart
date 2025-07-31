@@ -1,3 +1,4 @@
+import 'dart:convert'; // Tambahkan import ini di bagian atas file
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,7 +13,6 @@ import '../utils/global_variables.dart';
 import '../widgets/custom_count_up.dart';
 import '../widgets/custom_circular_progress';
 import '../widgets/custom_not_found.dart';
-import '../widgets/custom_pin_textfield.dart';
 import '../widgets/custom_snackbar.dart';
 import 'bible_reading_list_screen.dart';
 import 'daftar_acara_screen.dart';
@@ -91,7 +91,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
     try {
       await loadUserData();
-      await loadAvatarById();
 
       if (_dataUser['role']!.toLowerCase().contains('peserta')) {
         await loadProgresEvaluasiAnggota();
@@ -104,6 +103,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         await loadKomitmenDoneDay2Panitia();
         await loadKomitmenDoneDay3Panitia();
       }
+      await loadAvatarById();
     } catch (e) {
       // handle error jika perlu
     }
@@ -112,10 +112,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _isLoading = false;
       _isLoading_userdata = false;
       _isLoading_avatar = false;
-
-      // loading peserta
-      _isLoading_progreskomitmen = false;
-      _isLoading_progresevaluasi = false;
 
       // loading progres komitmen untuk panitia
       _isLoading_progreskomitmenday1_panitia = false;
@@ -156,61 +152,139 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
-  Future<void> loadProgresKomitmenAnggota() async {
+  Future<void> loadProgresKomitmenAnggota({bool forceRefresh = false}) async {
     if (!mounted) return;
     setState(() {
       _isLoading_progreskomitmen = true;
     });
     try {
+      final prefs = await SharedPreferences.getInstance();
       final userId = _dataUser['id'] ?? '';
+      final komitmenDoneKey = 'progres_komitmen_done_$userId';
+      final komitmenTotalKey = 'progres_komitmen_total';
+
+      Map<String, String> komitmenDoneMap = {};
+      int komitmenTotal = 0;
+
+      if (!forceRefresh) {
+        // Coba ambil dari shared pref lebih dulu
+        final cachedDone = prefs.getString(komitmenDoneKey);
+        final cachedTotal = prefs.getInt(komitmenTotalKey);
+        if (cachedDone != null && cachedTotal != null) {
+          komitmenDoneMap = Map<String, String>.from(jsonDecode(cachedDone));
+          komitmenTotal = cachedTotal;
+          setState(() {
+            _komitmenDoneMap = komitmenDoneMap;
+            _komitmenTotal = komitmenTotal;
+            _isLoading_progreskomitmen = false;
+          });
+          print(
+            '[PREF_API] dari shared pref Komitmen Done Map (from shared pref): $_komitmenDoneMap',
+          );
+          print(
+            '[PREF_API] dari shared pref Total Komitmen (from shared pref): $_komitmenTotal',
+          );
+          return;
+        }
+      }
+
+      // Jika forceRefresh atau belum ada di shared pref, fetch dari API
       final komitmenList = await ApiService.getCountKomitmenAnsweredByPeserta(
         context,
         userId,
       );
       final komitmen = await ApiService.getKomitmen(context);
 
+      komitmenDoneMap = komitmenList.map(
+        (key, value) => MapEntry(key.toString(), value.toString()),
+      );
+      komitmenTotal = komitmen.length;
+
+      // Simpan ke shared pref dengan jsonEncode
+      await prefs.setString(komitmenDoneKey, jsonEncode(komitmenDoneMap));
+      await prefs.setInt(komitmenTotalKey, komitmenTotal);
+
       if (!mounted) return;
       setState(() {
-        _komitmenDoneMap = komitmenList.map(
-          (key, value) => MapEntry(key.toString(), value.toString()),
-        );
-        _komitmenTotal = komitmen.length;
-
-        print('Komitmen Done Map: $_komitmenDoneMap');
-        print('Total Komitmen: ${_komitmenTotal} komitmen');
+        _komitmenDoneMap = komitmenDoneMap;
+        _komitmenTotal = komitmenTotal;
+        print('[PREF_API] dari API Komitmen Done Map: $_komitmenDoneMap');
+        print('[PREF_API] dari API Total Komitmen: $_komitmenTotal komitmen');
         _isLoading_progreskomitmen = false;
       });
     } catch (e) {
       if (!mounted) return;
+      setState(() {
+        _isLoading_progreskomitmen = false;
+      });
     }
   }
 
-  Future<void> loadProgresEvaluasiAnggota() async {
+  Future<void> loadProgresEvaluasiAnggota({bool forceRefresh = false}) async {
     if (!mounted) return;
     setState(() {
       _isLoading_progresevaluasi = true;
     });
     try {
+      final prefs = await SharedPreferences.getInstance();
       final userId = _dataUser['id'] ?? '';
+      final evaluasiDoneKey = 'progres_evaluasi_done_$userId';
+      final evaluasiTotalKey = 'progres_evaluasi_total';
+
+      Map<String, String> evaluasiDoneMap = {};
+      int evaluasiTotal = 0;
+
+      if (!forceRefresh) {
+        // Coba ambil dari shared pref lebih dulu
+        final cachedDone = prefs.getString(evaluasiDoneKey);
+        final cachedTotal = prefs.getInt(evaluasiTotalKey);
+        if (cachedDone != null && cachedTotal != null) {
+          evaluasiDoneMap = Map<String, String>.from(jsonDecode(cachedDone));
+          evaluasiTotal = cachedTotal;
+          setState(() {
+            _evaluasiDoneMap = evaluasiDoneMap;
+            _evaluasiTotal = evaluasiTotal;
+            _isLoading_progresevaluasi = false;
+          });
+          print(
+            '[PREF_API] dari shared pref Evaluasi Done Map (from shared pref): $_evaluasiDoneMap',
+          );
+          print(
+            '[PREF_API] dari shared pref Total Evaluasi (from shared pref): $_evaluasiTotal',
+          );
+          return;
+        }
+      }
+
+      // Jika forceRefresh atau belum ada di shared pref, fetch dari API
       final evaluasiList = await ApiService.getCountEvaluasiAnsweredByPeserta(
         context,
         userId,
       );
       final acaraList = await ApiService.getAcara(context);
 
+      evaluasiDoneMap = evaluasiList.map(
+        (key, value) => MapEntry(key.toString(), value.toString()),
+      );
+      evaluasiTotal = acaraList.length;
+
+      // Simpan ke shared pref dengan jsonEncode
+      await prefs.setString(evaluasiDoneKey, jsonEncode(evaluasiDoneMap));
+      await prefs.setInt(evaluasiTotalKey, evaluasiTotal);
+
       if (!mounted) return;
       setState(() {
-        _evaluasiDoneMap = evaluasiList.map(
-          (key, value) => MapEntry(key.toString(), value.toString()),
-        );
-        _evaluasiTotal = acaraList.length;
-
-        print('Evaluasi Done Map: $_evaluasiDoneMap');
-        print('Total Eval: ${_evaluasiTotal} evaluasi');
+        _evaluasiDoneMap = evaluasiDoneMap;
+        _evaluasiTotal = evaluasiTotal;
+        print('[PREF_API] dari API Evaluasi Done Map: $_evaluasiDoneMap');
+        print('[PREF_API] dari API Total Evaluasi: $_evaluasiTotal evaluasi');
         _isLoading_progresevaluasi = false;
       });
     } catch (e) {
       if (!mounted) return;
+      setState(() {
+        _isLoading_progresevaluasi = false;
+      });
     }
   }
 
@@ -231,80 +305,172 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {}
   }
 
-  Future<void> loadCountUser() async {
+  Future<void> loadCountUser({bool forceRefresh = false}) async {
     if (!mounted) return;
     setState(() {});
     try {
+      final prefs = await SharedPreferences.getInstance();
+      const countUserKey = 'profile_count_user_panitia';
+
+      Map<String, String> countUserMap = {};
+
+      if (!forceRefresh) {
+        final cachedCountUser = prefs.getString(countUserKey);
+        if (cachedCountUser != null) {
+          countUserMap = Map<String, String>.from(jsonDecode(cachedCountUser));
+          setState(() {
+            _countUserMapPanitia = countUserMap;
+          });
+          print(
+            '[PREF_API] dari shared pref Count User Map: $_countUserMapPanitia',
+          );
+          return;
+        }
+      }
+
       final _countUser = await ApiService.getCountUser(context);
+      countUserMap = _countUser.map(
+        (key, value) => MapEntry(key.toString(), value.toString()),
+      );
+      await prefs.setString(countUserKey, jsonEncode(countUserMap));
       if (!mounted) return;
       setState(() {
-        _countUserMapPanitia = _countUser.map(
-          (key, value) => MapEntry(key.toString(), value.toString()),
-        );
-        print('Count User Map: $_countUserMapPanitia');
+        _countUserMapPanitia = countUserMap;
+        print('[PREF_API] dari API Count User Map: $_countUserMapPanitia');
       });
     } catch (e) {}
   }
 
-  //aku load satu satu , mau sekaligus juga bisa sih
-  Future<void> loadKomitmenDoneDay1Panitia() async {
+  Future<void> loadKomitmenDoneDay1Panitia({bool forceRefresh = false}) async {
     if (!mounted) return;
     setState(() {
       _isLoading_progreskomitmenday1_panitia = true;
     });
     try {
+      final prefs = await SharedPreferences.getInstance();
+      const key = 'profile_komitmen_done_day1_panitia';
+
+      Map<String, String> komitmenDoneDay1Map = {};
+
+      if (!forceRefresh) {
+        final cached = prefs.getString(key);
+        if (cached != null) {
+          komitmenDoneDay1Map = Map<String, String>.from(jsonDecode(cached));
+          setState(() {
+            _komitmenDoneDay1MapPanitia = komitmenDoneDay1Map;
+            _isLoading_progreskomitmenday1_panitia = false;
+          });
+          print(
+            '[PREF_API] dari shared pref Komitmen Done Day 1 Map: $_komitmenDoneDay1MapPanitia',
+          );
+          return;
+        }
+      }
+
       final _countKomitmen = await ApiService.getCountKomitmenAnsweredByDay(
         context,
         "1",
       );
+      komitmenDoneDay1Map = _countKomitmen.map(
+        (key, value) => MapEntry(key.toString(), value.toString()),
+      );
+      await prefs.setString(key, jsonEncode(komitmenDoneDay1Map));
       if (!mounted) return;
       setState(() {
-        _komitmenDoneDay1MapPanitia = _countKomitmen.map(
-          (key, value) => MapEntry(key.toString(), value.toString()),
+        _komitmenDoneDay1MapPanitia = komitmenDoneDay1Map;
+        print(
+          '[PREF_API] dari API Komitmen Done Day 1 Map: $_komitmenDoneDay1MapPanitia',
         );
-        print('Komitmen Done Day 1 Map: $_komitmenDoneDay1MapPanitia');
         _isLoading_progreskomitmenday1_panitia = false;
       });
     } catch (e) {}
   }
 
-  Future<void> loadKomitmenDoneDay2Panitia() async {
+  Future<void> loadKomitmenDoneDay2Panitia({bool forceRefresh = false}) async {
     if (!mounted) return;
     setState(() {
       _isLoading_progreskomitmenday2_panitia = true;
     });
     try {
+      final prefs = await SharedPreferences.getInstance();
+      const key = 'profile_komitmen_done_day2_panitia';
+
+      Map<String, String> komitmenDoneDay2Map = {};
+
+      if (!forceRefresh) {
+        final cached = prefs.getString(key);
+        if (cached != null) {
+          komitmenDoneDay2Map = Map<String, String>.from(jsonDecode(cached));
+          setState(() {
+            _komitmenDoneDay2MapPanitia = komitmenDoneDay2Map;
+            _isLoading_progreskomitmenday2_panitia = false;
+          });
+          print(
+            '[PREF_API] dari shared pref Komitmen Done Day 2 Map: $_komitmenDoneDay2MapPanitia',
+          );
+          return;
+        }
+      }
+
       final _countKomitmen = await ApiService.getCountKomitmenAnsweredByDay(
         context,
         "2",
       );
+      komitmenDoneDay2Map = _countKomitmen.map(
+        (key, value) => MapEntry(key.toString(), value.toString()),
+      );
+      await prefs.setString(key, jsonEncode(komitmenDoneDay2Map));
       if (!mounted) return;
       setState(() {
-        _komitmenDoneDay2MapPanitia = _countKomitmen.map(
-          (key, value) => MapEntry(key.toString(), value.toString()),
+        _komitmenDoneDay2MapPanitia = komitmenDoneDay2Map;
+        print(
+          '[PREF_API] dari API Komitmen Done Day 2 Map: $_komitmenDoneDay2MapPanitia',
         );
-        print('Komitmen Done Day 2 Map: $_komitmenDoneDay2MapPanitia');
         _isLoading_progreskomitmenday2_panitia = false;
       });
     } catch (e) {}
   }
 
-  Future<void> loadKomitmenDoneDay3Panitia() async {
+  Future<void> loadKomitmenDoneDay3Panitia({bool forceRefresh = false}) async {
     if (!mounted) return;
     setState(() {
       _isLoading_progreskomitmenday3_panitia = true;
     });
     try {
+      final prefs = await SharedPreferences.getInstance();
+      const key = 'profile_komitmen_done_day3_panitia';
+
+      Map<String, String> komitmenDoneDay3Map = {};
+
+      if (!forceRefresh) {
+        final cached = prefs.getString(key);
+        if (cached != null) {
+          komitmenDoneDay3Map = Map<String, String>.from(jsonDecode(cached));
+          setState(() {
+            _komitmenDoneDay3MapPanitia = komitmenDoneDay3Map;
+            _isLoading_progreskomitmenday3_panitia = false;
+          });
+          print(
+            '[PREF_API] dari shared pref Komitmen Done Day 3 Map: $_komitmenDoneDay3MapPanitia',
+          );
+          return;
+        }
+      }
+
       final _countKomitmen = await ApiService.getCountKomitmenAnsweredByDay(
         context,
         "3",
       );
+      komitmenDoneDay3Map = _countKomitmen.map(
+        (key, value) => MapEntry(key.toString(), value.toString()),
+      );
+      await prefs.setString(key, jsonEncode(komitmenDoneDay3Map));
       if (!mounted) return;
       setState(() {
-        _komitmenDoneDay3MapPanitia = _countKomitmen.map(
-          (key, value) => MapEntry(key.toString(), value.toString()),
+        _komitmenDoneDay3MapPanitia = komitmenDoneDay3Map;
+        print(
+          '[PREF_API] dari API Komitmen Done Day 3 Map: $_komitmenDoneDay3MapPanitia',
         );
-        print('Komitmen Done Day 3Map: $_komitmenDoneDay3MapPanitia');
         _isLoading_progreskomitmenday3_panitia = false;
       });
     } catch (e) {}
@@ -384,7 +550,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             SafeArea(
               child: RefreshIndicator(
-                onRefresh: () => initAll(),
+                onRefresh: () async {
+                  if (_dataUser['role']!.toLowerCase().contains('peserta')) {
+                    await loadProgresEvaluasiAnggota(forceRefresh: true);
+                    await loadProgresKomitmenAnggota(forceRefresh: true);
+                    await loadAvatarById();
+                  } else if (_dataUser['role']!.toLowerCase().contains(
+                    'panitia',
+                  )) {
+                    await loadCountUser(forceRefresh: true);
+                    await loadKomitmenDoneDay1Panitia(forceRefresh: true);
+                    await loadKomitmenDoneDay2Panitia(forceRefresh: true);
+                    await loadKomitmenDoneDay3Panitia(forceRefresh: true);
+                    await loadAvatarById();
+                  }
+                },
                 color: AppColors.brown1,
                 backgroundColor: Colors.white,
                 child: SingleChildScrollView(
@@ -672,23 +852,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ],
                             ),
                             const SizedBox(height: 16),
-
-                            // CustomPinTextfield(),
                             // progress evaluasi dan komitmen
                             if (role.toLowerCase().contains('peserta'))
-                              (_isLoading_progresevaluasi &&
-                                      _isLoading_progreskomitmen)
+                              (_isLoading_progresevaluasi)
                                   ? buildAcaraShimmer()
-                                  //     : _acaraList.isEmpty
-                                  //     ? Center(
-                                  //       child: CustomNotFound(
-                                  //         text: "Gagal memuat daftar materi :(",
-                                  //         textColor: AppColors.brown1,
-                                  //         imagePath: 'assets/images/data_not_found.png',
-                                  //         onBack: initAll,
-                                  //         backText: 'Reload Materi',
-                                  //       ),
-                                  //     )
                                   : Builder(
                                     builder: (context) {
                                       // Ambil userId dari _dataUser
@@ -700,13 +867,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       final progresEvaluasi =
                                           int.tryParse(progresEvaluasiStr) ?? 0;
                                       final totalEvaluasi = _evaluasiTotal ?? 1;
-
-                                      // Progress Komitmen
-                                      final progresKomitmenStr =
-                                          _komitmenDoneMap['count'] ?? '0';
-                                      final progresKomitmen =
-                                          int.tryParse(progresKomitmenStr) ?? 0;
-                                      final totalKomitmen = _komitmenTotal ?? 1;
 
                                       return Column(
                                         children: [
@@ -737,6 +897,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             valueDone: progresEvaluasi,
                                             valueTotal: totalEvaluasi,
                                           ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                            const SizedBox(height: 16),
+                            // progress evaluasi dan komitmen
+                            if (role.toLowerCase().contains('peserta'))
+                              (_isLoading_progreskomitmen)
+                                  ? buildAcaraShimmer()
+                                  : Builder(
+                                    builder: (context) {
+                                      // Ambil userId dari _dataUser
+                                      final userId = _dataUser['id'] ?? '';
+                                      // Progress Komitmen
+                                      final progresKomitmenStr =
+                                          _komitmenDoneMap['count'] ?? '0';
+                                      final progresKomitmen =
+                                          int.tryParse(progresKomitmenStr) ?? 0;
+                                      final totalKomitmen = _komitmenTotal ?? 1;
+
+                                      return Column(
+                                        children: [
                                           MateriMenuCard(
                                             title: 'Komitmen Pribadi',
                                             onTap: () {
@@ -825,53 +1007,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ],
                               ),
                             ),
-
-                            // const SizedBox(height: 16),
-                            // InkWell(
-                            //   onTap: () {
-                            //     Navigator.push(
-                            //       context,
-                            //       MaterialPageRoute(builder: (context) => CatatanHarianScreen(role: role, id: id)),
-                            //     );
-                            //   },
-                            //   borderRadius: BorderRadius.circular(16),
-                            //   child: Stack(
-                            //     children: [
-                            //       Container(
-                            //         height: 180,
-                            //         padding: const EdgeInsets.only(left: 150, right: 24, bottom: 16),
-                            //         decoration: BoxDecoration(
-                            //           color: AppColors.primary.withAlpha(70),
-                            //           borderRadius: BorderRadius.circular(16),
-                            //           image: const DecorationImage(
-                            //             image: AssetImage('assets/images/card_catatan.png'),
-                            //             fit: BoxFit.cover,
-                            //           ),
-                            //         ),
-                            //         child: Align(
-                            //           alignment: Alignment.bottomRight,
-                            //           child: Column(
-                            //             mainAxisSize: MainAxisSize.min,
-                            //             crossAxisAlignment: CrossAxisAlignment.end,
-                            //             mainAxisAlignment: MainAxisAlignment.end,
-                            //             children: [
-                            //               Text(
-                            //                 'Catatan Harian',
-                            //                 style: const TextStyle(
-                            //                   fontWeight: FontWeight.w900,
-                            //                   color: Colors.white,
-                            //                   fontSize: 22,
-                            //                 ),
-                            //                 maxLines: 2,
-                            //                 textAlign: TextAlign.right,
-                            //               ),
-                            //             ],
-                            //           ),
-                            //         ),
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
                             const SizedBox(height: 16),
                             InkWell(
                               onTap: () {
@@ -928,296 +1063,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ],
                               ),
                             ),
-
-                            // day 1 - 3 untuk panitia
-                            // if (role.toLowerCase().contains('panitia'))
-                            //   _isLoading_progreskomitmenday1_panitia
-                            //       ? buildProgresKomitmenPanitiaShimmerCard(
-                            //         context,
-                            //       )
-                            //       : (() {
-                            //         // Ambil jumlah peserta yang sudah mengisi komitmen hari ke-1
-                            //         final progresDay1Str =
-                            //             _komitmenDoneDay1MapPanitia['count'] ??
-                            //             '0';
-                            //         final totalDay1Str =
-                            //             _countUserMapPanitia["count_peserta"] ??
-                            //             '0';
-                            //         final progresDay1 =
-                            //             int.tryParse(progresDay1Str) ?? 0;
-                            //         final totalDay1 =
-                            //             int.tryParse(totalDay1Str) ?? 1;
-                            //         final progressDay1Value =
-                            //             totalDay1 > 0
-                            //                 ? progresDay1 / totalDay1
-                            //                 : 0.0;
-
-                            //         // Ambil jumlah peserta yang sudah mengisi komitmen hari ke-2
-                            //         final progresDay2Str =
-                            //             _komitmenDoneDay2MapPanitia['count'] ??
-                            //             '0';
-                            //         final totalDay2Str =
-                            //             _countUserMapPanitia["count_peserta"] ??
-                            //             '0';
-                            //         final progresDay2 =
-                            //             int.tryParse(progresDay2Str) ?? 0;
-                            //         final totalDay2 =
-                            //             int.tryParse(totalDay2Str) ?? 1;
-                            //         final progressDay2Value =
-                            //             totalDay2 > 0
-                            //                 ? progresDay2 / totalDay2
-                            //                 : 0.0;
-
-                            //         // Ambil jumlah peserta yang sudah mengisi komitmen hari ke-2
-                            //         final progresDay3Str =
-                            //             _komitmenDoneDay3MapPanitia['count'] ??
-                            //             '0';
-                            //         final totalDay3Str =
-                            //             _countUserMapPanitia["count_peserta"] ??
-                            //             '0';
-                            //         final progresDay3 =
-                            //             int.tryParse(progresDay2Str) ?? 0;
-                            //         final totalDay3 =
-                            //             int.tryParse(totalDay3Str) ?? 1;
-                            //         final progressDay3Value =
-                            //             totalDay3 > 0
-                            //                 ? progresDay3 / totalDay3
-                            //                 : 0.0;
-
-                            //         return SizedBox(
-                            //           height: 180,
-                            //           child: Stack(
-                            //             children: [
-                            //               Positioned.fill(
-                            //                 child: ClipRRect(
-                            //                   borderRadius:
-                            //                       BorderRadius.circular(16),
-                            //                   child: Image.asset(
-                            //                     'assets/images/card_komitmen2.jpg',
-                            //                     fit: BoxFit.fill,
-                            //                   ),
-                            //                 ),
-                            //               ),
-                            //               Container(
-                            //                 padding: const EdgeInsets.only(
-                            //                   left: 96,
-                            //                   right: 16,
-                            //                   bottom: 16,
-                            //                 ),
-                            //                 decoration: BoxDecoration(
-                            //                   borderRadius:
-                            //                       BorderRadius.circular(16),
-                            //                 ),
-                            //                 child: Column(
-                            //                   mainAxisAlignment:
-                            //                       MainAxisAlignment.center,
-                            //                   children: [
-                            //                     Row(
-                            //                       mainAxisAlignment:
-                            //                           MainAxisAlignment.center,
-                            //                       crossAxisAlignment:
-                            //                           CrossAxisAlignment.center,
-                            //                       children: [
-                            //                         // day 1
-                            //                         Column(
-                            //                           mainAxisSize:
-                            //                               MainAxisSize.min,
-                            //                           crossAxisAlignment:
-                            //                               CrossAxisAlignment
-                            //                                   .center,
-                            //                           children: [
-                            //                             CustomCircularProgress(
-                            //                               progress:
-                            //                                   progressDay1Value
-                            //                                       .clamp(
-                            //                                         0.0,
-                            //                                         1.0,
-                            //                                       ),
-                            //                               size: 70,
-                            //                               color: Colors.white,
-                            //                               duration: Duration(
-                            //                                 milliseconds: 600,
-                            //                               ),
-                            //                               child: Column(
-                            //                                 mainAxisAlignment:
-                            //                                     MainAxisAlignment
-                            //                                         .center,
-                            //                                 children: [
-                            //                                   Text(
-                            //                                     '$progresDay1/$totalDay1',
-                            //                                     style: TextStyle(
-                            //                                       fontSize:
-                            //                                           totalDay1 >
-                            //                                                   500
-                            //                                               ? 8
-                            //                                               : 10,
-                            //                                       fontWeight:
-                            //                                           FontWeight
-                            //                                               .w900,
-                            //                                       color:
-                            //                                           Colors
-                            //                                               .white,
-                            //                                     ),
-                            //                                   ),
-                            //                                   Text(
-                            //                                     'Hari ke-1',
-                            //                                     style: TextStyle(
-                            //                                       fontSize: 10,
-                            //                                       fontWeight:
-                            //                                           FontWeight
-                            //                                               .w400,
-                            //                                       color:
-                            //                                           Colors
-                            //                                               .white,
-                            //                                     ),
-                            //                                   ),
-                            //                                 ],
-                            //                               ),
-                            //                             ),
-                            //                           ],
-                            //                         ),
-                            //                         SizedBox(width: 8),
-                            //                         // day 2
-                            //                         Column(
-                            //                           mainAxisSize:
-                            //                               MainAxisSize.min,
-                            //                           crossAxisAlignment:
-                            //                               CrossAxisAlignment
-                            //                                   .center,
-                            //                           children: [
-                            //                             CustomCircularProgress(
-                            //                               progress:
-                            //                                   progressDay2Value
-                            //                                       .clamp(
-                            //                                         0.0,
-                            //                                         1.0,
-                            //                                       ),
-                            //                               size: 70,
-                            //                               color: Colors.white,
-                            //                               duration: Duration(
-                            //                                 milliseconds: 600,
-                            //                               ),
-                            //                               child: Column(
-                            //                                 mainAxisAlignment:
-                            //                                     MainAxisAlignment
-                            //                                         .center,
-                            //                                 children: [
-                            //                                   Text(
-                            //                                     '$progresDay2/$totalDay2',
-                            //                                     style: TextStyle(
-                            //                                       fontSize:
-                            //                                           totalDay1 >
-                            //                                                   500
-                            //                                               ? 8
-                            //                                               : 10,
-                            //                                       fontWeight:
-                            //                                           FontWeight
-                            //                                               .w900,
-                            //                                       color:
-                            //                                           Colors
-                            //                                               .white,
-                            //                                     ),
-                            //                                   ),
-                            //                                   Text(
-                            //                                     'Hari ke-2',
-                            //                                     style: TextStyle(
-                            //                                       fontSize: 10,
-                            //                                       fontWeight:
-                            //                                           FontWeight
-                            //                                               .w400,
-                            //                                       color:
-                            //                                           Colors
-                            //                                               .white,
-                            //                                     ),
-                            //                                   ),
-                            //                                 ],
-                            //                               ),
-                            //                             ),
-                            //                           ],
-                            //                         ),
-                            //                         SizedBox(width: 8),
-                            //                         // day 3
-                            //                         Column(
-                            //                           mainAxisSize:
-                            //                               MainAxisSize.min,
-                            //                           crossAxisAlignment:
-                            //                               CrossAxisAlignment
-                            //                                   .center,
-                            //                           children: [
-                            //                             CustomCircularProgress(
-                            //                               progress:
-                            //                                   progressDay3Value
-                            //                                       .clamp(
-                            //                                         0.0,
-                            //                                         1.0,
-                            //                                       ),
-                            //                               size: 70,
-                            //                               color: Colors.white,
-                            //                               duration: Duration(
-                            //                                 milliseconds: 600,
-                            //                               ),
-                            //                               child: Column(
-                            //                                 mainAxisAlignment:
-                            //                                     MainAxisAlignment
-                            //                                         .center,
-                            //                                 children: [
-                            //                                   Text(
-                            //                                     '$progresDay3/$totalDay3',
-                            //                                     style: TextStyle(
-                            //                                       fontSize:
-                            //                                           totalDay1 >
-                            //                                                   500
-                            //                                               ? 8
-                            //                                               : 10,
-                            //                                       fontWeight:
-                            //                                           FontWeight
-                            //                                               .w900,
-                            //                                       color:
-                            //                                           Colors
-                            //                                               .white,
-                            //                                     ),
-                            //                                   ),
-                            //                                   Text(
-                            //                                     'Hari ke-3',
-                            //                                     style: TextStyle(
-                            //                                       fontSize: 10,
-                            //                                       fontWeight:
-                            //                                           FontWeight
-                            //                                               .w400,
-                            //                                       color:
-                            //                                           Colors
-                            //                                               .white,
-                            //                                     ),
-                            //                                   ),
-                            //                                 ],
-                            //                               ),
-                            //                             ),
-                            //                           ],
-                            //                         ),
-                            //                       ],
-                            //                     ),
-                            //                     const SizedBox(height: 8),
-                            //                   ],
-                            //                 ),
-                            //               ),
-                            //               Positioned(
-                            //                 right: 16,
-                            //                 bottom: 16,
-                            //                 child: Text(
-                            //                   'Pengisian Komitmen',
-                            //                   style: TextStyle(
-                            //                     fontSize: 22,
-                            //                     color: Colors.white,
-                            //                     fontWeight: FontWeight.w900,
-                            //                   ),
-                            //                   overflow: TextOverflow.ellipsis,
-                            //                   textAlign: TextAlign.center,
-                            //                 ),
-                            //               ),
-                            //             ],
-                            //           ),
-                            //         );
-                            //       })(),
                             const SizedBox(height: 24),
                             if (role.toLowerCase().contains('panitia'))
                               _isLoading_progreskomitmenday1_panitia
@@ -1970,9 +1815,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 Widget buildAcaraShimmer() {
   return Column(
-    children: List.generate(2, (index) {
+    children: List.generate(1, (index) {
       return Container(
-        margin: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(24),
@@ -2164,7 +2008,6 @@ class MateriMenuCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(24),

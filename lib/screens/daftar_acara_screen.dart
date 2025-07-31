@@ -1,8 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:flutter_svg/svg.dart';
-import 'package:shared_preferences/shared_preferences.dart'
-    show SharedPreferences;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:syc/services/notification_service.dart'
     show NotificationService;
@@ -52,18 +52,86 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
       _isLoading = true;
     });
     try {
-      await loadCountAcara();
       await loadUserData();
+      await loadCountAcara();
+      await matchDateWithToday();
+      await loadAcara();
+    } catch (e) {
+      // handle error jika perlu
+    }
+    if (!mounted) return;
+    setState(() {
+      _isLoading = false;
+    });
+  }
 
-      // Ambil tanggal hari ini dan set day jika ada di tanggalList
+  Future<void> loadAcara({bool forceRefresh = false}) async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+    });
+    print('[PREF_API] Loading acara for day: $day');
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final acaraKey = 'daftar_acara_acara_day_$day';
+      final acaraString = prefs.getString(acaraKey);
+
+      if (!forceRefresh && acaraString != null && acaraString.isNotEmpty) {
+        // Jika sudah ada di shared pref dan bukan refresh, load dari sana
+        final List<dynamic> acaraList = jsonDecode(acaraString);
+        if (!mounted) return;
+        setState(() {
+          print('[PREF_API] Acara found in shared preferences for day $day');
+          _acaraList = acaraList;
+          _isLoading = false;
+        });
+        return;
+      }
+
+      // Jika forceRefresh atau belum ada di shared pref, fetch dari API
+      final acaraList = await ApiService.getAcaraByDay(context, day);
+      if (!mounted) return;
+      setState(() {
+        print('[PREF_API] Fetched acara from API for day $day');
+        _acaraList = acaraList;
+        _isLoading = false;
+      });
+
+      // Simpan ke shared pref
+      if (acaraList != null && acaraList.isNotEmpty) {
+        await prefs.setString(acaraKey, jsonEncode(acaraList));
+      }
+    } catch (e) {
+      print('❌ Gagal memuat acara: $e');
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // Ambil tanggal hari ini dan set day jika ada di tanggalList
+  Future<void> matchDateWithToday({bool forceRefresh = false}) async {
+    final prefs = await SharedPreferences.getInstance();
+    final tanggalListKey = 'daftar_acara_tanggal_list';
+    List<dynamic> tanggalList = [];
+
+    if (!forceRefresh) {
+      // Coba ambil dari shared pref lebih dulu
+      final cachedTanggalList = prefs.getString(tanggalListKey);
+      if (cachedTanggalList != null && cachedTanggalList.isNotEmpty) {
+        tanggalList = jsonDecode(cachedTanggalList);
+        print('[PREF_API] Tanggal List loaded from shared pref');
+      }
+    }
+
+    if (forceRefresh || tanggalList.isEmpty) {
+      // Jika forceRefresh atau belum ada di shared pref, fetch dari API
       final tanggalListResponse = await ApiService.getTanggalAcara(context);
-
-      List<dynamic> tanggalList = [];
       if (tanggalListResponse.isNotEmpty) {
         if (tanggalListResponse[0] is List) {
           tanggalList = tanggalListResponse[0];
         } else if (tanggalListResponse[0] is Map) {
-          // Jika API mengembalikan Map tanggal -> hari, ubah ke List
           final mapTanggal = tanggalListResponse[0] as Map;
           tanggalList =
               mapTanggal.entries.map((e) {
@@ -75,63 +143,69 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                 }
               }).toList();
         }
+        // Simpan ke shared pref
+        await prefs.setString(tanggalListKey, jsonEncode(tanggalList));
+        print(
+          '[PREF_API] Tanggal List fetched from API and saved to shared pref',
+        );
       }
-      _tanggalList = tanggalList;
-      print('Tanggal List: $_tanggalList');
-      final match = _tanggalList.firstWhere(
-        (item) => item['tanggal'] == _today.toIso8601String().substring(0, 10),
-        orElse: () => null,
+    }
+
+    _tanggalList = tanggalList;
+    print('Tanggal List: $_tanggalList');
+    final match = _tanggalList.firstWhere(
+      (item) => item['tanggal'] == _today.toIso8601String().substring(0, 10),
+      orElse: () => null,
+    );
+    if (!mounted) return;
+    setState(() {
+      print(
+        '[PREF_API] Match today: ${_today.toIso8601String().substring(0, 10)}',
       );
-      print('Match today: ${_today.toIso8601String().substring(0, 10)}');
-      print('Match: $match');
+      print('[PREF_API] Match: $match');
       if (match != null && match['hari'] != null) {
         day = match['hari'];
       } else {
         day = 1;
       }
-
-      await loadAcara();
-    } catch (e) {
-      // handle error jika perlu
-    }
-    if (!mounted) return;
-    setState(() {
-      _isLoading = false;
     });
   }
 
-  Future<void> loadAcara() async {
-    if (!mounted) return;
-    setState(() {
-      _isLoading = true;
-    });
-    print('Loading acara for day: $day');
-    try {
-      final acaraList = await ApiService.getAcaraByDay(context, day);
-      if (!mounted) return;
-      setState(() {
-        _acaraList = acaraList;
-        print('Acara List: $_acaraList');
-        _isLoading = false;
-      });
-    } catch (e) {
-      print('❌ Gagal memuat acara: $e');
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
+  Future<void> loadCountAcara({bool forceRefresh = false}) async {
+    final prefs = await SharedPreferences.getInstance();
+    const countAcaraKey = 'daftar_acara_count_acara';
+    int? countAcara;
 
-  Future<void> loadCountAcara() async {
-    try {
-      final countAcara = await ApiService.getAcaraCount(context);
+    if (!forceRefresh) {
+      // Coba ambil dari shared pref lebih dulu
+      final cachedCount = prefs.getInt(countAcaraKey);
+      if (cachedCount != null) {
+        countAcara = cachedCount;
+        print('[PREF_API] Count acara loaded from shared pref: $countAcara');
+      }
+    }
+
+    if (forceRefresh || countAcara == null) {
+      // Jika forceRefresh atau belum ada di shared pref, fetch dari API
+      try {
+        final apiCountAcara = await ApiService.getAcaraCount(context);
+        if (!mounted) return;
+        setState(() {
+          _countAcara = apiCountAcara;
+        });
+        // Simpan ke shared pref
+        await prefs.setInt(countAcaraKey, apiCountAcara);
+        print(
+          '[PREF_API] Count acara fetched from API and saved to shared pref: $apiCountAcara',
+        );
+      } catch (e) {
+        print('❌ Gagal memuat acara count: $e');
+      }
+    } else {
       if (!mounted) return;
       setState(() {
-        _countAcara = countAcara;
+        _countAcara = countAcara!;
       });
-    } catch (e) {
-      print('❌ Gagal memuat acara count: $e');
     }
   }
 
@@ -245,7 +319,10 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
             ),
             SafeArea(
               child: RefreshIndicator(
-                onRefresh: () => initAll(),
+                onRefresh:
+                    () => loadAcara(forceRefresh: true)
+                        .then((_) => matchDateWithToday(forceRefresh: true))
+                        .then((_) => loadCountAcara(forceRefresh: true)),
                 color: AppColors.brown1,
                 backgroundColor: Colors.white,
                 child: SingleChildScrollView(

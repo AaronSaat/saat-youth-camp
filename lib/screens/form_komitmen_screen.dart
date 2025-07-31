@@ -76,8 +76,11 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
         );
         _text_answer[item['id'].toString()] = controller;
       } else if (item['type'].toString() == '2') {
-        // Checkbox
-        _checkbox_answer[item['id'].toString()] = prefs.getBool(key) ?? false;
+        // Ya/Tidak (disimpan sebagai String)
+        final saved = prefs.getString(key);
+        if (saved != null) {
+          _checkbox_answer[item['id'].toString()] = (saved == 'Ya');
+        }
       }
     }
     setState(() {});
@@ -96,8 +99,10 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
         await prefs.setString(key, _text_answer[idStr]?.text ?? '');
         print('Save Text: $key = ${_text_answer[idStr]?.text}');
       } else if (item['type'].toString() == '2') {
-        await prefs.setBool(key, _checkbox_answer[idStr] ?? false);
-        print('Save Checkbox: $key = ${_checkbox_answer[idStr] ?? false}');
+        // Simpan sebagai String 'Ya' atau 'Tidak'
+        final value = (_checkbox_answer[idStr] ?? false) ? 'Ya' : 'Tidak';
+        await prefs.setString(key, value);
+        print('Save Ya/Tidak: $key = $value');
       }
     }
     // Simpan list id pertanyaan untuk tipe ini
@@ -176,7 +181,9 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
           SafeArea(
             child:
                 _isLoading
-                    ? const Center(child: CircularProgressIndicator())
+                    ? const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    )
                     : (_dataKomitmen.isEmpty)
                     ? CustomNotFound(
                       text:
@@ -212,7 +219,7 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                           child: ConstrainedBox(
                             constraints: BoxConstraints(
                               maxHeight:
-                                  MediaQuery.of(context).size.height * 0.73,
+                                  MediaQuery.of(context).size.height * 0.7,
                             ),
                             child: SingleChildScrollView(
                               child: Padding(
@@ -316,6 +323,13 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                                             const SizedBox(height: 8),
                                             CustomSingleChoice(
                                               options: const ['Ya', 'Tidak'],
+                                              selectedValue:
+                                                  _checkbox_answer[id] == true
+                                                      ? 'Ya'
+                                                      : _checkbox_answer[id] ==
+                                                          false
+                                                      ? 'Tidak'
+                                                      : null,
                                               onSelected: (label) {
                                                 setState(() {
                                                   _checkbox_answer[id] =

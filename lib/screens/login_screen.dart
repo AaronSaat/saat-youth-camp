@@ -77,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
     print('group_id: $group_id');
     print('role: $role');
     print('count_roles: $count_roles');
-    print('CEK TOKEN BERHASILLOGIN: $token');
+    print('token: $token');
     print('gereja_id: $gereja_id');
     print('gereja_nama: $gereja_nama');
     print('kelompok_id: $kelompok_id');
@@ -183,19 +183,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       //     ),
                       //   ),
                       // ),
-
-                      // Container(
-                      //   width: 110,
-                      //   height: 110,
-                      //   decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                      //   child: Padding(
-                      //     padding: const EdgeInsets.all(12),
-                      //     child: Image.asset('assets/logos/story_saat.png', fit: BoxFit.contain),
-                      //   ),
-                      // ),
-                      const SizedBox(height: 32),
-                      // Image.asset('assets/logos/syc2.png', height: 100),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 72),
 
                       // Username
                       Padding(

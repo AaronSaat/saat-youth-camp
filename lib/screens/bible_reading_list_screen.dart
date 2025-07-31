@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart'
 import 'package:syc/screens/bible_reading_more_screen.dart';
 import 'package:syc/screens/form_evaluasi_screen.dart';
 import 'package:shimmer/shimmer.dart';
+import 'dart:convert';
 
 import '../services/api_service.dart';
 import '../utils/app_colors.dart';
@@ -31,7 +32,6 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
   int _jumlahHari = 1;
   String _namaBulan = '';
   List<dynamic> _dataBrm = [];
-  Map<String, dynamic> _dataProgress = {};
   Map<String, String> _dataUser = {};
   List<String> _dataBacaan = [];
   List<String> _dataNotesBacaan = [];
@@ -44,7 +44,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
     initAll();
   }
 
-  Future<void> initAll() async {
+  Future<void> initAll({bool forceRefresh = false}) async {
     setState(() {
       _isLoading = true;
       print('🔄 Memuat data bacaan harian...');
@@ -60,9 +60,8 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
         _namaBulan = getNamaBulan();
       });
       await loadUserData();
-      await loadBrmByBulan();
-      await loadBrmReportByPesertaByBulan();
-      await loadReportCountBrmByPesertaByDay();
+      await loadBrmByBulan(forceRefresh: forceRefresh);
+      await loadReportCountBrmByPesertaByDay(forceRefresh: forceRefresh);
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -100,24 +99,60 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
     });
   }
 
-  Future<void> loadBrmByBulan() async {
+  Future<void> loadBrmByBulan({bool forceRefresh = false}) async {
     final now = DateTime.now();
     final month = now.month.toString().padLeft(2, '0');
+    final prefs = await SharedPreferences.getInstance();
+    final brmKey = 'brm_reading_list_brm_by_bulan_$month';
+
+    if (!forceRefresh) {
+      final cachedBrm = prefs.getString(brmKey);
+      if (cachedBrm != null) {
+        final List<dynamic> decoded = jsonDecode(cachedBrm);
+        setState(() {
+          _dataBrm = decoded;
+          print('[PREF_API] Data Brm Bulanan (from sha`red pref)');
+        });
+        return;
+      }
+    }
+
     try {
       final brm = await ApiService.getBrmByBulan(context, month);
+      await prefs.setString(brmKey, jsonEncode(brm));
       if (!mounted) return;
       setState(() {
         _dataBrm = brm;
-        print('Data Brm Bulanan: $_dataBrm');
+        print('[PREF_API] Data Brm Bulanan (from API)');
       });
     } catch (e) {}
   }
 
-  Future<void> loadReportCountBrmByPesertaByDay() async {
+  Future<void> loadReportCountBrmByPesertaByDay({
+    bool forceRefresh = false,
+  }) async {
+    final now = DateTime.now();
+    final year = now.year;
+    final month = now.month;
+    final prefs = await SharedPreferences.getInstance();
+    final reportKey =
+        'brm_reading_list_brm_report_count_${widget.userId}_$year$month';
+
+    if (!forceRefresh) {
+      final cachedReport = prefs.getString(reportKey);
+      if (cachedReport != null) {
+        final List<dynamic> decoded = jsonDecode(cachedReport);
+        final List<int> countList = decoded.map((e) => e as int).toList();
+        if (!mounted) return;
+        setState(() {
+          print('[PREF_API] Data Progress Bacaan (from shared pref)');
+          _dataProgressBacaan = countList;
+        });
+        return;
+      }
+    }
+
     try {
-      final now = DateTime.now();
-      final year = now.year;
-      final month = now.month;
       List<String> dateList = List.generate(_jumlahHari, (i) {
         final day = i + 1;
         return DateTime(year, month, day).toIso8601String().substring(0, 10);
@@ -137,28 +172,11 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
         }
       }
 
+      await prefs.setString(reportKey, jsonEncode(countList));
       if (!mounted) return;
       setState(() {
+        print('[PREF_API] Data Progress Bacaan (from API)');
         _dataProgressBacaan = countList;
-      });
-    } catch (e) {}
-  }
-
-  Future<void> loadBrmReportByPesertaByBulan() async {
-    try {
-      final now = DateTime.now();
-      final month = now.month.toString().padLeft(2, '0');
-
-      final bacaan = await ApiService.getBrmReportByPesertaByBulan(
-        context,
-        widget.userId,
-        month,
-      );
-
-      if (!mounted) return;
-      setState(() {
-        _dataProgress = bacaan;
-        print('Data Progress Bulanan: $_dataProgress');
       });
     } catch (e) {}
   }
@@ -340,7 +358,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
           ),
           SafeArea(
             child: RefreshIndicator(
-              onRefresh: () => initAll(),
+              onRefresh: () => initAll(forceRefresh: true),
               color: AppColors.brown1,
               backgroundColor: Colors.white,
               child: SingleChildScrollView(

@@ -102,21 +102,6 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Container(
-                      //   width: 100,
-                      //   height: 100,
-                      //   decoration: const BoxDecoration(
-                      //     color: Colors.white,
-                      //     shape: BoxShape.circle,
-                      //   ),
-                      //   child: Padding(
-                      //     padding: const EdgeInsets.all(12),
-                      //     child: Image.asset(
-                      //       'assets/logos/story_saat.png',
-                      //       fit: BoxFit.contain,
-                      //     ),
-                      //   ),
-                      // ),
                       Padding(
                         padding: const EdgeInsets.all(12),
                         child: Image.asset(
@@ -124,9 +109,7 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                           fit: BoxFit.contain,
                         ),
                       ),
-                      const SizedBox(height: 32),
-                      // Image.asset('assets/logos/syc2.png', height: 100),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 72),
                       // Email
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -150,15 +133,6 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                                 horizontal: 16,
                                 vertical: 14,
                               ),
-                              // prefixIcon: SvgPicture.asset(
-                              //   'assets/icons/login/email.svg',
-                              //   width: 24,
-                              //   height: 24,
-                              //   colorFilter: const ColorFilter.mode(
-                              //     AppColors.primary,
-                              //     BlendMode.srcIn,
-                              //   ),
-                              // ),
                             ),
                           ),
                         ),

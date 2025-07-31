@@ -19,21 +19,14 @@ dependencies:
   url_launcher: ^6.3.1
   flutter_native_splash: ^2.4.6
   flutter_svg: ^2.0.7
-  dropdown_button2: ^2.3.9
-  dropdown_search: ^5.0.6
-  dio: ^5.2.0
   shimmer: ^3.0.0
-  pin_code_fields: ^8.0.1
   image_picker: ^1.1.2
-  fl_chart: ^1.0.0
   timeago: ^3.7.1
   flutter_html: ^3.0.0
   permission_handler: ^12.0.1
   flutter_local_notifications: ^19.3.0
   timezone: ^0.10.1
   flutter_timezone: ^4.1.1
-  flutter_inappwebview: ^6.1.5
-  any_link_preview: ^3.0.3
   font_awesome_flutter: ^10.8.0
   html: ^0.15.6
   dom_tools: ^2.3.5
@@ -67,19 +60,13 @@ flutter:
     - assets/images/answer_saved.png
     - assets/images/read_saved.png
     - assets/images/megaphone.png #compressed
-    - assets/images/background_dashboard.jpg
     - assets/images/background_profile.png
     - assets/images/background_dashboard.png
-    - assets/images/background_fade.jpg #pakai ini
-    - assets/images/background_fade.png
+    - assets/images/background_fade.jpg
     - assets/images/background_anggota.jpg
-    - assets/images/background_read_more.jpg
     - assets/images/background_list_bacaan.jpg
     - assets/images/card_dashboard_komitmen.png
     - assets/images/card_dashboard_role.png
-    - assets/images/card_catatan.png
-    - assets/images/card_komitmen.png
-    - assets/images/card_komitmen2.jpg
     - assets/images/card_komitmen3.jpg
     - assets/images/card_bacaan.png
     - assets/images/card_kontak.jpg
@@ -87,86 +74,35 @@ flutter:
     - assets/images/background_pengumuman.jpg
 
     # icons for login
-    - assets/icons/login/email.svg
-    - assets/icons/login/password.svg
-    - assets/icons/login/profile.svg
-    - assets/icons/login/secret_code.svg
     - assets/icons/login/show_password.svg
     - assets/icons/login/hide_password.svg
-    
-    # icons for event
-    - assets/icons/event/add_event.svg
-    - assets/icons/event/delete_event.svg
-    - assets/icons/event/edit_event.svg
-    - assets/icons/event/evaluasi.svg
-    - assets/icons/event/komitmen.svg
 
     # icons for navigation bar
-    - assets/icons/navigation_bar/all_user.svg
     - assets/icons/navigation_bar/dashboard.svg
-    - assets/icons/navigation_bar/gereja.svg
     - assets/icons/navigation_bar/kelompok.svg
     - assets/icons/navigation_bar/kelompok_pendaftaran.svg
     - assets/icons/navigation_bar/list_acara.svg
     - assets/icons/navigation_bar/materi.svg
     - assets/icons/navigation_bar/profile.svg
-    
-    # icons for profile
-    - assets/icons/profile/delete.svg
-    - assets/icons/profile/edit_profile.svg
-    - assets/icons/profile/ganti_bahasa.svg
-    - assets/icons/profile/login.svg
-    - assets/icons/profile/logout.svg
-    - assets/icons/profile/panitia.svg
-    - assets/icons/profile/pembina_gereja.svg
-    - assets/icons/profile/pembina_kelompok.svg
-    - assets/icons/profile/pengaturan.svg
-    - assets/icons/profile/peserta.svg
-    - assets/icons/profile/profile.svg
-    - assets/icons/profile/terms_condition.svg
-
-    # butttons
-    - assets/buttons/button1.png
-    - assets/buttons/panel_acara.png
-    - assets/buttons/panel_acara.svg
-    - assets/buttons/icon_slider.png
-    - assets/buttons/hamburger_white.png
-    - assets/buttons/square_widget_yellow.png
-    - assets/buttons/square_widget_brown.png
 
     # texts
-    - assets/texts/welcome_back.png
     - assets/texts/evaluasi.png
     - assets/texts/komitmen.png
     - assets/texts/hello.png
     - assets/texts/events.png
-    - assets/texts/gereja.png
-    - assets/texts/kelompok.png
     - assets/texts/daftar_gereja.png
     - assets/texts/daftar_kelompok.png
     - assets/texts/daftar_acara.png
     - assets/texts/materi.png
 
     # logos
-    - assets/logos/appicon.png
-    - assets/logos/appicon2.png
-    - assets/logos/appicon3.png
-    - assets/logos/appicon4.png
-    - assets/logos/appicon5.png #untuk snackbar back button
-    - assets/logos/syc.png
-    - assets/logos/syc2.png
-    - assets/logos/story_saat.png
-    - assets/logos/redeemed.png
+    - assets/logos/appicon4.png #untuk share verse
+    - assets/logos/appicon5.png #untuk snackbar back button, share verse
     - assets/logos/redeemed_text.png
     - assets/logos/stt_saat.png
 
-    #widgets
-    - assets/images/komitmen.png
-    - assets/images/komitmen2.png
-
     #mockups
-    - assets/mockups/reading.jpg
-    - assets/mockups/bible_reading.jpg 
+    - assets/mockups/bible_reading.jpg #dashboard
     - assets/mockups/kkr1.jpg 
     - assets/mockups/kkr2.jpg 
     - assets/mockups/kkr3.jpg 
@@ -175,20 +111,12 @@ flutter:
     - assets/mockups/closing.jpg 
     - assets/mockups/new_year.jpg 
     - assets/mockups/daftar.jpg 
-    - assets/mockups/saat_teduh1.jpg 
-    - assets/mockups/saat_teduh2.jpg 
-    - assets/mockups/saat_teduh3.jpg 
-    - assets/mockups/saat_teduh4.jpg 
-    - assets/mockups/evaluasi.jpg 
-    - assets/mockups/komitmen.jpg 
+    - assets/mockups/saat_teduh1.jpg
     - assets/mockups/peserta.jpg 
     - assets/mockups/pembina.jpg 
     - assets/mockups/pembimbing.jpg 
     - assets/mockups/panitia.jpg 
     - assets/mockups/unknown.jpg 
-    - assets/mockups/materi_buku.jpg
-    - assets/mockups/materi_youtube.jpg
-    - assets/mockups/materi_berita.jpg
 
     # share verse
     - assets/shareverse/photo1.png

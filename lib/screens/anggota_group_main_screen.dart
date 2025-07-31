@@ -1,3 +1,4 @@
+import 'dart:convert'; // Tambahkan jika belum ada
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:shared_preferences/shared_preferences.dart'
@@ -42,10 +43,10 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
     _initAll();
   }
 
-  Future<void> _initAll() async {
+  Future<void> _initAll({bool forceRefresh = false}) async {
     try {
       await loadUserData();
-      await loadAnggotaGereja(widget.id);
+      await loadAnggotaGereja(widget.id, forceRefresh: forceRefresh);
     } catch (e) {
       // handle error jika perlu
     }
@@ -79,13 +80,31 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
     });
   }
 
-  Future<void> loadAnggotaGereja(groupId) async {
+  Future<void> loadAnggotaGereja(groupId, {bool forceRefresh = false}) async {
+    final prefs = await SharedPreferences.getInstance();
+    final anggotaKey = 'anggota_gereja_$groupId';
+
+    if (!forceRefresh) {
+      final cachedAnggota = prefs.getString(anggotaKey);
+      if (cachedAnggota != null) {
+        final decoded = jsonDecode(cachedAnggota);
+        setState(() {
+          nama = decoded['nama_gereja'];
+          anggota = decoded['data_anggota_gereja'];
+        });
+        print('[PREF_API] Anggota Gereja (from shared pref): $anggota');
+        return;
+      }
+    }
+
     try {
       final response = await ApiService.getAnggotaGroup(context, groupId);
+      await prefs.setString(anggotaKey, jsonEncode(response));
       setState(() {
         nama = response['nama_gereja'];
         anggota = response['data_anggota_gereja'];
       });
+      print('[PREF_API] Anggota Gereja (from API): $anggota');
     } catch (e) {
       setState(() {});
       print('Gagal mengambil data gereja: $e');
@@ -163,7 +182,7 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
             ),
             SafeArea(
               child: RefreshIndicator(
-                onRefresh: () => _initAll(),
+                onRefresh: () => _initAll(forceRefresh: true),
                 color: AppColors.brown1,
                 backgroundColor: Colors.white,
                 child: SingleChildScrollView(

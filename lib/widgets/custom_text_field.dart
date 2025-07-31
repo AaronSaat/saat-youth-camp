@@ -39,15 +39,22 @@ class CustomTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style:
-              labelTextStyle ??
-              TextStyle(
-                fontSize: labelFontSize ?? 18,
-                fontWeight: FontWeight.bold,
-                color: labelColor ?? Colors.black,
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style:
+                    labelTextStyle ??
+                    TextStyle(
+                      fontSize: labelFontSize ?? 18,
+                      fontWeight: FontWeight.bold,
+                      color: labelColor ?? Colors.black,
+                    ),
               ),
+            ),
+            if (suffixIcon != null) suffixIcon!,
+          ],
         ),
         const SizedBox(height: 4),
         TextField(
@@ -65,7 +72,6 @@ class CustomTextField extends StatelessWidget {
             border: InputBorder.none,
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
-            suffixIcon: suffixIcon,
           ),
         ),
       ],

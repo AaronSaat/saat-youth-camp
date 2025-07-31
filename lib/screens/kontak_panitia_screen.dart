@@ -1,3 +1,4 @@
+import 'dart:convert'; // Tambahkan jika belum ada
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -49,18 +50,35 @@ class _KontakPanitiaScreenState extends State<KontakPanitiaScreen> {
     initAll();
   }
 
-  Future<void> initAll() async {
+  Future<void> initAll({bool forceRefresh = false}) async {
     setState(() {
       _isLoading = true;
     });
 
     try {
+      final prefs = await SharedPreferences.getInstance();
+      const panitiaKey = 'kontak_panitia_list';
+
+      if (!forceRefresh) {
+        final cachedPanitia = prefs.getString(panitiaKey);
+        if (cachedPanitia != null) {
+          final List<dynamic> decoded = jsonDecode(cachedPanitia);
+          setState(() {
+            _dataPanitiaHarian = decoded;
+            print("[PREF_API] Data Panitia (from shared pref)");
+            _isLoading = false;
+          });
+          return;
+        }
+      }
+
       final dataPanitia = await ApiService.getPanitia(context);
 
+      await prefs.setString(panitiaKey, jsonEncode(dataPanitia));
       if (!mounted) return;
       setState(() {
         _dataPanitiaHarian = dataPanitia;
-        print("Data Panitia: $_dataPanitiaHarian");
+        print("[PREF_API] Data Panitia (from API)");
         _isLoading = false;
       });
     } catch (e) {
@@ -102,7 +120,7 @@ class _KontakPanitiaScreenState extends State<KontakPanitiaScreen> {
           ),
           SafeArea(
             child: RefreshIndicator(
-              onRefresh: () => initAll(),
+              onRefresh: () => initAll(forceRefresh: true),
               color: AppColors.brown1,
               backgroundColor: Colors.white,
               child: SingleChildScrollView(

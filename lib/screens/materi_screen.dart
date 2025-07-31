@@ -1,5 +1,4 @@
-import 'package:any_link_preview/any_link_preview.dart'
-    show AnyLinkPreview, UIDirection;
+import 'dart:convert'; // Tambahkan jika belum ada
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:flutter_svg/svg.dart';
@@ -82,29 +81,51 @@ class _MateriScreenState extends State<MateriScreen> {
     });
   }
 
-  Future<void> loadMateri() async {
+  Future<void> loadMateri({bool forceRefresh = false}) async {
     if (!mounted) return;
     setState(() {
       _isLoading = true;
     });
     try {
+      final prefs = await SharedPreferences.getInstance();
+      const materiKey = 'materi_list_with_meta';
+
+      if (!forceRefresh) {
+        final cachedMateri = prefs.getString(materiKey);
+        if (cachedMateri != null) {
+          final List<dynamic> decoded = jsonDecode(cachedMateri);
+          final materiWithMeta = decoded.cast<Map<String, dynamic>>();
+          setState(() {
+            _materiList = materiWithMeta;
+            _isLoading = false;
+          });
+          print('[PREF_API] dari shared pref Materi List');
+          return;
+        }
+      }
+
       final materiList = await ApiService.getMateri(context);
       // Fetch meta tags untuk semua materi sekaligus
       final materiWithMeta = await Future.wait(
         materiList.map((materi) async {
           try {
-            final meta = await fetchMetaTags(materi['url'] ?? '');
+            final meta = await fetchMetaTags(
+              materi['url'] ?? '',
+              forceRefresh: forceRefresh,
+            );
             return {...materi, 'meta': meta};
           } catch (e) {
             return {...materi, 'meta': {}};
           }
         }),
       );
+      // Simpan ke shared pref
+      await prefs.setString(materiKey, jsonEncode(materiWithMeta));
       if (!mounted) return;
       setState(() {
         _materiList = materiWithMeta;
         _isLoading = false;
-        print('Materi List: $_materiList');
+        print('[PREF_API] dari API Materi List');
       });
     } catch (e) {
       print('❌ Gagal memuat materi: $e');
@@ -115,7 +136,21 @@ class _MateriScreenState extends State<MateriScreen> {
     }
   }
 
-  Future<Map<String, String>> fetchMetaTags(String url) async {
+  Future<Map<String, String>> fetchMetaTags(
+    String url, {
+    bool forceRefresh = false,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final metaKey = 'materi_meta_tags_${Uri.encodeComponent(url)}';
+
+    if (!forceRefresh) {
+      final cachedMeta = prefs.getString(metaKey);
+      if (cachedMeta != null) {
+        final Map<String, dynamic> decoded = jsonDecode(cachedMeta);
+        return decoded.map((k, v) => MapEntry(k, v.toString()));
+      }
+    }
+
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
       final document = html_parser.parse(response.body);
@@ -145,7 +180,13 @@ class _MateriScreenState extends State<MateriScreen> {
               : getMeta('description');
       final image = getMeta('og:image');
 
-      return {'title': title, 'description': description, 'image': image};
+      final metaMap = {
+        'title': title,
+        'description': description,
+        'image': image,
+      };
+      await prefs.setString(metaKey, jsonEncode(metaMap));
+      return metaMap;
     } else {
       throw Exception('Failed to load page');
     }
@@ -190,7 +231,7 @@ class _MateriScreenState extends State<MateriScreen> {
             ),
             SafeArea(
               child: RefreshIndicator(
-                onRefresh: () => initAll(),
+                onRefresh: () => loadMateri(forceRefresh: true),
                 color: AppColors.brown1,
                 backgroundColor: Colors.white,
                 child: SingleChildScrollView(
@@ -215,7 +256,6 @@ class _MateriScreenState extends State<MateriScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16),
                         _isLoading
                             ? buildAcaraShimmer(context)
                             : _materiList.isEmpty
@@ -234,9 +274,13 @@ class _MateriScreenState extends State<MateriScreen> {
                                   children:
                                       _materiList.map((materi) {
                                         final meta =
-                                            materi['meta']
-                                                as Map<String, String>? ??
-                                            {};
+                                            (materi['meta'] as Map?)?.map(
+                                              (k, v) => MapEntry(
+                                                k.toString(),
+                                                v.toString(),
+                                              ),
+                                            ) ??
+                                            <String, String>{};
                                         return Padding(
                                           padding: const EdgeInsets.symmetric(
                                             vertical: 8.0,
@@ -480,7 +524,6 @@ class MateriMenuCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
@@ -508,7 +551,7 @@ class MateriMenuCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
               child: Row(
                 children: [
                   Expanded(
@@ -531,10 +574,7 @@ class MateriMenuCard extends StatelessWidget {
             ),
             if (withProgress)
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 0,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: [
                     Expanded(
@@ -564,7 +604,6 @@ class MateriMenuCard extends StatelessWidget {
                   ],
                 ),
               ),
-            if (withProgress) const SizedBox(height: 16),
           ],
         ),
       ),
