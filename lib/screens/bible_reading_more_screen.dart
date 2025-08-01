@@ -1,3 +1,4 @@
+import 'dart:convert'; // Tambahkan jika belum ada
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
@@ -46,12 +47,12 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
     initAll();
   }
 
-  Future<void> initAll() async {
+  Future<void> initAll({bool forceRefresh = false}) async {
     setState(() => _isLoading = true);
     print('isEdit: $isEdit');
     try {
       await loadUserData();
-      await loadBrm();
+      await loadBrm(forceRefresh: forceRefresh);
       await loadReportBrmReportByPesertaByDay();
     } catch (e) {
       // handle error jika perlu
@@ -83,12 +84,44 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
     });
   }
 
-  Future<void> loadBrm() async {
+  Future<void> loadBrm({bool forceRefresh = false}) async {
     if (!mounted) return;
     setState(() => _isLoading = true);
+
+    final prefs = await SharedPreferences.getInstance();
+    final userId = widget.userId;
+    final today = DateTime.now().toIso8601String().substring(0, 10);
+    final brmKey = 'brm_reading_more_${userId}_$today';
+
+    if (!forceRefresh) {
+      final cachedBrm = prefs.getString(brmKey);
+      if (cachedBrm != null) {
+        final response = jsonDecode(cachedBrm);
+        setState(() {
+          _dataBible = response['data_bible'] as Map<String, dynamic>?;
+          _books = parseBooks(_dataBible);
+          if (response['data_brm'] is List) {
+            _dataBrm = List<Map<String, dynamic>>.from(response['data_brm']);
+          } else if (response['data_brm'] is Map<String, dynamic>) {
+            _dataBrm = [response['data_brm'] as Map<String, dynamic>];
+          } else {
+            _dataBrm = null;
+          }
+          if (response['data_bible'] is Map<String, dynamic>) {
+            _dataBible = response['data_bible'] as Map<String, dynamic>;
+          } else {
+            _dataBible = null;
+          }
+          _isLoading = false;
+          print('[PREF_API] BRM hari ini (from shared pref): $_dataBrm');
+        });
+        return;
+      }
+    }
+
     try {
       final response = await ApiService.getBrmToday(context);
-      if (!mounted) return;
+      await prefs.setString(brmKey, jsonEncode(response));
       setState(() {
         _dataBible = response['data_bible'] as Map<String, dynamic>?;
         _books = parseBooks(_dataBible);
@@ -104,6 +137,8 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
         } else {
           _dataBible = null;
         }
+        _isLoading = false;
+        print('[PREF_API] BRM hari ini (from API): $_dataBrm');
       });
     } catch (e) {
       if (!mounted) return;
@@ -631,343 +666,356 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                   AppColors.primary, // Set your desired background color here
             ),
             child: SafeArea(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    AppBar(
-                      backgroundColor: Colors.transparent,
-                      elevation: 0,
-                      iconTheme: const IconThemeData(color: Colors.white),
-                      title: const Text(
-                        'Bacaan Hari Ini',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
+              child: RefreshIndicator(
+                onRefresh: () => initAll(forceRefresh: true),
+                color: AppColors.brown1,
+                backgroundColor: Colors.white,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      AppBar(
+                        backgroundColor: Colors.transparent,
+                        elevation: 0,
+                        iconTheme: const IconThemeData(color: Colors.white),
+                        title: const Text(
+                          'Bacaan Hari Ini',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
                         ),
-                      ),
-                      automaticallyImplyLeading: true,
-                      actions: [
-                        _isLoading
-                            ? SizedBox(
-                              width: 120,
-                              height: 36,
-                              child: Container(
+                        automaticallyImplyLeading: true,
+                        actions: [
+                          _isLoading
+                              ? SizedBox(
+                                width: 120,
+                                height: 36,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: AppColors.secondary,
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                              )
+                              : Container(
                                 decoration: BoxDecoration(
                                   color: AppColors.secondary,
                                   borderRadius: const BorderRadius.only(
                                     topLeft: Radius.circular(8),
                                   ),
                                 ),
-                              ),
-                            )
-                            : Container(
-                              decoration: BoxDecoration(
-                                color: AppColors.secondary,
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(8),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
                                 ),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
-                              ),
-                              child: Text(
-                                _dataBrm != null && _dataBrm!.isNotEmpty
-                                    ? DateFormatter.ubahTanggal(
-                                      _dataBrm![0]['tanggal'],
-                                    )
-                                    : '',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                      ],
-                    ),
-                    _isLoading
-                        ? Padding(
-                          padding: EdgeInsets.only(
-                            top: MediaQuery.of(context).size.height * 0.4,
-                          ),
-                          child: const Center(
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                            ),
-                          ),
-                        )
-                        : _dataBible == null
-                        ? Center(
-                          child: CustomNotFound(
-                            text: "Gagal memuat data bacaan hari ini :(",
-                            textColor: Colors.white,
-                            imagePath: 'assets/images/data_not_found.png',
-                          ),
-                        )
-                        : Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0,
-                                vertical: 8.0,
-                              ),
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: SizedBox(
-                                  width: 120,
-                                  height: 55,
-                                  child: Card(
-                                    color: AppColors.secondary,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0,
-                                        vertical: 2.0,
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          IconButton(
-                                            icon: Icon(
-                                              Icons.remove,
-                                              color: Colors.white,
-                                              size: 24,
-                                            ),
-                                            onPressed: () {
-                                              setState(() {
-                                                if (fontSize_judul > 18) {
-                                                  fontSize_judul -= 2;
-                                                  fontSize_subjudul -= 1;
-                                                  fontSize_ayat -= 1;
-                                                  fontSize_isi_ayat -= 1;
-                                                } else {
-                                                  showCustomSnackBar(
-                                                    context,
-                                                    "Font size terlalu kecil",
-                                                  );
-                                                }
-                                              });
-                                            },
-                                          ),
-                                          IconButton(
-                                            icon: Icon(
-                                              Icons.add,
-                                              color: Colors.white,
-                                              size: 24,
-                                            ),
-                                            onPressed: () {
-                                              setState(() {
-                                                if (fontSize_judul < 42) {
-                                                  fontSize_judul += 2;
-                                                  fontSize_subjudul += 1;
-                                                  fontSize_ayat += 1;
-                                                  fontSize_isi_ayat += 1;
-                                                } else {
-                                                  showCustomSnackBar(
-                                                    context,
-                                                    "Font size mencapai batas maksimal",
-                                                  );
-                                                }
-                                              });
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ),
+                                child: Text(
+                                  _dataBrm != null && _dataBrm!.isNotEmpty
+                                      ? DateFormatter.ubahTanggal(
+                                        _dataBrm![0]['tanggal'],
+                                      )
+                                      : '',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
+                        ],
+                      ),
+                      _isLoading
+                          ? Padding(
+                            padding: EdgeInsets.only(
+                              top: MediaQuery.of(context).size.height * 0.4,
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                right: 24,
-                                left: 24,
-                                bottom: 24,
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  const SizedBox(height: 8),
-                                  SizedBox(
-                                    height:
-                                        countRead == 0
-                                            ? MediaQuery.of(
-                                                  context,
-                                                ).size.height *
-                                                0.7
-                                            : (countRead > 0 && !isEdit)
-                                            ? MediaQuery.of(
-                                                  context,
-                                                ).size.height *
-                                                0.6
-                                            : MediaQuery.of(
-                                                  context,
-                                                ).size.height *
-                                                0.39,
-                                    child: buildBibleContent(),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  if (countRead > 0 && !isEdit)
-                                    Card(
+                            ),
+                          )
+                          : _dataBible == null
+                          ? Center(
+                            child: CustomNotFound(
+                              text: "Gagal memuat data bacaan hari ini :(",
+                              textColor: Colors.white,
+                              imagePath: 'assets/images/data_not_found.png',
+                            ),
+                          )
+                          : Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0,
+                                  vertical: 8.0,
+                                ),
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: SizedBox(
+                                    width: 120,
+                                    height: 55,
+                                    child: Card(
+                                      color: AppColors.secondary,
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
-                                      color: Colors.white,
-                                      child: Stack(
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8.0,
+                                          vertical: 2.0,
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            IconButton(
+                                              icon: Icon(
+                                                Icons.remove,
+                                                color: Colors.white,
+                                                size: 24,
+                                              ),
+                                              onPressed: () {
+                                                setState(() {
+                                                  if (fontSize_judul > 18) {
+                                                    fontSize_judul -= 2;
+                                                    fontSize_subjudul -= 1;
+                                                    fontSize_ayat -= 1;
+                                                    fontSize_isi_ayat -= 1;
+                                                  } else {
+                                                    showCustomSnackBar(
+                                                      context,
+                                                      "Font size terlalu kecil",
+                                                    );
+                                                  }
+                                                });
+                                              },
+                                            ),
+                                            IconButton(
+                                              icon: Icon(
+                                                Icons.add,
+                                                color: Colors.white,
+                                                size: 24,
+                                              ),
+                                              onPressed: () {
+                                                setState(() {
+                                                  if (fontSize_judul < 42) {
+                                                    fontSize_judul += 2;
+                                                    fontSize_subjudul += 1;
+                                                    fontSize_ayat += 1;
+                                                    fontSize_isi_ayat += 1;
+                                                  } else {
+                                                    showCustomSnackBar(
+                                                      context,
+                                                      "Font size mencapai batas maksimal",
+                                                    );
+                                                  }
+                                                });
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  right: 24,
+                                  left: 24,
+                                  bottom: 24,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    const SizedBox(height: 8),
+                                    SizedBox(
+                                      height:
+                                          countRead == 0
+                                              ? MediaQuery.of(
+                                                    context,
+                                                  ).size.height *
+                                                  0.7
+                                              : (countRead > 0 && !isEdit)
+                                              ? MediaQuery.of(
+                                                    context,
+                                                  ).size.height *
+                                                  0.6
+                                              : MediaQuery.of(
+                                                    context,
+                                                  ).size.height *
+                                                  0.39,
+                                      child: buildBibleContent(),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    if (countRead > 0 && !isEdit)
+                                      Card(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                        ),
+                                        color: Colors.white,
+                                        child: Stack(
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.all(16),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  const Text(
+                                                    'Bagian berkat yang kamu dapatkan dari bacaan hari ini:',
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      fontStyle:
+                                                          FontStyle.italic,
+                                                      color: AppColors.grey4,
+                                                    ),
+                                                    textAlign: TextAlign.left,
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    notes.isNotEmpty
+                                                        ? notes
+                                                        : '',
+                                                    style: const TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                    ),
+                                                    textAlign: TextAlign.left,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Positioned(
+                                              bottom: 8,
+                                              right: 8,
+                                              child: Material(
+                                                color: Colors.transparent,
+                                                child: InkWell(
+                                                  borderRadius:
+                                                      BorderRadius.circular(24),
+                                                  onTap: () {
+                                                    setState(() {
+                                                      isEdit = true;
+                                                      _noteController.text =
+                                                          notes;
+                                                      initAll(); // reload data
+                                                    });
+                                                  },
+                                                  child: Container(
+                                                    width: 40,
+                                                    height: 40,
+                                                    decoration: BoxDecoration(
+                                                      color: AppColors.primary,
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    child: const Icon(
+                                                      Icons.edit,
+                                                      color: Colors.white,
+                                                      size: 22,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    if (countRead > 0 && isEdit)
+                                      Column(
                                         children: [
+                                          Card(
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                            ),
+                                            color: Colors.white,
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(16),
+                                              child: CustomTextField(
+                                                controller: _noteController,
+                                                label:
+                                                    'Bagian berkat yang kamu dapatkan dari bacaan hari ini',
+                                                labelFontSize: 12,
+                                                hintText: '....',
+                                                maxLines: 4,
+                                                labelTextStyle: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w500,
+                                                  fontStyle: FontStyle.italic,
+                                                  color: AppColors.grey4,
+                                                ),
+                                                textColor: Colors.black,
+                                                fillColor: Colors.white,
+                                                suffixIcon: IconButton(
+                                                  icon: const Icon(
+                                                    Icons.keyboard_hide,
+                                                    color: Colors.black,
+                                                  ),
+                                                  onPressed:
+                                                      () =>
+                                                          FocusScope.of(
+                                                            context,
+                                                          ).unfocus(),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
                                           Padding(
-                                            padding: const EdgeInsets.all(16),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                const Text(
-                                                  'Bagian berkat yang kamu dapatkan dari bacaan hari ini:',
+                                            padding: const EdgeInsets.all(16.0),
+                                            child: SizedBox(
+                                              width:
+                                                  MediaQuery.of(
+                                                    context,
+                                                  ).size.width *
+                                                  0.4,
+                                              height: 50,
+                                              child: ElevatedButton.icon(
+                                                onPressed: _handleUpdate,
+                                                label: const Text(
+                                                  'Edit Catatan',
                                                   style: TextStyle(
                                                     fontSize: 14,
                                                     fontWeight: FontWeight.w500,
-                                                    fontStyle: FontStyle.italic,
-                                                    color: AppColors.grey4,
-                                                  ),
-                                                  textAlign: TextAlign.left,
-                                                ),
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  notes.isNotEmpty ? notes : '',
-                                                  style: const TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w400,
-                                                  ),
-                                                  textAlign: TextAlign.left,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Positioned(
-                                            bottom: 8,
-                                            right: 8,
-                                            child: Material(
-                                              color: Colors.transparent,
-                                              child: InkWell(
-                                                borderRadius:
-                                                    BorderRadius.circular(24),
-                                                onTap: () {
-                                                  setState(() {
-                                                    isEdit = true;
-                                                    _noteController.text =
-                                                        notes;
-                                                    initAll(); // reload data
-                                                  });
-                                                },
-                                                child: Container(
-                                                  width: 40,
-                                                  height: 40,
-                                                  decoration: BoxDecoration(
-                                                    color: AppColors.primary,
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                  child: const Icon(
-                                                    Icons.edit,
                                                     color: Colors.white,
-                                                    size: 22,
                                                   ),
+                                                ),
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      AppColors.secondary,
+                                                  foregroundColor: Colors.white,
+                                                  padding: const EdgeInsets.all(
+                                                    12,
+                                                  ),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          24,
+                                                        ),
+                                                  ),
+                                                  elevation: 0,
                                                 ),
                                               ),
                                             ),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                  if (countRead > 0 && isEdit)
-                                    Column(
-                                      children: [
-                                        Card(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              16,
-                                            ),
-                                          ),
-                                          color: Colors.white,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(16),
-                                            child: CustomTextField(
-                                              controller: _noteController,
-                                              label:
-                                                  'Bagian berkat yang kamu dapatkan dari bacaan hari ini',
-                                              labelFontSize: 12,
-                                              hintText: '....',
-                                              maxLines: 4,
-                                              labelTextStyle: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                                fontStyle: FontStyle.italic,
-                                                color: AppColors.grey4,
-                                              ),
-                                              textColor: Colors.black,
-                                              fillColor: Colors.white,
-                                              suffixIcon: IconButton(
-                                                icon: const Icon(
-                                                  Icons.keyboard_hide,
-                                                  color: Colors.black,
-                                                ),
-                                                onPressed:
-                                                    () =>
-                                                        FocusScope.of(
-                                                          context,
-                                                        ).unfocus(),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(16.0),
-                                          child: SizedBox(
-                                            width:
-                                                MediaQuery.of(
-                                                  context,
-                                                ).size.width *
-                                                0.4,
-                                            height: 50,
-                                            child: ElevatedButton.icon(
-                                              onPressed: _handleUpdate,
-                                              label: const Text(
-                                                'Edit Catatan',
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    AppColors.secondary,
-                                                foregroundColor: Colors.white,
-                                                padding: const EdgeInsets.all(
-                                                  12,
-                                                ),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(24),
-                                                ),
-                                                elevation: 0,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                  ],
+                            ],
+                          ),
+                    ],
+                  ),
                 ),
               ),
             ),

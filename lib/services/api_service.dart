@@ -427,6 +427,7 @@ class ApiService {
     BuildContext context,
     String userId,
     String bulan,
+    String tahun,
   ) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -435,7 +436,7 @@ class ApiService {
     }
 
     final url = Uri.parse(
-      '${baseurl}brm-report-by-peserta-by-bulan?user_id=$userId&bulan=$bulan',
+      '${baseurl}brm-report-by-peserta-by-bulan?user_id=$userId&bulan=$bulan&tahun=$tahun',
     );
     final response = await http.get(
       url,

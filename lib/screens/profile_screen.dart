@@ -74,7 +74,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     initAll();
   }
 
-  Future<void> initAll() async {
+  Future<void> initAll({bool forceRefresh = false}) async {
     setState(() {
       _isLoading = true;
       _isLoading_userdata = true;
@@ -93,15 +93,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await loadUserData();
 
       if (_dataUser['role']!.toLowerCase().contains('peserta')) {
-        await loadProgresEvaluasiAnggota();
-        await loadProgresKomitmenAnggota();
+        await loadProgresEvaluasiAnggota(forceRefresh: forceRefresh);
+        await loadProgresKomitmenAnggota(forceRefresh: forceRefresh);
       }
 
       if (_dataUser['role']!.toLowerCase().contains('panitia')) {
-        await loadCountUser();
-        await loadKomitmenDoneDay1Panitia();
-        await loadKomitmenDoneDay2Panitia();
-        await loadKomitmenDoneDay3Panitia();
+        await loadCountUser(forceRefresh: forceRefresh);
+        await loadKomitmenDoneDay1Panitia(forceRefresh: forceRefresh);
+        await loadKomitmenDoneDay2Panitia(forceRefresh: forceRefresh);
+        await loadKomitmenDoneDay3Panitia(forceRefresh: forceRefresh);
       }
       await loadAvatarById();
     } catch (e) {
@@ -551,19 +551,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             SafeArea(
               child: RefreshIndicator(
                 onRefresh: () async {
-                  if (_dataUser['role']!.toLowerCase().contains('peserta')) {
-                    await loadProgresEvaluasiAnggota(forceRefresh: true);
-                    await loadProgresKomitmenAnggota(forceRefresh: true);
-                    await loadAvatarById();
-                  } else if (_dataUser['role']!.toLowerCase().contains(
-                    'panitia',
-                  )) {
-                    await loadCountUser(forceRefresh: true);
-                    await loadKomitmenDoneDay1Panitia(forceRefresh: true);
-                    await loadKomitmenDoneDay2Panitia(forceRefresh: true);
-                    await loadKomitmenDoneDay3Panitia(forceRefresh: true);
-                    await loadAvatarById();
-                  }
+                  await initAll(forceRefresh: true);
                 },
                 color: AppColors.brown1,
                 backgroundColor: Colors.white,
@@ -657,7 +645,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             ),
                                           ).then((result) {
                                             if (result == 'reload') {
-                                              initAll();
+                                              initAll(forceRefresh: true);
                                             }
                                           });
                                         },
@@ -884,7 +872,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 ),
                                               ).then((result) {
                                                 if (result == 'reload') {
-                                                  initAll();
+                                                  initAll(forceRefresh: true);
                                                 }
                                               });
                                               ;
@@ -957,7 +945,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 ).then((result) {
                                   if (result == 'reload') {
-                                    initAll(); // reload dashboard
+                                    initAll(forceRefresh: true);
                                   }
                                 });
                               },
@@ -1413,20 +1401,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             ),
                                           ),
                                           onPressed: () {
-                                            GlobalVariables.today = DateTime(
-                                              2025,
-                                              12,
-                                              30,
-                                            );
-                                            GlobalVariables
-                                                .timeOfDay = const TimeOfDay(
-                                              hour: 6,
-                                              minute: 0,
-                                            );
-                                            _today = GlobalVariables.today;
-                                            _timeOfDay =
-                                                GlobalVariables.timeOfDay;
+                                            if (!mounted) return;
                                             setState(() {
+                                              GlobalVariables.today = DateTime(
+                                                2025,
+                                                12,
+                                                30,
+                                              );
+                                              GlobalVariables
+                                                  .timeOfDay = const TimeOfDay(
+                                                hour: 6,
+                                                minute: 0,
+                                              );
+                                              _today = GlobalVariables.today;
+                                              _timeOfDay =
+                                                  GlobalVariables.timeOfDay;
                                               GlobalVariables.currentIndex = 0;
                                             });
                                             if (mounted) {
@@ -1462,20 +1451,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             ),
                                           ),
                                           onPressed: () {
-                                            GlobalVariables.today = DateTime(
-                                              2025,
-                                              12,
-                                              30,
-                                            );
-                                            GlobalVariables
-                                                .timeOfDay = const TimeOfDay(
-                                              hour: 21,
-                                              minute: 0,
-                                            );
-                                            _today = GlobalVariables.today;
-                                            _timeOfDay =
-                                                GlobalVariables.timeOfDay;
+                                            if (!mounted) return;
                                             setState(() {
+                                              GlobalVariables.today = DateTime(
+                                                2025,
+                                                12,
+                                                30,
+                                              );
+                                              GlobalVariables
+                                                  .timeOfDay = const TimeOfDay(
+                                                hour: 21,
+                                                minute: 0,
+                                              );
+                                              _today = GlobalVariables.today;
+                                              _timeOfDay =
+                                                  GlobalVariables.timeOfDay;
                                               GlobalVariables.currentIndex = 0;
                                             });
                                             if (mounted) {
@@ -1511,20 +1501,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             ),
                                           ),
                                           onPressed: () {
-                                            GlobalVariables.today = DateTime(
-                                              2025,
-                                              12,
-                                              31,
-                                            );
-                                            GlobalVariables
-                                                .timeOfDay = const TimeOfDay(
-                                              hour: 3,
-                                              minute: 0,
-                                            );
-                                            _today = GlobalVariables.today;
-                                            _timeOfDay =
-                                                GlobalVariables.timeOfDay;
+                                            if (!mounted) return;
                                             setState(() {
+                                              GlobalVariables.today = DateTime(
+                                                2025,
+                                                12,
+                                                31,
+                                              );
+                                              GlobalVariables
+                                                  .timeOfDay = const TimeOfDay(
+                                                hour: 3,
+                                                minute: 0,
+                                              );
+                                              _today = GlobalVariables.today;
+                                              _timeOfDay =
+                                                  GlobalVariables.timeOfDay;
                                               GlobalVariables.currentIndex = 0;
                                             });
                                             if (mounted) {
@@ -1560,20 +1551,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             ),
                                           ),
                                           onPressed: () {
-                                            GlobalVariables.today = DateTime(
-                                              2025,
-                                              12,
-                                              31,
-                                            );
-                                            GlobalVariables
-                                                .timeOfDay = const TimeOfDay(
-                                              hour: 21,
-                                              minute: 0,
-                                            );
-                                            _today = GlobalVariables.today;
-                                            _timeOfDay =
-                                                GlobalVariables.timeOfDay;
+                                            if (!mounted) return;
                                             setState(() {
+                                              GlobalVariables.today = DateTime(
+                                                2025,
+                                                12,
+                                                31,
+                                              );
+                                              GlobalVariables
+                                                  .timeOfDay = const TimeOfDay(
+                                                hour: 21,
+                                                minute: 0,
+                                              );
+                                              _today = GlobalVariables.today;
+                                              _timeOfDay =
+                                                  GlobalVariables.timeOfDay;
                                               GlobalVariables.currentIndex = 0;
                                             });
                                             if (mounted) {
@@ -1613,20 +1605,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             ),
                                           ),
                                           onPressed: () {
-                                            GlobalVariables.today = DateTime(
-                                              2026,
-                                              1,
-                                              1,
-                                            );
-                                            GlobalVariables
-                                                .timeOfDay = const TimeOfDay(
-                                              hour: 3,
-                                              minute: 0,
-                                            );
-                                            _today = GlobalVariables.today;
-                                            _timeOfDay =
-                                                GlobalVariables.timeOfDay;
+                                            if (!mounted) return;
                                             setState(() {
+                                              GlobalVariables.today = DateTime(
+                                                2026,
+                                                1,
+                                                1,
+                                              );
+                                              GlobalVariables
+                                                  .timeOfDay = const TimeOfDay(
+                                                hour: 3,
+                                                minute: 0,
+                                              );
+                                              _today = GlobalVariables.today;
+                                              _timeOfDay =
+                                                  GlobalVariables.timeOfDay;
                                               GlobalVariables.currentIndex = 0;
                                             });
                                             if (mounted) {
@@ -1662,20 +1655,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             ),
                                           ),
                                           onPressed: () {
-                                            GlobalVariables.today = DateTime(
-                                              2026,
-                                              1,
-                                              1,
-                                            );
-                                            GlobalVariables
-                                                .timeOfDay = const TimeOfDay(
-                                              hour: 21,
-                                              minute: 0,
-                                            );
-                                            _today = GlobalVariables.today;
-                                            _timeOfDay =
-                                                GlobalVariables.timeOfDay;
+                                            if (!mounted) return;
                                             setState(() {
+                                              GlobalVariables.today = DateTime(
+                                                2026,
+                                                1,
+                                                1,
+                                              );
+                                              GlobalVariables
+                                                  .timeOfDay = const TimeOfDay(
+                                                hour: 21,
+                                                minute: 0,
+                                              );
+                                              _today = GlobalVariables.today;
+                                              _timeOfDay =
+                                                  GlobalVariables.timeOfDay;
                                               GlobalVariables.currentIndex = 0;
                                             });
                                             if (mounted) {
@@ -1711,20 +1705,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             ),
                                           ),
                                           onPressed: () {
-                                            GlobalVariables.today = DateTime(
-                                              2026,
-                                              1,
-                                              2,
-                                            );
-                                            GlobalVariables
-                                                .timeOfDay = const TimeOfDay(
-                                              hour: 3,
-                                              minute: 0,
-                                            );
-                                            _today = GlobalVariables.today;
-                                            _timeOfDay =
-                                                GlobalVariables.timeOfDay;
+                                            if (!mounted) return;
                                             setState(() {
+                                              GlobalVariables.today = DateTime(
+                                                2026,
+                                                1,
+                                                2,
+                                              );
+                                              GlobalVariables
+                                                  .timeOfDay = const TimeOfDay(
+                                                hour: 3,
+                                                minute: 0,
+                                              );
+                                              _today = GlobalVariables.today;
+                                              _timeOfDay =
+                                                  GlobalVariables.timeOfDay;
                                               GlobalVariables.currentIndex = 0;
                                             });
                                             if (mounted) {
@@ -1760,20 +1755,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             ),
                                           ),
                                           onPressed: () {
-                                            GlobalVariables.today = DateTime(
-                                              2026,
-                                              1,
-                                              2,
-                                            );
-                                            GlobalVariables
-                                                .timeOfDay = const TimeOfDay(
-                                              hour: 16,
-                                              minute: 0,
-                                            );
-                                            _today = GlobalVariables.today;
-                                            _timeOfDay =
-                                                GlobalVariables.timeOfDay;
+                                            if (!mounted) return;
                                             setState(() {
+                                              GlobalVariables.today = DateTime(
+                                                2026,
+                                                1,
+                                                2,
+                                              );
+                                              GlobalVariables
+                                                  .timeOfDay = const TimeOfDay(
+                                                hour: 16,
+                                                minute: 0,
+                                              );
+                                              _today = GlobalVariables.today;
+                                              _timeOfDay =
+                                                  GlobalVariables.timeOfDay;
                                               GlobalVariables.currentIndex = 0;
                                             });
                                             if (mounted) {

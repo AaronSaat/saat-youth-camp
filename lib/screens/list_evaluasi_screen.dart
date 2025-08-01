@@ -1,3 +1,4 @@
+import 'dart:convert'; // Tambahkan jika belum ada
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/screens/form_evaluasi_screen.dart';
@@ -24,7 +25,8 @@ class ListEvaluasiScreen extends StatefulWidget {
 class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
   List<dynamic> _acaraList = [];
   List<dynamic> _evaluasiDoneList = [];
-  List<dynamic> _acaraIdList = []; // untuk menyimpan acara ID supaya di listnya tau selesai atau belum
+  List<dynamic> _acaraIdList =
+      []; // untuk menyimpan acara ID supaya di listnya tau selesai atau belum
   Map<String, String> _dataUser = {};
   bool _isLoading = true;
   int day = 1; // default day
@@ -46,51 +48,26 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
     setState(() {
       _today = GlobalVariables.today;
       _timeOfDay = GlobalVariables.timeOfDay;
-      _now = DateTime(_today.year, _today.month, _today.day, _timeOfDay.hour, _timeOfDay.minute);
+      _now = DateTime(
+        _today.year,
+        _today.month,
+        _today.day,
+        _timeOfDay.hour,
+        _timeOfDay.minute,
+      );
     });
     initAll();
   }
 
-  Future<void> initAll() async {
+  Future<void> initAll({bool forceRefresh = false}) async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
     });
 
     try {
       await loadUserData();
-      // Ambil count acara & count all
-      try {
-        final countAcara = await ApiService.getAcaraCount(context);
-        final countAcaraAll = await ApiService.getAcaraCountAll(context);
-        if (!mounted) return;
-        setState(() {
-          _countAcara = countAcara ?? 0;
-          _countAcaraAll = countAcaraAll ?? 0;
-        });
-      } catch (e) {
-        print('❌ Gagal memuat acara count dan acara count all: $e');
-      }
-
-      // Ambil list acara
-      final acaraList = await ApiService.getAcaraByDay(context, day);
-      if (!mounted) return;
-      _acaraIdList = acaraList.map((acara) => acara['id']).toList();
-      _evaluasiDoneList = List.filled(acaraList.length ?? 0, false);
-      for (int i = 0; i < _evaluasiDoneList.length; i++) {
-        try {
-          final result = await ApiService.getEvaluasiByPesertaByAcara(context, widget.userId, _acaraIdList[i]);
-          if (!mounted) return;
-          if (result != null && result['success'] == true) {
-            _evaluasiDoneList[i] = true;
-          }
-        } catch (e) {
-          // ignore error, keep as false
-        }
-      }
-      setState(() {
-        _acaraList = acaraList ?? [];
-        _isLoading = false;
-      });
+      await loadCountAcaraCountAll();
     } catch (e) {
       print('❌ Gagal memuat data: $e');
       if (!mounted) return;
@@ -100,46 +77,106 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
     }
   }
 
-  void loadEvaluasiAcara() async {
+  Future<void> loadEvaluasiAcara({bool forceRefresh = false}) async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
     });
+
+    final prefs = await SharedPreferences.getInstance();
+    final acaraKey = 'list_evaluasi_acara_${widget.userId}_$day';
+    final evaluasiDoneKey = 'list_evaluasi_done_${widget.userId}_$day';
+
+    if (!forceRefresh) {
+      final cachedAcara = prefs.getString(acaraKey);
+      final cachedDone = prefs.getString(evaluasiDoneKey);
+      if (cachedAcara != null && cachedDone != null) {
+        final acaraList = jsonDecode(cachedAcara);
+        final evaluasiDoneList = jsonDecode(cachedDone);
+        // Pastikan panjang evaluasiDoneList sama dengan acaraList
+        List<dynamic> fixedEvaluasiDoneList = List.generate(
+          acaraList.length,
+          (i) => (i < evaluasiDoneList.length ? evaluasiDoneList[i] : false),
+        );
+        _acaraIdList = acaraList.map((acara) => acara['id']).toList();
+        if (!mounted) return;
+        setState(() {
+          _acaraList = acaraList ?? [];
+          _evaluasiDoneList = fixedEvaluasiDoneList;
+          _isLoading = false;
+        });
+        print('[PREF_API] Acara List (from shared pref): $_acaraList');
+        print(
+          '[PREF_API] Evaluasi Done List (from shared pref): $_evaluasiDoneList',
+        );
+        return;
+      }
+    }
+
     try {
       final acaraList = await ApiService.getAcaraByDay(context, day);
       _acaraIdList = acaraList.map((acara) => acara['id']).toList();
-      print('test Acara ID List: $_acaraIdList');
       _evaluasiDoneList = List.filled(acaraList.length ?? 0, false);
       for (int i = 0; i < _evaluasiDoneList.length; i++) {
         try {
-          final result = await ApiService.getEvaluasiByPesertaByAcara(context, widget.userId, _acaraIdList[i]);
+          final result = await ApiService.getEvaluasiByPesertaByAcara(
+            context,
+            widget.userId,
+            _acaraIdList[i],
+          );
           if (result != null && result['success'] == true) {
             _evaluasiDoneList[i] = true;
           }
-        } catch (e) {
-          // ignore error, keep as false
-        }
+        } catch (e) {}
       }
+      await prefs.setString(acaraKey, jsonEncode(acaraList));
+      await prefs.setString(evaluasiDoneKey, jsonEncode(_evaluasiDoneList));
+      if (!mounted) return;
       setState(() {
         _acaraList = acaraList ?? [];
         _isLoading = false;
       });
+      print('[PREF_API] Acara List (from API): $_acaraList');
+      print('[PREF_API] Evaluasi Done List (from API): $_evaluasiDoneList');
     } catch (e) {
       print('❌ Gagal memuat list acara: $e');
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
     }
   }
 
-  // ini untuk acara-count dan acara-count-all (jadi satu)
-  void loadCountAcara() async {
+  Future<void> loadCountAcaraCountAll({bool forceRefresh = false}) async {
+    final prefs = await SharedPreferences.getInstance();
+    final countAcaraKey = 'list_evaluasi_count_acara_${widget.userId}';
+    final countAcaraAllKey = 'list_evaluasi_count_acara_all_${widget.userId}';
+
+    if (!forceRefresh) {
+      final cachedCountAcara = prefs.getInt(countAcaraKey);
+      final cachedCountAcaraAll = prefs.getInt(countAcaraAllKey);
+      if (cachedCountAcara != null && cachedCountAcaraAll != null) {
+        if (!mounted) return;
+        setState(() {
+          _countAcara = cachedCountAcara;
+          _countAcaraAll = cachedCountAcaraAll;
+        });
+        await loadEvaluasiAcara(forceRefresh: false);
+        return;
+      }
+    }
+
     try {
       final countAcara = await ApiService.getAcaraCount(context);
       final countAcaraAll = await ApiService.getAcaraCountAll(context);
+      await prefs.setInt(countAcaraKey, countAcara ?? 0);
+      await prefs.setInt(countAcaraAllKey, countAcaraAll ?? 0);
+      if (!mounted) return;
       setState(() {
         _countAcara = countAcara ?? 0;
         _countAcaraAll = countAcaraAll ?? 0;
       });
+      await loadEvaluasiAcara(forceRefresh: forceRefresh);
     } catch (e) {
       print('❌ Gagal memuat acara count dan acara count all: $e');
     }
@@ -173,16 +210,18 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
     if (_countAcaraAll > _countAcara) {
       days.add(99);
     }
-    // Tambahkan ScrollController agar bisa scroll ke tab yang dipilih
     final ScrollController _scrollController = ScrollController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Scroll ke posisi tab yang dipilih setelah build
       int selectedIdx = days.indexOf(day);
       if (selectedIdx != -1 && _scrollController.hasClients) {
-        double offset = (selectedIdx * 108.0) - 16.0; // 100(width) + 8(spacing)
+        double offset = (selectedIdx * 108.0) - 16.0;
         if (offset < 0) offset = 0;
-        _scrollController.animateTo(offset, duration: const Duration(milliseconds: 200), curve: Curves.ease);
+        _scrollController.animateTo(
+          offset,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.ease,
+        );
       }
     });
 
@@ -202,10 +241,11 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
             return GestureDetector(
               onTap: () {
                 if (day != d) {
+                  if (!mounted) return;
                   setState(() {
                     day = d;
                   });
-                  loadEvaluasiAcara();
+                  loadEvaluasiAcara(forceRefresh: false);
                 }
               },
               child: Container(
@@ -219,7 +259,11 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
                 alignment: Alignment.center,
                 child: Text(
                   d == 99 ? 'Keseluruhan' : 'Hari ke-$d',
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
                 ),
               ),
             );
@@ -255,131 +299,165 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
           ),
           SafeArea(
             child: RefreshIndicator(
-              onRefresh: () => initAll(),
+              onRefresh: () async {
+                await initAll(forceRefresh: true);
+                await loadEvaluasiAcara(forceRefresh: true);
+              },
               color: AppColors.brown1,
               backgroundColor: Colors.white,
-              child: SingleChildScrollView(
-                physics: AlwaysScrollableScrollPhysics(),
-
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              child: ListView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 0.0,
+                ),
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  Column(
                     children: [
-                      Column(children: [Image.asset('assets/texts/evaluasi.png', height: 96)]),
-                      const SizedBox(height: 16),
-                      _buildDaySelector(),
-                      const SizedBox(height: 16),
-                      _isLoading
-                          ? buildShimmerList()
-                          : ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: _acaraList.length,
-                            itemBuilder: (context, index) {
-                              final items = _acaraList;
-                              String item;
-                              bool? status;
-                              final acara = items[index];
-                              if (acara['hari'] == 99) {
-                                item = '${acara['acara_nama'] ?? '-'}';
+                      Image.asset('assets/texts/evaluasi.png', height: 96),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  _buildDaySelector(),
+                  const SizedBox(height: 16),
+                  _isLoading
+                      ? buildShimmerList()
+                      : ListView.builder(
+                        shrinkWrap: true,
+                        primary: false,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _acaraList.length,
+                        itemBuilder: (context, index) {
+                          final items = _acaraList;
+                          String item;
+                          bool status =
+                              false; // default false jika evaluasiDoneList belum siap
+                          final acara = items[index];
+                          if (acara['hari'] == 99) {
+                            item = '${acara['acara_nama'] ?? '-'}';
+                          } else {
+                            item =
+                                '${acara['acara_nama'] ?? '-'} (Hari ${acara['hari'] ?? '-'})';
+                          }
+                          // Cegah RangeError jika _evaluasiDoneList belum siap
+                          if (_evaluasiDoneList.length > index) {
+                            status = _evaluasiDoneList[index];
+                          }
+                          print(
+                            '[PREF_API] Evaluasi status for $item: $status',
+                          );
+                          return CustomCard(
+                            text: item,
+                            icon:
+                                status == true
+                                    ? Icons.check
+                                    : Icons.arrow_outward_rounded,
+                            onTap: () {
+                              String userId = widget.userId;
+                              int acaraHariId;
+                              acaraHariId = _acaraList[index]['id'];
+                              if (status == true) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => EvaluasiKomitmenViewScreen(
+                                          type: "Evaluasi",
+                                          userId: userId,
+                                          acaraHariId: acaraHariId,
+                                        ),
+                                  ),
+                                );
                               } else {
-                                item = '${acara['acara_nama'] ?? '-'} (Hari ${acara['hari'] ?? '-'})';
-                              }
-                              status = _evaluasiDoneList[index];
-                              return CustomCard(
-                                text: item,
-                                icon: status == true ? Icons.check : Icons.arrow_outward_rounded,
-                                onTap: () {
-                                  String userId = widget.userId;
-                                  int acaraHariId;
-                                  acaraHariId = _acaraList[index]['id'];
-                                  if (status == true) {
+                                final acara = _acaraList[index];
+                                String? tanggal = acara['tanggal'];
+                                String? waktu = acara['waktu'];
+                                DateTime? acaraDateTime;
+                                bool evaluate = false;
+                                String? time =
+                                    '${acara['tanggal']} ${acara['waktu']}';
+                                if (_dataUser['id'] != widget.userId) {
+                                  if (!mounted) return;
+                                  setState(() {
+                                    showCustomSnackBar(
+                                      context,
+                                      'Evaluasi hanya bisa diisi oleh pemilikinya.',
+                                      isSuccess: false,
+                                    );
+                                  });
+                                } else if (tanggal != null && waktu != null) {
+                                  try {
+                                    acaraDateTime = DateTime.parse(
+                                      '$tanggal $waktu',
+                                    );
+                                    if (_now.isAfter(
+                                      acaraDateTime.add(
+                                        const Duration(hours: 1),
+                                      ),
+                                    )) {
+                                      evaluate = true;
+                                    }
+                                  } catch (e) {
+                                    // ignore error, keep evaluate as false
+                                  }
+                                } else if (_dataUser['id'] == widget.userId &&
+                                    acara['hari'] == 99) {
+                                  final batasWaktu = DateTime(
+                                    2025,
+                                    7,
+                                    17,
+                                    15,
+                                    0,
+                                    0,
+                                  );
+                                  if (_now.isBefore(batasWaktu)) {
+                                    setState(() {
+                                      if (!mounted) return;
+                                      showCustomSnackBar(
+                                        context,
+                                        'Evaluasi keseluruhan dapat dilakukan pada 17 Juli 2025 pukul 12.00.',
+                                        isSuccess: false,
+                                      );
+                                    });
+                                  }
+                                }
+
+                                if (tanggal != null && waktu != null) {
+                                  if (!evaluate) {
+                                    setState(() {
+                                      if (!mounted) return;
+                                      showCustomSnackBar(
+                                        context,
+                                        'Evaluasi ${acara['acara_nama']} dapat dilakukan pada $time (1 jam setelah acara).',
+                                        isSuccess: false,
+                                      );
+                                    });
+                                  } else {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder:
-                                            (context) => EvaluasiKomitmenViewScreen(
-                                              type: "Evaluasi",
+                                            (context) => FormEvaluasiScreen(
                                               userId: userId,
                                               acaraHariId: acaraHariId,
                                             ),
                                       ),
-                                    );
-                                  } else {
-                                    final acara = _acaraList[index];
-                                    String? tanggal = acara['tanggal'];
-                                    String? waktu = acara['waktu'];
-                                    DateTime? acaraDateTime;
-                                    bool evaluate = false;
-                                    String? time = '${acara['tanggal']} ${acara['waktu']}';
-                                    if (_dataUser['id'] != widget.userId) {
-                                      setState(() {
-                                        if (!mounted) return;
-                                        showCustomSnackBar(
-                                          context,
-                                          'Evaluasi hanya bisa diisi oleh pemilikinya.',
-                                          isSuccess: false,
-                                        );
-                                      });
-                                    } else if (tanggal != null && waktu != null) {
-                                      try {
-                                        acaraDateTime = DateTime.parse('$tanggal $waktu');
-                                        if (_now.isAfter(acaraDateTime.add(const Duration(hours: 1)))) {
-                                          evaluate = true;
-                                        }
-                                      } catch (e) {
-                                        // ignore error, keep evaluate as false
+                                    ).then((result) {
+                                      if (result == 'reload') {
+                                        initAll(forceRefresh: true);
+                                        loadEvaluasiAcara(forceRefresh: true);
                                       }
-                                    } else if (_dataUser['id'] == widget.userId && acara['hari'] == 99) {
-                                      final batasWaktu = DateTime(2025, 7, 17, 15, 0, 0);
-                                      if (_now.isBefore(batasWaktu)) {
-                                        setState(() {
-                                          if (!mounted) return;
-                                          showCustomSnackBar(
-                                            context,
-                                            'Evaluasi keseluruhan dapat dilakukan pada 17 Juli 2025 pukul 12.00.',
-                                            isSuccess: false,
-                                          );
-                                        });
-                                      }
-                                    }
-
-                                    if (tanggal != null && waktu != null) {
-                                      if (!evaluate) {
-                                        setState(() {
-                                          if (!mounted) return;
-                                          showCustomSnackBar(
-                                            context,
-                                            'Evaluasi ${acara['acara_nama']} dapat dilakukan pada $time (1 jam setelah acara).',
-                                            isSuccess: false,
-                                          );
-                                        });
-                                      } else {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder:
-                                                (context) =>
-                                                    FormEvaluasiScreen(userId: userId, acaraHariId: acaraHariId),
-                                          ),
-                                        ).then((result) {
-                                          if (result == 'reload') {
-                                            initAll();
-                                          }
-                                        });
-                                      }
-                                    }
+                                    });
                                   }
-                                },
-                                iconBackgroundColor: AppColors.brown1,
-                                showCheckIcon: status == true,
-                              );
+                                }
+                              }
                             },
-                          ),
-                    ],
-                  ),
-                ),
+                            iconBackgroundColor: AppColors.brown1,
+                            showCheckIcon: status == true,
+                          );
+                        },
+                      ),
+                ],
               ),
             ),
           ),
@@ -400,7 +478,10 @@ Widget buildShimmerList() {
           highlightColor: Colors.grey[100]!,
           child: Container(
             height: 72,
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
           ),
         ),
       );

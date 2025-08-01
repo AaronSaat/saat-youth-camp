@@ -1,3 +1,4 @@
+import 'dart:convert'; // Tambahkan jika belum ada
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/screens/form_evaluasi_screen.dart';
@@ -42,19 +43,25 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
     setState(() {
       _today = GlobalVariables.today;
       _timeOfDay = GlobalVariables.timeOfDay;
-      _now = DateTime(_today.year, _today.month, _today.day, _timeOfDay.hour, _timeOfDay.minute);
+      _now = DateTime(
+        _today.year,
+        _today.month,
+        _today.day,
+        _timeOfDay.hour,
+        _timeOfDay.minute,
+      );
     });
     initAll();
   }
 
-  Future<void> initAll() async {
+  Future<void> initAll({bool forceRefresh = false}) async {
     setState(() {
       _isLoading = true;
     });
 
     try {
       await loadUserData();
-      await loadKomitmen();
+      await loadKomitmen(forceRefresh: forceRefresh);
       setState(() {
         _isLoading = false;
       });
@@ -67,27 +74,55 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
     }
   }
 
-  Future<void> loadKomitmen() async {
+  Future<void> loadKomitmen({bool forceRefresh = false}) async {
     setState(() {});
+    final prefs = await SharedPreferences.getInstance();
+    final komitmenKey = 'list_komitmen_${widget.userId}';
+    final komitmenDoneKey = 'list_komitmen_done_${widget.userId}';
+
+    if (!forceRefresh) {
+      final cachedKomitmen = prefs.getString(komitmenKey);
+      final cachedDone = prefs.getString(komitmenDoneKey);
+      if (cachedKomitmen != null && cachedDone != null) {
+        final komitmenList = jsonDecode(cachedKomitmen);
+        final komitmenDoneList = jsonDecode(cachedDone);
+        setState(() {
+          _komitmenList = komitmenList ?? [];
+          _komitmenDoneList = komitmenDoneList ?? [];
+          _isLoading = false;
+        });
+        print('[PREF_API] Komitmen List (from shared pref): $_komitmenList');
+        print(
+          '[PREF_API] Komitmen Done List (from shared pref): $_komitmenDoneList',
+        );
+        return;
+      }
+    }
+
     try {
       final komitmenList = await ApiService.getKomitmen(context);
       _komitmenDoneList = List.filled(komitmenList.length ?? 0, false);
       for (int i = 0; i < _komitmenDoneList.length; i++) {
         try {
-          final result = await ApiService.getKomitmenByPesertaByDay(context, widget.userId, i + 1);
+          final result = await ApiService.getKomitmenByPesertaByDay(
+            context,
+            widget.userId,
+            i + 1,
+          );
           if (result != null && result['success'] == true) {
             _komitmenDoneList[i] = true;
           }
-        } catch (e) {
-          // ignore error, keep as false
-        }
+        } catch (e) {}
       }
+      await prefs.setString(komitmenKey, jsonEncode(komitmenList));
+      await prefs.setString(komitmenDoneKey, jsonEncode(_komitmenDoneList));
       setState(() {
         _komitmenList = komitmenList ?? [];
+        // _komitmenDoneList sudah di-set di atas
         _isLoading = false;
-
-        print('AARON: $_komitmenList');
       });
+      print('[PREF_API] Komitmen List (from API): $_komitmenList');
+      print('[PREF_API] Komitmen Done List (from API): $_komitmenDoneList');
     } catch (e) {
       print('❌ Gagal memuat list komitmen: $e');
       setState(() {});
@@ -143,18 +178,26 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
           ),
           SafeArea(
             child: RefreshIndicator(
-              onRefresh: () => initAll(),
+              onRefresh: () => initAll(forceRefresh: true),
               color: AppColors.brown1,
               backgroundColor: Colors.white,
               child: SingleChildScrollView(
                 physics: AlwaysScrollableScrollPhysics(),
 
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0),
+                  padding: const EdgeInsets.only(
+                    left: 24.0,
+                    right: 24.0,
+                    bottom: 24.0,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(children: [Image.asset('assets/texts/komitmen.png', height: 96)]),
+                      Column(
+                        children: [
+                          Image.asset('assets/texts/komitmen.png', height: 96),
+                        ],
+                      ),
                       const SizedBox(height: 16),
                       _isLoading
                           ? buildShimmerList()
@@ -172,7 +215,10 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
                               status = _komitmenDoneList[index];
                               return CustomCard(
                                 text: item,
-                                icon: status == true ? Icons.check : Icons.arrow_outward_rounded,
+                                icon:
+                                    status == true
+                                        ? Icons.check
+                                        : Icons.arrow_outward_rounded,
                                 onTap: () {
                                   String userId = widget.userId;
                                   int acaraHariId;
@@ -182,11 +228,12 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
                                       context,
                                       MaterialPageRoute(
                                         builder:
-                                            (context) => EvaluasiKomitmenViewScreen(
-                                              type: "Komitmen",
-                                              userId: userId,
-                                              acaraHariId: acaraHariId,
-                                            ),
+                                            (context) =>
+                                                EvaluasiKomitmenViewScreen(
+                                                  type: "Komitmen",
+                                                  userId: userId,
+                                                  acaraHariId: acaraHariId,
+                                                ),
                                       ),
                                     );
                                   } else {
@@ -201,7 +248,9 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
                                       });
                                     } else {
                                       // hDEVELOPMENT NOTES] nanti setting
-                                      DateTime tanggalKomitmen = DateTime.parse('$tanggal 15:00:00');
+                                      DateTime tanggalKomitmen = DateTime.parse(
+                                        '$tanggal 15:00:00',
+                                      );
 
                                       // Komitmen hanya bisa diisi pada tanggal yang sama atau setelahnya, dan setelah jam 3 sore
                                       if (_now.isBefore(tanggalKomitmen)) {
@@ -215,12 +264,14 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
                                           context,
                                           MaterialPageRoute(
                                             builder:
-                                                (context) =>
-                                                    FormKomitmenScreen(userId: userId, acaraHariId: acaraHariId),
+                                                (context) => FormKomitmenScreen(
+                                                  userId: userId,
+                                                  acaraHariId: acaraHariId,
+                                                ),
                                           ),
                                         ).then((result) {
                                           if (result == 'reload') {
-                                            initAll();
+                                            initAll(forceRefresh: true);
                                           }
                                         });
                                       }
@@ -255,7 +306,10 @@ Widget buildShimmerList() {
           highlightColor: Colors.grey[100]!,
           child: Container(
             height: 72,
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
           ),
         ),
       );

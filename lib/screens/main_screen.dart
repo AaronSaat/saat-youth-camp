@@ -66,7 +66,7 @@ class _MainScreenState extends State<MainScreen> {
         const DashboardScreen(),
         const DaftarAcaraScreen(),
         // const DaftarAcaraScreen(),
-        AnggotaKelompokScreen(id: id), //nanti masukkan parameter gerejanya
+        AnggotaKelompokMainScreen(id: id), //nanti masukkan parameter gerejanya
         MateriScreen(userId: id.toString()),
         const ProfileScreen(),
       ];

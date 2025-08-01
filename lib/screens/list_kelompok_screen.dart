@@ -1,5 +1,9 @@
+import 'dart:convert'; // Tambahkan jika belum ada
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemNavigator;
+import 'package:shared_preferences/shared_preferences.dart'
+    show SharedPreferences;
 import 'package:shimmer/shimmer.dart';
 import 'package:syc/screens/anggota_kelompok_screen.dart';
 import 'package:syc/utils/app_colors.dart';
@@ -28,17 +32,36 @@ class _ListKelompokScreenState extends State<ListKelompokScreen> {
     initAll();
   }
 
-  Future<void> initAll() async {
+  Future<void> initAll({bool forceRefresh = false}) async {
     setState(() {
       _isLoading = true;
     });
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final kelompokKey = 'list_kelompok';
+
+      if (!forceRefresh) {
+        final cachedKelompok = prefs.getString(kelompokKey);
+        if (cachedKelompok != null) {
+          final kelompokList = jsonDecode(cachedKelompok);
+          if (!mounted) return;
+          setState(() {
+            _kelompokList = kelompokList ?? [];
+            _isLoading = false;
+          });
+          print('[PREF_API] Kelompok List (from shared pref): $_kelompokList');
+          return;
+        }
+      }
+
       final kelompokList = await ApiService.getKelompok(context);
+      await prefs.setString(kelompokKey, jsonEncode(kelompokList));
       if (!mounted) return;
       setState(() {
-        _kelompokList = kelompokList;
+        _kelompokList = kelompokList ?? [];
         _isLoading = false;
       });
+      print('[PREF_API] Kelompok List (from API): $_kelompokList');
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -90,7 +113,7 @@ class _ListKelompokScreenState extends State<ListKelompokScreen> {
             ),
             SafeArea(
               child: RefreshIndicator(
-                onRefresh: () => initAll(),
+                onRefresh: () => initAll(forceRefresh: true),
                 color: AppColors.brown1,
                 backgroundColor: Colors.white,
                 child: SingleChildScrollView(

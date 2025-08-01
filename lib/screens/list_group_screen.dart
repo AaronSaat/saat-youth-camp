@@ -1,8 +1,10 @@
+import 'dart:convert'; // Tambahkan jika belum ada
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:shimmer/shimmer.dart';
 import 'package:syc/screens/anggota_kelompok_screen.dart';
 import 'package:syc/utils/app_colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/api_service.dart';
 import '../widgets/custom_card.dart';
@@ -28,17 +30,36 @@ class _ListGroupScreenState extends State<ListGroupScreen> {
     initAll();
   }
 
-  Future<void> initAll() async {
+  Future<void> initAll({bool forceRefresh = false}) async {
     setState(() {
       _isLoading = true;
     });
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final groupKey = 'list_group';
+
+      if (!forceRefresh) {
+        final cachedGroup = prefs.getString(groupKey);
+        if (cachedGroup != null) {
+          final groupList = jsonDecode(cachedGroup);
+          if (!mounted) return;
+          setState(() {
+            _groupList = groupList ?? [];
+            _isLoading = false;
+          });
+          print('[PREF_API] Group List (from shared pref): $_groupList');
+          return;
+        }
+      }
+
       final groupList = await ApiService.getGroup(context);
+      await prefs.setString(groupKey, jsonEncode(groupList));
       if (!mounted) return;
       setState(() {
-        _groupList = groupList;
+        _groupList = groupList ?? [];
         _isLoading = false;
       });
+      print('[PREF_API] Group List (from API): $_groupList');
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -90,7 +111,7 @@ class _ListGroupScreenState extends State<ListGroupScreen> {
             ),
             SafeArea(
               child: RefreshIndicator(
-                onRefresh: () => initAll(),
+                onRefresh: () => initAll(forceRefresh: true),
                 color: AppColors.brown1,
                 backgroundColor: Colors.white,
                 child: SingleChildScrollView(

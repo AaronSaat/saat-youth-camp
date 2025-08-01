@@ -1,3 +1,4 @@
+import 'dart:convert'; // Tambahkan jika belum ada
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
@@ -33,10 +34,10 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
     _initAll();
   }
 
-  Future<void> _initAll() async {
+  Future<void> _initAll({bool forceRefresh = false}) async {
     print('Memuat anggota kelompok dengan ID: ${widget.id}');
     try {
-      await loadAnggotaKelompok(widget.id);
+      await loadAnggotaKelompok(widget.id, forceRefresh: forceRefresh);
       await loadUserData();
     } catch (e) {
       // handle error jika perlu
@@ -71,16 +72,37 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
     });
   }
 
-  Future<void> loadAnggotaKelompok(kelompokId) async {
+  Future<void> loadAnggotaKelompok(
+    kelompokId, {
+    bool forceRefresh = false,
+  }) async {
     setState(() {
       _isLoading = true;
     });
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final anggotaKey = 'anggota_kelompok_$kelompokId';
+
+      if (!forceRefresh) {
+        final cachedAnggota = prefs.getString(anggotaKey);
+        if (cachedAnggota != null) {
+          final response = jsonDecode(cachedAnggota);
+          setState(() {
+            nama = response['nama_kelompok'];
+            anggota = response['data_anggota_kelompok'];
+          });
+          print('[PREF_API] Anggota Kelompok (from shared pref): $anggota');
+          return;
+        }
+      }
+
       final response = await ApiService.getAnggotaKelompok(context, kelompokId);
+      await prefs.setString(anggotaKey, jsonEncode(response));
       setState(() {
         nama = response['nama_kelompok'];
         anggota = response['data_anggota_kelompok'];
       });
+      print('[PREF_API] Anggota Kelompok (from API): $anggota');
     } catch (e) {
       setState(() {});
       print('Gagal mengambil data kelompok: $e');
@@ -133,7 +155,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
           ),
           SafeArea(
             child: RefreshIndicator(
-              onRefresh: () => _initAll(),
+              onRefresh: () => _initAll(forceRefresh: true),
               color: AppColors.brown1,
               backgroundColor: Colors.white,
               child: SingleChildScrollView(

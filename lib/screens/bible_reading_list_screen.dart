@@ -133,7 +133,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
   }) async {
     final now = DateTime.now();
     final year = now.year;
-    final month = now.month;
+    final month = now.month.toString().padLeft(2, '0');
     final prefs = await SharedPreferences.getInstance();
     final reportKey =
         'brm_reading_list_brm_report_count_${widget.userId}_$year$month';
@@ -153,23 +153,25 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
     }
 
     try {
-      List<String> dateList = List.generate(_jumlahHari, (i) {
-        final day = i + 1;
-        return DateTime(year, month, day).toIso8601String().substring(0, 10);
-      });
-
+      // Ganti dengan pemanggilan API bulanan
+      final response = await ApiService.getBrmReportByPesertaByBulan(
+        context,
+        widget.userId,
+        month,
+        year.toString(),
+      );
+      // response: Map<String, dynamic> sesuai contoh Anda
       List<int> countList = [];
-      for (final date in dateList) {
-        try {
-          final count = await ApiService.getBrmReportCountByPesertaByDay(
-            context,
-            widget.userId,
-            date,
-          );
-          countList.add(count);
-        } catch (e) {
-          countList.add(0);
+      if (response != null &&
+          response['success'] == true &&
+          response['brm_report'] != null) {
+        for (final item in response['brm_report']) {
+          // "read" bisa "0" atau "1"
+          countList.add(int.tryParse(item['read'].toString()) ?? 0);
         }
+      } else {
+        // fallback jika response tidak sesuai
+        countList = List.filled(_jumlahHari, 0);
       }
 
       await prefs.setString(reportKey, jsonEncode(countList));
@@ -178,7 +180,12 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
         print('[PREF_API] Data Progress Bacaan (from API)');
         _dataProgressBacaan = countList;
       });
-    } catch (e) {}
+    } catch (e) {
+      // fallback jika error
+      setState(() {
+        _dataProgressBacaan = List.filled(_jumlahHari, 0);
+      });
+    }
   }
 
   int getCurrentDayOfMonth() {
@@ -435,7 +442,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                                         ),
                                       ).then((result) {
                                         if (result == 'reload') {
-                                          initAll();
+                                          initAll(forceRefresh: true);
                                         }
                                       });
                                     } else if (widget.userId != id) {

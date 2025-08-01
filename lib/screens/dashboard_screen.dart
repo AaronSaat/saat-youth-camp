@@ -1073,7 +1073,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         ),
                                       ).then((result) {
                                         if (result == 'reload') {
-                                          initAll();
+                                          initAll(forceRefresh: true);
                                         }
                                       });
                                     }
@@ -1202,6 +1202,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ],
                                   ),
                                 ),
+                                const SizedBox(height: 24),
                               ],
                             ),
                           ),
@@ -1726,7 +1727,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             ),
                                           ).then((result) {
                                             if (result == 'reload') {
-                                              initAll(); // reload dashboard
+                                              initAll(
+                                                forceRefresh: true,
+                                              ); // reload dashboard
                                             }
                                           });
                                         },
@@ -1886,9 +1889,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ],
                                   ),
                         ),
-
-                        const SizedBox(height: 24),
-
+                        if (acaraStatisHari1.isNotEmpty &&
+                                _today == acaraStatisHari1[0]["tanggal"] ||
+                            acaraStatisHari2.isNotEmpty &&
+                                _today == acaraStatisHari2[0]["tanggal"] ||
+                            acaraStatisHari3.isNotEmpty &&
+                                _today == acaraStatisHari3[0]["tanggal"] ||
+                            acaraStatisHari4.isNotEmpty &&
+                                _today == acaraStatisHari4[0]["tanggal"])
+                          const SizedBox(height: 24),
                         // Acara Statis Hari ke 1: tampilkan hanya jika _today == acaraStatisHari1[0]["tanggal"]
                         if (acaraStatisHari1.isNotEmpty &&
                             _today == acaraStatisHari1[0]["tanggal"])
@@ -3426,7 +3435,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             ),
                                           ).then((result) {
                                             if (result == 'reload') {
-                                              initAll();
+                                              initAll(forceRefresh: true);
                                             }
                                           });
                                         },
@@ -3528,14 +3537,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ],
                             ),
 
-                        const SizedBox(height: 24),
-
                         // Dokumentasi Card
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
+                              const SizedBox(height: 24),
                               InkWell(
                                 onTap: () async {
                                   const url =
@@ -3652,7 +3660,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ).then((result) {
                     if (result == 'reload') {
-                      initAll();
+                      initAll(forceRefresh: true);
                     }
                   });
                 },

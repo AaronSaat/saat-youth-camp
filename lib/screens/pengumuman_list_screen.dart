@@ -1,5 +1,6 @@
 // lib/screens/login_screen3.dart
 
+import 'dart:convert'; // Tambahkan jika belum ada
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,11 +36,11 @@ class _PengumumanListScreenState extends State<PengumumanListScreen> {
     initAll();
   }
 
-  Future<void> initAll() async {
+  Future<void> initAll({bool forceRefresh = false}) async {
     setState(() => _isLoading = true);
     try {
       await loadUserData();
-      await loadPengumumanByUserId();
+      await loadPengumumanByUserId(forceRefresh: forceRefresh);
     } catch (e) {}
     if (!mounted) return;
     setState(() => _isLoading = false);
@@ -68,32 +69,44 @@ class _PengumumanListScreenState extends State<PengumumanListScreen> {
     });
   }
 
-  Future<void> loadPengumumanByUserId() async {
+  Future<void> loadPengumumanByUserId({bool forceRefresh = false}) async {
     if (!mounted) return;
     setState(() {});
-    print('🔍 Memuat pengumuman untuk user ID: ${_dataUser['id']}');
+    final prefs = await SharedPreferences.getInstance();
+    final userId = _dataUser['id'] ?? '';
+    final pengumumanKey = 'pengumuman_list_$userId';
+
+    if (!forceRefresh) {
+      final cachedPengumuman = prefs.getString(pengumumanKey);
+      if (cachedPengumuman != null) {
+        final List<dynamic> decoded = jsonDecode(cachedPengumuman);
+        final pengumumanList2 = List<Map<String, dynamic>>.from(decoded);
+        setState(() {
+          _pengumumanList = pengumumanList2;
+          _isLoading = false;
+          print(
+            '[PREF_API] Pengumuman List (from shared pref): $_pengumumanList',
+          );
+        });
+        return;
+      }
+    }
+
     try {
-      final pengumumanList = await ApiService.getPengumuman(
-        context,
-        _dataUser['id'],
-      );
+      final pengumumanList = await ApiService.getPengumuman(context, userId);
+      await prefs.setString(pengumumanKey, jsonEncode(pengumumanList));
       if (!mounted) return;
       setState(() {
         final pengumumanList2 = List<Map<String, dynamic>>.from(pengumumanList);
         _pengumumanList = pengumumanList2;
         _isLoading = false;
-        if (_pengumumanList.isNotEmpty) {
-          for (var pengumuman in _pengumumanList) {
-            print(
-              'id: ${pengumuman['id']}, count_read: ${pengumuman['count_read']}',
-            );
-          }
-        }
+        print('[PREF_API] Pengumuman List (from API): $_pengumumanList');
       });
     } catch (e) {
-      // print('❌ Gagal memuat pengumuman: $e');
       if (!mounted) return;
-      setState(() {});
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -120,7 +133,7 @@ class _PengumumanListScreenState extends State<PengumumanListScreen> {
             ),
             SafeArea(
               child: RefreshIndicator(
-                onRefresh: () => initAll(),
+                onRefresh: () => initAll(forceRefresh: true),
                 color: AppColors.brown1,
                 backgroundColor: Colors.white,
                 child: Padding(
