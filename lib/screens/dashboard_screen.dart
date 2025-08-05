@@ -47,6 +47,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<dynamic> _acaraDateList = [];
   List<Map<String, dynamic>> _pengumumanList = [];
   int day = 1;
+  int countRead = 0;
   int countAcara = 5;
   bool _isLoading = true;
   bool _isLoadingBrm = true;
@@ -222,6 +223,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     print(
       '_today: ${_today.toIso8601String().substring(0, 10)}, acaraStatisHari1[0][tanggal]: ${acaraStatisHari1[0]["tanggal"]}, eq: ${_today.toIso8601String().substring(0, 10) == acaraStatisHari1[0]["tanggal"].toString().substring(0, 10)}',
     );
+    print("HEY");
     try {
       await loadUserData();
       await loadBrmData(forceRefresh: forceRefresh);
@@ -357,30 +359,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final prefs = await SharedPreferences.getInstance();
     final today = DateTime.now().toIso8601String().substring(0, 10);
     final bacaanTodayKey = 'dashboard_bacaan_$today';
-    final bacaanToday = prefs.getString(bacaanTodayKey);
+    final countReadKey = 'dashboard_bacaan_count_$today';
 
-    if (bacaanToday != null && bacaanToday.isNotEmpty) {
-      // Data hari ini sudah ada di SharedPreferences
-      setState(() {
-        _dataBrm = [
-          {'tanggal': today, 'passage': bacaanToday},
-        ];
-        print('[PREF_API] Load hari ini dari shared pref: $_dataBrm');
-        _isLoadingBrm = false;
-      });
-      return;
+    // Jika forceRefresh, selalu ambil dari API
+    if (!forceRefresh) {
+      final bacaanToday = prefs.getString(bacaanTodayKey);
+      final countReadToday = prefs.getInt(countReadKey) ?? 0;
+      if (bacaanToday != null && bacaanToday.isNotEmpty) {
+        setState(() {
+          _dataBrm = [
+            {'tanggal': today, 'passage': bacaanToday, 'read': countReadToday},
+          ];
+          print('[PREF_API] Load hari ini dari shared pref: $_dataBrm');
+          _isLoadingBrm = false;
+        });
+        return;
+      }
     }
 
-    // Data hari ini belum ada, fetch 10 hari ke depan dari API getBrmTenDays
-    final response = await ApiService.getBrmTenDays(context);
+    // Fetch dari API
+    final response = await ApiService.getBrmTenDays(
+      context,
+      _dataUser['id'] ?? '',
+    );
     final List<dynamic> dataBrmList = response?['data_brm'] ?? [];
 
     // Simpan semua ke shared pref
     for (final brm in dataBrmList) {
       final tanggal = brm['tanggal'];
       final passage = brm['passage'] ?? '';
+      // Pastikan read disimpan sebagai int
+      final countRead = int.tryParse(brm['read'].toString()) ?? 0;
       if (tanggal != null) {
         await prefs.setString('dashboard_bacaan_$tanggal', passage);
+        await prefs.setInt('dashboard_bacaan_count_$tanggal', countRead);
       }
     }
 
@@ -397,6 +409,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 {
                   'tanggal': todayBrm['tanggal'],
                   'passage': todayBrm['passage'],
+                  'read': int.tryParse(todayBrm['read'].toString()) ?? 0,
                 },
               ]
               : [];
@@ -1723,6 +1736,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                   (context) =>
                                                       BibleReadingMoreScreen(
                                                         userId: userId,
+                                                        date: DateTime(
+                                                          DateTime.now().year,
+                                                          DateTime.now().month,
+                                                          DateTime.now().day,
+                                                        ),
                                                       ),
                                             ),
                                           ).then((result) {
@@ -1810,46 +1828,53 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                 ),
                                               ),
                                             ),
-                                            // if (countRead > 0)
-                                            //   Positioned(
-                                            //     top: 0,
-                                            //     left: 0,
-                                            //     child: Container(
-                                            //       decoration: BoxDecoration(
-                                            //         color: Colors.green,
-                                            //         borderRadius:
-                                            //             const BorderRadius.only(
-                                            //               topLeft: Radius.circular(
-                                            //                 16,
-                                            //               ),
-                                            //               bottomRight:
-                                            //                   Radius.circular(8),
-                                            //             ),
-                                            //       ),
-                                            //       padding: const EdgeInsets.symmetric(
-                                            //         horizontal: 12,
-                                            //         vertical: 8,
-                                            //       ),
-                                            //       child: Row(
-                                            //         children: const [
-                                            //           Icon(
-                                            //             Icons.check_circle,
-                                            //             color: Colors.white,
-                                            //             size: 16,
-                                            //           ),
-                                            //           SizedBox(width: 4),
-                                            //           Text(
-                                            //             'Sudah dibaca',
-                                            //             style: TextStyle(
-                                            //               fontSize: 12,
-                                            //               color: Colors.white,
-                                            //               fontWeight: FontWeight.bold,
-                                            //             ),
-                                            //           ),
-                                            //         ],
-                                            //       ),
-                                            //     ),
-                                            //   ),
+                                            if (_dataBrm[0]['read']
+                                                    .toString() ==
+                                                "1")
+                                              Positioned(
+                                                top: 0,
+                                                left: 0,
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.green,
+                                                    borderRadius:
+                                                        const BorderRadius.only(
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                16,
+                                                              ),
+                                                          bottomRight:
+                                                              Radius.circular(
+                                                                8,
+                                                              ),
+                                                        ),
+                                                  ),
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 8,
+                                                      ),
+                                                  child: Row(
+                                                    children: const [
+                                                      Icon(
+                                                        Icons.check_circle,
+                                                        color: Colors.white,
+                                                        size: 16,
+                                                      ),
+                                                      SizedBox(width: 4),
+                                                      Text(
+                                                        'Sudah dibaca',
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
                                             Positioned(
                                               top: 0,
                                               right: 0,

@@ -430,7 +430,8 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                                   icon: Icons.menu_book_rounded,
                                   onTap: () {
                                     final userId = widget.userId;
-                                    if (day == _hariKe && widget.userId == id) {
+                                    // if (day == _hariKe && widget.userId == id) {
+                                    if (widget.userId == id) {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -438,6 +439,11 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                                               (context) =>
                                                   BibleReadingMoreScreen(
                                                     userId: userId,
+                                                    date: DateTime(
+                                                      DateTime.now().year,
+                                                      DateTime.now().month,
+                                                      day,
+                                                    ),
                                                   ),
                                         ),
                                       ).then((result) {
@@ -454,16 +460,17 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                                           isSuccess: false,
                                         );
                                       });
-                                    } else {
-                                      setState(() {
-                                        if (!mounted) return;
-                                        showCustomSnackBar(
-                                          context,
-                                          'Hanya bisa mengakses bacaan $_hariKe $_namaBulan',
-                                          isSuccess: false,
-                                        );
-                                      });
                                     }
+                                    // else {
+                                    //   setState(() {
+                                    //     if (!mounted) return;
+                                    //     showCustomSnackBar(
+                                    //       context,
+                                    //       'Hanya bisa mengakses bacaan $_hariKe $_namaBulan',
+                                    //       isSuccess: false,
+                                    //     );
+                                    //   });
+                                    // }
                                   },
                                   iconBackgroundColor: AppColors.brown1,
                                   showCheckIcon: false,
@@ -474,32 +481,32 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                                   iconBackgroundColor: AppColors.brown1,
                                   showCheckIcon: false,
                                   onTap: () {
-                                    if (day <= _hariKe) {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) => CatatanHarianScreen(
-                                                role: role,
-                                                id: widget.userId,
-                                                initialDate: DateTime(
-                                                  DateTime.now().year,
-                                                  DateTime.now().month,
-                                                  day,
-                                                ),
+                                    // if (day <= _hariKe) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => CatatanHarianScreen(
+                                              role: role,
+                                              id: widget.userId,
+                                              initialDate: DateTime(
+                                                DateTime.now().year,
+                                                DateTime.now().month,
+                                                day,
                                               ),
-                                        ),
-                                      );
-                                    } else {
-                                      setState(() {
-                                        if (!mounted) return;
-                                        showCustomSnackBar(
-                                          context,
-                                          'Hanya bisa mengakses catatan harian sebelum $_hariKe $_namaBulan',
-                                          isSuccess: false,
-                                        );
-                                      });
-                                    }
+                                            ),
+                                      ),
+                                    );
+                                    // } else {
+                                    //   setState(() {
+                                    //     if (!mounted) return;
+                                    //     showCustomSnackBar(
+                                    //       context,
+                                    //       'Hanya bisa mengakses catatan harian sebelum $_hariKe $_namaBulan',
+                                    //       isSuccess: false,
+                                    //     );
+                                    //   });
+                                    // }
                                   },
                                 ),
                               ],

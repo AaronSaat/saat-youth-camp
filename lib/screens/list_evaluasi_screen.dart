@@ -275,6 +275,7 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final role = _dataUser['role'] ?? '';
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -357,17 +358,31 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
                               int acaraHariId;
                               acaraHariId = _acaraList[index]['id'];
                               if (status == true) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => EvaluasiKomitmenViewScreen(
-                                          type: "Evaluasi",
-                                          userId: userId,
-                                          acaraHariId: acaraHariId,
-                                        ),
-                                  ),
-                                );
+                                if (role.toLowerCase().contains(
+                                  'pembimbing kelompok',
+                                )) {
+                                  setState(() {
+                                    if (!mounted) return;
+                                    showCustomSnackBar(
+                                      context,
+                                      'Pembimbing kelompok tidak dapat melihat jawaban evaluasi.',
+                                      isSuccess: false,
+                                    );
+                                  });
+                                } else {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) =>
+                                              EvaluasiKomitmenViewScreen(
+                                                type: "Evaluasi",
+                                                userId: userId,
+                                                acaraHariId: acaraHariId,
+                                              ),
+                                    ),
+                                  );
+                                }
                               } else {
                                 final acara = _acaraList[index];
                                 String? tanggal = acara['tanggal'];

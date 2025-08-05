@@ -161,7 +161,48 @@ class ApiService {
       },
     );
 
-    // print('test url: $url');
+    print('test url: $url');
+    // print('test response: ${response.statusCode} - ${response.body}');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> dataBacaan = json.decode(response.body);
+
+      // print('✅ Data bacaan harian berhasil dimuat: ${dataBacaan}');
+      // for (var evaluasi in dataBacaan['data_evaluasi']) {
+      //   print('- Evaluasi: ${evaluasi['id']} | Status: ${evaluasi['hari']} | ${evaluasi['type']}');
+      // }
+
+      return dataBacaan;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      // throw Exception('Unauthorized');
+      return {};
+    } else {
+      print('❌ Error test: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load bacaan harian');
+    }
+  }
+
+  static Future<Map<String, dynamic>> getBrmToday2(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}brm-today2');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('test url: $url');
     // print('test response: ${response.statusCode} - ${response.body}');
     if (response.statusCode == 200) {
       final Map<String, dynamic> dataBacaan = json.decode(response.body);
@@ -189,6 +230,7 @@ class ApiService {
   // untuk bacaan harian dashboard supaya tidak loading lama
   static Future<Map<String, dynamic>> getBrmTenDays(
     BuildContext context,
+    String userId,
   ) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -196,7 +238,7 @@ class ApiService {
       throw Exception('Token not found in SharedPreferences');
     }
 
-    final url = Uri.parse('${baseurl}brm-ten-days');
+    final url = Uri.parse('${baseurl}brm-ten-days?user_id=$userId');
     final response = await http.get(
       url,
       headers: {

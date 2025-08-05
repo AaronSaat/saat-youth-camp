@@ -1,3 +1,4 @@
+import 'dart:convert' show jsonEncode;
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -5,7 +6,9 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
+import 'package:syc/screens/scan_qr_screen.dart' show ScanQrScreen;
 import 'package:syc/utils/global_variables.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import '../services/api_service.dart';
 import '../utils/app_colors.dart';
@@ -155,7 +158,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final qrData = jsonEncode({
+      'id': _dataUser['id'],
+      'nama': _dataUser['username'],
+      'email': _dataUser['email'],
+      'role': _dataUser['role'],
+    });
     final role = _dataUser['role'] ?? '';
+    final namakelompok = _dataUser['kelompok_nama'] ?? 'Tidak ada kelompok';
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -258,6 +268,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                   ),
                                 ),
                               ),
+
                               SizedBox(height: 16),
                               GestureDetector(
                                 onTap: _uploadImage,
@@ -279,6 +290,77 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                   ),
                                 ),
                               ),
+                              SizedBox(height: 16),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (_) => ScanQrScreen(
+                                            namakelompok: namakelompok,
+                                          ),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.brown1,
+                                    borderRadius: BorderRadius.circular(32),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'Scan QR Code',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 24),
+                              // QR Code User
+                              if (_dataUser['id'] != null &&
+                                  _dataUser['id']!.isNotEmpty)
+                                Column(
+                                  children: [
+                                    Text(
+                                      'QR Code Peserta',
+                                      style: TextStyle(
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        border: Border.all(
+                                          color: AppColors.primary,
+                                          width: 2,
+                                        ),
+                                      ),
+                                      child: QrImageView(
+                                        data: qrData,
+                                        size: 180.0,
+                                        backgroundColor: Colors.white,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'Tunjukkan QR ini ke pembimbing kelompokmu\nuntuk check-in',
+                                      style: TextStyle(
+                                        color: AppColors.brown1,
+                                        fontSize: 12,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
                             ],
                           ),
                     ],

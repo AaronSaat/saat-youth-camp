@@ -486,11 +486,17 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                                                                         .spaceEvenly,
                                                                 children: [
                                                                   if (role
-                                                                      .toString()
-                                                                      .toLowerCase()
-                                                                      .contains(
-                                                                        'panitia',
-                                                                      ))
+                                                                          .toString()
+                                                                          .toLowerCase()
+                                                                          .contains(
+                                                                            'panitia',
+                                                                          ) ||
+                                                                      role
+                                                                          .toString()
+                                                                          .toLowerCase()
+                                                                          .contains(
+                                                                            'pembimbing kelompok',
+                                                                          ))
                                                                     Expanded(
                                                                       child: Padding(
                                                                         padding: const EdgeInsets.symmetric(
@@ -572,8 +578,11 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                                                                                 Colors.white,
                                                                             fontSize:
                                                                                 role.toString().toLowerCase().contains(
-                                                                                      'panitia',
-                                                                                    )
+                                                                                          'panitia',
+                                                                                        ) ||
+                                                                                        role.toString().toLowerCase().contains(
+                                                                                          'pembimbing kelompok',
+                                                                                        )
                                                                                     ? 10
                                                                                     : 14,
                                                                           ),
@@ -625,8 +634,11 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                                                                                 Colors.white,
                                                                             fontSize:
                                                                                 role.toString().toLowerCase().contains(
-                                                                                      'panitia',
-                                                                                    )
+                                                                                          'panitia',
+                                                                                        ) ||
+                                                                                        role.toString().toLowerCase().contains(
+                                                                                          'pembimbing kelompok',
+                                                                                        )
                                                                                     ? 10
                                                                                     : 14,
                                                                           ),

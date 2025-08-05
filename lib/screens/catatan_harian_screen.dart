@@ -170,15 +170,15 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
   }
 
   void _goToNextDate() async {
-    if (_selectedDate.add(const Duration(days: 1)).isAfter(DateTime.now())) {
-      showCustomSnackBar(context, "Tidak bisa melihat catatan besok.");
-      return;
-    } else {
-      setState(() {
-        _selectedDate = _selectedDate.add(const Duration(days: 1));
-      });
-      await initAll();
-    }
+    // if (_selectedDate.add(const Duration(days: 1)).isAfter(DateTime.now())) {
+    //   showCustomSnackBar(context, "Tidak bisa melihat catatan besok.");
+    //   return;
+    // } else {
+    setState(() {
+      _selectedDate = _selectedDate.add(const Duration(days: 1));
+    });
+    await initAll();
+    // }
   }
 
   String _formatDate(DateTime date) {

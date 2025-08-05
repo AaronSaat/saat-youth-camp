@@ -16,7 +16,12 @@ import 'bible_reading_success_screen.dart';
 
 class BibleReadingMoreScreen extends StatefulWidget {
   final String userId;
-  const BibleReadingMoreScreen({super.key, required this.userId});
+  final DateTime date;
+  const BibleReadingMoreScreen({
+    super.key,
+    required this.userId,
+    required this.date,
+  });
 
   @override
   State<BibleReadingMoreScreen> createState() => _BibleReadingMoreScreenState();
@@ -90,8 +95,8 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
 
     final prefs = await SharedPreferences.getInstance();
     final userId = widget.userId;
-    final today = DateTime.now().toIso8601String().substring(0, 10);
-    final brmKey = 'brm_reading_more_${userId}_$today';
+    final date = widget.date.toIso8601String().substring(0, 10);
+    final brmKey = 'brm_reading_more_${userId}_$date';
 
     if (!forceRefresh) {
       final cachedBrm = prefs.getString(brmKey);
@@ -120,7 +125,9 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
     }
 
     try {
-      final response = await ApiService.getBrmToday(context);
+      // final response = await ApiService.getBrmToday(context);
+      print('[API] Memuat BRM hari ini... $date');
+      final response = await ApiService.getBrmByDay(context, date);
       await prefs.setString(brmKey, jsonEncode(response));
       setState(() {
         _dataBible = response['data_bible'] as Map<String, dynamic>?;
@@ -151,7 +158,7 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
       final report = await ApiService.getBrmReportByPesertaByDay(
         context,
         widget.userId,
-        DateTime.now().toIso8601String().substring(0, 10),
+        widget.date.toIso8601String().substring(0, 10),
       );
       if (!mounted) return;
       setState(() {
@@ -159,6 +166,9 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
           idNotes = report['data_notes']['id'] ?? 0;
           notes = report['data_notes']['notes'] ?? '';
           countRead = report['count_read'] ?? 0;
+          print(
+            'VANILLA idNotes: $idNotes, notes: $notes, countRead: $countRead',
+          );
         } else {
           idNotes = 0;
           notes = '';
@@ -448,11 +458,22 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                     children: children,
                   );
                 }).toList(),
+                const SizedBox(height: 8),
+                Text(
+                  'Sumber: Alkitab SABDA (alkitab.sabda.org)',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 10,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  textAlign: TextAlign.left,
+                ),
                 const SizedBox(height: 16),
               ],
             );
           }).toList(),
           if (countRead == 0 &&
+              !isEdit &&
               (role.toLowerCase().contains('peserta') ||
                   role.toLowerCase().contains('pembina')))
             Column(
@@ -518,7 +539,7 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                 ),
               ],
             ),
-          if (countRead > 0 && !isEdit)
+          if (countRead > 0 && isEdit)
             Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
@@ -586,70 +607,6 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                 ],
               ),
             ),
-          if (countRead > 0 && isEdit)
-            Column(
-              children: [
-                Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  color: Colors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: CustomTextField(
-                      controller: _noteController,
-                      label:
-                          'Bagian berkat yang kamu dapatkan dari bacaan hari ini (Edit)',
-                      labelFontSize: 12,
-                      hintText: '....',
-                      maxLines: 4,
-                      labelTextStyle: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        fontStyle: FontStyle.italic,
-                        color: AppColors.grey4,
-                      ),
-                      textColor: Colors.black,
-                      fillColor: Colors.white,
-                      suffixIcon: IconButton(
-                        icon: const Icon(
-                          Icons.keyboard_hide,
-                          color: Colors.black,
-                        ),
-                        onPressed: () => FocusScope.of(context).unfocus(),
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.4,
-                    height: 50,
-                    child: ElevatedButton.icon(
-                      onPressed: _handleUpdate,
-                      label: const Text(
-                        'Edit Catatan',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.secondary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.all(12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        elevation: 0,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
         ],
       );
     }
@@ -684,6 +641,16 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                             fontWeight: FontWeight.bold,
                             fontSize: 20,
                           ),
+                        ),
+                        leading: IconButton(
+                          icon: Padding(
+                            padding: const EdgeInsets.only(left: 16.0),
+                            child: const Icon(
+                              Icons.arrow_back_ios,
+                              color: Colors.white,
+                            ),
+                          ),
+                          onPressed: () => Navigator.pop(context, 'reload'),
                         ),
                         automaticallyImplyLeading: true,
                         actions: [

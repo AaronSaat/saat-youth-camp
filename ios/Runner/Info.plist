@@ -56,6 +56,8 @@
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Aplikasi ini memerlukan akses ke galeri untuk memilih foto profil</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Kamera digunakan untuk scan QR peserta</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
