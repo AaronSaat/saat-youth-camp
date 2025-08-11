@@ -14,9 +14,9 @@ import '../widgets/custom_snackbar.dart';
 class ApiService {
   // static const String baseurl = 'http://172.172.52.9:82/reg-new/api-syc2025/';
   // static const String baseurlLocal = 'http://172.172.52.9/website_backup/api/';
-  // static const String baseurl = 'http://172.172.52.11:90/api-syc2025/';
+  static const String baseurl = 'http://172.172.52.11:90/api-syc2025/';
   // static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
-  static const String baseurl = 'https://netunim.seabs.ac.id/api-syc2025/';
+  // static const String baseurl = 'https://netunim.seabs.ac.id/api-syc2025/';
 
   static Future<Map<String, dynamic>> loginUser(
     String username,
@@ -1970,6 +1970,49 @@ class ApiService {
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load materi');
+    }
+  }
+
+  static Future<Map<String, dynamic>> postKonfirmasiDatang(
+    BuildContext context,
+    List<Map<String, dynamic>> evaluasiAnswers,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}konfirmasi-datang');
+    final body = json.encode({'data_konfirmasi': evaluasiAnswers});
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: body,
+    );
+
+    print('test url: $url');
+    print('test response: ${response.statusCode} - ${response.body}');
+
+    if (response.statusCode == 201) {
+      final Map<String, dynamic> result = json.decode(response.body);
+      print('✅ Konfirmasi datang berhasil dikirim: $result');
+      return result;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      // throw Exception('Unauthorized');
+      return {};
+    } else {
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to post konfirmasi datang');
     }
   }
 

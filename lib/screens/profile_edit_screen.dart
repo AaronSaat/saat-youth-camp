@@ -54,6 +54,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     final keys = [
       'id',
       'username',
+      'nama',
       'email',
       'role',
       'token',
@@ -61,6 +62,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       'gereja_nama',
       'kelompok_id',
       'kelompok_nama',
+      'kamar',
+      'status_datang',
     ];
     final Map<String, String> userData = {};
     for (final key in keys) {
@@ -160,12 +163,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   Widget build(BuildContext context) {
     final qrData = jsonEncode({
       'id': _dataUser['id'],
-      'nama': _dataUser['username'],
-      'email': _dataUser['email'],
+      'nama': _dataUser['nama'],
       'role': _dataUser['role'],
+      'email': _dataUser['email'],
+      'kelompok_nama': _dataUser['kelompok_nama'],
     });
     final role = _dataUser['role'] ?? '';
     final namakelompok = _dataUser['kelompok_nama'] ?? 'Tidak ada kelompok';
+    final status_datang = _dataUser['status_datang'] ?? '0';
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -290,77 +295,85 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                   ),
                                 ),
                               ),
-                              SizedBox(height: 16),
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (_) => ScanQrScreen(
-                                            namakelompok: namakelompok,
-                                          ),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  width: double.infinity,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.brown1,
-                                    borderRadius: BorderRadius.circular(32),
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'Scan QR Code',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                              // SizedBox(height: 16),
+                              // GestureDetector(
+                              //   onTap: () {
+                              //     Navigator.push(
+                              //       context,
+                              //       MaterialPageRoute(
+                              //         builder:
+                              //             (_) => ScanQrScreen(
+                              //               namakelompok: namakelompok,
+                              //             ),
+                              //       ),
+                              //     );
+                              //   },
+                              //   child: Container(
+                              //     width: double.infinity,
+                              //     height: 50,
+                              //     decoration: BoxDecoration(
+                              //       color: AppColors.brown1,
+                              //       borderRadius: BorderRadius.circular(32),
+                              //     ),
+                              //     alignment: Alignment.center,
+                              //     child: Text(
+                              //       'Scan QR Code',
+                              //       style: TextStyle(
+                              //         color: Colors.white,
+                              //         fontSize: 14,
+                              //         fontWeight: FontWeight.w500,
+                              //       ),
+                              //     ),
+                              //   ),
+                              // ),
                               SizedBox(height: 24),
                               // QR Code User
-                              if (_dataUser['id'] != null &&
-                                  _dataUser['id']!.isNotEmpty)
-                                Column(
-                                  children: [
-                                    Text(
-                                      'QR Code Peserta',
-                                      style: TextStyle(
-                                        color: AppColors.primary,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    SizedBox(height: 8),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        border: Border.all(
+                              status_datang.contains('0')
+                                  ? Column(
+                                    children: [
+                                      Text(
+                                        'QR Code Peserta',
+                                        style: TextStyle(
                                           color: AppColors.primary,
-                                          width: 2,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
                                         ),
                                       ),
-                                      child: QrImageView(
-                                        data: qrData,
-                                        size: 180.0,
-                                        backgroundColor: Colors.white,
+                                      SizedBox(height: 8),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          border: Border.all(
+                                            color: AppColors.primary,
+                                            width: 2,
+                                          ),
+                                        ),
+                                        child: QrImageView(
+                                          data: qrData,
+                                          size: 180.0,
+                                          backgroundColor: Colors.white,
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(height: 8),
-                                    Text(
-                                      'Tunjukkan QR ini ke pembimbing kelompokmu\nuntuk check-in',
-                                      style: TextStyle(
-                                        color: AppColors.brown1,
-                                        fontSize: 12,
+                                      SizedBox(height: 8),
+                                      Text(
+                                        'Tunjukkan QR ini ke pembimbing kelompokmu\nuntuk check-in',
+                                        style: TextStyle(
+                                          color: AppColors.brown1,
+                                          fontSize: 12,
+                                        ),
+                                        textAlign: TextAlign.center,
                                       ),
-                                      textAlign: TextAlign.center,
+                                    ],
+                                  )
+                                  : Text(
+                                    '✅  Terima kasih sudah melakukan registrasi ulang',
+                                    style: TextStyle(
+                                      color: AppColors.brown1,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                  ],
-                                ),
+                                    textAlign: TextAlign.center,
+                                  ),
                             ],
                           ),
                     ],

@@ -140,6 +140,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       'gereja_nama',
       'kelompok_id',
       'kelompok_nama',
+      'kamar',
+      'status_datang',
     ];
     final Map<String, String> userData = {};
     for (final key in keys) {
@@ -511,6 +513,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final name = _dataUser['nama'] ?? '';
     final divisi = _dataUser['divisi'] ?? '';
     final count_roles = _dataUser['count_roles'] ?? '0';
+    final kamar = _dataUser['kamar'] ?? 'Null';
     print('role: $role');
 
     return PopScope(
@@ -820,6 +823,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 Flexible(
                                                   child: Text(
                                                     gereja,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    maxLines: 3,
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      if (kamar.isNotEmpty && kamar != 'Null')
+                                        Card(
+                                          color: AppColors.secondary,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Icon(
+                                                  Icons.bed,
+                                                  size: 16,
+                                                  color: AppColors.primary,
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Flexible(
+                                                  child: Text(
+                                                    kamar,
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     maxLines: 3,

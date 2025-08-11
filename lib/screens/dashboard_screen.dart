@@ -76,103 +76,304 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final List<Map<String, dynamic>> acaraStatisHari1 = [
     {
       'id': 1,
-      'acara_nama': 'Pendaftaran',
+      'acara_nama': 'Welcome to STT SAAT - SYC 2025 & Registration',
       'tanggal': DateTime(2025, 12, 30),
-      'waktu': TimeOfDay(hour: 8, minute: 0),
-      'tempat': 'Aula Utama',
-      'gambar': 'assets/mockups/daftar.jpg',
+      'waktu': TimeOfDay(hour: 6, minute: 0),
+      'tempat': 'Plaza Auditorium',
+      'gambar': 'assets/mockups/registration.jpg',
     },
     {
       'id': 2,
-      'acara_nama': 'Opening Ceremony',
+      'acara_nama': 'Group Bonding',
       'tanggal': DateTime(2025, 12, 30),
-      'waktu': TimeOfDay(hour: 10, minute: 0),
-      'tempat': 'Aula Utama',
-      'gambar': 'assets/mockups/opening.jpg',
+      'waktu': TimeOfDay(hour: 16, minute: 0),
+      'tempat': 'Seluruh Kampus',
+      'gambar': 'assets/mockups/bonding.jpg',
     },
     {
       'id': 3,
-      'acara_nama': 'KKR 1',
+      'acara_nama': 'Dinner',
       'tanggal': DateTime(2025, 12, 30),
-      'waktu': TimeOfDay(hour: 13, minute: 0),
-      'tempat': 'Aula Utama',
-      'gambar': 'assets/mockups/kkr1.jpg',
+      'waktu': TimeOfDay(hour: 18, minute: 30),
+      'tempat': 'Ruang Makan',
+      'gambar': 'assets/mockups/eat.jpg',
+    },
+    {
+      'id': 4,
+      'acara_nama': 'Opening (KKR1)',
+      'tanggal': DateTime(2025, 12, 30),
+      'waktu': TimeOfDay(hour: 19, minute: 30),
+      'tempat': 'Auditorium',
+      'gambar': 'assets/mockups/opening.jpg',
+    },
+    {
+      'id': 5,
+      'acara_nama': 'Alone with God',
+      'tanggal': DateTime(2025, 12, 30),
+      'waktu': TimeOfDay(hour: 21, minute: 30),
+      'tempat': 'Auditorium',
+      'gambar': 'assets/mockups/awg.jpg',
+    },
+    {
+      'id': 6,
+      'acara_nama': 'Rest',
+      'tanggal': DateTime(2025, 12, 30),
+      'waktu': TimeOfDay(hour: 22, minute: 30),
+      'tempat': 'Ruangan Masing-Masing',
+      'gambar': 'assets/mockups/rest.jpg',
     },
   ];
 
   //static data
   final List<Map<String, dynamic>> acaraStatisHari2 = [
     {
-      'id': 4,
-      'acara_nama': 'Saat Teduh',
+      'id': 7,
+      'acara_nama': 'Self Preparation',
       'tanggal': DateTime(2025, 12, 31),
-      'waktu': TimeOfDay(hour: 4, minute: 0),
-      'tempat': 'Aula Utama',
-      'gambar': 'assets/mockups/saat_teduh1.jpg',
+      'waktu': TimeOfDay(hour: 6, minute: 0),
+      'tempat': 'Ruangan Masing-Masing',
+      'gambar': 'assets/mockups/preparation.jpg',
     },
     {
-      'id': 5,
-      'acara_nama': 'KKR 2',
+      'id': 8,
+      'acara_nama': 'Breakfast',
       'tanggal': DateTime(2025, 12, 31),
       'waktu': TimeOfDay(hour: 7, minute: 0),
-      'tempat': 'Aula Utama',
+      'tempat': 'Ruang Makan',
+      'gambar': 'assets/mockups/eat.jpg',
+    },
+    {
+      'id': 9,
+      'acara_nama': 'Morning Devotion',
+      'tanggal': DateTime(2025, 12, 31),
+      'waktu': TimeOfDay(hour: 8, minute: 0),
+      'tempat': 'Seluruh Kampus',
+      'gambar': 'assets/mockups/devotion.jpg',
+    },
+    {
+      'id': 10,
+      'acara_nama': 'Group Acitivity (with snack) - The Path of Redemption',
+      'tanggal': DateTime(2025, 12, 31),
+      'waktu': TimeOfDay(hour: 9, minute: 0),
+      'tempat': 'Seluruh Kampus',
+      'gambar': 'assets/mockups/activity.jpg',
+    },
+    {
+      'id': 11,
+      'acara_nama': 'Lunch',
+      'tanggal': DateTime(2025, 12, 31),
+      'waktu': TimeOfDay(hour: 12, minute: 30),
+      'tempat': 'Ruang Makan',
+      'gambar': 'assets/mockups/eat.jpg',
+    },
+    {
+      'id': 12,
+      'acara_nama': 'BKC - Semifinal',
+      'tanggal': DateTime(2025, 12, 31),
+      'waktu': TimeOfDay(hour: 13, minute: 0),
+      'tempat': 'Auditorium',
+      'gambar': 'assets/mockups/bkc.jpg',
+    },
+    {
+      'id': 13,
+      'acara_nama': 'Self Preparation',
+      'tanggal': DateTime(2025, 12, 31),
+      'waktu': TimeOfDay(hour: 15, minute: 0),
+      'tempat': 'Ruangan Masing-Masing',
+      'gambar': 'assets/mockups/preparation.jpg',
+    },
+    {
+      'id': 14,
+      'acara_nama': 'SYC Talks: The Book of Galatian',
+      'tanggal': DateTime(2025, 12, 31),
+      'waktu': TimeOfDay(hour: 16, minute: 30),
+      'tempat': 'Auditorium',
+      'gambar': 'assets/mockups/talks.jpg',
+    },
+    {
+      'id': 15,
+      'acara_nama': 'Dinner',
+      'tanggal': DateTime(2025, 12, 31),
+      'waktu': TimeOfDay(hour: 18, minute: 30),
+      'tempat': 'Ruang Makan',
+      'gambar': 'assets/mockups/eat.jpg',
+    },
+    {
+      'id': 16,
+      'acara_nama': 'KKR 2 - Jesus Paid it All',
+      'tanggal': DateTime(2025, 12, 31),
+      'waktu': TimeOfDay(hour: 19, minute: 30),
+      'tempat': 'Auditorium',
       'gambar': 'assets/mockups/kkr2.jpg',
     },
     {
-      'id': 6,
-      'acara_nama': 'Drama Musikal',
+      'id': 17,
+      'acara_nama': 'Special Program',
       'tanggal': DateTime(2025, 12, 31),
-      'waktu': TimeOfDay(hour: 19, minute: 0),
-      'tempat': 'Aula Utama',
-      'gambar': 'assets/mockups/drama_musikal.jpg',
+      'waktu': TimeOfDay(hour: 21, minute: 30),
+      'tempat': 'Auditorium',
+      'gambar': 'assets/mockups/special.jpg',
     },
   ];
 
   //static data
   final List<Map<String, dynamic>> acaraStatisHari3 = [
     {
-      'id': 7,
-      'acara_nama': 'New Year Countdown',
+      'id': 18,
+      'acara_nama': 'Rest',
       'tanggal': DateTime(2026, 01, 01),
-      'waktu': TimeOfDay(hour: 4, minute: 0),
-      'tempat': 'Aula Utama',
-      'gambar': 'assets/mockups/new_year.jpg',
+      'waktu': TimeOfDay(hour: 1, minute: 30),
+      'tempat': 'Ruangan Masing-Masing',
+      'gambar': 'assets/mockups/rest.jpg',
     },
     {
-      'id': 8,
-      'acara_nama': 'Saat Teduh',
+      'id': 19,
+      'acara_nama': 'Self Preparation',
       'tanggal': DateTime(2026, 01, 01),
-      'waktu': TimeOfDay(hour: 7, minute: 0),
-      'tempat': 'Aula Utama',
-      'gambar': 'assets/mockups/saat_teduh1.jpg',
+      'waktu': TimeOfDay(hour: 6, minute: 0),
+      'tempat': 'Ruangan Masing-Masing',
+      'gambar': 'assets/mockups/preparation.jpg',
     },
     {
-      'id': 9,
-      'acara_nama': 'KKR 3',
+      'id': 20,
+      'acara_nama': 'Breakfast',
       'tanggal': DateTime(2026, 01, 01),
-      'waktu': TimeOfDay(hour: 19, minute: 0),
-      'tempat': 'Aula Utama',
+      'waktu': TimeOfDay(hour: 8, minute: 0),
+      'tempat': 'Ruang Makan',
+      'gambar': 'assets/mockups/eat.jpg',
+    },
+    {
+      'id': 22,
+      'acara_nama': 'Morning Devotion',
+      'tanggal': DateTime(2026, 01, 01),
+      'waktu': TimeOfDay(hour: 9, minute: 0),
+      'tempat': 'Seluruh Kampus',
+      'gambar': 'assets/mockups/devotion.jpg',
+    },
+    {
+      'id': 23,
+      'acara_nama': 'Group Acitivity "Living Redeemed Life"',
+      'tanggal': DateTime(2026, 01, 01),
+      'waktu': TimeOfDay(hour: 10, minute: 0),
+      'tempat': 'Seluruh Kampus',
+      'gambar': 'assets/mockups/activity.jpg',
+    },
+    {
+      'id': 24,
+      'acara_nama': 'Lunch',
+      'tanggal': DateTime(2026, 01, 01),
+      'waktu': TimeOfDay(hour: 12, minute: 30),
+      'tempat': 'Ruang Makan',
+      'gambar': 'assets/mockups/eat.jpg',
+    },
+    {
+      'id': 25,
+      'acara_nama': 'BKC - Final',
+      'tanggal': DateTime(2026, 01, 01),
+      'waktu': TimeOfDay(hour: 13, minute: 0),
+      'tempat': 'Auditorium',
+      'gambar': 'assets/mockups/bkc.jpg',
+    },
+    {
+      'id': 26,
+      'acara_nama': "Self Preparation",
+      "tanggal": DateTime(2026, 01, 01),
+      "waktu": TimeOfDay(hour: 15, minute: 0),
+      "tempat": "Ruangan Masing-Masing",
+      "gambar": "assets/mockups/preparation.jpg",
+    },
+    {
+      'id': 27,
+      'acara_nama': 'SYC Talks: The Work of Christ',
+      'tanggal': DateTime(2026, 01, 01),
+      'waktu': TimeOfDay(hour: 16, minute: 30),
+      'tempat': 'Auditorium',
+      'gambar': 'assets/mockups/talks.jpg',
+    },
+    {
+      'id': 28,
+      'acara_nama': 'Dinner',
+      'tanggal': DateTime(2026, 01, 01),
+      'waktu': TimeOfDay(hour: 18, minute: 30),
+      'tempat': 'Ruang Makan',
+      'gambar': 'assets/mockups/eat.jpg',
+    },
+    {
+      'id': 29,
+      'acara_nama': "KKR 3 - The Redeemed Z's",
+      'tanggal': DateTime(2026, 01, 01),
+      'waktu': TimeOfDay(hour: 19, minute: 30),
+      'tempat': 'Auditorium',
       'gambar': 'assets/mockups/kkr3.jpg',
+    },
+    {
+      'id': 30,
+      'acara_nama': "Commited Among Us",
+      "tanggal": DateTime(2026, 01, 01),
+      "waktu": TimeOfDay(hour: 21, minute: 30),
+      "tempat": "Auditorium",
+      "gambar": "assets/mockups/amongus.jpg",
+    },
+    {
+      'id': 31,
+      'acara_nama': "Rest",
+      "tanggal": DateTime(2026, 01, 01),
+      "waktu": TimeOfDay(hour: 22, minute: 30),
+      "tempat": "Ruangan Masing-Masing",
+      "gambar": "assets/mockups/rest.jpg",
     },
   ];
 
   //static data
   final List<Map<String, dynamic>> acaraStatisHari4 = [
     {
-      'id': 10,
-      'acara_nama': 'Saat Teduh',
+      'id': 32,
+      'acara_nama': 'Self Preparation',
       'tanggal': DateTime(2026, 01, 02),
-      'waktu': TimeOfDay(hour: 7, minute: 0),
-      'tempat': 'Aula Utama',
-      'gambar': 'assets/mockups/saat_teduh1.jpg',
+      'waktu': TimeOfDay(hour: 6, minute: 0),
+      'tempat': 'Ruangan Masing-Masing',
+      'gambar': 'assets/mockups/preparation.jpg',
     },
     {
-      'id': 11,
-      'acara_nama': 'Closing',
+      'id': 33,
+      'acara_nama': 'Breakfast',
       'tanggal': DateTime(2026, 01, 02),
-      'waktu': TimeOfDay(hour: 11, minute: 0),
-      'tempat': 'Aula Utama',
+      'waktu': TimeOfDay(hour: 7, minute: 0),
+      'tempat': 'Ruang Makan',
+      'gambar': 'assets/mockups/eat.jpg',
+    },
+    {
+      'id': 34,
+      'acara_nama': 'Morning Devotion',
+      'tanggal': DateTime(2026, 01, 02),
+      'waktu': TimeOfDay(hour: 8, minute: 0),
+      'tempat': 'Seluruh Kampus',
+      'gambar': 'assets/mockups/devotion.jpg',
+    },
+    {
+      'id': 35,
+      'acara_nama': "Closing - Redeemed: The Story I Love to Share",
+      'tanggal': DateTime(2026, 01, 02),
+      'waktu': TimeOfDay(hour: 9, minute: 0),
+      'tempat': 'Auditorium',
       'gambar': 'assets/mockups/closing.jpg',
+    },
+    {
+      'id': 36,
+      'acara_nama': "Lunch",
+      "tanggal": DateTime(2026, 01, 02),
+      "waktu": TimeOfDay(hour: 12, minute: 30),
+      "tempat": "Ruang Makan",
+      "gambar": "assets/mockups/eat.jpg",
+    },
+    {
+      'id': 37,
+      'acara_nama':
+          "Home, Transformed & Recharged to Worship & Witness For The Glory of God -> See You @ SYC 2026",
+      "tanggal": DateTime(2026, 01, 02),
+      "waktu": TimeOfDay(hour: 13, minute: 0),
+      "tempat": "Auditorium",
+      "gambar": "assets/mockups/seeyou.jpg",
     },
   ];
 
@@ -264,6 +465,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final keys = [
       'id',
       'username',
+      'nama',
       'email',
       'group_id',
       'role',
@@ -272,6 +474,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gereja_nama',
       'kelompok_id',
       'kelompok_nama',
+      'kamar',
+      'status_datang',
     ];
     final Map<String, String> userData = {};
     for (final key in keys) {
@@ -912,7 +1116,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                         // Pembina Pembimbing Card
                         if (role.toLowerCase().contains('pembina') == true ||
-                            role.toLowerCase().contains('pembimbing') == true)
+                            role.toLowerCase().contains('pembimbing') == true ||
+                            role.toLowerCase().contains('peserta') == true)
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 24),
                             child: Column(
@@ -980,6 +1185,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                               ) ==
                                                           true)
                                                       ? 'Pembina'
+                                                      : (_dataUser['role']
+                                                              ?.toLowerCase()
+                                                              .contains(
+                                                                'peserta',
+                                                              ) ==
+                                                          true)
+                                                      ? 'Peserta'
                                                       : '',
                                                   style: const TextStyle(
                                                     fontWeight: FontWeight.w900,
@@ -1003,6 +1215,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                               ) ==
                                                           true)
                                                       ? '${_dataUser['gereja_nama'] ?? ''}'
+                                                      : (_dataUser['role']
+                                                              ?.toLowerCase()
+                                                              .contains(
+                                                                'peserta',
+                                                              ) ==
+                                                          true)
+                                                      ? '${_dataUser['nama'] ?? ''} \n Kelompok: ${_dataUser['kelompok_nama'] ?? ''} \n ${_dataUser['kamar'] ?? ''}'
                                                       : '',
                                                   style: const TextStyle(
                                                     fontWeight: FontWeight.w500,
@@ -1024,7 +1243,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
 
                         if (role.toLowerCase().contains('pembina') == true ||
-                            role.toLowerCase().contains('pembimbing') == true)
+                            role.toLowerCase().contains('pembimbing') == true ||
+                            role.toLowerCase().contains('peserta') == true)
                           const SizedBox(height: 24),
 
                         // Komitmen Card untuk Peserta

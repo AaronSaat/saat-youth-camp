@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
 import 'package:shimmer/shimmer.dart';
 import 'package:syc/screens/list_komitmen_screen.dart';
+import 'package:syc/screens/scan_qr_screen.dart' show ScanQrScreen;
 import 'package:syc/utils/app_colors.dart';
 import 'package:syc/utils/global_variables.dart';
 import '../services/api_service.dart';
@@ -668,6 +669,86 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                                                       ),
                                                     ),
                                                   ),
+                                                if ((user['role'] ?? '')
+                                                            .toString()
+                                                            .toLowerCase() ==
+                                                        'anggota' &&
+                                                    user['status_datang'] ==
+                                                        "0")
+                                                  Positioned(
+                                                    top: 15,
+                                                    right: 15,
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        color: AppColors.accent,
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                              topRight:
+                                                                  Radius.circular(
+                                                                    16,
+                                                                  ),
+                                                              bottomLeft:
+                                                                  Radius.circular(
+                                                                    16,
+                                                                  ),
+                                                            ),
+                                                      ),
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 8,
+                                                            vertical: 8,
+                                                          ),
+                                                      child: Text(
+                                                        'Belum registrasi ulang',
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 8,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  )
+                                                else if ((user['role'] ?? '')
+                                                            .toString()
+                                                            .toLowerCase() ==
+                                                        'anggota' &&
+                                                    user['status_datang'] ==
+                                                        "1")
+                                                  Positioned(
+                                                    top: 15,
+                                                    right: 15,
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        color: AppColors.green,
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                              topRight:
+                                                                  Radius.circular(
+                                                                    16,
+                                                                  ),
+                                                              bottomLeft:
+                                                                  Radius.circular(
+                                                                    16,
+                                                                  ),
+                                                            ),
+                                                      ),
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 8,
+                                                            vertical: 8,
+                                                          ),
+                                                      child: Text(
+                                                        'Sudah registrasi ulang',
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 8,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
                                               ],
                                             ),
                                           ),
@@ -731,6 +812,38 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
           ),
         ],
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
+      floatingActionButton:
+          _dataUser['role']?.toLowerCase() == 'pembimbing kelompok'
+              ? Padding(
+                padding: const EdgeInsets.only(bottom: 96.0),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    FloatingActionButton(
+                      backgroundColor: AppColors.brown1,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => ScanQrScreen(
+                                  namakelompok:
+                                      _dataUser['kelompok_nama'] ?? '',
+                                ),
+                          ),
+                        ).then((result) {
+                          // if (result == 'reload') {
+                          //   initAll(forceRefresh: true);
+                          // }
+                        });
+                      },
+                      child: const Icon(Icons.qr_code, color: Colors.white),
+                    ),
+                  ],
+                ),
+              )
+              : null,
     );
   }
 }

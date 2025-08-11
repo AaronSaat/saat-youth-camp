@@ -53,6 +53,8 @@ class _LoginScreenState extends State<LoginScreen> {
     String gereja_nama,
     String kelompok_id,
     String kelompok_nama,
+    String kamar,
+    String status_datang,
   ) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('id', id);
@@ -68,6 +70,8 @@ class _LoginScreenState extends State<LoginScreen> {
     await prefs.setString('gereja_nama', gereja_nama);
     await prefs.setString('kelompok_id', kelompok_id);
     await prefs.setString('kelompok_nama', kelompok_nama);
+    await prefs.setString('kamar', kamar);
+    await prefs.setString('status_datang', status_datang);
     print('Login data saved:');
     print('id: $id');
     print('username: $username');
@@ -82,6 +86,8 @@ class _LoginScreenState extends State<LoginScreen> {
     print('gereja_nama: $gereja_nama');
     print('kelompok_id: $kelompok_id');
     print('kelompok_nama: $kelompok_nama');
+    print('kamar: $kamar');
+    print('status_datang: $status_datang');
   }
 
   void _login() async {
@@ -114,6 +120,8 @@ class _LoginScreenState extends State<LoginScreen> {
           response['user']['gereja']?['gereja_nama'] ?? 'Null',
           response['user']['kelompok']?['id']?.toString() ?? 'Null',
           response['user']['kelompok']?['nama_kelompok'] ?? 'Null',
+          response['user']['kamar'] ?? 'Null',
+          response['user']['status_datang'] ?? 'Null',
         );
 
         Navigator.pushReplacement(

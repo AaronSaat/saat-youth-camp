@@ -50,10 +50,11 @@ class NotificationService {
       '@mipmap/ic_launcher',
     );
 
+    // Disable notification permission request for iOS
     const initializationSettingsIOS = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
     );
 
     const initializationSettings = InitializationSettings(

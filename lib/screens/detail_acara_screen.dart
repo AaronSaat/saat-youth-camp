@@ -119,19 +119,51 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
         widget.id,
       );
       if (!mounted) return;
-      setState(() {
-        _dataAcara = acaraList;
-        print('✅ Data Acara loaded: $_dataAcara');
-      });
+      if (acaraList == null || acaraList.isEmpty) {
+        // Jika data kosong, isi dummy agar tidak error/freeze
+        final dummy = [
+          {
+            "id": widget.id,
+            "acara_nama": "(Data tidak ditemukan)",
+            "hari": "-",
+            "waktu": "-",
+            "tempat": "-",
+            "acara_deskripsi": "Data acara tidak tersedia.",
+            "pembicara": "-",
+            "tanggal": "-",
+          },
+        ];
+        setState(() {
+          _dataAcara = dummy;
+        });
+      } else {
+        setState(() {
+          _dataAcara = acaraList;
+          print('✅ Data Acara loaded: $_dataAcara');
+        });
+      }
     } catch (e) {
       print('❌ Error loading acara detail: $e');
       if (!mounted) return;
+      // Jika error, isi dummy juga
+      final dummy = [
+        {
+          "id": widget.id,
+          "acara_nama": "(Data tidak ditemukan)",
+          "hari": "-",
+          "waktu": "-",
+          "tempat": "-",
+          "acara_deskripsi": "Data acara tidak tersedia.",
+          "pembicara": "-",
+          "tanggal": "-",
+        },
+      ];
       setState(() {
-        _dataAcara = [];
+        _dataAcara = dummy;
       });
       showCustomSnackBar(
         context,
-        'Gagal memuat detail acara. Silakan coba lagi.',
+        'Gagal memuat detail acara. Menampilkan data kosong.',
         isSuccess: false,
       );
     }
