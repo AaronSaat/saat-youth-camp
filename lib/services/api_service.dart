@@ -16,7 +16,7 @@ class ApiService {
   // static const String baseurlLocal = 'http://172.172.52.9/website_backup/api/';
   static const String baseurl = 'http://172.172.52.11:90/api-syc2025/';
   // static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
-  // static const String baseurl = 'https://netunim.seabs.ac.id/api-syc2025/';
+  // static const String baseurl = 'https://netunim.seabs.ac.id/api-syc202 5/';
 
   static Future<Map<String, dynamic>> loginUser(
     String username,
@@ -1975,7 +1975,7 @@ class ApiService {
 
   static Future<Map<String, dynamic>> postKonfirmasiDatang(
     BuildContext context,
-    List<Map<String, dynamic>> evaluasiAnswers,
+    Map<String, dynamic> konfirmasiData,
   ) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -1984,7 +1984,7 @@ class ApiService {
     }
 
     final url = Uri.parse('${baseurl}konfirmasi-datang');
-    final body = json.encode({'data_konfirmasi': evaluasiAnswers});
+    final body = json.encode({'data_konfirmasi': konfirmasiData});
 
     final response = await http.post(
       url,
@@ -2033,7 +2033,70 @@ class ApiService {
       return dataVersion;
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
-      throw Exception('Failed to load materi');
+      throw Exception('Failed to load version');
+    }
+  }
+
+  static Future<Map<String, dynamic>> getStatusDatang(
+    BuildContext context,
+    String secret,
+    String email,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+    final url = Uri.parse(
+      '${baseurl}status-datang?secret=$secret&email=$email',
+    );
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('url $url');
+    print('response ${response.statusCode} - ${response.body}');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> dataVersion = json.decode(response.body);
+
+      return dataVersion;
+    } else {
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load data status datang');
+    }
+  }
+
+  static Future<Map<String, dynamic>> getDataKonfirmasi(
+    BuildContext context,
+    String secret,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+    final url = Uri.parse('${baseurl}data-konfirmasi?secret=$secret');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('url $url');
+    print('response ${response.statusCode} - ${response.body}');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> dataVersion = json.decode(response.body);
+
+      return dataVersion;
+    } else {
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load data konfirmasi');
     }
   }
 }

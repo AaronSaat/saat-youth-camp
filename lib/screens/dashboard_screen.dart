@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/screens/form_komitmen_screen.dart';
 import 'package:syc/screens/main_screen.dart';
+import 'package:syc/screens/profile_edit_screen.dart';
 import 'package:syc/services/notification_service.dart'
     show NotificationService;
 import 'package:syc/services/background_task_service.dart';
@@ -38,6 +39,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // Static data untuk acara hari ke-1
 
   String _email = '';
+  String statusDatang = '';
   bool isPanitia = false;
   ScrollController _acaraController = ScrollController();
   int _currentAcaraPage = 0;
@@ -52,6 +54,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _isLoading = true;
   bool _isLoadingBrm = true;
   bool _isLoadingPengumuman = true;
+  bool _isLoadingKonfirmasi = false;
   List<Map<String, dynamic>> _dataBrm = [];
   Map<String, dynamic> _dataBrm10Hari = {}; //load dari shared preferences
   Map<String, String> _dataUser = {};
@@ -426,30 +429,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
     print("HEY");
     try {
+      // Selalu update status_datang di SharedPreferences dari API sebelum loadUserData
       await loadUserData();
+
+      // if (_dataUser['role'] == 'Peserta' && _dataUser['status_datang'] == "0") {
+      //   print('Checking status datang...');
+      // await checkStatusDatang();
+      // }
+
       await loadBrmData(forceRefresh: forceRefresh);
       await loadPengumumanByUserId(forceRefresh: forceRefresh);
-
       await checkKomitmenDone();
 
-      // ini harusnya buat notifikasi dan acara harian,
-      // tapi gajadi pake notif dan acara harian pake local map
-      // await loadDayHariIni(); //untuk ambil tangggal hari ini
-      // await loadAcaraByDay();
-
-      // untuk keperluan notifikasi
-      // await loadAllAcara();
-      // await loadAllKomitmen();
-
-      //setup notifications
-      // await setupDailyNotification();
-
-      // ini adalah notifikasi pasti yaitu:
-      // 1. Notifikasi acara 15 menit sebelum acara hari 1 - 4 (untuk semua role)
-      // 2. Notifikasi evaluasi 2 jam menit setelah acara dimulai hari 1 - 4 (untuk peserta, pembina)
-      // 3. Notifikasi evaluasi keseluruhan 1x hari terakhir jam 12 siang (untuk peserta, pembina)
-      // 4. Notifikasi komitmen setiap hari tiap jam 8 malam (untuk peserta)
-      // await setupAllNotification();
+      // ...existing code...
     } catch (e) {
       // handle error jika perlu
     }
@@ -475,6 +467,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'kelompok_id',
       'kelompok_nama',
       'kamar',
+      'secret',
       'status_datang',
     ];
     final Map<String, String> userData = {};
@@ -816,6 +809,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Future<void> checkStatusDatang() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoadingKonfirmasi = true;
+    });
+    print('Checking status datang... $statusDatang');
+    try {
+      final res = await ApiService.getStatusDatang(
+        context,
+        _dataUser['secret'] ?? '',
+        _dataUser['email'] ?? '',
+      );
+      final statusDatangApi = res['data']?['status_datang']?.toString() ?? '';
+      final prefs = await SharedPreferences.getInstance();
+      final statusDatangLocal = prefs.getString('status_datang');
+
+      if (mounted) {
+        setState(() {
+          _dataUser['status_datang'] = statusDatangApi.toString();
+          prefs.setString('status_datang', statusDatangApi.toString());
+          statusDatang = statusDatangApi.toString();
+          print(
+            'Status datang checked and replaced: $_dataUser[status_datang] | $statusDatangApi',
+          );
+        });
+      }
+    } catch (e) {
+      print('❌ Gagal memuat status datang: $e');
+    }
+    if (!mounted) return;
+    setState(() {
+      _isLoadingKonfirmasi = false;
+    });
+  }
+
   // Future<void> setupDailyNotification() async {
   //   try {
   //     final notificationService = NotificationService();
@@ -1038,8 +1066,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _lastBackPressed = null;
     final userId = _dataUser['id'] ?? '-';
     final role = _dataUser['role'] ?? '-';
+    final nama = _dataUser['nama'] ?? '-';
     final gereja = _dataUser['gereja_nama'] ?? '-';
-    final kelompok = _dataUser['nama_kelompok'] ?? '-';
+    final kelompok = _dataUser['kelompok_nama'] ?? '-';
+    final status_datang = _dataUser['status_datang'] ?? '-';
+    print(' AAAAA Status Datang: $status_datang');
+    final kamar = _dataUser['kamar'] ?? '-';
 
     return PopScope(
       canPop: false,
@@ -1078,7 +1110,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             SafeArea(
               child: RefreshIndicator(
-                onRefresh: () => initAll(forceRefresh: true),
+                onRefresh: () {
+                  print('Refreshed');
+                  return initAll(forceRefresh: true);
+                },
                 color: AppColors.brown1,
                 backgroundColor: Colors.white,
                 child: SingleChildScrollView(
@@ -1113,6 +1148,140 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
                         const SizedBox(height: 24),
+
+                        // kartu alert registrasi ulang
+                        // if (status_datang == "0")
+                        //   Column(
+                        //     children: [
+                        //       Padding(
+                        //         padding: const EdgeInsets.symmetric(
+                        //           horizontal: 24,
+                        //         ),
+                        //         child: InkWell(
+                        //           borderRadius: BorderRadius.circular(16),
+                        //           onTap: () {
+                        //             // Navigasi ke halaman edit profil
+                        //             Navigator.push(
+                        //               context,
+                        //               MaterialPageRoute(
+                        //                 builder:
+                        //                     (context) => ProfileEditScreen(),
+                        //               ),
+                        //             ).then((result) {
+                        //               if (result == 'reload') {
+                        //                 print('Refreshed');
+                        //                 initAll(forceRefresh: true);
+                        //               }
+                        //             });
+                        //           },
+                        //           child: Container(
+                        //             width: double.infinity,
+                        //             padding: const EdgeInsets.all(20),
+                        //             decoration: BoxDecoration(
+                        //               color: AppColors.accent,
+                        //               borderRadius: BorderRadius.circular(16),
+                        //             ),
+                        //             child: Row(
+                        //               children: [
+                        //                 const Icon(
+                        //                   Icons.warning_amber_rounded,
+                        //                   color: Colors.white,
+                        //                   size: 32,
+                        //                 ),
+                        //                 const SizedBox(width: 16),
+                        //                 Expanded(
+                        //                   child: Text(
+                        //                     "Kamu belum melakukan konfirmasi registrasi ulang. Segera konfirmasi ke pembimbing kelompokmu!",
+                        //                     style: const TextStyle(
+                        //                       color: Colors.white,
+                        //                       fontWeight: FontWeight.bold,
+                        //                       fontSize: 14,
+                        //                     ),
+                        //                   ),
+                        //                 ),
+                        //                 const Icon(
+                        //                   Icons.arrow_forward_ios,
+                        //                   color: Colors.white,
+                        //                   size: 20,
+                        //                 ),
+                        //               ],
+                        //             ),
+                        //           ),
+                        //         ),
+                        //       ),
+                        //       const SizedBox(height: 24),
+                        //     ],
+                        //   ),
+                        status_datang == "0"
+                            ? AnimatedOpacity(
+                              opacity: 1.0,
+                              duration: const Duration(milliseconds: 400),
+                              child: Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                    ),
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(16),
+                                      onTap: () {
+                                        // Navigasi ke halaman edit profil
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) =>
+                                                    ProfileEditScreen(),
+                                          ),
+                                        ).then((result) {
+                                          if (result == 'reload') {
+                                            print('Refreshed');
+                                            initAll(forceRefresh: true);
+                                          }
+                                        });
+                                      },
+                                      child: Container(
+                                        width: double.infinity,
+                                        padding: const EdgeInsets.all(20),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.accent,
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.warning_amber_rounded,
+                                              color: Colors.white,
+                                              size: 32,
+                                            ),
+                                            const SizedBox(width: 16),
+                                            Expanded(
+                                              child: Text(
+                                                "Kamu belum melakukan konfirmasi registrasi ulang. Segera konfirmasi ke pembimbing kelompokmu!",
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                            const Icon(
+                                              Icons.arrow_forward_ios,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                ],
+                              ),
+                            )
+                            : const SizedBox.shrink(),
 
                         // Pembina Pembimbing Card
                         if (role.toLowerCase().contains('pembina') == true ||
@@ -1221,7 +1390,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                                 'peserta',
                                                               ) ==
                                                           true)
-                                                      ? '${_dataUser['nama'] ?? ''} \n Kelompok: ${_dataUser['kelompok_nama'] ?? ''} \n ${_dataUser['kamar'] ?? ''}'
+                                                      ? '${nama} \n Kelompok: ${kelompok} \n ${kamar}'
                                                       : '',
                                                   style: const TextStyle(
                                                     fontWeight: FontWeight.w500,

@@ -275,7 +275,7 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                                                         'pembina',
                                                                       ) ??
                                                                   false)
-                                                              ? 170
+                                                              ? 190
                                                               : (user['role']
                                                                       .toString()
                                                                       .toLowerCase()
@@ -288,7 +288,7 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                                                       .contains(
                                                                         'peserta',
                                                                       )))
-                                                              ? 190 //sebagai anggota dan role user peserta
+                                                              ? 200 //sebagai anggota dan role user peserta
                                                               : (user['role']
                                                                       .toString()
                                                                       .toLowerCase()
@@ -307,8 +307,8 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                                                           .contains(
                                                                             'panitia',
                                                                           ))) //sebagai anggota dan role user pembimbing kelompok atau panitia
-                                                              ? 235
-                                                              : 250,
+                                                              ? 255
+                                                              : 260,
                                                       child: Padding(
                                                         padding:
                                                             const EdgeInsets.only(
@@ -455,6 +455,40 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                                                           ),
                                                                         ],
                                                                       ),
+                                                                    // if ((user['kamar'] ??
+                                                                    //         '')
+                                                                    //     .toString()
+                                                                    //     .isNotEmpty)
+                                                                    Row(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .center,
+                                                                      children: [
+                                                                        const Icon(
+                                                                          Icons
+                                                                              .bed,
+                                                                          size:
+                                                                              18,
+                                                                          color:
+                                                                              AppColors.black1,
+                                                                        ),
+                                                                        const SizedBox(
+                                                                          width:
+                                                                              6,
+                                                                        ),
+                                                                        Text(
+                                                                          '${user['kamar']}',
+                                                                          style: const TextStyle(
+                                                                            fontSize:
+                                                                                14,
+                                                                            color:
+                                                                                AppColors.black1,
+                                                                          ),
+                                                                          textAlign:
+                                                                              TextAlign.center,
+                                                                        ),
+                                                                      ],
+                                                                    ),
                                                                   ],
                                                                 ),
                                                               ),

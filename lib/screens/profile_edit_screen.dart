@@ -37,6 +37,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       _isLoading = true;
     });
     try {
+      await checkStatusDatang();
       await loadUserData();
       await loadAvatarById();
     } catch (e) {
@@ -63,7 +64,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       'kelompok_id',
       'kelompok_nama',
       'kamar',
-      'status_datang',
+      'secret',
     ];
     final Map<String, String> userData = {};
     for (final key in keys) {
@@ -159,18 +160,56 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     } catch (e) {}
   }
 
+  Future<void> checkStatusDatang() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final res = await ApiService.getStatusDatang(
+        context,
+        _dataUser['secret'] ?? '',
+        _dataUser['email'] ?? '',
+      );
+      if (!mounted) return;
+      final statusDatangApi = res['data']?['status_datang']?.toString() ?? '';
+      final prefs = await SharedPreferences.getInstance();
+      final statusDatangLocal = prefs.getString('status_datang') ?? '0';
+      if (statusDatangApi.isNotEmpty && statusDatangApi != statusDatangLocal) {
+        await prefs.setString('status_datang', statusDatangApi);
+        print('Status datang diperbarui: ${_dataUser['status_datang']}');
+        setState(() {
+          _dataUser['status_datang'] = statusDatangApi;
+        });
+      } else {
+        setState(() {
+          _dataUser['status_datang'] = statusDatangLocal;
+        });
+      }
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('❌ Gagal memuat status datang: $e');
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final qrData = jsonEncode({
-      'id': _dataUser['id'],
-      'nama': _dataUser['nama'],
-      'role': _dataUser['role'],
-      'email': _dataUser['email'],
-      'kelompok_nama': _dataUser['kelompok_nama'],
-    });
+    // final qrData = jsonEncode({
+    //   'id': _dataUser['id'],
+    //   'nama': _dataUser['nama'],
+    //   'role': _dataUser['role'],
+    //   'email': _dataUser['email'],
+    //   'kelompok_nama': _dataUser['kelompok_nama'],
+    // });
     final role = _dataUser['role'] ?? '';
     final namakelompok = _dataUser['kelompok_nama'] ?? 'Tidak ada kelompok';
-    final status_datang = _dataUser['status_datang'] ?? '0';
+    final secret = _dataUser['secret'] ?? 'Null';
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -183,10 +222,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading:
-            Navigator.canPop(context)
-                ? BackButton(color: AppColors.primary)
-                : null,
+        leading: BackButton(
+          color: AppColors.primary,
+          onPressed: () => Navigator.pop(context, 'reload'),
+        ),
+        // leading:
+        //     Navigator.canPop(context)
+        //         ? BackButton(color: AppColors.primary)
+        //         : null,
       ),
       body: Stack(
         children: [
@@ -250,6 +293,25 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                                   }())
                                                   as ImageProvider),
                                   backgroundColor: Colors.grey[200],
+                                ),
+                              ),
+                              SizedBox(height: 16),
+                              Text(
+                                _dataUser['nama'] ?? '',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                _dataUser['kelompok_nama']?.isNotEmpty == true
+                                    ? _dataUser['kelompok_nama']!
+                                    : 'Tidak ada kelompok',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: AppColors.primary,
                                 ),
                               ),
                               SizedBox(height: 16),
@@ -328,15 +390,17 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                               // ),
                               SizedBox(height: 24),
                               // QR Code User
-                              status_datang.contains('0')
+                              _dataUser['status_datang']?.contains('0') ?? true
                                   ? Column(
                                     children: [
-                                      Text(
-                                        'QR Code Peserta',
-                                        style: TextStyle(
-                                          color: AppColors.primary,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
+                                      Center(
+                                        child: Text(
+                                          'QR Code Konfirmasi Registrasi Ulang Peserta',
+                                          style: TextStyle(
+                                            color: AppColors.primary,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
                                         ),
                                       ),
                                       SizedBox(height: 8),
@@ -349,24 +413,26 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                           ),
                                         ),
                                         child: QrImageView(
-                                          data: qrData,
+                                          // data: qrData,
+                                          data:
+                                              'https://netunim.seabs.ac.id/konfirmasi/s=$secret',
                                           size: 180.0,
                                           backgroundColor: Colors.white,
                                         ),
                                       ),
                                       SizedBox(height: 8),
                                       Text(
-                                        'Tunjukkan QR ini ke pembimbing kelompokmu\nuntuk check-in',
+                                        'Tunjukkan QR ke pembimbing kelompok untuk check-in\nJika sudah berhasil, silakan login kembali ke aplikasi',
                                         style: TextStyle(
                                           color: AppColors.brown1,
-                                          fontSize: 12,
+                                          fontSize: 10,
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
                                     ],
                                   )
                                   : Text(
-                                    '✅  Terima kasih sudah melakukan registrasi ulang',
+                                    '✅  Terima kasih sudah melakukan konfirmasi registrasi ulang',
                                     style: TextStyle(
                                       color: AppColors.brown1,
                                       fontSize: 12,

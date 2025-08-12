@@ -7,6 +7,7 @@ import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 import 'package:syc/screens/konfirmasi_registrasi_ulang_screen.dart'
     show KonfirmasiRegistrasiUlangScreen;
 import 'package:syc/utils/app_colors.dart';
+import '../services/api_service.dart';
 
 class ScanQrScreen extends StatefulWidget {
   final String namakelompok;
@@ -171,94 +172,137 @@ Widget _buildDecodedResultWidget(
   if (result == null) return const SizedBox();
   try {
     final data = result.code;
-    if (data == null) return const Text('QR tidak valid');
-    final decoded = jsonDecode(data);
-    final nama = decoded['nama'] ?? '';
-    final role = decoded['role'] ?? '';
-    final kelompok = decoded['kelompok_nama'] ?? '';
-    final kelompokSama =
-        kelompok.toString().toLowerCase().trim() ==
-        kelompokWidget.toLowerCase().trim();
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text(
-          'QR User ditemukan!',
-          style: TextStyle(
-            fontSize: 16,
-            color: AppColors.primary,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Nama: $nama',
-          style: const TextStyle(fontSize: 18, color: AppColors.primary),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'Role: $role',
-          style: const TextStyle(fontSize: 16, color: AppColors.primary),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'Kelompok: $kelompok',
-          style: const TextStyle(fontSize: 16, color: AppColors.primary),
-        ),
-        const SizedBox(height: 16),
-        if (!kelompokSama)
-          GestureDetector(
-            onTap: () {},
-            child: Container(
-              width: double.infinity,
-              height: 50,
-              decoration: BoxDecoration(
-                color: AppColors.grey3,
-                borderRadius: BorderRadius.circular(32),
-              ),
-              alignment: Alignment.center,
-              child: const Text(
-                'Kelompok tidak sesuai!',
-                style: TextStyle(
-                  color: AppColors.accent,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          )
-        else
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (context) => KonfirmasiRegistrasiUlangScreen(
-                        jsonContent: result.code ?? '',
-                      ),
-                ),
-              );
-            },
-            child: Container(
-              width: double.infinity,
-              height: 50,
-              decoration: BoxDecoration(
-                color: AppColors.brown1,
-                borderRadius: BorderRadius.circular(32),
-              ),
-              alignment: Alignment.center,
-              child: const Text(
-                'Konfirmasi Registrasi Ulang',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
+    return FutureBuilder<Map<String, dynamic>>(
+      future:
+          (() async {
+            // Ambil secret dari link QR
+            String? secret;
+            final uri = Uri.tryParse(data ?? '');
+            if (uri != null &&
+                uri.queryParameters.isEmpty &&
+                uri.pathSegments.isNotEmpty) {
+              final last = uri.pathSegments.last;
+              if (last.contains('=')) {
+                secret = last.split('=').last;
+              } else {
+                secret = last;
+              }
+            } else if (uri != null && uri.queryParameters.containsKey('s')) {
+              secret = uri.queryParameters['s'];
+            } else if ((data ?? '').contains('s=')) {
+              secret = (data ?? '').split('s=').last;
+            }
+            if (secret == null || secret.isEmpty) {
+              throw Exception('Secret tidak ditemukan di QR.');
+            }
+            final res = await ApiService.getDataKonfirmasi(context, secret);
+            if (res['success'] == true && res['data'] != null) {
+              return Map<String, dynamic>.from(res['data']);
+            } else {
+              throw Exception(res['message'] ?? 'Data tidak ditemukan.');
+            }
+          })(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text(
+            snapshot.error.toString(),
+            style: const TextStyle(color: Colors.red),
+          );
+        } else if (!snapshot.hasData) {
+          return const Text('Data tidak ditemukan');
+        }
+        final dataKonfirmasi = snapshot.data!;
+        print('Data Konfirmasi: $dataKonfirmasi');
+        final nama = dataKonfirmasi['nama'] ?? '';
+        final kelompok = dataKonfirmasi['kelompok'] ?? '';
+        final role = dataKonfirmasi['role'] ?? '';
+        final kelompokSama =
+            kelompokWidget.trim().toLowerCase() ==
+            kelompok.trim().toLowerCase();
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'QR User ditemukan!',
+              style: TextStyle(
+                fontSize: 16,
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ),
-      ],
+            const SizedBox(height: 8),
+            Text(
+              'Nama: $nama',
+              style: const TextStyle(fontSize: 18, color: AppColors.primary),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Role: $role',
+              style: const TextStyle(fontSize: 16, color: AppColors.primary),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Kelompok: $kelompok',
+              style: const TextStyle(fontSize: 16, color: AppColors.primary),
+            ),
+            const SizedBox(height: 16),
+            if (!kelompokSama)
+              GestureDetector(
+                onTap: () {},
+                child: Container(
+                  width: double.infinity,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: AppColors.grey3,
+                    borderRadius: BorderRadius.circular(32),
+                  ),
+                  alignment: Alignment.center,
+                  child: const Text(
+                    'Kelompok tidak sesuai!',
+                    style: TextStyle(
+                      color: AppColors.accent,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              )
+            else
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => KonfirmasiRegistrasiUlangScreen(
+                            qrResult: data ?? '',
+                          ),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: AppColors.brown1,
+                    borderRadius: BorderRadius.circular(32),
+                  ),
+                  alignment: Alignment.center,
+                  child: const Text(
+                    'Konfirmasi Registrasi Ulang',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   } catch (e) {
     return const Text('QR tidak valid atau format salah');

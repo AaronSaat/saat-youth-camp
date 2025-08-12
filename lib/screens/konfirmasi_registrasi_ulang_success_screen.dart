@@ -38,7 +38,7 @@ class KonfirmasiRegistrasiUlangSuccessScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     Text(
                       isSuccess
-                          ? 'Registrasi ulang berhasil!'
+                          ? 'Registrasi ulang berhasil!\nSilakan minta peserta untuk login kembali ke aplikasi.'
                           : 'Registrasi ulang gagal.',
                       style: TextStyle(
                         fontSize: 20,

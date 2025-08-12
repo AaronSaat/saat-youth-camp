@@ -55,6 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
     String kelompok_nama,
     String kamar,
     String status_datang,
+    String secret,
   ) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('id', id);
@@ -72,6 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
     await prefs.setString('kelompok_nama', kelompok_nama);
     await prefs.setString('kamar', kamar);
     await prefs.setString('status_datang', status_datang);
+    await prefs.setString('secret', secret);
     print('Login data saved:');
     print('id: $id');
     print('username: $username');
@@ -88,6 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
     print('kelompok_nama: $kelompok_nama');
     print('kamar: $kamar');
     print('status_datang: $status_datang');
+    print('secret: $secret');
   }
 
   void _login() async {
@@ -109,19 +112,22 @@ class _LoginScreenState extends State<LoginScreen> {
         await _saveLoginData(
           response['user']['id'].toString(),
           response['user']['username'],
-          response['user']['nama'] ?? 'Null',
+          response['user']['nama'] ?? 'Tidak ada nama',
           response['user']['divisi'] ?? 'Null',
           response['user']['email'],
           response['user']['group_id']?.toString() ?? 'Null',
           response['user']['role'],
           response['user']['count_roles']?.toString() ?? '0',
           response['token'],
-          response['user']['gereja']?['gereja_id']?.toString() ?? 'Null',
-          response['user']['gereja']?['gereja_nama'] ?? 'Null',
+          response['user']['gereja']?['gereja_id']?.toString() ??
+              'Tidak ada gereja',
+          response['user']['gereja']?['gereja_nama'] ?? 'Tidak ada gereja',
           response['user']['kelompok']?['id']?.toString() ?? 'Null',
-          response['user']['kelompok']?['nama_kelompok'] ?? 'Null',
-          response['user']['kamar'] ?? 'Null',
+          response['user']['kelompok']?['nama_kelompok'] ??
+              'Tidak ada kelompok',
+          response['user']['kamar'] ?? 'Tidak ada kamar',
           response['user']['status_datang'] ?? 'Null',
+          response['user']['secret'] ?? 'Null',
         );
 
         Navigator.pushReplacement(
