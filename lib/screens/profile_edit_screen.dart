@@ -65,6 +65,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       'kelompok_nama',
       'kamar',
       'secret',
+      'status_datang',
     ];
     final Map<String, String> userData = {};
     for (final key in keys) {

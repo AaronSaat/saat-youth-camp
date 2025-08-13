@@ -14,9 +14,9 @@ import '../widgets/custom_snackbar.dart';
 class ApiService {
   // static const String baseurl = 'http://172.172.52.9:82/reg-new/api-syc2025/';
   // static const String baseurlLocal = 'http://172.172.52.9/website_backup/api/';
-  static const String baseurl = 'http://172.172.52.11:90/api-syc2025/';
   // static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
-  // static const String baseurl = 'https://netunim.seabs.ac.id/api-syc202 5/';
+  static const String baseurl = 'http://172.172.52.11:90/api-syc2025/';
+  // static const String baseurl = 'https://netunim.seabs.ac.id/api-syc2025/';
 
   static Future<Map<String, dynamic>> loginUser(
     String username,
@@ -2091,6 +2091,10 @@ class ApiService {
     print('url $url');
     print('response ${response.statusCode} - ${response.body}');
     if (response.statusCode == 200) {
+      final Map<String, dynamic> dataVersion = json.decode(response.body);
+
+      return dataVersion;
+    } else if (response.statusCode == 401) {
       final Map<String, dynamic> dataVersion = json.decode(response.body);
 
       return dataVersion;

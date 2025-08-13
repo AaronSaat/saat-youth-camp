@@ -683,45 +683,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           color: Colors.white,
                                         ),
                                       ),
-                                      Row(
-                                        children: [
-                                          Card(
-                                            color: AppColors.secondary,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 8,
-                                                    vertical: 4,
-                                                  ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  const Icon(
-                                                    Icons.work,
-                                                    size: 12,
-                                                    color: AppColors.primary,
-                                                  ),
-                                                  const SizedBox(width: 4),
-                                                  Text(
-                                                    role.replaceAll(
-                                                      ' Kelompok',
-                                                      '',
-                                                    ),
-                                                    style: const TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                ],
+                                      Card(
+                                        color: AppColors.secondary,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: Padding(
+                                          padding:
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 8,
+                                                vertical: 4,
                                               ),
-                                            ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Icon(
+                                                Icons.work,
+                                                size: 12,
+                                                color: AppColors.primary,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                role.replaceAll(
+                                                  ' Kelompok',
+                                                  '',
+                                                ),
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight:
+                                                      FontWeight.w500,
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                          if (kelompok.isNotEmpty &&
+                                        ),
+                                      ),
+                                       if (kelompok.isNotEmpty &&
                                               kelompok != 'Null')
                                             Card(
                                               color: AppColors.secondary,
@@ -747,7 +745,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                     const SizedBox(width: 4),
                                                     Text(
                                                       kelompok,
-                                                      style: const TextStyle(
+                                                      style:  TextStyle(
                                                         fontSize: 12,
                                                         fontWeight:
                                                             FontWeight.w500,
@@ -757,8 +755,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 ),
                                               ),
                                             ),
-                                        ],
-                                      ),
                                       if (divisi.isNotEmpty && divisi != 'Null')
                                         Card(
                                           color: AppColors.secondary,

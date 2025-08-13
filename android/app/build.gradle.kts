@@ -1,7 +1,7 @@
 // Force NDK version to match plugin requirements
 android {
-    // ...existing config...
     ndkVersion = "27.0.12077973"
+    // ...existing config...
 }
 plugins {
     id("com.android.application")
@@ -13,7 +13,7 @@ plugins {
 android {
     namespace = "com.example.syc"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

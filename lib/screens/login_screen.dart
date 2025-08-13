@@ -130,6 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
           response['user']['secret'] ?? 'Null',
         );
 
+        if (!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const MainScreen()),

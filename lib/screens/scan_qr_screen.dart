@@ -221,6 +221,108 @@ Widget _buildDecodedResultWidget(
         final kelompokSama =
             kelompokWidget.trim().toLowerCase() ==
             kelompok.trim().toLowerCase();
+        final statusDatang = dataKonfirmasi['status_datang']?.toString();
+        // Cek jika kelompok tidak sama
+        if (!kelompokSama) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'QR User ditemukan!',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Nama: $nama',
+                style: const TextStyle(fontSize: 18, color: AppColors.primary),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Role: $role',
+                style: const TextStyle(fontSize: 16, color: AppColors.primary),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Kelompok: $kelompok',
+                style: const TextStyle(fontSize: 16, color: AppColors.primary),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: AppColors.grey3,
+                  borderRadius: BorderRadius.circular(32),
+                ),
+                alignment: Alignment.center,
+                child: const Text(
+                  'Kelompok tidak sesuai!',
+                  style: TextStyle(
+                    color: AppColors.accent,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          );
+        }
+
+        // Cek jika response 401 (unauthorized), tampilkan pesan error dari API
+        if (dataKonfirmasi['success'] == 'false') {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'QR User ditemukan!',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Nama: $nama',
+                style: const TextStyle(fontSize: 18, color: AppColors.primary),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Role: $role',
+                style: const TextStyle(fontSize: 16, color: AppColors.primary),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Kelompok: $kelompok',
+                style: const TextStyle(fontSize: 16, color: AppColors.primary),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: AppColors.grey3,
+                  borderRadius: BorderRadius.circular(32),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  dataKonfirmasi['message'] ?? 'Unauthorized',
+                  style: const TextStyle(
+                    color: AppColors.accent,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          );
+        }
+
+        // Jika bisa konfirmasi
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -248,58 +350,34 @@ Widget _buildDecodedResultWidget(
               style: const TextStyle(fontSize: 16, color: AppColors.primary),
             ),
             const SizedBox(height: 16),
-            if (!kelompokSama)
-              GestureDetector(
-                onTap: () {},
-                child: Container(
-                  width: double.infinity,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: AppColors.grey3,
-                    borderRadius: BorderRadius.circular(32),
-                  ),
-                  alignment: Alignment.center,
-                  child: const Text(
-                    'Kelompok tidak sesuai!',
-                    style: TextStyle(
-                      color: AppColors.accent,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => KonfirmasiRegistrasiUlangScreen(
+                      qrResult: data ?? '',
                     ),
                   ),
+                );
+              },
+              child: Container(
+                width: double.infinity,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: AppColors.brown1,
+                  borderRadius: BorderRadius.circular(32),
                 ),
-              )
-            else
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) => KonfirmasiRegistrasiUlangScreen(
-                            qrResult: data ?? '',
-                          ),
-                    ),
-                  );
-                },
-                child: Container(
-                  width: double.infinity,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: AppColors.brown1,
-                    borderRadius: BorderRadius.circular(32),
-                  ),
-                  alignment: Alignment.center,
-                  child: const Text(
-                    'Konfirmasi Registrasi Ulang',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
+                alignment: Alignment.center,
+                child: Text('Konfirmasi Registrasi Ulang',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
+            ),
           ],
         );
       },

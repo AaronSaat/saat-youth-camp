@@ -467,8 +467,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'kelompok_id',
       'kelompok_nama',
       'kamar',
-      'secret',
       'status_datang',
+      'secret',
     ];
     final Map<String, String> userData = {};
     for (final key in keys) {
@@ -1289,7 +1289,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             role.toLowerCase().contains('peserta') == true)
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 24),
-                            child: Column(
+                            child: Column(  
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 InkWell(
