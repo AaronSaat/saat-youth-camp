@@ -105,15 +105,24 @@ flutter:
 
     #mockups
     - assets/mockups/bible_reading.jpg #dashboard
-    - assets/mockups/kkr1.jpg 
+    - assets/mockups/bkc.jpg 
     - assets/mockups/kkr2.jpg 
     - assets/mockups/kkr3.jpg 
+    - assets/mockups/talks.jpg 
     - assets/mockups/drama_musikal.jpg 
     - assets/mockups/opening.jpg 
     - assets/mockups/closing.jpg 
-    - assets/mockups/new_year.jpg 
-    - assets/mockups/daftar.jpg 
-    - assets/mockups/saat_teduh1.jpg
+    - assets/mockups/special.jpg 
+    - assets/mockups/registration.jpg 
+    - assets/mockups/devotion.jpg
+    - assets/mockups/amongus.jpg
+    - assets/mockups/preparation.jpg
+    - assets/mockups/activity.jpg
+    - assets/mockups/rest.jpg
+    - assets/mockups/awg.jpg
+    - assets/mockups/bonding.jpg
+    - assets/mockups/eat.jpg
+    - assets/mockups/seeyou.png
     - assets/mockups/peserta.jpg 
     - assets/mockups/pembina.jpg 
     - assets/mockups/pembimbing.jpg 

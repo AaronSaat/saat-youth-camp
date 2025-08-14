@@ -470,53 +470,56 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                                         borderRadius: BorderRadius.circular(24),
                                         image: DecorationImage(
                                           image: () {
-                                            final nama =
-                                                acara['acara_nama']
-                                                    ?.toString() ??
-                                                '';
-                                            if (nama ==
-                                                'Pendaftaran Ulang dan Kedatangan') {
-                                              return Image.asset(
-                                                'assets/mockups/daftar.jpg',
-                                              ).image;
-                                            } else if (nama == 'Opening') {
-                                              return Image.asset(
-                                                'assets/mockups/opening.jpg',
-                                              ).image;
-                                            } else if (nama == 'KKR 1') {
-                                              return Image.asset(
-                                                'assets/mockups/kkr1.jpg',
-                                              ).image;
-                                            } else if (nama == 'KKR 2') {
-                                              return Image.asset(
-                                                'assets/mockups/kkr2.jpg',
-                                              ).image;
-                                            } else if (nama == 'KKR 3') {
-                                              return Image.asset(
-                                                'assets/mockups/kkr3.jpg',
-                                              ).image;
-                                            } else if (nama == 'Saat Teduh') {
-                                              return Image.asset(
-                                                'assets/mockups/saat_teduh1.jpg',
-                                              ).image;
-                                            } else if (nama ==
-                                                'Drama Musikal') {
-                                              return Image.asset(
-                                                'assets/mockups/drama_musikal.jpg',
-                                              ).image;
-                                            } else if (nama ==
-                                                'New Year Countdown') {
-                                              return Image.asset(
-                                                'assets/mockups/new_year.jpg',
-                                              ).image;
-                                            } else if (nama == 'Closing') {
-                                              return Image.asset(
-                                                'assets/mockups/closing.jpg',
-                                              ).image;
-                                            } else {
-                                              return Image.asset(
-                                                'assets/images/event.jpg',
-                                              ).image;
+                                            final nama = acara['acara_nama']?.toString() ?? '';
+                                            switch (nama) {
+                                              case 'Welcome to STT SAAT - SYC 2025 & Registration':
+                                                return Image.asset('assets/mockups/registration.jpg').image;
+                                              case 'Group Bonding':
+                                                return Image.asset('assets/mockups/bonding.jpg').image;
+                                              case 'Dinner':
+                                                return Image.asset('assets/mockups/eat.jpg').image;
+                                              case 'Opening (KKR1)':
+                                                return Image.asset('assets/mockups/opening.jpg').image;
+                                              case 'Alone with God':
+                                                return Image.asset('assets/mockups/awg.jpg').image;
+                                              case 'Rest':
+                                                return Image.asset('assets/mockups/rest.jpg').image;
+                                              case 'Self Preparation':
+                                                return Image.asset('assets/mockups/preparation.jpg').image;
+                                              case 'Breakfast':
+                                                return Image.asset('assets/mockups/eat.jpg').image;
+                                              case 'Morning Devotion':
+                                                return Image.asset('assets/mockups/devotion.jpg').image;
+                                              case 'Group Acitivity (with snack) - The Path of Redemption':
+                                              case 'Group Acitivity "Living Redeemed Life"':
+                                                return Image.asset('assets/mockups/activity.jpg').image;
+                                              case 'Lunch':
+                                                return Image.asset('assets/mockups/eat.jpg').image;
+                                              case 'BKC - Semifinal':
+                                              case 'BKC - Final':
+                                                return Image.asset('assets/mockups/bkc.jpg').image;
+                                              case 'SYC Talks: The Book of Galatian':
+                                              case 'SYC Talks: The Work of Christ':
+                                                return Image.asset('assets/mockups/talks.jpg').image;
+                                              case 'KKR 2 - Jesus Paid it All':
+                                                return Image.asset('assets/mockups/kkr2.jpg').image;
+                                              case "KKR 3 - The Redeemed Z's":
+                                                return Image.asset('assets/mockups/kkr3.jpg').image;
+                                              case 'Special Program':
+                                                return Image.asset('assets/mockups/special.jpg').image;
+                                              case 'Commited Among Us':
+                                                return Image.asset('assets/mockups/amongus.jpg').image;
+                                              case 'Drama Musikal':
+                                                return Image.asset('assets/mockups/drama_musikal.jpg').image;
+                                              case 'New Year Countdown':
+                                                return Image.asset('assets/mockups/new_year.jpg').image;
+                                              case 'Closing - Redeemed: The Story I Love to Share':
+                                              case 'Closing':
+                                                return Image.asset('assets/mockups/closing.jpg').image;
+                                              case "Home, Transformed & Recharged to Worship & Witness For The Glory of God -> See You @ SYC 2026":
+                                                return Image.asset('assets/mockups/seeyou.png').image;
+                                              default:
+                                                return Image.asset('assets/images/event.jpg').image;
                                             }
                                           }(),
                                           fit: BoxFit.cover,
@@ -553,9 +556,18 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                                                 acara['acara_nama']
                                                         ?.toString() ??
                                                     '',
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   color: Colors.white,
-                                                  fontSize: 22,
+                                                    fontSize: () {
+                                                    final nama = acara['acara_nama']?.toString() ?? '';
+                                                    if (nama.length > 40) {
+                                                      return 14.0;
+                                                    } else if (nama.length > 20) {
+                                                      return 18.0;
+                                                    } else {
+                                                      return 22.0;
+                                                    }
+                                                    }(),
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
