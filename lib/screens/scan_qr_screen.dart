@@ -187,10 +187,11 @@ Widget _buildDecodedResultWidget(
               } else {
                 secret = last;
               }
-            } else if (uri != null && uri.queryParameters.containsKey('s')) {
-              secret = uri.queryParameters['s'];
-            } else if ((data ?? '').contains('s=')) {
-              secret = (data ?? '').split('s=').last;
+            } else if (uri != null &&
+                uri.queryParameters.containsKey('secret')) {
+              secret = uri.queryParameters['secret'];
+            } else if ((data ?? '').contains('secret=')) {
+              secret = (data ?? '').split('secret=').last;
             }
             if (secret == null || secret.isEmpty) {
               throw Exception('Secret tidak ditemukan di QR.');
@@ -355,9 +356,10 @@ Widget _buildDecodedResultWidget(
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => KonfirmasiRegistrasiUlangScreen(
-                      qrResult: data ?? '',
-                    ),
+                    builder:
+                        (context) => KonfirmasiRegistrasiUlangScreen(
+                          qrResult: data ?? '',
+                        ),
                   ),
                 );
               },
@@ -369,7 +371,8 @@ Widget _buildDecodedResultWidget(
                   borderRadius: BorderRadius.circular(32),
                 ),
                 alignment: Alignment.center,
-                child: Text('Konfirmasi Registrasi Ulang',
+                child: Text(
+                  'Konfirmasi Registrasi Ulang',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,

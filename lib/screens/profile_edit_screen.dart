@@ -211,6 +211,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     final role = _dataUser['role'] ?? '';
     final namakelompok = _dataUser['kelompok_nama'] ?? 'Tidak ada kelompok';
     final secret = _dataUser['secret'] ?? 'Null';
+    final status_datang = _dataUser['status_datang'] ?? '0';
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -391,56 +392,59 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                               // ),
                               SizedBox(height: 24),
                               // QR Code User
-                              _dataUser['status_datang']?.contains('0') ?? true
-                                  ? Column(
-                                    children: [
-                                      Center(
-                                        child: Text(
-                                          'QR Code Konfirmasi Registrasi Ulang Peserta',
-                                          style: TextStyle(
-                                            color: AppColors.primary,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
+                              (role.toLowerCase().contains('peserta') ||
+                                      role.toLowerCase().contains('pembina'))
+                                  ? status_datang.contains('0')
+                                      ? Column(
+                                        children: [
+                                          Center(
+                                            child: Text(
+                                              'QR Code Konfirmasi Registrasi Ulang Peserta',
+                                              style: TextStyle(
+                                                color: AppColors.primary,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
-                                      SizedBox(height: 8),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          border: Border.all(
-                                            color: AppColors.primary,
-                                            width: 2,
+                                          SizedBox(height: 8),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              border: Border.all(
+                                                color: AppColors.primary,
+                                                width: 2,
+                                              ),
+                                            ),
+                                            child: QrImageView(
+                                              // data: qrData,
+                                              data:
+                                                  '${GlobalVariables.serverUrl}/panitia/syc2025/konfirmasi-datang/secret=$secret',
+                                              size: 180.0,
+                                              backgroundColor: Colors.white,
+                                            ),
                                           ),
-                                        ),
-                                        child: QrImageView(
-                                          // data: qrData,
-                                          data:
-                                              'https://netunim.seabs.ac.id/konfirmasi/s=$secret',
-                                          size: 180.0,
-                                          backgroundColor: Colors.white,
-                                        ),
-                                      ),
-                                      SizedBox(height: 8),
-                                      Text(
-                                        'Tunjukkan QR ke pembimbing kelompok untuk check-in\nJika sudah berhasil, silakan login kembali ke aplikasi',
+                                          SizedBox(height: 8),
+                                          Text(
+                                            'Tunjukkan QR ke pembimbing kelompok untuk check-in\nJika sudah berhasil, silakan login kembali ke aplikasi',
+                                            style: TextStyle(
+                                              color: AppColors.brown1,
+                                              fontSize: 10,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ],
+                                      )
+                                      : Text(
+                                        '✅  Terima kasih sudah melakukan konfirmasi registrasi ulang',
                                         style: TextStyle(
                                           color: AppColors.brown1,
-                                          fontSize: 10,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                         textAlign: TextAlign.center,
-                                      ),
-                                    ],
-                                  )
-                                  : Text(
-                                    '✅  Terima kasih sudah melakukan konfirmasi registrasi ulang',
-                                    style: TextStyle(
-                                      color: AppColors.brown1,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
+                                      )
+                                  : SizedBox.shrink(),
                             ],
                           ),
                     ],
