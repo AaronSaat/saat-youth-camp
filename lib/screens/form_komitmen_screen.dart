@@ -190,6 +190,8 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                           'Data komitmen tidak ditemukan.\nSilakan kembali dan coba lagi nanti.',
                       textColor: Colors.white,
                       imagePath: 'assets/images/data_not_found.png',
+                      onBack: () => Navigator.pop(context),
+                      backButtonWhite: true,
                     )
                     : CustomScrollView(
                       slivers: [

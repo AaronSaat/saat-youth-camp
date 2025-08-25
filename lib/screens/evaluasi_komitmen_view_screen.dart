@@ -258,7 +258,7 @@ class _EvaluasiKomitmenViewScreenState
                           // Checkbox answer
                           return CustomTextCard(
                             text: question,
-                            value: answer == true ? 'Ya' : 'Tidak',
+                            value: answer == "1" ? 'Ya' : 'Tidak',
                           );
                         } else if ([
                           "3",

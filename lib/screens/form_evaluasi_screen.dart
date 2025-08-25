@@ -235,6 +235,8 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                           'Data evaluasi tidak ditemukan.\nSilakan kembali dan coba lagi nanti.',
                       textColor: Colors.white,
                       imagePath: 'assets/images/data_not_found.png',
+                      onBack: () => Navigator.pop(context),
+                      backButtonWhite: true,
                     )
                     : CustomScrollView(
                       slivers: [

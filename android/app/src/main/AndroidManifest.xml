@@ -61,4 +61,11 @@
             <data android:mimeType="text/plain"/>
         </intent>
     </queries>
+
+    <supports-screens
+        android:smallScreens="true"
+        android:normalScreens="true"
+        android:largeScreens="false"
+        android:xlargeScreens="false"
+        android:anyDensity="true"/>
 </manifest>

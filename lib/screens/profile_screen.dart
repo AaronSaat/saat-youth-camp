@@ -686,15 +686,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       Card(
                                         color: AppColors.secondary,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                         child: Padding(
-                                          padding:
-                                              const EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 4,
-                                              ),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
@@ -711,50 +711,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 ),
                                                 style: const TextStyle(
                                                   fontSize: 12,
-                                                  fontWeight:
-                                                      FontWeight.w500,
+                                                  fontWeight: FontWeight.w500,
                                                 ),
                                               ),
                                             ],
                                           ),
                                         ),
                                       ),
-                                       if (kelompok.isNotEmpty &&
-                                              kelompok != 'Null')
-                                            Card(
-                                              color: AppColors.secondary,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 4,
-                                                    ),
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    const Icon(
-                                                      Icons.group,
-                                                      size: 12,
-                                                      color: AppColors.primary,
-                                                    ),
-                                                    const SizedBox(width: 4),
-                                                    Text(
-                                                      kelompok,
-                                                      style:  TextStyle(
-                                                        fontSize: 12,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
+                                      if (kelompok.isNotEmpty &&
+                                          kelompok != 'Null')
+                                        Card(
+                                          color: AppColors.secondary,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
                                             ),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Icon(
+                                                  Icons.group,
+                                                  size: 12,
+                                                  color: AppColors.primary,
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  kelompok,
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
                                       if (divisi.isNotEmpty && divisi != 'Null')
                                         Card(
                                           color: AppColors.secondary,
@@ -957,7 +954,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                             userId: userId,
                                                           ),
                                                 ),
-                                              );
+                                              ).then((result) {
+                                                if (result == 'reload') {
+                                                  initAll(forceRefresh: true);
+                                                }
+                                              });
                                             },
                                             valueProgress:
                                                 (totalKomitmen > 0)

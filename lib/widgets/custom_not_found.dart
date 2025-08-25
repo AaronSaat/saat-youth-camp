@@ -7,6 +7,7 @@ class CustomNotFound extends StatelessWidget {
   final String imagePath;
   final VoidCallback? onBack;
   final String? backText;
+  final bool backButtonWhite; // jika true, button putih dan text brown1
 
   const CustomNotFound({
     super.key,
@@ -15,6 +16,7 @@ class CustomNotFound extends StatelessWidget {
     required this.imagePath,
     this.onBack,
     this.backText,
+    this.backButtonWhite = false,
   });
 
   @override
@@ -39,14 +41,14 @@ class CustomNotFound extends StatelessWidget {
                   width: double.infinity,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: AppColors.brown1,
+                    color: backButtonWhite ? Colors.white : AppColors.brown1,
                     borderRadius: BorderRadius.circular(64),
                   ),
                   alignment: Alignment.center,
                   child: Text(
                     backText ?? 'Kembali',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: backButtonWhite ? AppColors.brown1 : Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
                     ),
