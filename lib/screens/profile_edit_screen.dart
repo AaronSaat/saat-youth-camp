@@ -1,4 +1,4 @@
-import 'dart:convert' show jsonEncode;
+import 'dart:convert' show jsonEncode, utf8;
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,10 +9,10 @@ import 'package:shared_preferences/shared_preferences.dart'
 import 'package:syc/screens/scan_qr_screen.dart' show ScanQrScreen;
 import 'package:syc/utils/global_variables.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
 
 import '../services/api_service.dart';
 import '../utils/app_colors.dart';
-import '../utils/permission_helper.dart';
 import '../widgets/custom_snackbar.dart';
 
 class ProfileEditScreen extends StatefulWidget {
@@ -78,44 +78,31 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   }
 
   Future<void> _pickImage() async {
-    bool hasPermission = await PermissionHelper.requestPhotosPermission(
-      context,
-    );
-    if (hasPermission) {
-      //[DEVELOPER NOTE] This condition is inverted, atau ga usah pakai
-      final picker = ImagePicker();
-      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-      if (pickedFile != null) {
-        final file = File(pickedFile.path);
-        final bytes = await file.length();
-        print('File size in bytes: $bytes');
-        const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      final file = File(pickedFile.path);
+      final bytes = await file.length();
+      print('File size in bytes: $bytes');
+      const maxSizeInBytes = 4 * 1024 * 1024; // 4MB
 
-        if (bytes > maxSizeInBytes) {
-          showCustomSnackBar(
-            context,
-            'Ukuran gambar maksimal 2MB',
-            isSuccess: false,
-          );
-          return;
-        }
-
-        setState(() {
-          _imageFile = file;
-        });
-      } else {
-        if (!mounted) return;
+      if (bytes > maxSizeInBytes) {
         showCustomSnackBar(
           context,
-          'Tidak ada gambar yang dipilih',
+          'Ukuran gambar maksimal 4MB',
           isSuccess: false,
         );
+        return;
       }
+
+      setState(() {
+        _imageFile = file;
+      });
     } else {
       if (!mounted) return;
       showCustomSnackBar(
         context,
-        'Izin akses galeri ditolak',
+        'Tidak ada gambar yang dipilih',
         isSuccess: false,
       );
     }
@@ -133,7 +120,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     }
 
     try {
-      final result = await ApiService.postAvatar(
+      await ApiService.postAvatar(
         context,
         _imageFile!.path,
         body: {'user_id': _dataUser['id'] ?? ''},
@@ -149,7 +136,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   }
 
   Future<void> loadAvatarById() async {
-    final userId = _dataUser['id'].toString() ?? '';
+    final userId = _dataUser['id'].toString();
     try {
       final _avatar = await ApiService.getAvatarById(context, userId);
       if (!mounted) return;
@@ -199,6 +186,18 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     }
   }
 
+  String encryptSecret(String secret) {
+    final key = encrypt.Key.fromUtf8(
+      'Ab3kLm9PqRstUv2XyZ01MnOpQr56StUv',
+    ); // 16/24/32 karakter
+    final iv = encrypt.IV.fromUtf8('Ab3kLm9PqRstUv2X'); // 16 karakter (benar)
+    final encrypter = encrypt.Encrypter(
+      encrypt.AES(key, mode: encrypt.AESMode.cbc),
+    );
+    final encrypted = encrypter.encrypt(secret, iv: iv);
+    return encrypted.base64;
+  }
+
   @override
   Widget build(BuildContext context) {
     // final qrData = jsonEncode({
@@ -209,8 +208,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     //   'kelompok_nama': _dataUser['kelompok_nama'],
     // });
     final role = _dataUser['role'] ?? '';
-    final namakelompok = _dataUser['kelompok_nama'] ?? 'Tidak ada kelompok';
     final secret = _dataUser['secret'] ?? 'Null';
+    final encryptedSecret = encryptSecret(secret);
     final status_datang = _dataUser['status_datang'] ?? '0';
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -419,7 +418,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                             child: QrImageView(
                                               // data: qrData,
                                               data:
-                                                  '${GlobalVariables.serverUrl}/panitia/syc2025/konfirmasi-datang/secret=$secret',
+                                                  '${GlobalVariables.serverUrl}syc2025/konfirmasi-datang?secret=$encryptedSecret',
                                               size: 180.0,
                                               backgroundColor: Colors.white,
                                             ),

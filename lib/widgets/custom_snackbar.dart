@@ -82,7 +82,7 @@ void showCustomSnackBar(
       action:
           showDismissButton
               ? SnackBarAction(
-                label: 'Dismiss',
+                label: 'Tutup',
                 textColor: AppColors.brown1,
                 onPressed: () {
                   scaffoldMessenger.hideCurrentSnackBar();

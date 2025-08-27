@@ -4,6 +4,7 @@ import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
 import 'package:shimmer/shimmer.dart';
+import 'package:syc/screens/konfirmasi_registrasi_ulang_screen.dart';
 import 'package:syc/screens/list_komitmen_screen.dart';
 import 'package:syc/screens/scan_qr_screen.dart';
 import 'package:syc/utils/app_colors.dart';
@@ -679,6 +680,67 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                                                                       ),
                                                                     ),
                                                                   ),
+                                                                  if (user['status_datang'] ==
+                                                                      "0")
+                                                                    Expanded(
+                                                                      child: Padding(
+                                                                        padding: const EdgeInsets.symmetric(
+                                                                          horizontal:
+                                                                              2,
+                                                                        ),
+                                                                        child: ElevatedButton(
+                                                                          style: ElevatedButton.styleFrom(
+                                                                            backgroundColor:
+                                                                                AppColors.primary,
+                                                                            shape: RoundedRectangleBorder(
+                                                                              borderRadius: BorderRadius.circular(
+                                                                                16,
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          onPressed: () async {
+                                                                            Navigator.push(
+                                                                              context,
+                                                                              MaterialPageRoute(
+                                                                                builder:
+                                                                                    (
+                                                                                      context,
+                                                                                    ) => KonfirmasiRegistrasiUlangScreen(
+                                                                                      userId:
+                                                                                          user['id'],
+                                                                                      nama:
+                                                                                          user['nama'],
+                                                                                      email:
+                                                                                          user['email'],
+                                                                                      kelompok:
+                                                                                          nama, //ini nama kelompok
+                                                                                      role:
+                                                                                          user['role'],
+                                                                                      metode:
+                                                                                          'Manual',
+                                                                                    ),
+                                                                              ),
+                                                                            ).then((
+                                                                              result,
+                                                                            ) {
+                                                                              if (result ==
+                                                                                  'reload') {
+                                                                                _initAll(); // reload dashboard
+                                                                              }
+                                                                            });
+                                                                          },
+                                                                          child: Text(
+                                                                            'Registrasi Ulang',
+                                                                            style: TextStyle(
+                                                                              color:
+                                                                                  Colors.white,
+                                                                              fontSize:
+                                                                                  8,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
                                                                 ],
                                                               ),
                                                           ],
@@ -811,6 +873,42 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                                                             ),
                                                         child: Text(
                                                           'Sudah registrasi ulang',
+                                                          style:
+                                                              const TextStyle(
+                                                                color:
+                                                                    Colors
+                                                                        .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 8,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  if (user['id'] == null)
+                                                    Positioned(
+                                                      top: 15,
+                                                      left: 15,
+                                                      child: Container(
+                                                        decoration: BoxDecoration(
+                                                          color:
+                                                              AppColors.accent,
+                                                          borderRadius:
+                                                              BorderRadius.only(
+                                                                bottomRight:
+                                                                    Radius.circular(
+                                                                      16,
+                                                                    ),
+                                                              ),
+                                                        ),
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 8,
+                                                              vertical: 8,
+                                                            ),
+                                                        child: Text(
+                                                          'Belum install aplikasi',
                                                           style:
                                                               const TextStyle(
                                                                 color:

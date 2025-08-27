@@ -7,12 +7,14 @@ class KonfirmasiRegistrasiUlangSuccessScreen extends StatelessWidget {
   final String nama;
   final String namakelompok;
   final bool isSuccess;
+  final String metode; // 'QR' atau 'Manual'
 
   const KonfirmasiRegistrasiUlangSuccessScreen({
     super.key,
     required this.nama,
     required this.namakelompok,
     required this.isSuccess,
+    this.metode = 'QR',
   });
 
   @override
@@ -66,8 +68,12 @@ class KonfirmasiRegistrasiUlangSuccessScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     GestureDetector(
                       onTap: () async {
-                        Navigator.pop(context);
-                        Navigator.pop(context, 'reload');
+                        if (metode == 'Manual') {
+                          Navigator.pop(context, 'reload');
+                        } else {
+                          Navigator.pop(context);
+                          Navigator.pop(context, 'reload');
+                        }
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 32.0),

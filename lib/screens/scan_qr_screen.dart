@@ -1,3 +1,5 @@
+import 'package:encrypt/encrypt.dart' as encrypt;
+
 import 'package:syc/screens/catatan_harian_screen.dart';
 import 'dart:convert' show jsonDecode;
 import 'dart:io';
@@ -7,6 +9,7 @@ import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 import 'package:syc/screens/konfirmasi_registrasi_ulang_screen.dart'
     show KonfirmasiRegistrasiUlangScreen;
 import 'package:syc/utils/app_colors.dart';
+import 'package:syc/widgets/custom_snackbar.dart';
 import '../services/api_service.dart';
 
 class ScanQrScreen extends StatefulWidget {
@@ -50,9 +53,11 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
 
   void _onPermissionSet(BuildContext context, QRViewController ctrl, bool p) {
     if (!p) {
-      ScaffoldMessenger.of(
+      if (!context.mounted) return;
+      showCustomSnackBar(
         context,
-      ).showSnackBar(const SnackBar(content: Text('No Permission')));
+        'No Permission | Buka setting aplikasi dan izinkan akses kamera',
+      );
     }
   }
 
@@ -172,220 +177,284 @@ Widget _buildDecodedResultWidget(
   if (result == null) return const SizedBox();
   try {
     final data = result.code;
-    return FutureBuilder<Map<String, dynamic>>(
-      future:
-          (() async {
-            // Ambil secret dari link QR
-            String? secret;
-            final uri = Uri.tryParse(data ?? '');
-            if (uri != null &&
-                uri.queryParameters.isEmpty &&
-                uri.pathSegments.isNotEmpty) {
-              final last = uri.pathSegments.last;
-              if (last.contains('=')) {
-                secret = last.split('=').last;
-              } else {
-                secret = last;
-              }
-            } else if (uri != null &&
-                uri.queryParameters.containsKey('secret')) {
-              secret = uri.queryParameters['secret'];
-            } else if ((data ?? '').contains('secret=')) {
-              secret = (data ?? '').split('secret=').last;
-            }
-            if (secret == null || secret.isEmpty) {
-              throw Exception('Secret tidak ditemukan di QR.');
-            }
-            final res = await ApiService.getDataKonfirmasi(context, secret);
-            if (res['success'] == true && res['data'] != null) {
-              return Map<String, dynamic>.from(res['data']);
-            } else {
-              throw Exception(res['message'] ?? 'Data tidak ditemukan.');
-            }
-          })(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
-        } else if (snapshot.hasError) {
-          return Text(
-            snapshot.error.toString(),
-            style: const TextStyle(color: Colors.red),
-          );
-        } else if (!snapshot.hasData) {
-          return const Text('Data tidak ditemukan');
-        }
-        final dataKonfirmasi = snapshot.data!;
-        print('Data Konfirmasi: $dataKonfirmasi');
-        final nama = dataKonfirmasi['nama'] ?? '';
-        final kelompok = dataKonfirmasi['kelompok'] ?? '';
-        final role = dataKonfirmasi['role'] ?? '';
-        final kelompokSama =
-            kelompokWidget.trim().toLowerCase() ==
-            kelompok.trim().toLowerCase();
-        final statusDatang = dataKonfirmasi['status_datang']?.toString();
-        // Cek jika kelompok tidak sama
-        if (!kelompokSama) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'QR User ditemukan!',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Nama: $nama',
-                style: const TextStyle(fontSize: 18, color: AppColors.primary),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Role: $role',
-                style: const TextStyle(fontSize: 16, color: AppColors.primary),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Kelompok: $kelompok',
-                style: const TextStyle(fontSize: 16, color: AppColors.primary),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: AppColors.grey3,
-                  borderRadius: BorderRadius.circular(32),
-                ),
-                alignment: Alignment.center,
-                child: const Text(
-                  'Kelompok tidak sesuai!',
-                  style: TextStyle(
-                    color: AppColors.accent,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          );
-        }
+    print('QR Data: $data');
+    String? secret;
+    // Ambil secret dengan regex agar fleksibel
+    final regex = RegExp(r'secret=([^&/\s]+)');
+    final match = regex.firstMatch(data ?? '');
+    if (match != null) {
+      secret = match.group(1);
+      print('Secret found by regex: $secret');
+    } else {
+      print('Secret not found by regex');
+    }
+    if (secret == null || secret.isEmpty) {
+      throw Exception('Secret tidak ditemukan di QR.');
+    }
 
-        // Cek jika response 401 (unauthorized), tampilkan pesan error dari API
-        if (dataKonfirmasi['success'] == 'false') {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'QR User ditemukan!',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Nama: $nama',
-                style: const TextStyle(fontSize: 18, color: AppColors.primary),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Role: $role',
-                style: const TextStyle(fontSize: 16, color: AppColors.primary),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Kelompok: $kelompok',
-                style: const TextStyle(fontSize: 16, color: AppColors.primary),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: AppColors.grey3,
-                  borderRadius: BorderRadius.circular(32),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  dataKonfirmasi['message'] ?? 'Unauthorized',
-                  style: const TextStyle(
-                    color: AppColors.accent,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          );
-        }
+    // Dekripsi secret
+    final decryptedSecret = decryptSecret(secret);
 
-        // Jika bisa konfirmasi
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'QR User ditemukan!',
-              style: TextStyle(
-                fontSize: 16,
-                color: AppColors.primary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Nama: $nama',
-              style: const TextStyle(fontSize: 18, color: AppColors.primary),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Role: $role',
-              style: const TextStyle(fontSize: 16, color: AppColors.primary),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Kelompok: $kelompok',
-              style: const TextStyle(fontSize: 16, color: AppColors.primary),
-            ),
-            const SizedBox(height: 16),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // Text(
+        //   'Encrypted Secret: $secret',
+        //   style: const TextStyle(fontSize: 12, color: Colors.grey),
+        // ),
+        // const SizedBox(height: 4),
+        // Text(
+        //   'Decrypted Secret: $decryptedSecret',
+        //   style: const TextStyle(fontSize: 14, color: Colors.green),
+        // ),
+        // const SizedBox(height: 16),
+        // ...existing code for API call and display...
+        FutureBuilder<Map<String, dynamic>>(
+          future:
+              (() async {
+                final res = await ApiService.getDataKonfirmasi(
                   context,
-                  MaterialPageRoute(
-                    builder:
-                        (context) => KonfirmasiRegistrasiUlangScreen(
-                          qrResult: data ?? '',
-                        ),
-                  ),
+                  decryptedSecret!,
                 );
-              },
-              child: Container(
-                width: double.infinity,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: AppColors.brown1,
-                  borderRadius: BorderRadius.circular(32),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  'Konfirmasi Registrasi Ulang',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                if (res['success'] == true && res['data'] != null) {
+                  return Map<String, dynamic>.from(res['data']);
+                } else {
+                  throw Exception(res['message'] ?? 'Data tidak ditemukan.');
+                }
+              })(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return Text(
+                snapshot.error.toString(),
+                style: const TextStyle(color: Colors.red),
+              );
+            } else if (!snapshot.hasData) {
+              return const Text('Data tidak ditemukan');
+            }
+            final dataKonfirmasi = snapshot.data!;
+            print('Data Konfirmasi: $dataKonfirmasi');
+            final nama = dataKonfirmasi['nama'] ?? '';
+            final kelompok = dataKonfirmasi['kelompok'] ?? '';
+            final role = dataKonfirmasi['role'] ?? '';
+            final kelompokSama =
+                kelompokWidget.trim().toLowerCase() ==
+                kelompok.trim().toLowerCase();
+            final statusDatang = dataKonfirmasi['status_datang']?.toString();
+            // Cek jika kelompok tidak sama
+            if (!kelompokSama) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'QR User ditemukan!',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Nama: $nama',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Role: $role',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Kelompok: $kelompok',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    width: double.infinity,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: AppColors.grey3,
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Text(
+                      'Kelompok tidak sesuai!',
+                      style: TextStyle(
+                        color: AppColors.accent,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }
+
+            // Cek jika response 401 (unauthorized), tampilkan pesan error dari API
+            if (dataKonfirmasi['success'] == 'false') {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'QR User ditemukan!',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Nama: $nama',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Role: $role',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Kelompok: $kelompok',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    width: double.infinity,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: AppColors.grey3,
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      dataKonfirmasi['message'] ?? 'Unauthorized',
+                      style: const TextStyle(
+                        color: AppColors.accent,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }
+
+            // Jika bisa konfirmasi
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'QR User ditemukan!',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-            ),
-          ],
-        );
-      },
+                const SizedBox(height: 8),
+                Text(
+                  'Nama: $nama',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Role: $role',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Kelompok: $kelompok',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => KonfirmasiRegistrasiUlangScreen(
+                              qrResult: data ?? '',
+                              metode: 'QR',
+                            ),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: AppColors.brown1,
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Konfirmasi Registrasi Ulang',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ],
     );
   } catch (e) {
     return const Text('QR tidak valid atau format salah');
+  }
+}
+
+// Fungsi untuk mendekripsi secret (AES-256-CBC)
+String decryptSecret(String encryptedBase64) {
+  print("Decrypting secret...");
+  final key = encrypt.Key.fromUtf8(
+    'Ab3kLm9PqRstUv2XyZ01MnOpQr56StUv',
+  ); // 32 karakter
+  final iv = encrypt.IV.fromUtf8('Ab3kLm9PqRstUv2X'); // 16 karakter
+  final encrypter = encrypt.Encrypter(
+    encrypt.AES(key, mode: encrypt.AESMode.cbc),
+  );
+  try {
+    final decrypted = encrypter.decrypt64(encryptedBase64, iv: iv);
+    print("DECRYPTED: $decrypted");
+    return decrypted;
+  } catch (e) {
+    print("DECRYPTED: error");
+    return 'DECRYPT ERROR: ${e.toString()}';
   }
 }

@@ -11,6 +11,7 @@ import '../widgets/custom_slider.dart';
 import '../widgets/custom_text_field.dart';
 import 'review_evaluasi_screen.dart';
 import '../widgets/custom_not_found.dart';
+import '../widgets/custom_snackbar.dart';
 
 class FormKomitmenScreen extends StatefulWidget {
   final String userId;
@@ -29,6 +30,9 @@ class FormKomitmenScreen extends StatefulWidget {
 class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
   final Map<String, bool> _checkbox_answer = {};
   final Map<String, TextEditingController> _text_answer = {};
+  final Map<String, FocusNode> _focusNodes = {};
+  final Map<String, FocusNode> _checkboxFocusNodes = {};
+  final Map<String, String?> _errorText = {};
   bool isLoading = false;
   Map<String, dynamic> _acara = {};
   List<Map<String, dynamic>> _dataKomitmen = [];
@@ -81,6 +85,11 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
         if (saved != null) {
           _checkbox_answer[item['id'].toString()] = (saved == 'Ya');
         }
+        // Inisialisasi FocusNode untuk tipe 2
+        _checkboxFocusNodes.putIfAbsent(
+          item['id'].toString(),
+          () => FocusNode(),
+        );
       }
     }
     setState(() {});
@@ -115,6 +124,46 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
   }
 
   Future<void> _handleSubmit() async {
+    // Validasi wajib isi untuk TextField dan Ya/Tidak
+    bool hasError = false;
+    String? firstErrorQuestion;
+    for (var item in _dataKomitmen) {
+      final String id = item['id'].toString();
+      final String question = item['question'] ?? '';
+      if (item['type'].toString() == '1') {
+        final text = _text_answer[id]?.text.trim() ?? '';
+        if (text.isEmpty) {
+          _errorText[id] = 'Wajib diisi';
+          hasError = true;
+          firstErrorQuestion ??= question;
+          _focusNodes[id]?.requestFocus();
+          break;
+        } else {
+          _errorText[id] = null;
+        }
+      } else if (item['type'].toString() == '2') {
+        if (!_checkbox_answer.containsKey(id)) {
+          _errorText[id] = 'Wajib diisi';
+          hasError = true;
+          firstErrorQuestion ??= question;
+          _checkboxFocusNodes[id]?.requestFocus();
+          break;
+        } else {
+          _errorText[id] = null;
+        }
+      }
+    }
+    setState(() {});
+    if (hasError) {
+      if (firstErrorQuestion != null && firstErrorQuestion.trim().isNotEmpty) {
+        showCustomSnackBar(
+          context,
+          'Pertanyaan "' + firstErrorQuestion + '" wajib diisi',
+        );
+      }
+      return;
+    }
+
     setState(() => isLoading = true);
     await _saveProgress();
     await Future.delayed(const Duration(seconds: 1));
@@ -157,6 +206,12 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
     }
     for (var controller in _text_answer.values) {
       controller.dispose();
+    }
+    for (var node in _focusNodes.values) {
+      node.dispose();
+    }
+    for (var node in _checkboxFocusNodes.values) {
+      node.dispose();
     }
     super.dispose();
   }
@@ -265,6 +320,10 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                                           id,
                                           () => TextEditingController(),
                                         );
+                                        _focusNodes.putIfAbsent(
+                                          id,
+                                          () => FocusNode(),
+                                        );
                                         return Column(
                                           children: [
                                             Card(
@@ -285,11 +344,18 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                                                   labelColor: Colors.black,
                                                   textColor: Colors.black,
                                                   fillColor: Colors.white,
-                                                  onChanged:
-                                                      (value) =>
-                                                          _onChangedDebounced(
-                                                            id,
-                                                          ),
+                                                  focusNode: _focusNodes[id],
+                                                  errorText: _errorText[id],
+                                                  onChanged: (value) {
+                                                    _onChangedDebounced(id);
+                                                    if (value
+                                                        .trim()
+                                                        .isNotEmpty) {
+                                                      setState(() {
+                                                        _errorText[id] = null;
+                                                      });
+                                                    }
+                                                  },
                                                   suffixIcon: IconButton(
                                                     icon: const Icon(
                                                       Icons.keyboard_hide,
@@ -309,39 +375,75 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
                                         );
                                       } else if (item['type'].toString() ==
                                           '2') {
-                                        // CustomSingleChoice Ya/Tidak
+                                        // CustomSingleChoice Ya/Tidak dengan validasi required
+                                        _checkboxFocusNodes.putIfAbsent(
+                                          id,
+                                          () => FocusNode(),
+                                        );
                                         return Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              question,
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 15,
+                                            Focus(
+                                              focusNode:
+                                                  _checkboxFocusNodes[id],
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    question,
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      fontSize: 15,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  CustomSingleChoice(
+                                                    options: const [
+                                                      'Ya',
+                                                      'Tidak',
+                                                    ],
+                                                    selectedValue:
+                                                        _checkbox_answer[id] ==
+                                                                true
+                                                            ? 'Ya'
+                                                            : _checkbox_answer[id] ==
+                                                                false
+                                                            ? 'Tidak'
+                                                            : null,
+                                                    onSelected: (label) {
+                                                      setState(() {
+                                                        _checkbox_answer[id] =
+                                                            (label == 'Ya');
+                                                        _errorText[id] = null;
+                                                        print(
+                                                          'CustomSingleChoice $id changed to $label',
+                                                        );
+                                                        _onChangedDebounced(id);
+                                                      });
+                                                    },
+                                                  ),
+                                                  if (_errorText[id] != null)
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                            top: 6,
+                                                            left: 2,
+                                                          ),
+                                                      child: Text(
+                                                        _errorText[id] ?? '',
+                                                        style: const TextStyle(
+                                                          color:
+                                                              AppColors.accent,
+                                                          fontSize: 13,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                ],
                                               ),
-                                            ),
-                                            const SizedBox(height: 8),
-                                            CustomSingleChoice(
-                                              options: const ['Ya', 'Tidak'],
-                                              selectedValue:
-                                                  _checkbox_answer[id] == true
-                                                      ? 'Ya'
-                                                      : _checkbox_answer[id] ==
-                                                          false
-                                                      ? 'Tidak'
-                                                      : null,
-                                              onSelected: (label) {
-                                                setState(() {
-                                                  _checkbox_answer[id] =
-                                                      (label == 'Ya');
-                                                  print(
-                                                    'CustomSingleChoice $id changed to $label',
-                                                  );
-                                                  _onChangedDebounced(id);
-                                                });
-                                              },
                                             ),
                                             const Divider(
                                               color: Colors.white,

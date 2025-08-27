@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/utils/app_colors.dart';
 import 'package:syc/widgets/custom_multiple_choice.dart';
+import 'package:syc/widgets/custom_snackbar.dart';
 import '../services/api_service.dart';
 import '../widgets/custom_checkbox.dart';
 import '../widgets/custom_single_choice.dart';
@@ -32,6 +33,11 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
   final Map<String, double> _slider_answer = {};
   final Map<String, String> _single_choice_answer = {};
   final Map<String, String> _multiple_choice_answer = {};
+  final Map<String, FocusNode> _focusNodes = {};
+  final Map<String, FocusNode> _checkboxFocusNodes = {};
+  final Map<String, FocusNode> _singleChoiceFocusNodes = {};
+  final Map<String, FocusNode> _multipleChoiceFocusNodes = {};
+  final Map<String, String?> _errorText = {};
   bool isLoading = false;
   final Map<String, Timer?> _debounceTimers = {};
   Map<String, dynamic> _acara = {};
@@ -88,12 +94,17 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
           text: prefs.getString(key) ?? '',
         );
         _text_answer[item['id'].toString()] = controller;
+        _focusNodes.putIfAbsent(item['id'].toString(), () => FocusNode());
       } else if (item['type'].toString() == '2') {
         // Ya/Tidak (disimpan sebagai String)
         final saved = prefs.getString(key);
         if (saved != null) {
           _checkbox_answer[item['id'].toString()] = (saved == 'Ya');
         }
+        _checkboxFocusNodes.putIfAbsent(
+          item['id'].toString(),
+          () => FocusNode(),
+        );
       } else if (item['type'].toString() == '3' ||
           item['type'].toString() == '4' ||
           item['type'].toString() == '5' ||
@@ -112,9 +123,17 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
           item['type'].toString() == '19') {
         _single_choice_answer[item['id'].toString()] =
             prefs.getString(key) ?? '';
+        _singleChoiceFocusNodes.putIfAbsent(
+          item['id'].toString(),
+          () => FocusNode(),
+        );
       } else if (item['type'].toString() == '16') {
         _multiple_choice_answer[item['id'].toString()] =
             prefs.getString(key) ?? '';
+        _multipleChoiceFocusNodes.putIfAbsent(
+          item['id'].toString(),
+          () => FocusNode(),
+        );
       }
     }
     setState(() {});
@@ -168,6 +187,67 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
   }
 
   Future<void> _handleSubmit() async {
+    // Validasi wajib isi untuk TextField dan Ya/Tidak
+    bool hasError = false;
+    String? firstErrorQuestion;
+    for (var item in _dataEvaluasi) {
+      final String id = item['id'].toString();
+      final String question = item['question'] ?? '';
+      if (item['type'].toString() == '1') {
+        final text = _text_answer[id]?.text.trim() ?? '';
+        if (text.isEmpty) {
+          _errorText[id] = 'Wajib diisi';
+          hasError = true;
+          firstErrorQuestion ??= question;
+          _focusNodes[id]?.requestFocus();
+          break;
+        } else {
+          _errorText[id] = null;
+        }
+      } else if (item['type'].toString() == '2') {
+        if (!_checkbox_answer.containsKey(id)) {
+          _errorText[id] = 'Wajib diisi';
+          hasError = true;
+          firstErrorQuestion ??= question;
+          _checkboxFocusNodes[id]?.requestFocus();
+          break;
+        } else {
+          _errorText[id] = null;
+        }
+      } else if (item['type'].toString() == '18' ||
+          item['type'].toString() == '19') {
+        if ((_single_choice_answer[id] ?? '').isEmpty) {
+          _errorText[id] = 'Wajib diisi';
+          hasError = true;
+          firstErrorQuestion ??= question;
+          _singleChoiceFocusNodes[id]?.requestFocus();
+          break;
+        } else {
+          _errorText[id] = null;
+        }
+      } else if (item['type'].toString() == '16') {
+        if ((_multiple_choice_answer[id] ?? '').isEmpty) {
+          _errorText[id] = 'Wajib diisi';
+          hasError = true;
+          firstErrorQuestion ??= question;
+          _multipleChoiceFocusNodes[id]?.requestFocus();
+          break;
+        } else {
+          _errorText[id] = null;
+        }
+      }
+    }
+    setState(() {});
+    if (hasError) {
+      if (firstErrorQuestion != null && firstErrorQuestion.trim().isNotEmpty) {
+        showCustomSnackBar(
+          context,
+          'Pertanyaan "$firstErrorQuestion" wajib diisi',
+        );
+      }
+      return;
+    }
+
     setState(() => isLoading = true);
     await _saveProgress();
     await Future.delayed(const Duration(seconds: 1));
@@ -200,6 +280,18 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
     }
     for (var controller in _text_answer.values) {
       controller.dispose();
+    }
+    for (var node in _focusNodes.values) {
+      node.dispose();
+    }
+    for (var node in _checkboxFocusNodes.values) {
+      node.dispose();
+    }
+    for (var node in _singleChoiceFocusNodes.values) {
+      node.dispose();
+    }
+    for (var node in _multipleChoiceFocusNodes.values) {
+      node.dispose();
     }
     super.dispose();
   }
@@ -311,6 +403,10 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                           id,
                                           () => TextEditingController(),
                                         );
+                                        _focusNodes.putIfAbsent(
+                                          id,
+                                          () => FocusNode(),
+                                        );
                                         return Column(
                                           children: [
                                             Card(
@@ -331,11 +427,18 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                                   labelColor: Colors.black,
                                                   textColor: Colors.black,
                                                   fillColor: Colors.white,
-                                                  onChanged:
-                                                      (value) =>
-                                                          _onChangedDebounced(
-                                                            id,
-                                                          ),
+                                                  focusNode: _focusNodes[id],
+                                                  errorText: _errorText[id],
+                                                  onChanged: (value) {
+                                                    _onChangedDebounced(id);
+                                                    if (value
+                                                        .trim()
+                                                        .isNotEmpty) {
+                                                      setState(() {
+                                                        _errorText[id] = null;
+                                                      });
+                                                    }
+                                                  },
                                                   suffixIcon: IconButton(
                                                     icon: const Icon(
                                                       Icons.keyboard_hide,
@@ -355,36 +458,73 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                         );
                                       } else if (item['type'].toString() ==
                                           '2') {
-                                        // radio button
+                                        // radio button dengan validasi required
+                                        _checkboxFocusNodes.putIfAbsent(
+                                          id,
+                                          () => FocusNode(),
+                                        );
                                         return Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              question,
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
+                                            Focus(
+                                              focusNode:
+                                                  _checkboxFocusNodes[id],
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    question,
+                                                    style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  CustomSingleChoice(
+                                                    options: const [
+                                                      'Ya',
+                                                      'Tidak',
+                                                    ],
+                                                    selectedValue:
+                                                        _checkbox_answer[id] ==
+                                                                true
+                                                            ? 'Ya'
+                                                            : _checkbox_answer[id] ==
+                                                                false
+                                                            ? 'Tidak'
+                                                            : null,
+                                                    onSelected: (label) {
+                                                      setState(() {
+                                                        _checkbox_answer[id] =
+                                                            (label == 'Ya');
+                                                        _errorText[id] = null;
+                                                        print(
+                                                          'CustomSingleChoice $id changed to $label',
+                                                        );
+                                                        _onChangedDebounced(id);
+                                                      });
+                                                    },
+                                                  ),
+                                                  if (_errorText[id] != null)
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                            top: 6,
+                                                            left: 2,
+                                                          ),
+                                                      child: Text(
+                                                        _errorText[id] ?? '',
+                                                        style: const TextStyle(
+                                                          color: Colors.red,
+                                                          fontSize: 13,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                ],
                                               ),
-                                            ),
-                                            CustomSingleChoice(
-                                              options: const ['Ya', 'Tidak'],
-                                              selectedValue:
-                                                  _checkbox_answer[id] == true
-                                                      ? 'Ya'
-                                                      : _checkbox_answer[id] ==
-                                                          false
-                                                      ? 'Tidak'
-                                                      : null,
-                                              onSelected: (label) {
-                                                setState(() {
-                                                  _checkbox_answer[id] =
-                                                      (label == 'Ya');
-                                                  print(
-                                                    'CustomSingleChoice $id changed to $label',
-                                                  );
-                                                  _onChangedDebounced(id);
-                                                });
-                                              },
                                             ),
                                             const Divider(
                                               color: Colors.white,
@@ -546,38 +686,62 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                                 .where((e) => e.isNotEmpty)
                                                 .toList() ??
                                             [];
+                                        _singleChoiceFocusNodes.putIfAbsent(
+                                          id,
+                                          () => FocusNode(),
+                                        );
                                         return Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              question,
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
+                                            Focus(
+                                              focusNode:
+                                                  _singleChoiceFocusNodes[id],
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    question,
+                                                    style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 10),
+                                                  CustomSingleChoice(
+                                                    options: options,
+                                                    selectedValue:
+                                                        selectedValue,
+                                                    onSelected: (val) async {
+                                                      setState(() {
+                                                        _single_choice_answer[id] =
+                                                            val.toString();
+                                                        _errorText[id] = null;
+                                                        _onChangedDebounced(id);
+                                                      });
+                                                    },
+                                                  ),
+                                                  if (_errorText[id] != null)
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                            top: 6,
+                                                            left: 2,
+                                                          ),
+                                                      child: Text(
+                                                        _errorText[id] ?? '',
+                                                        style: const TextStyle(
+                                                          color:
+                                                              AppColors.accent,
+                                                          fontSize: 13,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                ],
                                               ),
-                                            ),
-                                            const SizedBox(height: 10),
-                                            CustomSingleChoice(
-                                              options: options,
-                                              selectedValue: selectedValue,
-                                              onSelected: (val) async {
-                                                setState(() {
-                                                  _single_choice_answer[id] =
-                                                      val.toString();
-                                                  _onChangedDebounced(id);
-                                                });
-                                                // Simpan langsung ke SharedPreferences
-                                                // final prefs =
-                                                //     await SharedPreferences.getInstance();
-                                                // final key =
-                                                //     'Evaluasi_answer_$id';
-                                                // await prefs.setString(
-                                                //   key,
-                                                //   val.toString(),
-                                                // );
-                                              },
                                             ),
                                             const SizedBox(height: 16),
                                             const Divider(
@@ -606,32 +770,64 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                                 .where((e) => e.isNotEmpty)
                                                 .toList() ??
                                             [];
+                                        _multipleChoiceFocusNodes.putIfAbsent(
+                                          id,
+                                          () => FocusNode(),
+                                        );
                                         return Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              question,
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
+                                            Focus(
+                                              focusNode:
+                                                  _multipleChoiceFocusNodes[id],
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    question,
+                                                    style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 10),
+                                                  CustomMultipleChoice(
+                                                    options: options,
+                                                    selectedValues:
+                                                        selectedValues,
+                                                    onSelected: (vals) async {
+                                                      final answerString = vals
+                                                          .join(';');
+                                                      setState(() {
+                                                        _multiple_choice_answer[id] =
+                                                            answerString;
+                                                        _errorText[id] = null;
+                                                        _onChangedDebounced(id);
+                                                      });
+                                                    },
+                                                  ),
+                                                  if (_errorText[id] != null)
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                            top: 6,
+                                                            left: 2,
+                                                          ),
+                                                      child: Text(
+                                                        _errorText[id] ?? '',
+                                                        style: const TextStyle(
+                                                          color:
+                                                              AppColors.accent,
+                                                          fontSize: 13,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                ],
                                               ),
-                                            ),
-                                            const SizedBox(height: 10),
-                                            CustomMultipleChoice(
-                                              options: options,
-                                              selectedValues: selectedValues,
-                                              onSelected: (vals) async {
-                                                final answerString = vals.join(
-                                                  ';',
-                                                );
-                                                setState(() {
-                                                  _multiple_choice_answer[id] =
-                                                      answerString;
-                                                  _onChangedDebounced(id);
-                                                });
-                                              },
                                             ),
                                             const SizedBox(height: 16),
                                             const Divider(

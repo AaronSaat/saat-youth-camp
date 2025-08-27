@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
 import 'package:shimmer/shimmer.dart';
+import 'package:syc/screens/konfirmasi_registrasi_ulang_screen.dart';
 import 'package:syc/screens/list_komitmen_screen.dart';
 import 'package:syc/screens/scan_qr_screen.dart' show ScanQrScreen;
 import 'package:syc/utils/app_colors.dart';

@@ -718,6 +718,42 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                                         ),
                                                       ),
                                                     ),
+                                                  if (user['id'] == null)
+                                                    Positioned(
+                                                      top: 15,
+                                                      left: 15,
+                                                      child: Container(
+                                                        decoration: BoxDecoration(
+                                                          color:
+                                                              AppColors.accent,
+                                                          borderRadius:
+                                                              BorderRadius.only(
+                                                                bottomRight:
+                                                                    Radius.circular(
+                                                                      16,
+                                                                    ),
+                                                              ),
+                                                        ),
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 8,
+                                                              vertical: 8,
+                                                            ),
+                                                        child: Text(
+                                                          'Belum install aplikasi',
+                                                          style:
+                                                              const TextStyle(
+                                                                color:
+                                                                    Colors
+                                                                        .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 10,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ),
                                                 ],
                                               ),
                                             ),

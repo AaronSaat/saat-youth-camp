@@ -68,6 +68,7 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
     try {
       await loadUserData();
       await loadCountAcaraCountAll();
+      await loadEvaluasiAcara(forceRefresh: true);
     } catch (e) {
       print('❌ Gagal memuat data: $e');
       if (!mounted) return;
@@ -302,7 +303,6 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
             child: RefreshIndicator(
               onRefresh: () async {
                 await initAll(forceRefresh: true);
-                await loadEvaluasiAcara(forceRefresh: true);
               },
               color: AppColors.brown1,
               backgroundColor: Colors.white,
