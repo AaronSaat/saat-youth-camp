@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemChrome, DeviceOrientation;
 import 'package:syc/screens/form_komitmen_screen.dart';
+import 'package:syc/screens/hapus_akun_detail_success_screen.dart';
 import 'package:syc/screens/main_screen.dart';
 import 'package:syc/screens/profile_edit_screen.dart';
+import 'package:syc/screens/review_komitmen_screen.dart';
 import 'package:syc/screens/scan_qr_screen.dart';
 import 'package:syc/services/notification_service.dart'
     show NotificationService;
@@ -68,7 +70,8 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/main': (context) => const MainScreen(),
       },
-      // home: ScanQrScreen(),
+      // home: HapusAkunDetailSuccessScreen(name: 'John Doe', isSuccess: true),
+      // home: ReviewKomitmenScreen(userId: '80', acaraHariId: 1),
 
       // ganti desain
       // home: LoginScreen(),

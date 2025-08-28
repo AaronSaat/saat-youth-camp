@@ -44,6 +44,7 @@ class _KonfirmasiRegistrasiUlangScreenState
   @override
   void initState() {
     super.initState();
+    print("metode init: ${widget.metode}");
     if (_fromQr) {
       _fetchDataKonfirmasi();
     } else {

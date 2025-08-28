@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/screens/catatan_harian_screen.dart';
+import 'package:syc/screens/hapus_akun_detail_screen.dart';
 import 'package:syc/screens/kontak_panitia_screen.dart';
 import 'package:syc/screens/list_komitmen_screen.dart';
 import 'package:syc/screens/main_screen.dart' show MainScreen;
@@ -1382,7 +1383,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 ),
                               ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => HapusAkunDetailScreen(
+                                            userId: id,
+                                            nama: name,
+                                          ),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.delete_forever),
+                                label: const Text('Hapus Akun'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.green,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(32),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton.icon(

@@ -292,7 +292,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Hari ke-${_dataAcara?[0]["hari"] ?? '-'}, Jam ${_dataAcara?[0]["waktu"] ?? '-'}',
+                                'Hari ke-${_dataAcara?[0]["hari"] ?? '-'}, Jam ${_dataAcara?[0]["waktu"] ?? '-'} - ${_dataAcara?[0]["waktu_end"] ?? '-'}',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.normal,
@@ -320,9 +320,10 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                 style: const TextStyle(fontSize: 12),
                               ),
                               const SizedBox(height: 16),
-                              if (_dataAcara != null &&
-                                  _dataAcara![0]["pembicara"] != null &&
+                              if ((_dataAcara![0]["pembicara"] as String?) !=
+                                      null &&
                                   (_dataAcara![0]["pembicara"] as String)
+                                      .trim()
                                       .isNotEmpty) ...[
                                 const Divider(),
                                 const SizedBox(height: 16),
@@ -400,7 +401,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                             try {
                                               // Asumsi format tanggal: yyyy-MM-dd, waktu: HH:mm
                                               acaraDateTime = DateTime.parse(
-                                                '$tanggalStr $waktuStr'
+                                                '$tanggalStr $waktuStr '
                                                     .trim()
                                                     .replaceAll('/', '-')
                                                     .replaceAll('.', ':'),

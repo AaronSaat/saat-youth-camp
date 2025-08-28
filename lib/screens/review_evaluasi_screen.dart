@@ -289,6 +289,19 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
                     const SizedBox(height: 16),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Text(
+                        'Catatan: Jawaban evaluasi ini akan disimpan dan tidak dapat dihapus meskipun akun telah dihapus.',
+                        style: TextStyle(
+                          color: AppColors.accent,
+                          fontSize: 12,
+                          fontStyle: FontStyle.italic,
+                        ),
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(

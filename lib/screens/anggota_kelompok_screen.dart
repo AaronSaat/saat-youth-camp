@@ -1,15 +1,17 @@
 import 'dart:convert'; // Tambahkan jika belum ada
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
 import 'package:shimmer/shimmer.dart';
 import 'package:syc/screens/konfirmasi_registrasi_ulang_screen.dart';
 import 'package:syc/screens/list_komitmen_screen.dart';
-import 'package:syc/screens/scan_qr_screen.dart' show ScanQrScreen;
+import 'package:syc/screens/scan_qr_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 import 'package:syc/utils/global_variables.dart';
 import '../services/api_service.dart';
 import '../widgets/custom_not_found.dart';
+import '../widgets/custom_snackbar.dart';
 import 'bible_reading_list_screen.dart';
 import 'list_evaluasi_screen.dart';
 import 'list_gereja_screen.dart';
@@ -22,6 +24,10 @@ class AnggotaKelompokScreen extends StatefulWidget {
   State<AnggotaKelompokScreen> createState() => _AnggotaKelompokScreenState();
 }
 
+// [IMPORTANT PLEASE READ]
+// Ini saya pisahkan untuk behaviour back sekali dan back dua kali untuk keluar aplikasi
+// Harus dibedakan karena kalo tidak, saat panitia liat anggota kelompok,
+// tidak bisa back ke halaman sebelumnya, malah keluar snackbar dan keluar aplikasi
 class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
   List<dynamic> anggota = [];
   String? nama;
@@ -29,21 +35,26 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
   bool _isLoading = true;
   Map<String, String> _dataUser = {};
 
+  DateTime? _lastBackPressed;
+
   @override
   void initState() {
     print('[SCREEN] AnggotaKelompokScreen initState');
+    _lastBackPressed = null;
     super.initState();
     _initAll();
   }
 
   Future<void> _initAll({bool forceRefresh = false}) async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+    });
     print('Memuat anggota kelompok dengan ID: ${widget.id}');
     try {
       await loadAnggotaKelompok(widget.id, forceRefresh: forceRefresh);
       await loadUserData();
-    } catch (e) {
-      // handle error jika perlu
-    }
+    } catch (e) {}
     if (mounted) {
       setState(() {
         _isLoading = false;
@@ -78,26 +89,23 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
     kelompokId, {
     bool forceRefresh = false,
   }) async {
-    setState(() {
-      _isLoading = true;
-    });
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final anggotaKey = 'anggota_kelompok_$kelompokId';
+    final prefs = await SharedPreferences.getInstance();
+    final anggotaKey = 'anggota_kelompok_$kelompokId';
 
-      if (!forceRefresh) {
-        final cachedAnggota = prefs.getString(anggotaKey);
-        if (cachedAnggota != null) {
-          final response = jsonDecode(cachedAnggota);
-          setState(() {
-            nama = response['nama_kelompok'];
-            anggota = response['data_anggota_kelompok'];
-          });
-          print('[PREF_API] Anggota Kelompok (from shared pref): $anggota');
-          return;
-        }
+    if (!forceRefresh) {
+      final cachedAnggota = prefs.getString(anggotaKey);
+      if (cachedAnggota != null) {
+        final decoded = jsonDecode(cachedAnggota);
+        setState(() {
+          nama = decoded['nama_kelompok'];
+          anggota = decoded['data_anggota_kelompok'];
+        });
+        print('[PREF_API] Anggota Kelompok (from shared pref): $anggota');
+        return;
       }
+    }
 
+    try {
       final response = await ApiService.getAnggotaKelompok(context, kelompokId);
       await prefs.setString(anggotaKey, jsonEncode(response));
       setState(() {
@@ -133,6 +141,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _lastBackPressed = null;
     final role = _dataUser['role'] ?? '-';
     final id = _dataUser['id'] ?? '';
     return Scaffold(
@@ -219,300 +228,336 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                                         clipBehavior: Clip.none,
                                         children: [
                                           // Card
-                                          Container(
-                                            margin: const EdgeInsets.only(
-                                              top: 48,
-                                            ), // space for the image
-                                            child: Stack(
-                                              children: [
-                                                Card(
-                                                  elevation: 0,
-                                                  color: Colors.grey[200],
-                                                  margin: const EdgeInsets.only(
-                                                    left: 16,
-                                                    right: 16,
-                                                    top: 16,
-                                                  ),
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          16,
-                                                        ),
-                                                  ),
-                                                  child: SizedBox(
-                                                    height:
-                                                        (user['role']
-                                                                    ?.toString()
-                                                                    .toLowerCase()
-                                                                    .contains(
-                                                                      'pembimbing',
-                                                                    ) ??
-                                                                false)
-                                                            ? 135
-                                                            : (user['role']
-                                                                    .toString()
-                                                                    .toLowerCase()
-                                                                    .contains(
-                                                                      'anggota',
-                                                                    ) &&
-                                                                (role
-                                                                    .toString()
-                                                                    .toLowerCase()
-                                                                    .contains(
-                                                                      'peserta',
-                                                                    )))
-                                                            ? 200 //sebagai anggota dan role user peserta
-                                                            : (user['role']
-                                                                    .toString()
-                                                                    .toLowerCase()
-                                                                    .contains(
-                                                                      'anggota',
-                                                                    ) &&
-                                                                (role
-                                                                        .toString()
-                                                                        .toLowerCase()
-                                                                        .contains(
-                                                                          'pembimbing kelompok',
-                                                                        ) ||
-                                                                    role
-                                                                        .toString()
-                                                                        .toLowerCase()
-                                                                        .contains(
-                                                                          'panitia',
-                                                                        ))) //sebagai anggota dan role user pembimbing kelompok atau panitia
-                                                            ? 255
-                                                            : 260,
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                            left: 16,
-                                                            right: 16,
-                                                            top: 64,
-                                                            bottom: 16,
-                                                          ),
-                                                      child: Column(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          // Centered text at the top
-                                                          Center(
-                                                            child: Text(
-                                                              user['nama'] ??
-                                                                  '-',
-                                                              style: const TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                fontSize: 18,
-                                                                color:
-                                                                    AppColors
-                                                                        .primary,
-                                                              ),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                            ),
-                                                          ),
-                                                          // Three left-aligned texts in the middle
-                                                          if ((user['role'] ??
-                                                                      '')
+                                          Stack(
+                                            children: [
+                                              Card(
+                                                elevation: 0,
+                                                color: AppColors.brown1,
+                                                margin: const EdgeInsets.only(
+                                                  left: 16,
+                                                  right: 16,
+                                                  top: 16,
+                                                ),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(16),
+                                                ),
+                                                child: SizedBox(
+                                                  height:
+                                                      (user['role']
+                                                                  ?.toString()
+                                                                  .toLowerCase()
+                                                                  .contains(
+                                                                    'pembimbing',
+                                                                  ) ??
+                                                              false)
+                                                          ? 155
+                                                          : (user['role']
                                                                   .toString()
-                                                                  .toLowerCase() !=
-                                                              'pembimbing')
-                                                            Center(
-                                                              child: Column(
-                                                                children: [
-                                                                  if ((user['role'] ??
-                                                                          '')
+                                                                  .toLowerCase()
+                                                                  .contains(
+                                                                    'anggota',
+                                                                  ) &&
+                                                              (role
+                                                                  .toString()
+                                                                  .toLowerCase()
+                                                                  .contains(
+                                                                    'peserta',
+                                                                  )))
+                                                          ? 200 //sebagai anggota dan role user peserta
+                                                          : (user['role']
+                                                                  .toString()
+                                                                  .toLowerCase()
+                                                                  .contains(
+                                                                    'anggota',
+                                                                  ) &&
+                                                              (role
                                                                       .toString()
-                                                                      .isNotEmpty)
-                                                                    Row(
-                                                                      mainAxisAlignment:
-                                                                          MainAxisAlignment
-                                                                              .center,
-                                                                      children: [
-                                                                        Icon(
-                                                                          Icons
-                                                                              .church,
-                                                                          size:
-                                                                              18,
-                                                                          color:
-                                                                              AppColors.black1,
-                                                                        ),
-                                                                        const SizedBox(
-                                                                          width:
-                                                                              6,
-                                                                        ),
-                                                                        Flexible(
-                                                                          child: Text(
-                                                                            '${user['gereja_nama']}',
-                                                                            style: const TextStyle(
-                                                                              fontSize:
-                                                                                  14,
-                                                                              color:
-                                                                                  AppColors.black1,
-                                                                            ),
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                            maxLines:
-                                                                                2,
-                                                                            overflow:
-                                                                                TextOverflow.ellipsis,
-                                                                          ),
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                  if ((user['provinsi'] ??
-                                                                          '')
+                                                                      .toLowerCase()
+                                                                      .contains(
+                                                                        'pembimbing kelompok',
+                                                                      ) ||
+                                                                  role
                                                                       .toString()
-                                                                      .isNotEmpty)
-                                                                    Row(
-                                                                      mainAxisAlignment:
-                                                                          MainAxisAlignment
-                                                                              .center,
-                                                                      children: [
-                                                                        const Icon(
-                                                                          Icons
-                                                                              .location_on,
-                                                                          size:
-                                                                              18,
-                                                                          color:
-                                                                              AppColors.black1,
-                                                                        ),
-                                                                        const SizedBox(
-                                                                          width:
-                                                                              6,
-                                                                        ),
-                                                                        Text(
-                                                                          '${user['provinsi']}',
-                                                                          style: const TextStyle(
-                                                                            fontSize:
-                                                                                14,
-                                                                            color:
-                                                                                AppColors.black1,
-                                                                          ),
-                                                                          textAlign:
-                                                                              TextAlign.center,
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                  if ((user['umur'] ??
-                                                                          '')
-                                                                      .toString()
-                                                                      .isNotEmpty)
-                                                                    Row(
-                                                                      mainAxisAlignment:
-                                                                          MainAxisAlignment
-                                                                              .center,
-                                                                      children: [
-                                                                        const Icon(
-                                                                          Icons
-                                                                              .cake,
-                                                                          size:
-                                                                              18,
-                                                                          color:
-                                                                              AppColors.black1,
-                                                                        ),
-                                                                        const SizedBox(
-                                                                          width:
-                                                                              6,
-                                                                        ),
-                                                                        Text(
-                                                                          '${user['umur']}',
-                                                                          style: const TextStyle(
-                                                                            fontSize:
-                                                                                14,
-                                                                            color:
-                                                                                AppColors.black1,
-                                                                          ),
-                                                                          textAlign:
-                                                                              TextAlign.center,
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                  if ((user['kamar'] ??
-                                                                          '')
-                                                                      .toString()
-                                                                      .isNotEmpty)
-                                                                    Row(
-                                                                      mainAxisAlignment:
-                                                                          MainAxisAlignment
-                                                                              .center,
-                                                                      children: [
-                                                                        const Icon(
-                                                                          Icons
-                                                                              .bed,
-                                                                          size:
-                                                                              18,
-                                                                          color:
-                                                                              AppColors.black1,
-                                                                        ),
-                                                                        const SizedBox(
-                                                                          width:
-                                                                              6,
-                                                                        ),
-                                                                        Text(
-                                                                          '${user['kamar']}',
-                                                                          style: const TextStyle(
-                                                                            fontSize:
-                                                                                14,
-                                                                            color:
-                                                                                AppColors.black1,
-                                                                          ),
-                                                                          textAlign:
-                                                                              TextAlign.center,
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                ],
+                                                                      .toLowerCase()
+                                                                      .contains(
+                                                                        'panitia',
+                                                                      ))) //sebagai anggota dan role user pembimbing kelompok atau panitia
+                                                          ? 325
+                                                          : 260,
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                          left: 16,
+                                                          right: 16,
+                                                          top: 48,
+                                                          bottom: 16,
+                                                        ),
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        // Centered text at the top
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            // Avatar
+                                                            CircleAvatar(
+                                                              radius: 44,
+                                                              backgroundImage:
+                                                                  user['avatar_url'] !=
+                                                                          null
+                                                                      ? NetworkImage(
+                                                                        '${GlobalVariables.serverUrl}${user['avatar_url']}',
+                                                                      )
+                                                                      : AssetImage(() {
+                                                                            if (user['role'].toString().toLowerCase().contains(
+                                                                              'pembina',
+                                                                            )) {
+                                                                              return 'assets/mockups/pembina.jpg';
+                                                                            } else if (user['role'].toString().toLowerCase().contains(
+                                                                              'anggota',
+                                                                            )) {
+                                                                              return 'assets/mockups/peserta.jpg';
+                                                                            } else if (user['role'].toString().toLowerCase().contains(
+                                                                              'pembimbing',
+                                                                            )) {
+                                                                              return 'assets/mockups/pembimbing.jpg';
+                                                                            } else {
+                                                                              return 'assets/mockups/unknown.jpg';
+                                                                            }
+                                                                          }())
+                                                                          as ImageProvider,
+                                                            ),
+                                                            const SizedBox(
+                                                              width: 12,
+                                                            ),
+                                                            // Nama
+                                                            Flexible(
+                                                              child: Text(
+                                                                user['nama'] ??
+                                                                    '-',
+                                                                style: const TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w900,
+                                                                  fontSize: 24,
+                                                                  color:
+                                                                      AppColors
+                                                                          .secondary,
+                                                                ),
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
                                                               ),
                                                             ),
-                                                          // Three buttons in a row at the bottom, hidden if role == 'peserta'
-                                                          // Tampilkan tombol jika role login adalah panitia, pembimbing, atau pembina
-                                                          // DAN user yang ditampilkan BUKAN pembimbing
-                                                          if (([
-                                                                'panitia',
-                                                                'pembimbing kelompok',
-                                                                'pembina',
-                                                              ].contains(
-                                                                (role ?? '')
-                                                                    .toLowerCase(),
-                                                              )) &&
-                                                              (user['role']
-                                                                      ?.toString()
-                                                                      .toLowerCase() !=
-                                                                  'pembimbing'))
-                                                            Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .spaceEvenly,
+                                                          ],
+                                                        ),
+                                                        // Three left-aligned texts in the middle
+                                                        if ((user['role'] ?? '')
+                                                                .toString()
+                                                                .toLowerCase() !=
+                                                            'pembimbing')
+                                                          Center(
+                                                            child: Column(
                                                               children: [
-                                                                if (role
-                                                                        .toString()
-                                                                        .toLowerCase()
-                                                                        .contains(
-                                                                          'panitia',
-                                                                        ) ||
-                                                                    role
-                                                                        .toString()
-                                                                        .toLowerCase()
-                                                                        .contains(
-                                                                          'pembimbing kelompok',
-                                                                        ))
-                                                                  Expanded(
-                                                                    child: Padding(
-                                                                      padding: const EdgeInsets.symmetric(
-                                                                        horizontal:
-                                                                            2,
+                                                                if ((user['role'] ??
+                                                                        '')
+                                                                    .toString()
+                                                                    .isNotEmpty)
+                                                                  Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .center,
+                                                                    children: [
+                                                                      Icon(
+                                                                        Icons
+                                                                            .church,
+                                                                        size:
+                                                                            18,
+                                                                        color:
+                                                                            Colors.white,
                                                                       ),
+                                                                      const SizedBox(
+                                                                        width:
+                                                                            5,
+                                                                      ),
+                                                                      Flexible(
+                                                                        child: Text(
+                                                                          '${user['gereja_nama']}',
+                                                                          style: const TextStyle(
+                                                                            fontSize:
+                                                                                14,
+                                                                            color:
+                                                                                Colors.white,
+                                                                          ),
+                                                                          textAlign:
+                                                                              TextAlign.center,
+                                                                          maxLines:
+                                                                              2,
+                                                                          overflow:
+                                                                              TextOverflow.ellipsis,
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                if ((user['provinsi'] ??
+                                                                        '')
+                                                                    .toString()
+                                                                    .isNotEmpty)
+                                                                  Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .center,
+                                                                    children: [
+                                                                      const Icon(
+                                                                        Icons
+                                                                            .location_on,
+                                                                        size:
+                                                                            18,
+                                                                        color:
+                                                                            Colors.white,
+                                                                      ),
+                                                                      const SizedBox(
+                                                                        width:
+                                                                            6,
+                                                                      ),
+                                                                      Text(
+                                                                        '${user['provinsi']}',
+                                                                        style: const TextStyle(
+                                                                          fontSize:
+                                                                              14,
+                                                                          color:
+                                                                              Colors.white,
+                                                                        ),
+                                                                        textAlign:
+                                                                            TextAlign.center,
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                if ((user['umur'] ??
+                                                                        '')
+                                                                    .toString()
+                                                                    .isNotEmpty)
+                                                                  Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .center,
+                                                                    children: [
+                                                                      const Icon(
+                                                                        Icons
+                                                                            .cake,
+                                                                        size:
+                                                                            18,
+                                                                        color:
+                                                                            Colors.white,
+                                                                      ),
+                                                                      const SizedBox(
+                                                                        width:
+                                                                            6,
+                                                                      ),
+                                                                      Text(
+                                                                        '${user['umur']}',
+                                                                        style: const TextStyle(
+                                                                          fontSize:
+                                                                              14,
+                                                                          color:
+                                                                              Colors.white,
+                                                                        ),
+                                                                        textAlign:
+                                                                            TextAlign.center,
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                if ((user['kamar'] ??
+                                                                        '')
+                                                                    .toString()
+                                                                    .isNotEmpty)
+                                                                  Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .center,
+                                                                    children: [
+                                                                      const Icon(
+                                                                        Icons
+                                                                            .bed,
+                                                                        size:
+                                                                            18,
+                                                                        color:
+                                                                            Colors.white,
+                                                                      ),
+                                                                      const SizedBox(
+                                                                        width:
+                                                                            6,
+                                                                      ),
+                                                                      Text(
+                                                                        '${user['kamar']}',
+                                                                        style: const TextStyle(
+                                                                          fontSize:
+                                                                              14,
+                                                                          color:
+                                                                              Colors.white,
+                                                                        ),
+                                                                        textAlign:
+                                                                            TextAlign.center,
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        // Three buttons in a row at the bottom, hidden if role == 'peserta'
+                                                        // Tampilkan tombol jika role login adalah panitia, pembimbing, atau pembina
+                                                        // DAN user yang ditampilkan BUKAN pembimbing
+                                                        if (([
+                                                              'panitia',
+                                                              'pembimbing kelompok',
+                                                              'pembina',
+                                                            ].contains(
+                                                              (role ?? '')
+                                                                  .toLowerCase(),
+                                                            )) &&
+                                                            (user['role']
+                                                                    ?.toString()
+                                                                    .toLowerCase() !=
+                                                                'pembimbing'))
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceEvenly,
+                                                            children: [
+                                                              if (role
+                                                                      .toString()
+                                                                      .toLowerCase()
+                                                                      .contains(
+                                                                        'panitia',
+                                                                      ) ||
+                                                                  role
+                                                                      .toString()
+                                                                      .toLowerCase()
+                                                                      .contains(
+                                                                        'pembimbing kelompok',
+                                                                      ))
+                                                                Expanded(
+                                                                  child: Padding(
+                                                                    padding:
+                                                                        const EdgeInsets.symmetric(
+                                                                          horizontal:
+                                                                              2,
+                                                                        ),
+                                                                    child: SizedBox(
+                                                                      height:
+                                                                          35, // Set your desired button height here
                                                                       child: ElevatedButton(
                                                                         style: ElevatedButton.styleFrom(
                                                                           backgroundColor:
-                                                                              AppColors.primary,
+                                                                              Colors.white,
                                                                           shape: RoundedRectangleBorder(
                                                                             borderRadius: BorderRadius.circular(
                                                                               16,
@@ -538,25 +583,29 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                                                                           'Evaluasi',
                                                                           style: TextStyle(
                                                                             color:
-                                                                                Colors.white,
+                                                                                AppColors.primary,
                                                                             fontSize:
-                                                                                10,
+                                                                                13,
                                                                           ),
                                                                         ),
                                                                       ),
                                                                     ),
                                                                   ),
-                                                                Expanded(
-                                                                  child: Padding(
-                                                                    padding:
-                                                                        const EdgeInsets.symmetric(
-                                                                          horizontal:
-                                                                              2,
-                                                                        ),
+                                                                ),
+                                                              Expanded(
+                                                                child: Padding(
+                                                                  padding:
+                                                                      const EdgeInsets.symmetric(
+                                                                        horizontal:
+                                                                            2,
+                                                                      ),
+                                                                  child: SizedBox(
+                                                                    height:
+                                                                        35, // Set your desired button height here
                                                                     child: ElevatedButton(
                                                                       style: ElevatedButton.styleFrom(
                                                                         backgroundColor:
-                                                                            AppColors.primary,
+                                                                            Colors.white,
                                                                         shape: RoundedRectangleBorder(
                                                                           borderRadius: BorderRadius.circular(
                                                                             16,
@@ -582,32 +631,29 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                                                                         'Komitmen',
                                                                         style: TextStyle(
                                                                           color:
-                                                                              Colors.white,
+                                                                              AppColors.primary,
                                                                           fontSize:
-                                                                              role.toString().toLowerCase().contains(
-                                                                                        'panitia',
-                                                                                      ) ||
-                                                                                      role.toString().toLowerCase().contains(
-                                                                                        'pembimbing kelompok',
-                                                                                      )
-                                                                                  ? 10
-                                                                                  : 14,
+                                                                              10,
                                                                         ),
                                                                       ),
                                                                     ),
                                                                   ),
                                                                 ),
-                                                                Expanded(
-                                                                  child: Padding(
-                                                                    padding:
-                                                                        const EdgeInsets.symmetric(
-                                                                          horizontal:
-                                                                              2,
-                                                                        ),
+                                                              ),
+                                                              Expanded(
+                                                                child: Padding(
+                                                                  padding:
+                                                                      const EdgeInsets.symmetric(
+                                                                        horizontal:
+                                                                            2,
+                                                                      ),
+                                                                  child: SizedBox(
+                                                                    height:
+                                                                        35, // Set your desired button height here
                                                                     child: ElevatedButton(
                                                                       style: ElevatedButton.styleFrom(
                                                                         backgroundColor:
-                                                                            AppColors.primary,
+                                                                            Colors.white,
                                                                         shape: RoundedRectangleBorder(
                                                                           borderRadius: BorderRadius.circular(
                                                                             16,
@@ -639,80 +685,74 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                                                                         'Bacaan',
                                                                         style: TextStyle(
                                                                           color:
-                                                                              Colors.white,
+                                                                              AppColors.primary,
                                                                           fontSize:
-                                                                              role.toString().toLowerCase().contains(
-                                                                                        'panitia',
-                                                                                      ) ||
-                                                                                      role.toString().toLowerCase().contains(
-                                                                                        'pembimbing kelompok',
-                                                                                      )
-                                                                                  ? 10
-                                                                                  : 14,
+                                                                              13,
                                                                         ),
                                                                       ),
                                                                     ),
                                                                   ),
                                                                 ),
-                                                              ],
-                                                            ),
-                                                        ],
+                                                              ),
+                                                            ],
+                                                          ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              if ((user['role'] ?? '')
+                                                          .toString()
+                                                          .toLowerCase() ==
+                                                      'pembimbing' ||
+                                                  (user['role'] ?? '')
+                                                          .toString()
+                                                          .toLowerCase() ==
+                                                      'pembina')
+                                                Positioned(
+                                                  top: 16,
+                                                  right: 16,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          AppColors.secondary,
+                                                      borderRadius:
+                                                          BorderRadius.only(
+                                                            topRight:
+                                                                Radius.circular(
+                                                                  16,
+                                                                ),
+                                                            bottomLeft:
+                                                                Radius.circular(
+                                                                  16,
+                                                                ),
+                                                          ),
+                                                    ),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 8,
+                                                          vertical: 8,
+                                                        ),
+                                                    child: Text(
+                                                      'Pembimbing',
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 10,
                                                       ),
                                                     ),
                                                   ),
                                                 ),
-                                                if ((user['role'] ?? '')
-                                                            .toString()
-                                                            .toLowerCase() ==
-                                                        'pembimbing' ||
-                                                    (user['role'] ?? '')
-                                                            .toString()
-                                                            .toLowerCase() ==
-                                                        'pembina')
-                                                  Positioned(
-                                                    top: 15,
-                                                    right: 15,
-                                                    child: Container(
-                                                      decoration: BoxDecoration(
-                                                        color:
-                                                            AppColors.secondary,
-                                                        borderRadius:
-                                                            BorderRadius.only(
-                                                              topRight:
-                                                                  Radius.circular(
-                                                                    16,
-                                                                  ),
-                                                              bottomLeft:
-                                                                  Radius.circular(
-                                                                    16,
-                                                                  ),
-                                                            ),
-                                                      ),
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            horizontal: 8,
-                                                            vertical: 8,
-                                                          ),
-                                                      child: Text(
-                                                        'Pembimbing',
-                                                        style: const TextStyle(
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 10,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                if ((user['role'] ?? '')
-                                                            .toString()
-                                                            .toLowerCase() ==
-                                                        'anggota' &&
-                                                    user['status_datang'] ==
-                                                        "0")
-                                                  Positioned(
-                                                    top: 15,
-                                                    right: 15,
+                                              if ((user['role'] ?? '')
+                                                          .toString()
+                                                          .toLowerCase() ==
+                                                      'anggota' &&
+                                                  user['status_datang'] == "0")
+                                                Positioned(
+                                                  top: 16,
+                                                  right: 16,
+                                                  child: GestureDetector(
                                                     child: Container(
                                                       decoration: BoxDecoration(
                                                         color: AppColors.accent,
@@ -734,107 +774,86 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                                                             vertical: 8,
                                                           ),
                                                       child: Text(
-                                                        'Belum registrasi ulang',
+                                                        'Belum verifikasi',
                                                         style: const TextStyle(
                                                           color: Colors.white,
                                                           fontWeight:
                                                               FontWeight.bold,
-                                                          fontSize: 8,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  )
-                                                else if ((user['role'] ?? '')
-                                                            .toString()
-                                                            .toLowerCase() ==
-                                                        'anggota' &&
-                                                    user['status_datang'] ==
-                                                        "1")
-                                                  Positioned(
-                                                    top: 15,
-                                                    right: 15,
-                                                    child: Container(
-                                                      decoration: BoxDecoration(
-                                                        color: AppColors.green,
-                                                        borderRadius:
-                                                            BorderRadius.only(
-                                                              topRight:
-                                                                  Radius.circular(
-                                                                    16,
-                                                                  ),
-                                                              bottomLeft:
-                                                                  Radius.circular(
-                                                                    16,
-                                                                  ),
-                                                            ),
-                                                      ),
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            horizontal: 8,
-                                                            vertical: 8,
-                                                          ),
-                                                      child: Text(
-                                                        'Sudah registrasi ulang',
-                                                        style: const TextStyle(
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 8,
+                                                          fontSize: 10,
                                                         ),
                                                       ),
                                                     ),
                                                   ),
-                                              ],
-                                            ),
-                                          ),
-                                          // Positioned Circle Avatar
-                                          Positioned(
-                                            top: 10,
-                                            left:
-                                                width / 2 -
-                                                56, // center horizontally relative to card
-                                            child: CircleAvatar(
-                                              radius: 56,
-                                              backgroundColor: Colors.white,
-                                              child: CircleAvatar(
-                                                radius: 52,
-                                                backgroundImage:
-                                                    user['avatar_url'] != null
-                                                        ? NetworkImage(
-                                                          '${GlobalVariables.serverUrl}${user['avatar_url']}',
-                                                        )
-                                                        : AssetImage(() {
-                                                              if (user['role']
-                                                                  .toString()
-                                                                  .toLowerCase()
-                                                                  .contains(
-                                                                    'pembina',
-                                                                  )) {
-                                                                return 'assets/mockups/pembina.jpg';
-                                                              } else if (user['role']
-                                                                  .toString()
-                                                                  .toLowerCase()
-                                                                  .contains(
-                                                                    'anggota',
-                                                                  )) {
-                                                                return 'assets/mockups/peserta.jpg';
-                                                              } else if (user['role']
-                                                                  .toString()
-                                                                  .toLowerCase()
-                                                                  .contains(
-                                                                    'pembimbing',
-                                                                  )) {
-                                                                return 'assets/mockups/pembimbing.jpg';
-                                                              } else {
-                                                                return 'assets/mockups/unknown.jpg';
-                                                              }
-                                                            }())
-                                                            as ImageProvider,
-                                              ),
-                                            ),
+                                                )
+                                              else if ((user['role'] ?? '')
+                                                          .toString()
+                                                          .toLowerCase() ==
+                                                      'anggota' &&
+                                                  user['status_datang'] == "1")
+                                                Positioned(
+                                                  top: 16,
+                                                  right: 16,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      color: AppColors.green,
+                                                      borderRadius:
+                                                          BorderRadius.only(
+                                                            topRight:
+                                                                Radius.circular(
+                                                                  16,
+                                                                ),
+                                                            bottomLeft:
+                                                                Radius.circular(
+                                                                  16,
+                                                                ),
+                                                          ),
+                                                    ),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 8,
+                                                          vertical: 8,
+                                                        ),
+                                                    child: Text(
+                                                      'Sudah verifikasi',
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 10,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              if (user['id'] == null)
+                                                Positioned(
+                                                  top: 30,
+                                                  left: 30,
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons
+                                                            .warning_amber_rounded,
+                                                        color: Colors.white,
+                                                        size: 20,
+                                                      ),
+                                                      const SizedBox(width: 4),
+                                                      Text(
+                                                        'Belum install app',
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 10,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                            ],
                                           ),
                                         ],
                                       ),
+                                      const SizedBox(height: 16),
                                     ],
                                   );
                                 },
@@ -847,6 +866,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
           ),
         ],
       ),
+
       floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
       floatingActionButton:
           _dataUser['role']?.toLowerCase() == 'pembimbing kelompok'
@@ -868,9 +888,9 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                                 ),
                           ),
                         ).then((result) {
-                          // if (result == 'reload') {
-                          //   initAll(forceRefresh: true);
-                          // }
+                          if (result == 'reload') {
+                            _initAll(forceRefresh: true);
+                          }
                         });
                       },
                       child: const Icon(Icons.qr_code, color: Colors.white),

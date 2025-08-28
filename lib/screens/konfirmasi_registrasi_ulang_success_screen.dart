@@ -14,7 +14,8 @@ class KonfirmasiRegistrasiUlangSuccessScreen extends StatelessWidget {
     required this.nama,
     required this.namakelompok,
     required this.isSuccess,
-    this.metode = 'QR',
+    // this.metode = 'QR',
+    required this.metode,
   });
 
   @override
@@ -69,6 +70,7 @@ class KonfirmasiRegistrasiUlangSuccessScreen extends StatelessWidget {
                     GestureDetector(
                       onTap: () async {
                         if (metode == 'Manual') {
+                          print("metode: $metode");
                           Navigator.pop(context, 'reload');
                         } else {
                           Navigator.pop(context);

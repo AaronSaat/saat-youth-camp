@@ -15,8 +15,8 @@ class ApiService {
   // static const String baseurl = 'http://172.172.52.9:82/reg-new/api-syc2025/';
   // static const String baseurlLocal = 'http://172.172.52.9/website_backup/api/';
   // static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
-  // static const String baseurl = 'http://172.172.52.11:90/api-syc2025/';
-  static const String baseurl = 'https://netunim.seabs.ac.id/api-syc2025/';
+  static const String baseurl = 'http://172.172.52.11:90/api-syc2025/';
+  // static const String baseurl = 'https://netunim.seabs.ac.id/api-syc2025/';
 
   static Future<Map<String, dynamic>> loginUser(
     String username,
@@ -2101,6 +2101,49 @@ class ApiService {
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load data konfirmasi');
+    }
+  }
+
+  static Future<Map<String, dynamic>> postHapusAkun(
+    BuildContext context,
+    Map<String, dynamic> hapusAkunData,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}hapus-akun');
+    final body = json.encode({'data_hapus_akun': hapusAkunData});
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: body,
+    );
+
+    print('test url: $url');
+    print('test response: ${response.statusCode} - ${response.body}');
+
+    if (response.statusCode == 201) {
+      final Map<String, dynamic> result = json.decode(response.body);
+      print('✅ Berhasil hapus akun: $result');
+      return result;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      // throw Exception('Unauthorized');
+      return {};
+    } else {
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to post hapus akun');
     }
   }
 }
