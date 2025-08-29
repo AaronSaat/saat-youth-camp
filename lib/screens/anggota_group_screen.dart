@@ -262,7 +262,7 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
                                                                     .contains(
                                                                       'peserta',
                                                                     )))
-                                                            ? 200 //sebagai anggota dan role user peserta
+                                                            ? 250 //sebagai anggota dan role user peserta
                                                             : (user['role']
                                                                     .toString()
                                                                     .toLowerCase()

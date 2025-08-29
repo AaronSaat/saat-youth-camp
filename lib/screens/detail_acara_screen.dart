@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
 import 'package:syc/screens/form_evaluasi_screen.dart';
+import 'package:syc/screens/evaluasi_komitmen_view_screen.dart';
 import 'package:syc/widgets/custom_count_up.dart';
 import 'package:syc/widgets/custom_snackbar.dart';
 import '../services/api_service.dart';
@@ -424,53 +425,123 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                             print(
                                               'Acara DateTime: $acaraDateTime, Now: $_now, Diff: $diff minutes, Can Evaluate: $canEvaluate',
                                             );
-                                            return ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    canEvaluate
-                                                        ? AppColors.brown1
-                                                        : AppColors.grey4,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(32),
-                                                ),
-                                              ),
-                                              onPressed:
+                                            return FutureBuilder(
+                                              future:
                                                   canEvaluate
-                                                      ? () {
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder:
-                                                                (
-                                                                  context,
-                                                                ) => FormEvaluasiScreen(
-                                                                  userId:
-                                                                      _userData!['id']!,
-                                                                  acaraHariId:
-                                                                      _dataAcara![0]['id'],
-                                                                ),
+                                                      ? ApiService.getEvaluasiByPesertaByAcara(
+                                                        context,
+                                                        _userData!['id']!,
+                                                        _dataAcara![0]['id'],
+                                                      )
+                                                      : null,
+                                              builder: (context, snapshot) {
+                                                bool evaluasiDone = false;
+                                                if (snapshot.connectionState ==
+                                                        ConnectionState.done &&
+                                                    snapshot.hasData) {
+                                                  final result = snapshot.data;
+                                                  evaluasiDone =
+                                                      result != null &&
+                                                      result['success'] == true;
+                                                }
+                                                return ElevatedButton(
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        canEvaluate
+                                                            ? AppColors.brown1
+                                                            : AppColors.grey4,
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            32,
                                                           ),
-                                                        ).then((result) {
-                                                          if (result ==
-                                                              'reload') {
-                                                            initAll(); // reload dashboard
+                                                    ),
+                                                  ),
+                                                  onPressed:
+                                                      canEvaluate
+                                                          ? () async {
+                                                            try {
+                                                              final result =
+                                                                  await ApiService.getEvaluasiByPesertaByAcara(
+                                                                    context,
+                                                                    _userData!['id']!,
+                                                                    _dataAcara![0]['id'],
+                                                                  );
+                                                              bool
+                                                              evaluasiDone =
+                                                                  result !=
+                                                                      null &&
+                                                                  result['success'] ==
+                                                                      true;
+                                                              if (evaluasiDone) {
+                                                                Navigator.push(
+                                                                  context,
+                                                                  MaterialPageRoute(
+                                                                    builder:
+                                                                        (
+                                                                          context,
+                                                                        ) => EvaluasiKomitmenViewScreen(
+                                                                          type:
+                                                                              'Evaluasi',
+                                                                          userId:
+                                                                              _userData!['id']!,
+                                                                          acaraHariId:
+                                                                              int.tryParse(
+                                                                                _dataAcara![0]['id'].toString(),
+                                                                              ) ??
+                                                                              0,
+                                                                        ),
+                                                                  ),
+                                                                );
+                                                              } else {
+                                                                Navigator.push(
+                                                                  context,
+                                                                  MaterialPageRoute(
+                                                                    builder:
+                                                                        (
+                                                                          context,
+                                                                        ) => FormEvaluasiScreen(
+                                                                          userId:
+                                                                              _userData!['id']!,
+                                                                          acaraHariId:
+                                                                              _dataAcara![0]['id'],
+                                                                        ),
+                                                                  ),
+                                                                ).then((
+                                                                  result,
+                                                                ) {
+                                                                  if (result ==
+                                                                      'reload') {
+                                                                    initAll();
+                                                                  }
+                                                                });
+                                                              }
+                                                            } catch (e) {
+                                                              showCustomSnackBar(
+                                                                context,
+                                                                'Gagal memeriksa status evaluasi. Silakan coba lagi.',
+                                                                isSuccess:
+                                                                    false,
+                                                              );
+                                                            }
                                                           }
-                                                        });
-                                                      }
-                                                      : () {
-                                                        showCustomSnackBar(
-                                                          context,
-                                                          'Evaluasi dapat diakses 1 jam setelah acara dimulai. $tanggalStr $waktuStr',
-                                                        );
-                                                      },
-                                              child: const Text(
-                                                'EVALUASI',
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 12,
-                                                ),
-                                              ),
+                                                          : () {
+                                                            showCustomSnackBar(
+                                                              context,
+                                                              'Evaluasi dapat diakses 1 jam setelah acara dimulai. $tanggalStr $waktuStr',
+                                                            );
+                                                          },
+                                                  child: Text(
+                                                    evaluasiDone
+                                                        ? 'REVIEW EVALUASI'
+                                                        : 'EVALUASI',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
                                             );
                                           },
                                         ),

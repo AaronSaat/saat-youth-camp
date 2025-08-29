@@ -418,19 +418,19 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
                                 } else if (_dataUser['id'] == widget.userId &&
                                     acara['hari'] == 99) {
                                   final batasWaktu = DateTime(
-                                    2025,
-                                    7,
-                                    17,
-                                    15,
+                                    2026,
+                                    1,
+                                    02,
+                                    12,
                                     0,
                                     0,
                                   );
-                                  if (_now.isBefore(batasWaktu)) {
+                                  if (_now.isAfter(batasWaktu)) {
                                     setState(() {
                                       if (!mounted) return;
                                       showCustomSnackBar(
                                         context,
-                                        'Evaluasi keseluruhan dapat dilakukan pada 17 Juli 2025 pukul 12.00.',
+                                        'Evaluasi keseluruhan dapat dilakukan setelah 02 Januari 2026 pukul 12.00.',
                                         isSuccess: false,
                                       );
                                     });

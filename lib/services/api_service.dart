@@ -15,8 +15,8 @@ class ApiService {
   // static const String baseurl = 'http://172.172.52.9:82/reg-new/api-syc2025/';
   // static const String baseurlLocal = 'http://172.172.52.9/website_backup/api/';
   // static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
-  static const String baseurl = 'http://172.172.52.11:90/api-syc2025/';
-  // static const String baseurl = 'https://netunim.seabs.ac.id/api-syc2025/';
+  // static const String baseurl = 'http://172.172.52.11:90/api-syc2025/';
+  static const String baseurl = 'https://netunim.seabs.ac.id/api-syc2025/';
 
   static Future<Map<String, dynamic>> loginUser(
     String username,

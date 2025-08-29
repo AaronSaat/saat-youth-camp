@@ -24,6 +24,7 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
   Barcode? result;
   QRViewController? controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  bool _hasScanned = false;
 
   @override
   void reassemble() {
@@ -45,9 +46,12 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
       controller = ctrl;
     });
     controller?.scannedDataStream.listen((scanData) {
-      setState(() {
-        result = scanData;
-      });
+      if (!_hasScanned) {
+        setState(() {
+          result = scanData;
+          _hasScanned = true;
+        });
+      }
     });
   }
 
@@ -129,6 +133,7 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
                                     await controller?.resumeCamera();
                                     setState(() {
                                       result = null;
+                                      _hasScanned = false;
                                     });
                                   },
                                   child: Container(
@@ -225,12 +230,14 @@ Widget _buildDecodedResultWidget(
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const CircularProgressIndicator();
-            } else if (snapshot.hasError) {
-              return Text(
-                snapshot.error.toString(),
-                style: const TextStyle(color: Colors.red),
-              );
-            } else if (!snapshot.hasData) {
+            }
+            // else if (snapshot.hasError) {
+            //   return Text(
+            //     snapshot.error.toString(),
+            //     style: const TextStyle(color: Colors.red),
+            //   );
+            // }
+            else if (!snapshot.hasData) {
               return const Text('Data tidak ditemukan');
             }
             final dataKonfirmasi = snapshot.data!;
