@@ -67,7 +67,7 @@ class _KonfirmasiRegistrasiUlangScreenState
     try {
       String? secret;
       // Ambil secret dengan regex agar fleksibel
-      final regex = RegExp(r'secret=([^&/\s]+)');
+      final regex = RegExp(r'secret=([^&\s]+)');
       final match = regex.firstMatch(widget.qrResult!);
       if (match != null) {
         secret = match.group(1);

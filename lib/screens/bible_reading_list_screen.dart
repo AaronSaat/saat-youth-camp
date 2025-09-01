@@ -284,10 +284,10 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                     alignment: Alignment.center,
                     child: Text(
                       '$d $_namaBulan',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontSize: _namaBulan.length <= 7 ? 16 : 12,
                       ),
                     ),
                   ),

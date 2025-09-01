@@ -184,8 +184,8 @@ Widget _buildDecodedResultWidget(
     final data = result.code;
     print('QR Data: $data');
     String? secret;
-    // Ambil secret dengan regex agar fleksibel
-    final regex = RegExp(r'secret=([^&/\s]+)');
+    // Ambil secret dengan regex agar fleksibel dan tidak terpotong karakter base64
+    final regex = RegExp(r'secret=([^&\s]+)');
     final match = regex.firstMatch(data ?? '');
     if (match != null) {
       secret = match.group(1);
@@ -193,11 +193,16 @@ Widget _buildDecodedResultWidget(
     } else {
       print('Secret not found by regex');
     }
+
     if (secret == null || secret.isEmpty) {
       throw Exception('Secret tidak ditemukan di QR.');
     }
 
+    // Handle karakter + dan spasi pada secret agar base64 valid
+    secret = Uri.decodeComponent(secret).replaceAll(' ', '+');
+
     // Dekripsi secret
+    print('SecretAAA: $secret');
     final decryptedSecret = decryptSecret(secret);
 
     return Column(
