@@ -1,6 +1,13 @@
 import 'dart:convert' show jsonEncode, utf8;
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart'
+    show
+        AndroidUiSettings,
+        CropAspectRatioPreset,
+        CropStyle,
+        IOSUiSettings,
+        ImageCropper;
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -10,6 +17,7 @@ import 'package:syc/screens/scan_qr_screen.dart' show ScanQrScreen;
 import 'package:syc/utils/global_variables.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:path_provider/path_provider.dart';
 
 import '../services/api_service.dart';
 import '../utils/app_colors.dart';
@@ -66,6 +74,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       'kamar',
       'secret',
       'status_datang',
+      'avatar',
     ];
     final Map<String, String> userData = {};
     for (final key in keys) {
@@ -81,25 +90,92 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      final file = File(pickedFile.path);
-      final bytes = await file.length();
-      print('File size in bytes: $bytes');
-      const maxSizeInBytes = 4 * 1024 * 1024; // 4MB
+      // Crop image setelah pilih
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: pickedFile.path,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Crop Image',
+            cropStyle: CropStyle.circle,
+            toolbarColor: AppColors.brown1,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: true,
+            aspectRatioPresets: [
+              CropAspectRatioPreset.square,
+              CropAspectRatioPreset.original,
+            ],
+          ),
+          IOSUiSettings(
+            title: 'Crop Image',
+            cropStyle: CropStyle.circle,
+            doneButtonTitle: 'Upload',
+            cancelButtonTitle: 'Cancel',
+            aspectRatioLockDimensionSwapEnabled: false,
+            aspectRatioPickerButtonHidden: true,
+            resetButtonHidden: true,
+          ),
+        ],
+      );
+      if (croppedFile != null) {
+        final file = File(croppedFile.path);
+        final bytes = await file.length();
+        print('File size in bytes: $bytes');
+        const maxSizeInBytes = 4 * 1024 * 1024; // 4MB
 
-      if (bytes > maxSizeInBytes) {
-        showCustomSnackBar(
-          context,
-          'Ukuran gambar maksimal 4MB',
-          isSuccess: false,
-        );
-        return;
+        if (bytes > maxSizeInBytes) {
+          showCustomSnackBar(
+            context,
+            'Ukuran gambar maksimal 4MB',
+            isSuccess: false,
+          );
+          return;
+        }
+
+        setState(() {
+          _isLoading = true;
+          _imageFile = file;
+        });
+
+        // Langsung upload ke API setelah crop dan validasi
+        try {
+          await ApiService.postAvatar(
+            context,
+            file.path,
+            body: {'user_id': _dataUser['id'] ?? ''},
+          );
+          if (!mounted) return;
+          showCustomSnackBar(
+            context,
+            'Upload gambar berhasil',
+            isSuccess: true,
+          );
+          //refresh page
+          await _initAll();
+          // Force rebuild by navigating to this screen again
+          // Navigator.pushReplacement(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => ProfileEditScreen()),
+          // );
+        } catch (e) {
+          if (!mounted) return;
+          showCustomSnackBar(context, 'Upload gambar gagal', isSuccess: false);
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      } else {
+        if (!mounted) return;
+        setState(() {
+          _isLoading = false;
+        });
+        showCustomSnackBar(context, 'Crop gambar dibatalkan', isSuccess: false);
       }
-
-      setState(() {
-        _imageFile = file;
-      });
     } else {
       if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
       showCustomSnackBar(
         context,
         'Tidak ada gambar yang dipilih',
@@ -108,44 +184,30 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     }
   }
 
-  Future<void> _uploadImage() async {
-    if (_imageFile == null) {
-      if (!mounted) return;
-      showCustomSnackBar(
-        context,
-        'Pilih gambar terlebih dahulu',
-        isSuccess: false,
-      );
-      return;
-    }
-
-    try {
-      await ApiService.postAvatar(
-        context,
-        _imageFile!.path,
-        body: {'user_id': _dataUser['id'] ?? ''},
-      );
-      if (!mounted) return;
-      showCustomSnackBar(context, 'Upload gambar berhasil', isSuccess: true);
-      //refresh page
-      await _initAll();
-    } catch (e) {
-      if (!mounted) return;
-      showCustomSnackBar(context, 'Upload gambar gagal', isSuccess: false);
-    }
-  }
-
   Future<void> loadAvatarById() async {
+    print('Memuat avatar dari lokal...');
+    final prefs = await SharedPreferences.getInstance();
     final userId = _dataUser['id'].toString();
-    try {
-      final _avatar = await ApiService.getAvatarById(context, userId);
+    final dir = await getApplicationDocumentsDirectory();
+    final filePath = '${dir.path}/avatar_${userId}.jpg';
+    final file = File(filePath);
+    if (file.existsSync()) {
       if (!mounted) return;
       setState(() {
-        avatar = _avatar;
-        print('Avatar URL: $avatar');
+        avatar = filePath;
+        print('Avatar file path (local): $avatar');
         _isLoading = false;
       });
-    } catch (e) {}
+      await prefs.setString('avatar_path', filePath);
+    } else {
+      if (!mounted) return;
+      setState(() {
+        avatar = '';
+        print('Avatar fallback ke mockup');
+        _isLoading = false;
+      });
+      await prefs.remove('avatar_path');
+    }
   }
 
   Future<void> checkStatusDatang() async {
@@ -200,13 +262,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // final qrData = jsonEncode({
-    //   'id': _dataUser['id'],
-    //   'nama': _dataUser['nama'],
-    //   'role': _dataUser['role'],
-    //   'email': _dataUser['email'],
-    //   'kelompok_nama': _dataUser['kelompok_nama'],
-    // });
     final role = _dataUser['role'] ?? '';
     final secret = _dataUser['secret'] ?? 'Null';
     print('Secret: $secret');
@@ -229,10 +284,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           color: AppColors.primary,
           onPressed: () => Navigator.pop(context, 'reload'),
         ),
-        // leading:
-        //     Navigator.canPop(context)
-        //         ? BackButton(color: AppColors.primary)
-        //         : null,
       ),
       body: Stack(
         children: [
@@ -253,51 +304,57 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 physics: AlwaysScrollableScrollPhysics(),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
+                  child:
                       _isLoading
                           ? buildShimmerEditProfile()
                           : Column(
                             children: [
-                              Container(
-                                padding: EdgeInsets.all(4), // Outline thickness
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: AppColors.primary, // Outline color
-                                    width: 2, // Outline thickness
+                              _isLoading
+                                  ? Container(
+                                    padding: EdgeInsets.all(4),
+                                    child: Container(
+                                      width: 200,
+                                      height: 200,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[300],
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                  )
+                                  : (avatar.isNotEmpty &&
+                                      File(avatar).existsSync())
+                                  ? Container(
+                                    padding: EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: AppColors.primary,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: CircleAvatar(
+                                      radius: 100,
+                                      backgroundImage: FileImage(File(avatar)),
+                                      backgroundColor: Colors.grey[200],
+                                    ),
+                                  )
+                                  : Container(
+                                    padding: EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: AppColors.primary,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: CircleAvatar(
+                                      radius: 100,
+                                      backgroundImage: AssetImage(
+                                        'assets/mockups/unknown.jpg',
+                                      ),
+                                      backgroundColor: Colors.grey[200],
+                                    ),
                                   ),
-                                ),
-                                child: CircleAvatar(
-                                  radius: 100,
-                                  backgroundImage:
-                                      _imageFile != null
-                                          ? FileImage(_imageFile!)
-                                          : (avatar.isNotEmpty &&
-                                                  !avatar
-                                                      .toLowerCase()
-                                                      .contains('null')
-                                              ? NetworkImage(
-                                                '${GlobalVariables.serverUrl}$avatar',
-                                              )
-                                              : AssetImage(() {
-                                                    switch (role) {
-                                                      case 'Pembina':
-                                                        return 'assets/mockups/pembina.jpg';
-                                                      case 'Peserta':
-                                                        return 'assets/mockups/peserta.jpg';
-                                                      case 'Pembimbing Kelompok':
-                                                        return 'assets/mockups/pembimbing.jpg';
-                                                      case 'Panitia':
-                                                        return 'assets/mockups/panitia.jpg';
-                                                      default:
-                                                        return 'assets/mockups/unknown.jpg';
-                                                    }
-                                                  }())
-                                                  as ImageProvider),
-                                  backgroundColor: Colors.grey[200],
-                                ),
-                              ),
                               SizedBox(height: 16),
                               Text(
                                 _dataUser['nama'] ?? '',
@@ -329,28 +386,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                   ),
                                   alignment: Alignment.center,
                                   child: Text(
-                                    'Select Image',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              SizedBox(height: 16),
-                              GestureDetector(
-                                onTap: _uploadImage,
-                                child: Container(
-                                  width: double.infinity,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.brown1,
-                                    borderRadius: BorderRadius.circular(32),
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
                                     'Upload Image',
                                     style: TextStyle(
                                       color: Colors.white,
@@ -360,37 +395,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                   ),
                                 ),
                               ),
-                              // SizedBox(height: 16),
-                              // GestureDetector(
-                              //   onTap: () {
-                              //     Navigator.push(
-                              //       context,
-                              //       MaterialPageRoute(
-                              //         builder:
-                              //             (_) => ScanQrScreen(
-                              //               namakelompok: namakelompok,
-                              //             ),
-                              //       ),
-                              //     );
-                              //   },
-                              //   child: Container(
-                              //     width: double.infinity,
-                              //     height: 50,
-                              //     decoration: BoxDecoration(
-                              //       color: AppColors.brown1,
-                              //       borderRadius: BorderRadius.circular(32),
-                              //     ),
-                              //     alignment: Alignment.center,
-                              //     child: Text(
-                              //       'Scan QR Code',
-                              //       style: TextStyle(
-                              //         color: Colors.white,
-                              //         fontSize: 14,
-                              //         fontWeight: FontWeight.w500,
-                              //       ),
-                              //     ),
-                              //   ),
-                              // ),
                               SizedBox(height: 24),
                               // QR Code User
                               (role.toLowerCase().contains('peserta') ||
@@ -418,7 +422,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                               ),
                                             ),
                                             child: QrImageView(
-                                              // data: qrData,
                                               data:
                                                   '${GlobalVariables.serverUrl}syc2025/konfirmasi-datang?secret=$encryptedSecret',
                                               size: 180.0,
@@ -448,8 +451,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                   : SizedBox.shrink(),
                             ],
                           ),
-                    ],
-                  ),
                 ),
               ),
             ),

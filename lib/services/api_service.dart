@@ -1906,11 +1906,13 @@ class ApiService {
         request.fields['user_id'] = body['user_id'].toString();
       }
     }
-    print('Request URL: ${request.url}');
-    print('Request Headers: ${request.headers}');
-    print('Request Fields: ${request.fields}');
-    print('Request Files: ${request.files.map((f) => f.filename).join(', ')}');
-    print('Request Body: ${request.fields}');
+    print('Avatar Request URL: ${request.url}');
+    print('Avatar Request Headers: ${request.headers}');
+    print('Avatar Request Fields: ${request.fields}');
+    print(
+      'Avatar Request Files: ${request.files.map((f) => f.filename).join(', ')}',
+    );
+    print('Avatar Request Body: ${request.fields}');
     try {
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);

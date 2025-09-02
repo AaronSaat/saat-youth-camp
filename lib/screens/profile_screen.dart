@@ -1,4 +1,8 @@
 import 'dart:convert'; // Tambahkan import ini di bagian atas file
+import 'dart:io';
+import 'package:flutter/gestures.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -105,6 +109,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         await loadKomitmenDoneDay3Panitia(forceRefresh: forceRefresh);
       }
       await loadAvatarById();
+      await loadAvatarByIdFromApi(forceRefresh: forceRefresh);
     } catch (e) {
       // handle error jika perlu
     }
@@ -296,16 +301,89 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       _isLoading_avatar = true;
     });
-    final userId = _dataUser['id'].toString() ?? '';
-    try {
-      final _avatar = await ApiService.getAvatarById(context, userId);
-      if (!mounted) return;
+    final prefs = await SharedPreferences.getInstance();
+    final cachedAvatarPath = prefs.getString('avatar_path');
+    final userId = _dataUser['id'] ?? '';
+
+    // 1. Load dari file lokal dulu
+    if (cachedAvatarPath != null &&
+        cachedAvatarPath.isNotEmpty &&
+        File(cachedAvatarPath).existsSync()) {
       setState(() {
-        avatar = _avatar;
-        print('Avatar URL: $avatar');
+        avatar = cachedAvatarPath;
+        print('Avatar file path (cached): $avatar');
         _isLoading_avatar = false;
       });
-    } catch (e) {}
+    } else {
+      setState(() {
+        avatar = '';
+        _isLoading_avatar = false;
+      });
+    }
+  }
+
+  // Tambahkan versi forceRefresh untuk refresh manual
+  Future<void> loadAvatarByIdFromApi({bool forceRefresh = false}) async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading_avatar = true;
+    });
+    final prefs = await SharedPreferences.getInstance();
+    final userId = _dataUser['id'] ?? '';
+    try {
+      final _avatarUrl = await ApiService.getAvatarById(context, userId);
+      if (_avatarUrl != null && _avatarUrl.isNotEmpty) {
+        final response = await http.get(
+          Uri.parse('${GlobalVariables.serverUrl}$_avatarUrl'),
+        );
+        if (response.statusCode == 200) {
+          final dir = await getApplicationDocumentsDirectory();
+          final filePath = '${dir.path}/avatar_${userId}.jpg';
+          final file = File(filePath);
+          await file.writeAsBytes(response.bodyBytes);
+          await prefs.setString('avatar_path', filePath);
+          setState(() {
+            avatar = filePath;
+            print('Avatar file path (downloaded): $avatar');
+            _isLoading_avatar = false;
+          });
+          return;
+        }
+      }
+      // Jika gagal download, fallback ke file lokal lama jika ada
+      final cachedAvatarPath = prefs.getString('avatar_path');
+      if (cachedAvatarPath != null &&
+          cachedAvatarPath.isNotEmpty &&
+          File(cachedAvatarPath).existsSync()) {
+        setState(() {
+          avatar = cachedAvatarPath;
+          print('Avatar file path (cached): $avatar');
+          _isLoading_avatar = false;
+        });
+      } else {
+        setState(() {
+          avatar = '';
+          _isLoading_avatar = false;
+        });
+      }
+    } catch (e) {
+      print('Gagal download avatar: $e');
+      final cachedAvatarPath = prefs.getString('avatar_path');
+      if (cachedAvatarPath != null &&
+          cachedAvatarPath.isNotEmpty &&
+          File(cachedAvatarPath).existsSync()) {
+        setState(() {
+          avatar = cachedAvatarPath;
+          print('Avatar file path (cached): $avatar');
+          _isLoading_avatar = false;
+        });
+      } else {
+        setState(() {
+          avatar = '';
+          _isLoading_avatar = false;
+        });
+      }
+    }
   }
 
   Future<void> loadCountUser({bool forceRefresh = false}) async {
@@ -609,30 +687,75 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               : CircleAvatar(
                                                 radius: 50,
                                                 backgroundImage:
-                                                    !avatar
-                                                                .toLowerCase()
-                                                                .contains(
-                                                                  'null',
-                                                                ) &&
-                                                            avatar != ''
-                                                        ? NetworkImage(
-                                                          '${GlobalVariables.serverUrl}$avatar',
-                                                        )
-                                                        : AssetImage(() {
-                                                              switch (role) {
-                                                                case 'Pembina':
-                                                                  return 'assets/mockups/pembina.jpg';
-                                                                case 'Peserta':
-                                                                  return 'assets/mockups/peserta.jpg';
-                                                                case 'Pembimbing Kelompok':
-                                                                  return 'assets/mockups/pembimbing.jpg';
-                                                                case 'Panitia':
-                                                                  return 'assets/mockups/panitia.jpg';
-                                                                default:
-                                                                  return 'assets/mockups/unknown.jpg';
-                                                              }
-                                                            }())
-                                                            as ImageProvider,
+                                                    (() {
+                                                      // Cek apakah avatar adalah path file lokal dan file-nya ada
+                                                      if (avatar.isNotEmpty &&
+                                                          File(
+                                                            avatar,
+                                                          ).existsSync()) {
+                                                        return FileImage(
+                                                              File(avatar),
+                                                            )
+                                                            as ImageProvider<
+                                                              Object
+                                                            >;
+                                                      }
+                                                      // Jika avatar adalah url (bukan file lokal)
+                                                      else if (avatar
+                                                              .isNotEmpty &&
+                                                          !avatar
+                                                              .toLowerCase()
+                                                              .contains(
+                                                                'null',
+                                                              )) {
+                                                        return NetworkImage(
+                                                              '${GlobalVariables.serverUrl}$avatar',
+                                                            )
+                                                            as ImageProvider<
+                                                              Object
+                                                            >;
+                                                      }
+                                                      // Fallback ke asset sesuai role
+                                                      else {
+                                                        switch (role) {
+                                                          case 'Pembina':
+                                                            return AssetImage(
+                                                                  'assets/mockups/pembina.jpg',
+                                                                )
+                                                                as ImageProvider<
+                                                                  Object
+                                                                >;
+                                                          case 'Peserta':
+                                                            return AssetImage(
+                                                                  'assets/mockups/peserta.jpg',
+                                                                )
+                                                                as ImageProvider<
+                                                                  Object
+                                                                >;
+                                                          case 'Pembimbing Kelompok':
+                                                            return AssetImage(
+                                                                  'assets/mockups/pembimbing.jpg',
+                                                                )
+                                                                as ImageProvider<
+                                                                  Object
+                                                                >;
+                                                          case 'Panitia':
+                                                            return AssetImage(
+                                                                  'assets/mockups/panitia.jpg',
+                                                                )
+                                                                as ImageProvider<
+                                                                  Object
+                                                                >;
+                                                          default:
+                                                            return AssetImage(
+                                                                  'assets/mockups/unknown.jpg',
+                                                                )
+                                                                as ImageProvider<
+                                                                  Object
+                                                                >;
+                                                        }
+                                                      }
+                                                    })(),
                                               ),
                                     ),
                                     Positioned(

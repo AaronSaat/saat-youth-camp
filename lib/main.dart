@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemChrome, DeviceOrientation;
+import 'package:syc/screens/evaluasi_komitmen_success_screen.dart';
 import 'package:syc/screens/form_komitmen_screen.dart';
 import 'package:syc/screens/hapus_akun_detail_success_screen.dart';
+import 'package:syc/screens/konfirmasi_registrasi_ulang_success_screen.dart';
 import 'package:syc/screens/main_screen.dart';
 import 'package:syc/screens/profile_edit_screen.dart';
 import 'package:syc/screens/review_komitmen_screen.dart';

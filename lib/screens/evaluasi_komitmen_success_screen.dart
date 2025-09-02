@@ -38,11 +38,12 @@ class EvaluasiKomitmenSuccessScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Image.asset(
-                        'assets/images/answer_saved.png',
+                        isSuccess
+                            ? 'assets/images/answer_saved_success.png'
+                            : 'assets/images/answer_saved_fail.png',
                         width: size.width * 0.6,
                         fit: BoxFit.contain,
                       ),
-                      const SizedBox(height: 16),
                       Text(
                         isSuccess
                             ? '$type berhasil disimpan!'

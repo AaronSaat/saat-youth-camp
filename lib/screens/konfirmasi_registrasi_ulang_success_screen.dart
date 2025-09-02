@@ -34,7 +34,9 @@ class KonfirmasiRegistrasiUlangSuccessScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Image.asset(
-                      'assets/images/answer_saved.png',
+                      isSuccess
+                          ? 'assets/images/verified_success.png'
+                          : 'assets/images/verified_fail.png',
                       width: size.width * 0.6,
                       fit: BoxFit.contain,
                     ),

@@ -20,7 +20,7 @@ dependencies:
   flutter_native_splash: ^2.4.6
   flutter_svg: ^2.0.7
   shimmer: ^3.0.0
-  image_picker: ^1.1.2
+  image_picker: ^1.2.0
   timeago: ^3.7.1
   flutter_html: ^3.0.0
   permission_handler: ^12.0.1
@@ -35,8 +35,7 @@ dependencies:
   qr_flutter: ^4.1.0
   qr_code_scanner_plus: ^2.0.10+1
   encrypt: ^5.0.3
-  # workmanager: ^0.8.0
-  # background_fetch: ^1.3.8
+  image_cropper: ^9.1.0
 
 dev_dependencies:
   flutter_test:
@@ -60,8 +59,12 @@ flutter:
     - assets/images/background_email.png #compressed
     - assets/images/background_form.png
     - assets/images/data_not_found.png
-    - assets/images/answer_saved.png
-    - assets/images/read_saved.png
+    - assets/images/answer_saved_success.png
+    - assets/images/answer_saved_fail.png
+    - assets/images/read_saved_success.png
+    - assets/images/read_saved_fail.png
+    - assets/images/verified_success.png
+    - assets/images/verified_fail.png
     - assets/images/megaphone.png #compressed
     - assets/images/background_profile.png
     - assets/images/background_dashboard.png
