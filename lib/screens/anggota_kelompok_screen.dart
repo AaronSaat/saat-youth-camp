@@ -15,6 +15,9 @@ import '../widgets/custom_snackbar.dart';
 import 'bible_reading_list_screen.dart';
 import 'list_evaluasi_screen.dart';
 import 'list_gereja_screen.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 
 class AnggotaKelompokScreen extends StatefulWidget {
   final String? id;
@@ -117,6 +120,20 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
       setState(() {});
       print('Gagal mengambil data kelompok: $e');
     }
+
+    // load avatar dan download
+    for (var user in anggota) {
+      user['avatar_local_path'] = await loadAnggotaAvatarById(
+        user['id'].toString(),
+        user['avatar_url'],
+        forceRefresh: forceRefresh,
+      );
+    }
+
+    await prefs.setString(
+      anggotaKey,
+      jsonEncode({'nama_kelompok': nama, 'data_anggota_kelompok': anggota}),
+    );
   }
 
   String getRoleImage(String role) {
@@ -136,6 +153,42 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
       return Icons.person_2;
     } else {
       return Icons.error;
+    }
+  }
+
+  Future<String> loadAnggotaAvatarById(
+    String userId,
+    String? avatarUrl, {
+    bool forceRefresh = false,
+  }) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final filePath = '${dir.path}/avatar_$userId.jpg';
+    final file = File(filePath);
+
+    if (forceRefresh || !file.existsSync()) {
+      if (avatarUrl != null && avatarUrl.isNotEmpty) {
+        String fullAvatarUrl = avatarUrl;
+        if (!avatarUrl.startsWith('http')) {
+          fullAvatarUrl = '${GlobalVariables.serverUrl}$avatarUrl';
+        }
+        try {
+          final response = await http.get(Uri.parse(fullAvatarUrl));
+          if (response.statusCode == 200) {
+            await file.writeAsBytes(response.bodyBytes);
+            print(
+              '[AVATAR] Download dan simpan avatar anggota $userId: $filePath',
+            );
+            return filePath;
+          }
+        } catch (e) {
+          print('[AVATAR] Error download avatar anggota $userId: $e');
+        }
+      }
+      print('[AVATAR] Gagal download avatar anggota $userId dari API');
+      return '';
+    } else {
+      print('[AVATAR] Ambil avatar anggota $userId dari local: $filePath');
+      return filePath;
     }
   }
 
@@ -186,7 +239,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                               text: "Kelompok tidak ditemukan",
                               textColor: AppColors.brown1,
                               imagePath: 'assets/images/data_not_found.png',
-                              onBack: _initAll,
+                              onBack: () => _initAll(forceRefresh: true),
                               backText: 'Reload Anggota',
                             ),
                           )
@@ -196,7 +249,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                               text: "Gagal memuat anggota kelompok :(",
                               textColor: AppColors.brown1,
                               imagePath: 'assets/images/data_not_found.png',
-                              onBack: _initAll,
+                              onBack: () => _initAll(forceRefresh: true),
                               backText: 'Reload Anggota',
                             ),
                           )
@@ -251,7 +304,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                                                                     'pembimbing',
                                                                   ) ??
                                                               false)
-                                                          ? 155
+                                                          ? 170
                                                           : (user['role']
                                                                   .toString()
                                                                   .toLowerCase()
@@ -306,7 +359,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                                                           mainAxisAlignment:
                                                               MainAxisAlignment
                                                                   .center,
-                                                          children: [
+                                                          children: [ 
                                                             // Avatar
                                                             CircleAvatar(
                                                               radius: 44,

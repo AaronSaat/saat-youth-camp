@@ -184,13 +184,51 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     }
   }
 
-  Future<void> loadAvatarById() async {
+  Future<void> loadAvatarById({bool forceRefresh = false}) async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+    });
     print('Memuat avatar dari lokal...');
     final prefs = await SharedPreferences.getInstance();
     final userId = _dataUser['id'].toString();
     final dir = await getApplicationDocumentsDirectory();
     final filePath = '${dir.path}/avatar_${userId}.jpg';
     final file = File(filePath);
+
+    // Jika forceRefresh atau file avatar belum ada, ambil dari API dan replace
+    if (forceRefresh || !file.existsSync()) {
+      print('[AVATAR] Ambil dari API...');
+      try {
+        final avatarUrl = await ApiService.getAvatarById(context, userId);
+        String fullAvatarUrl = avatarUrl;
+        if (avatarUrl.isNotEmpty && !avatarUrl.startsWith('http')) {
+          // Ganti dengan domain server Anda
+          fullAvatarUrl = '${GlobalVariables.serverUrl}$avatarUrl';
+        }
+        if (fullAvatarUrl.isNotEmpty) {
+          final response = await http.get(Uri.parse(fullAvatarUrl));
+          if (response.statusCode == 200) {
+            await file.writeAsBytes(response.bodyBytes);
+            print('[AVATAR] Download dan simpan avatar baru: $filePath');
+            await prefs.setString('avatar_path', filePath);
+            if (!mounted) return;
+            setState(() {
+              avatar = filePath;
+              _isLoading = false;
+            });
+            imageCache.clear();
+            imageCache.clearLiveImages();
+            return;
+          }
+        }
+        print('[AVATAR] Gagal download avatar dari API');
+      } catch (e) {
+        print('[AVATAR] Error download avatar: $e');
+      }
+    }
+
+    // Jika file sudah ada dan tidak forceRefresh, pakai lokal
     if (file.existsSync()) {
       if (!mounted) return;
       setState(() {
@@ -208,35 +246,41 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       });
       await prefs.remove('avatar_path');
     }
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+    });
   }
 
-  Future<void> checkStatusDatang() async {
+  Future<void> checkStatusDatang({bool forceRefresh = false}) async {
     if (!mounted) return;
     setState(() {
       _isLoading = true;
     });
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final statusDatangLocal = prefs.getString('status_datang');
+      // Jika ada data lokal dan tidak force refresh, langsung pakai lokal
+      if (statusDatangLocal != null && !forceRefresh) {
+        print('[STATUS DATANG] Ambil dari local: $statusDatangLocal');
+        setState(() {
+          _dataUser['status_datang'] = statusDatangLocal;
+          _isLoading = false;
+        });
+        return;
+      }
+      // Jika belum ada data lokal atau user refresh, ambil dari API
       final res = await ApiService.getStatusDatang(
         context,
         _dataUser['secret'] ?? '',
         _dataUser['email'] ?? '',
       );
       if (!mounted) return;
-      final statusDatangApi = res['data']?['status_datang']?.toString() ?? '';
-      final prefs = await SharedPreferences.getInstance();
-      final statusDatangLocal = prefs.getString('status_datang') ?? '0';
-      if (statusDatangApi.isNotEmpty && statusDatangApi != statusDatangLocal) {
-        await prefs.setString('status_datang', statusDatangApi);
-        print('Status datang diperbarui: ${_dataUser['status_datang']}');
-        setState(() {
-          _dataUser['status_datang'] = statusDatangApi;
-        });
-      } else {
-        setState(() {
-          _dataUser['status_datang'] = statusDatangLocal;
-        });
-      }
+      final statusDatangApi = res['data']?['status_datang']?.toString() ?? '0';
+      print('[STATUS DATANG] Ambil dari API: $statusDatangApi');
+      await prefs.setString('status_datang', statusDatangApi);
       setState(() {
+        _dataUser['status_datang'] = statusDatangApi;
         _isLoading = false;
       });
     } catch (e) {
@@ -297,7 +341,19 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           ),
           SafeArea(
             child: RefreshIndicator(
-              onRefresh: () => _initAll(),
+              onRefresh: () async {
+                if (!mounted) return;
+                setState(() {
+                  _isLoading = true;
+                });
+                await checkStatusDatang(forceRefresh: true);
+                await loadUserData();
+                await loadAvatarById(forceRefresh: true);
+                if (!mounted) return;
+                setState(() {
+                  _isLoading = false;
+                });
+              },
               color: AppColors.brown1,
               backgroundColor: Colors.white,
               child: SingleChildScrollView(
@@ -333,6 +389,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                       ),
                                     ),
                                     child: CircleAvatar(
+                                      key: ValueKey(avatar),
                                       radius: 100,
                                       backgroundImage: FileImage(File(avatar)),
                                       backgroundColor: Colors.grey[200],

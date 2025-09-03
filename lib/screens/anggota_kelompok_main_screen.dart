@@ -14,7 +14,9 @@ import '../widgets/custom_not_found.dart';
 import '../widgets/custom_snackbar.dart';
 import 'bible_reading_list_screen.dart';
 import 'list_evaluasi_screen.dart';
-import 'list_gereja_screen.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 
 class AnggotaKelompokMainScreen extends StatefulWidget {
   final String? id;
@@ -119,6 +121,20 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
       setState(() {});
       print('Gagal mengambil data kelompok: $e');
     }
+
+    // load avatar dan download
+    for (var user in anggota) {
+      user['avatar_local_path'] = await loadAnggotaAvatarById(
+        user['id'].toString(),
+        user['avatar_url'],
+        forceRefresh: forceRefresh,
+      );
+    }
+
+    await prefs.setString(
+      anggotaKey,
+      jsonEncode({'nama_kelompok': nama, 'data_anggota_kelompok': anggota}),
+    );
   }
 
   String getRoleImage(String role) {
@@ -138,6 +154,42 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
       return Icons.person_2;
     } else {
       return Icons.error;
+    }
+  }
+
+  Future<String> loadAnggotaAvatarById(
+    String userId,
+    String? avatarUrl, {
+    bool forceRefresh = false,
+  }) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final filePath = '${dir.path}/avatar_$userId.jpg';
+    final file = File(filePath);
+
+    if (forceRefresh || !file.existsSync()) {
+      if (avatarUrl != null && avatarUrl.isNotEmpty) {
+        String fullAvatarUrl = avatarUrl;
+        if (!avatarUrl.startsWith('http')) {
+          fullAvatarUrl = '${GlobalVariables.serverUrl}$avatarUrl';
+        }
+        try {
+          final response = await http.get(Uri.parse(fullAvatarUrl));
+          if (response.statusCode == 200) {
+            await file.writeAsBytes(response.bodyBytes);
+            print(
+              '[AVATAR] Download dan simpan avatar anggota $userId: $filePath',
+            );
+            return filePath;
+          }
+        } catch (e) {
+          print('[AVATAR] Error download avatar anggota $userId: $e');
+        }
+      }
+      print('[AVATAR] Gagal download avatar anggota $userId dari API');
+      return '';
+    } else {
+      print('[AVATAR] Ambil avatar anggota $userId dari local: $filePath');
+      return filePath;
     }
   }
 
@@ -212,7 +264,7 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                                 text: "Kelompok tidak ditemukan",
                                 textColor: AppColors.brown1,
                                 imagePath: 'assets/images/data_not_found.png',
-                                onBack: _initAll,
+                                onBack: () => _initAll(forceRefresh: true),
                                 backText: 'Reload Anggota',
                               ),
                             )
@@ -222,7 +274,7 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                                 text: "Gagal memuat anggota kelompok :(",
                                 textColor: AppColors.brown1,
                                 imagePath: 'assets/images/data_not_found.png',
-                                onBack: _initAll,
+                                onBack: () => _initAll(forceRefresh: true),
                                 backText: 'Reload Anggota',
                               ),
                             )
@@ -279,7 +331,7 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                                                                       'pembimbing',
                                                                     ) ??
                                                                 false)
-                                                            ? 155
+                                                            ? 170
                                                             : (user['role']
                                                                     .toString()
                                                                     .toLowerCase()
@@ -336,33 +388,33 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                                                                     .center,
                                                             children: [
                                                               // Avatar
-                                                              CircleAvatar(
-                                                                radius: 44,
-                                                                backgroundImage:
-                                                                    user['avatar_url'] !=
-                                                                            null
-                                                                        ? NetworkImage(
-                                                                          '${GlobalVariables.serverUrl}${user['avatar_url']}',
-                                                                        )
-                                                                        : AssetImage(() {
-                                                                              if (user['role'].toString().toLowerCase().contains(
-                                                                                'pembina',
-                                                                              )) {
-                                                                                return 'assets/mockups/pembina.jpg';
-                                                                              } else if (user['role'].toString().toLowerCase().contains(
-                                                                                'anggota',
-                                                                              )) {
-                                                                                return 'assets/mockups/peserta.jpg';
-                                                                              } else if (user['role'].toString().toLowerCase().contains(
-                                                                                'pembimbing',
-                                                                              )) {
-                                                                                return 'assets/mockups/pembimbing.jpg';
-                                                                              } else {
-                                                                                return 'assets/mockups/unknown.jpg';
-                                                                              }
-                                                                            }())
-                                                                            as ImageProvider,
-                                                              ),
+                                                            CircleAvatar(
+                                                              radius: 44,
+                                                              backgroundImage:
+                                                                  user['avatar_url'] !=
+                                                                          null
+                                                                      ? NetworkImage(
+                                                                        '${GlobalVariables.serverUrl}${user['avatar_url']}',
+                                                                      )
+                                                                      : AssetImage(() {
+                                                                            if (user['role'].toString().toLowerCase().contains(
+                                                                              'pembina',
+                                                                            )) {
+                                                                              return 'assets/mockups/pembina.jpg';
+                                                                            } else if (user['role'].toString().toLowerCase().contains(
+                                                                              'anggota',
+                                                                            )) {
+                                                                              return 'assets/mockups/peserta.jpg';
+                                                                            } else if (user['role'].toString().toLowerCase().contains(
+                                                                              'pembimbing',
+                                                                            )) {
+                                                                              return 'assets/mockups/pembimbing.jpg';
+                                                                            } else {
+                                                                              return 'assets/mockups/unknown.jpg';
+                                                                            }
+                                                                          }())
+                                                                          as ImageProvider,
+                                                            ),
                                                               const SizedBox(
                                                                 width: 12,
                                                               ),

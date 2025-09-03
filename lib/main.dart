@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemChrome, DeviceOrientation;
+import 'package:syc/screens/check_secret_success_screen.dart.dart';
 import 'package:syc/screens/evaluasi_komitmen_success_screen.dart';
 import 'package:syc/screens/form_komitmen_screen.dart';
 import 'package:syc/screens/hapus_akun_detail_success_screen.dart';
@@ -73,7 +74,7 @@ class MyApp extends StatelessWidget {
         '/main': (context) => const MainScreen(),
       },
       // home: HapusAkunDetailSuccessScreen(name: 'John Doe', isSuccess: true),
-      // home: ReviewKomitmenScreen(userId: '80', acaraHariId: 1),
+      // home: CheckSecretSuccessScreen(),
 
       // ganti desain
       // home: LoginScreen(),

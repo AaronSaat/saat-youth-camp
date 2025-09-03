@@ -1861,6 +1861,7 @@ class ApiService {
     );
 
     print('url: $url');
+    print('response: ${response.statusCode} - ${response.body}');
     if (response.statusCode == 200) {
       final Map<String, dynamic> dataGambar = json.decode(response.body);
       final String _dataGambar = dataGambar['avatar_url'];

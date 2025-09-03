@@ -378,7 +378,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            'Versi Build $_buildVersion + $_buildNumber',
+                            'Versi Build $_buildVersion+$_buildNumber',
                             style: const TextStyle(
                               color: AppColors.primary,
                               fontSize: 13,

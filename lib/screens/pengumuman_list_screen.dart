@@ -37,6 +37,7 @@ class _PengumumanListScreenState extends State<PengumumanListScreen> {
   }
 
   Future<void> initAll({bool forceRefresh = false}) async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
     try {
       await loadUserData();
@@ -249,7 +250,7 @@ class _PengumumanListScreenState extends State<PengumumanListScreen> {
                                                             ).then((result) {
                                                               if (result ==
                                                                   'reload') {
-                                                                initAll();
+                                                                initAll(forceRefresh: true);
                                                               }
                                                             });
                                                           },

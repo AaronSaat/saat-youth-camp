@@ -39,7 +39,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  bool _isLoading = true;
   bool _isLoading_userdata = true;
   bool _isLoading_progreskomitmen = true;
   bool _isLoading_progresevaluasi = true;
@@ -80,8 +79,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> initAll({bool forceRefresh = false}) async {
+    if (!mounted) return;
     setState(() {
-      _isLoading = true;
       _isLoading_userdata = true;
       _isLoading_avatar = true;
 
@@ -109,13 +108,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         await loadKomitmenDoneDay3Panitia(forceRefresh: forceRefresh);
       }
       await loadAvatarById();
-      await loadAvatarByIdFromApi(forceRefresh: forceRefresh);
     } catch (e) {
       // handle error jika perlu
     }
     if (!mounted) return;
     setState(() {
-      _isLoading = false;
       _isLoading_userdata = false;
       _isLoading_avatar = false;
 
@@ -296,94 +293,72 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<void> loadAvatarById() async {
+  Future<void> loadAvatarById({bool forceRefresh = false}) async {
     if (!mounted) return;
     setState(() {
       _isLoading_avatar = true;
     });
+    print('Memuat avatar dari lokal...');
     final prefs = await SharedPreferences.getInstance();
-    final cachedAvatarPath = prefs.getString('avatar_path');
-    final userId = _dataUser['id'] ?? '';
+    final userId = _dataUser['id'].toString();
+    final dir = await getApplicationDocumentsDirectory();
+    final filePath = '${dir.path}/avatar_${userId}.jpg';
+    final file = File(filePath);
 
-    // 1. Load dari file lokal dulu
-    if (cachedAvatarPath != null &&
-        cachedAvatarPath.isNotEmpty &&
-        File(cachedAvatarPath).existsSync()) {
+    // Jika forceRefresh atau file avatar belum ada, ambil dari API dan replace
+    if (forceRefresh || !file.existsSync()) {
+      print('[AVATAR] Ambil dari API...');
+      try {
+        final avatarUrl = await ApiService.getAvatarById(context, userId);
+        String fullAvatarUrl = avatarUrl;
+        if (avatarUrl.isNotEmpty && !avatarUrl.startsWith('http')) {
+          // Ganti dengan domain server Anda
+          fullAvatarUrl = '${GlobalVariables.serverUrl}$avatarUrl';
+        }
+        if (fullAvatarUrl.isNotEmpty) {
+          final response = await http.get(Uri.parse(fullAvatarUrl));
+          if (response.statusCode == 200) {
+            await file.writeAsBytes(response.bodyBytes);
+            print('[AVATAR] Download dan simpan avatar baru: $filePath');
+            await prefs.setString('avatar_path', filePath);
+            if (!mounted) return;
+            setState(() {
+              avatar = filePath;
+              _isLoading_avatar = false;
+            });
+            imageCache.clear();
+            imageCache.clearLiveImages();
+            return;
+          }
+        }
+        print('[AVATAR] Gagal download avatar dari API');
+      } catch (e) {
+        print('[AVATAR] Error download avatar: $e');
+      }
+    }
+
+    // Jika file sudah ada dan tidak forceRefresh, pakai lokal
+    if (file.existsSync()) {
+      if (!mounted) return;
       setState(() {
-        avatar = cachedAvatarPath;
-        print('Avatar file path (cached): $avatar');
+        avatar = filePath;
+        print('Avatar file path (local): $avatar');
         _isLoading_avatar = false;
       });
+      await prefs.setString('avatar_path', filePath);
     } else {
+      if (!mounted) return;
       setState(() {
         avatar = '';
+        print('Avatar fallback ke mockup');
         _isLoading_avatar = false;
       });
+      await prefs.remove('avatar_path');
     }
-  }
-
-  // Tambahkan versi forceRefresh untuk refresh manual
-  Future<void> loadAvatarByIdFromApi({bool forceRefresh = false}) async {
     if (!mounted) return;
     setState(() {
       _isLoading_avatar = true;
     });
-    final prefs = await SharedPreferences.getInstance();
-    final userId = _dataUser['id'] ?? '';
-    try {
-      final _avatarUrl = await ApiService.getAvatarById(context, userId);
-      if (_avatarUrl != null && _avatarUrl.isNotEmpty) {
-        final response = await http.get(
-          Uri.parse('${GlobalVariables.serverUrl}$_avatarUrl'),
-        );
-        if (response.statusCode == 200) {
-          final dir = await getApplicationDocumentsDirectory();
-          final filePath = '${dir.path}/avatar_${userId}.jpg';
-          final file = File(filePath);
-          await file.writeAsBytes(response.bodyBytes);
-          await prefs.setString('avatar_path', filePath);
-          setState(() {
-            avatar = filePath;
-            print('Avatar file path (downloaded): $avatar');
-            _isLoading_avatar = false;
-          });
-          return;
-        }
-      }
-      // Jika gagal download, fallback ke file lokal lama jika ada
-      final cachedAvatarPath = prefs.getString('avatar_path');
-      if (cachedAvatarPath != null &&
-          cachedAvatarPath.isNotEmpty &&
-          File(cachedAvatarPath).existsSync()) {
-        setState(() {
-          avatar = cachedAvatarPath;
-          print('Avatar file path (cached): $avatar');
-          _isLoading_avatar = false;
-        });
-      } else {
-        setState(() {
-          avatar = '';
-          _isLoading_avatar = false;
-        });
-      }
-    } catch (e) {
-      print('Gagal download avatar: $e');
-      final cachedAvatarPath = prefs.getString('avatar_path');
-      if (cachedAvatarPath != null &&
-          cachedAvatarPath.isNotEmpty &&
-          File(cachedAvatarPath).existsSync()) {
-        setState(() {
-          avatar = cachedAvatarPath;
-          print('Avatar file path (cached): $avatar');
-          _isLoading_avatar = false;
-        });
-      } else {
-        setState(() {
-          avatar = '';
-          _isLoading_avatar = false;
-        });
-      }
-    }
   }
 
   Future<void> loadCountUser({bool forceRefresh = false}) async {
@@ -633,7 +608,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
             SafeArea(
               child: RefreshIndicator(
                 onRefresh: () async {
-                  await initAll(forceRefresh: true);
+                  if (!mounted) return;
+                  setState(() {
+                    _isLoading_userdata = true;
+                    _isLoading_avatar = true;
+
+                    // loading peserta
+                    _isLoading_progreskomitmen = true;
+                    _isLoading_progresevaluasi = true;
+
+                    // loading progres komitmen untuk panitia
+                    _isLoading_progreskomitmenday1_panitia = true;
+                    _isLoading_progreskomitmenday2_panitia = true;
+                    _isLoading_progreskomitmenday3_panitia = true;
+                  });
+                  try {
+                    await loadUserData();
+
+                    if (_dataUser['role']!.toLowerCase().contains('peserta')) {
+                      await loadProgresEvaluasiAnggota(forceRefresh: true);
+                      await loadProgresKomitmenAnggota(forceRefresh: true);
+                    }
+
+                    if (_dataUser['role']!.toLowerCase().contains('panitia')) {
+                      await loadCountUser(forceRefresh: true);
+                      await loadKomitmenDoneDay1Panitia(forceRefresh: true);
+                      await loadKomitmenDoneDay2Panitia(forceRefresh: true);
+                      await loadKomitmenDoneDay3Panitia(forceRefresh: true);
+                    }
+                    await loadAvatarById(forceRefresh: true);
+                  } catch (e) {
+                    // handle error jika perlu
+                  }
+                  if (!mounted) return;
+                  setState(() {
+                    _isLoading_userdata = false;
+                    _isLoading_avatar = false;
+
+                    // loading progres komitmen untuk panitia
+                    _isLoading_progreskomitmenday1_panitia = false;
+                    _isLoading_progreskomitmenday2_panitia = false;
+                    _isLoading_progreskomitmenday3_panitia = false;
+                  });
                 },
                 color: AppColors.brown1,
                 backgroundColor: Colors.white,
@@ -674,89 +690,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           0.3,
                                       child:
                                           _isLoading_avatar
-                                              ? Shimmer.fromColors(
-                                                baseColor: Colors.grey.shade300,
-                                                highlightColor:
-                                                    Colors.grey.shade100,
+                                            ? Container(
+                                              padding: EdgeInsets.all(4),
+                                              child: Container(
+                                                width: 100,
+                                                height: 100,
+                                                decoration: BoxDecoration(
+                                                color: Colors.grey[300],
+                                                shape: BoxShape.circle,
+                                                ),
+                                              ),
+                                              )
+                                            : (avatar.isNotEmpty && File(avatar).existsSync())
+                                              ? Container(
+                                                padding: EdgeInsets.all(4),
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  border: Border.all(
+                                                  color: AppColors.primary,
+                                                  width: 2,
+                                                  ),
+                                                ),
+                                                child: CircleAvatar(
+                                                  key: ValueKey(avatar),
+                                                  radius: 50,
+                                                  backgroundImage: FileImage(File(avatar)),
+                                                  backgroundColor: Colors.grey[200],
+                                                ),
+                                                )
+                                              : Container(
+                                                padding: EdgeInsets.all(4),
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  border: Border.all(
+                                                  color: AppColors.primary,
+                                                  width: 2,
+                                                  ),
+                                                ),
                                                 child: CircleAvatar(
                                                   radius: 50,
-                                                  backgroundColor:
-                                                      Colors.grey[300],
+                                                  backgroundImage: (() {
+                                                  switch (role) {
+                                                    case 'Pembina':
+                                                    return AssetImage('assets/mockups/pembina.jpg');
+                                                    case 'Peserta':
+                                                    return AssetImage('assets/mockups/peserta.jpg');
+                                                    case 'Pembimbing Kelompok':
+                                                    return AssetImage('assets/mockups/pembimbing.jpg');
+                                                    case 'Panitia':
+                                                    return AssetImage('assets/mockups/panitia.jpg');
+                                                    default:
+                                                    return AssetImage('assets/mockups/unknown.jpg');
+                                                  }
+                                                  })(),
+                                                  backgroundColor: Colors.grey[200],
                                                 ),
-                                              )
-                                              : CircleAvatar(
-                                                radius: 50,
-                                                backgroundImage:
-                                                    (() {
-                                                      // Cek apakah avatar adalah path file lokal dan file-nya ada
-                                                      if (avatar.isNotEmpty &&
-                                                          File(
-                                                            avatar,
-                                                          ).existsSync()) {
-                                                        return FileImage(
-                                                              File(avatar),
-                                                            )
-                                                            as ImageProvider<
-                                                              Object
-                                                            >;
-                                                      }
-                                                      // Jika avatar adalah url (bukan file lokal)
-                                                      else if (avatar
-                                                              .isNotEmpty &&
-                                                          !avatar
-                                                              .toLowerCase()
-                                                              .contains(
-                                                                'null',
-                                                              )) {
-                                                        return NetworkImage(
-                                                              '${GlobalVariables.serverUrl}$avatar',
-                                                            )
-                                                            as ImageProvider<
-                                                              Object
-                                                            >;
-                                                      }
-                                                      // Fallback ke asset sesuai role
-                                                      else {
-                                                        switch (role) {
-                                                          case 'Pembina':
-                                                            return AssetImage(
-                                                                  'assets/mockups/pembina.jpg',
-                                                                )
-                                                                as ImageProvider<
-                                                                  Object
-                                                                >;
-                                                          case 'Peserta':
-                                                            return AssetImage(
-                                                                  'assets/mockups/peserta.jpg',
-                                                                )
-                                                                as ImageProvider<
-                                                                  Object
-                                                                >;
-                                                          case 'Pembimbing Kelompok':
-                                                            return AssetImage(
-                                                                  'assets/mockups/pembimbing.jpg',
-                                                                )
-                                                                as ImageProvider<
-                                                                  Object
-                                                                >;
-                                                          case 'Panitia':
-                                                            return AssetImage(
-                                                                  'assets/mockups/panitia.jpg',
-                                                                )
-                                                                as ImageProvider<
-                                                                  Object
-                                                                >;
-                                                          default:
-                                                            return AssetImage(
-                                                                  'assets/mockups/unknown.jpg',
-                                                                )
-                                                                as ImageProvider<
-                                                                  Object
-                                                                >;
-                                                        }
-                                                      }
-                                                    })(),
-                                              ),
+                                                ),
                                     ),
                                     Positioned(
                                       top: 5,
@@ -770,9 +759,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   (context) =>
                                                       ProfileEditScreen(),
                                             ),
-                                          ).then((result) {
+                                          ).then((result) async {
                                             if (result == 'reload') {
-                                              initAll(forceRefresh: true);
+                                              if (!mounted) return;
+                                              setState(() {
+                                                _isLoading_userdata = true;
+                                                _isLoading_avatar = true;
+                                              });
+                                              try {
+                                                await loadUserData();
+                                                await loadAvatarById(forceRefresh: true);
+                                              } catch (e) {
+                                                // handle error jika perlu
+                                              }
+                                              if (!mounted) return;
+                                              setState(() {
+                                                _isLoading_userdata = false;
+                                                _isLoading_avatar = false;
+                                              });
                                             }
                                           });
                                         },
@@ -1029,12 +1033,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                             userId: userId,
                                                           ),
                                                 ),
-                                              ).then((result) {
+                                              ).then((result) async {
                                                 if (result == 'reload') {
-                                                  initAll(forceRefresh: true);
+                                                  if (!mounted) return;
+                                                  setState(() {
+                                                    _isLoading_userdata = true;
+                                                    _isLoading_progresevaluasi =
+                                                        true;
+                                                  });
+                                                  try {
+                                                    await loadUserData();
+                                                    await loadProgresEvaluasiAnggota(
+                                                      forceRefresh: true,
+                                                    );
+                                                  } catch (e) {
+                                                    // handle error jika perlu
+                                                  }
+                                                  if (!mounted) return;
+                                                  setState(() {});
                                                 }
                                               });
-                                              ;
                                             },
                                             valueProgress:
                                                 (totalEvaluasi > 0)
@@ -1078,9 +1096,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                             userId: userId,
                                                           ),
                                                 ),
-                                              ).then((result) {
+                                              ).then((result) async {
                                                 if (result == 'reload') {
-                                                  initAll(forceRefresh: true);
+                                                  if (!mounted) return;
+                                                  setState(() {
+                                                    _isLoading_userdata = true;
+                                                    _isLoading_progreskomitmen =
+                                                        true;
+                                                  });
+                                                  try {
+                                                    await loadUserData();
+                                                    await loadProgresKomitmenAnggota(
+                                                      forceRefresh: true,
+                                                    );
+                                                  } catch (e) {
+                                                    // handle error jika perlu
+                                                  }
+                                                  if (!mounted) return;
+                                                  setState(() {});
+                                                
                                                 }
                                               });
                                             },
