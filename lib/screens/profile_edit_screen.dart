@@ -349,9 +349,31 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                     ),
                                     child: CircleAvatar(
                                       radius: 100,
-                                      backgroundImage: AssetImage(
-                                        'assets/mockups/unknown.jpg',
-                                      ),
+                                      backgroundImage:
+                                          (() {
+                                            switch (role) {
+                                              case 'Pembina':
+                                                return AssetImage(
+                                                  'assets/mockups/pembina.jpg',
+                                                );
+                                              case 'Peserta':
+                                                return AssetImage(
+                                                  'assets/mockups/peserta.jpg',
+                                                );
+                                              case 'Pembimbing Kelompok':
+                                                return AssetImage(
+                                                  'assets/mockups/pembimbing.jpg',
+                                                );
+                                              case 'Panitia':
+                                                return AssetImage(
+                                                  'assets/mockups/panitia.jpg',
+                                                );
+                                              default:
+                                                return AssetImage(
+                                                  'assets/mockups/unknown.jpg',
+                                                );
+                                            }
+                                          })(),
                                       backgroundColor: Colors.grey[200],
                                     ),
                                   ),

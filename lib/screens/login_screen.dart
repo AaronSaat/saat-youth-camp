@@ -25,6 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isLoading = false;
   String errorMessage = '';
   String _buildVersion = '';
+  String _buildNumber = '';
 
   @override
   void initState() {
@@ -36,6 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final info = await PackageInfo.fromPlatform();
     setState(() {
       _buildVersion = info.version;
+      _buildNumber = info.buildNumber;
     });
   }
 
@@ -376,7 +378,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            'Versi Build $_buildVersion',
+                            'Versi Build $_buildVersion + $_buildNumber',
                             style: const TextStyle(
                               color: AppColors.primary,
                               fontSize: 13,
