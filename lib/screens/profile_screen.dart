@@ -690,62 +690,70 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           0.3,
                                       child:
                                           _isLoading_avatar
-                                            ? Container(
-                                              padding: EdgeInsets.all(4),
-                                              child: Container(
-                                                width: 100,
-                                                height: 100,
-                                                decoration: BoxDecoration(
-                                                color: Colors.grey[300],
-                                                shape: BoxShape.circle,
+                                              ? Container(
+                                                padding: EdgeInsets.all(4),
+                                                child: Container(
+                                                  width: 100,
+                                                  height: 100,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.grey[300],
+                                                    shape: BoxShape.circle,
+                                                  ),
                                                 ),
-                                              ),
                                               )
-                                            : (avatar.isNotEmpty && File(avatar).existsSync())
+                                              : (avatar.isNotEmpty &&
+                                                  File(avatar).existsSync())
                                               ? Container(
                                                 padding: EdgeInsets.all(4),
                                                 decoration: BoxDecoration(
                                                   shape: BoxShape.circle,
-                                                  border: Border.all(
-                                                  color: AppColors.primary,
-                                                  width: 2,
-                                                  ),
                                                 ),
                                                 child: CircleAvatar(
                                                   key: ValueKey(avatar),
                                                   radius: 50,
-                                                  backgroundImage: FileImage(File(avatar)),
-                                                  backgroundColor: Colors.grey[200],
+                                                  backgroundImage: FileImage(
+                                                    File(avatar),
+                                                  ),
+                                                  backgroundColor:
+                                                      Colors.grey[200],
                                                 ),
-                                                )
+                                              )
                                               : Container(
                                                 padding: EdgeInsets.all(4),
                                                 decoration: BoxDecoration(
                                                   shape: BoxShape.circle,
-                                                  border: Border.all(
-                                                  color: AppColors.primary,
-                                                  width: 2,
-                                                  ),
                                                 ),
                                                 child: CircleAvatar(
                                                   radius: 50,
-                                                  backgroundImage: (() {
-                                                  switch (role) {
-                                                    case 'Pembina':
-                                                    return AssetImage('assets/mockups/pembina.jpg');
-                                                    case 'Peserta':
-                                                    return AssetImage('assets/mockups/peserta.jpg');
-                                                    case 'Pembimbing Kelompok':
-                                                    return AssetImage('assets/mockups/pembimbing.jpg');
-                                                    case 'Panitia':
-                                                    return AssetImage('assets/mockups/panitia.jpg');
-                                                    default:
-                                                    return AssetImage('assets/mockups/unknown.jpg');
-                                                  }
-                                                  })(),
-                                                  backgroundColor: Colors.grey[200],
+                                                  backgroundImage:
+                                                      (() {
+                                                        switch (role) {
+                                                          case 'Pembina':
+                                                            return AssetImage(
+                                                              'assets/mockups/pembina.jpg',
+                                                            );
+                                                          case 'Peserta':
+                                                            return AssetImage(
+                                                              'assets/mockups/peserta.jpg',
+                                                            );
+                                                          case 'Pembimbing Kelompok':
+                                                            return AssetImage(
+                                                              'assets/mockups/pembimbing.jpg',
+                                                            );
+                                                          case 'Panitia':
+                                                            return AssetImage(
+                                                              'assets/mockups/panitia.jpg',
+                                                            );
+                                                          default:
+                                                            return AssetImage(
+                                                              'assets/mockups/unknown.jpg',
+                                                            );
+                                                        }
+                                                      })(),
+                                                  backgroundColor:
+                                                      Colors.grey[200],
                                                 ),
-                                                ),
+                                              ),
                                     ),
                                     Positioned(
                                       top: 5,
@@ -768,7 +776,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               });
                                               try {
                                                 await loadUserData();
-                                                await loadAvatarById(forceRefresh: true);
+                                                await loadAvatarById(
+                                                  forceRefresh: true,
+                                                );
                                               } catch (e) {
                                                 // handle error jika perlu
                                               }
@@ -1114,7 +1124,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   }
                                                   if (!mounted) return;
                                                   setState(() {});
-                                                
                                                 }
                                               });
                                             },

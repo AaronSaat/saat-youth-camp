@@ -254,7 +254,7 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                 text: "Kelompok pendaftaran tidak ditemukan",
                                 textColor: AppColors.brown1,
                                 imagePath: 'assets/images/data_not_found.png',
-                               onBack: () => _initAll(forceRefresh: true),
+                                onBack: () => _initAll(forceRefresh: true),
                                 backText: 'Reload Anggota',
                               ),
                             )
@@ -265,7 +265,7 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                     "Gagal memuat anggota group pendaftaran :(",
                                 textColor: AppColors.brown1,
                                 imagePath: 'assets/images/data_not_found.png',
-                                
+
                                 onBack: () => _initAll(forceRefresh: true),
                                 backText: 'Reload Anggota',
                               ),
@@ -392,33 +392,110 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                                                       .center,
                                                               children: [
                                                                 // Avatar
-                                                            CircleAvatar(
-                                                              radius: 44,
-                                                              backgroundImage:
-                                                                  user['avatar_url'] !=
-                                                                          null
-                                                                      ? NetworkImage(
-                                                                        '${GlobalVariables.serverUrl}${user['avatar_url']}',
-                                                                      )
-                                                                      : AssetImage(() {
-                                                                            if (user['role'].toString().toLowerCase().contains(
-                                                                              'pembina',
-                                                                            )) {
-                                                                              return 'assets/mockups/pembina.jpg';
-                                                                            } else if (user['role'].toString().toLowerCase().contains(
-                                                                              'anggota',
-                                                                            )) {
-                                                                              return 'assets/mockups/peserta.jpg';
-                                                                            } else if (user['role'].toString().toLowerCase().contains(
-                                                                              'pembimbing',
-                                                                            )) {
-                                                                              return 'assets/mockups/pembimbing.jpg';
-                                                                            } else {
-                                                                              return 'assets/mockups/unknown.jpg';
-                                                                            }
-                                                                          }())
-                                                                          as ImageProvider,
-                                                            ),
+                                                                _isLoading
+                                                                    ? Container(
+                                                                      padding:
+                                                                          EdgeInsets.all(
+                                                                            4,
+                                                                          ),
+                                                                      child: Container(
+                                                                        width:
+                                                                            100,
+                                                                        height:
+                                                                            100,
+                                                                        decoration: BoxDecoration(
+                                                                          color:
+                                                                              Colors.grey[300],
+                                                                          shape:
+                                                                              BoxShape.circle,
+                                                                        ),
+                                                                      ),
+                                                                    )
+                                                                    : (user['avatar_local_path'] !=
+                                                                            null &&
+                                                                        user['avatar_local_path']
+                                                                            .toString()
+                                                                            .isNotEmpty &&
+                                                                        File(
+                                                                          user['avatar_local_path'],
+                                                                        ).existsSync())
+                                                                    ? Container(
+                                                                      padding:
+                                                                          EdgeInsets.all(
+                                                                            4,
+                                                                          ),
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                            shape:
+                                                                                BoxShape.circle,
+                                                                          ),
+                                                                      child: CircleAvatar(
+                                                                        key: ValueKey(
+                                                                          user['avatar_local_path'],
+                                                                        ),
+                                                                        radius:
+                                                                            50,
+                                                                        backgroundImage: FileImage(
+                                                                          File(
+                                                                            user['avatar_local_path'],
+                                                                          ),
+                                                                        ),
+                                                                        backgroundColor:
+                                                                            Colors.grey[200],
+                                                                      ),
+                                                                    )
+                                                                    : Container(
+                                                                      padding:
+                                                                          EdgeInsets.all(
+                                                                            4,
+                                                                          ),
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                            shape:
+                                                                                BoxShape.circle,
+                                                                          ),
+                                                                      child: CircleAvatar(
+                                                                        radius:
+                                                                            50,
+                                                                        backgroundImage:
+                                                                            (() {
+                                                                              final r =
+                                                                                  user['role']?.toString().toLowerCase() ??
+                                                                                  '';
+                                                                              if (r.contains(
+                                                                                'pembina',
+                                                                              )) {
+                                                                                return AssetImage(
+                                                                                  'assets/mockups/pembina.jpg',
+                                                                                );
+                                                                              } else if (r.contains(
+                                                                                'anggota',
+                                                                              )) {
+                                                                                return AssetImage(
+                                                                                  'assets/mockups/peserta.jpg',
+                                                                                );
+                                                                              } else if (r.contains(
+                                                                                'pembimbing',
+                                                                              )) {
+                                                                                return AssetImage(
+                                                                                  'assets/mockups/pembimbing.jpg',
+                                                                                );
+                                                                              } else if (r.contains(
+                                                                                'panitia',
+                                                                              )) {
+                                                                                return AssetImage(
+                                                                                  'assets/mockups/panitia.jpg',
+                                                                                );
+                                                                              } else {
+                                                                                return AssetImage(
+                                                                                  'assets/mockups/unknown.jpg',
+                                                                                );
+                                                                              }
+                                                                            })(),
+                                                                        backgroundColor:
+                                                                            Colors.grey[200],
+                                                                      ),
+                                                                    ),
                                                                 const SizedBox(
                                                                   width: 12,
                                                                 ),

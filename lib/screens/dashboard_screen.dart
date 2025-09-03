@@ -1289,7 +1289,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             role.toLowerCase().contains('peserta') == true)
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 24),
-                            child: Column(  
+                            child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 InkWell(
@@ -3872,7 +3872,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                   left: 8,
                                                   right: 128,
                                                   top: 8,
-                                                  bottom: 8,
                                                 ),
                                                 child: Row(
                                                   children: [
@@ -3918,7 +3917,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                               color:
                                                                   AppColors
                                                                       .primary,
-                                                              fontSize: 14,
+                                                              fontSize: 12,
                                                             ),
                                                             maxLines: 2,
                                                             overflow:

@@ -1,6 +1,7 @@
 import 'dart:convert' show jsonEncode, utf8;
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_cropper/image_cropper.dart'
     show
         AndroidUiSettings,
@@ -118,7 +119,13 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         ],
       );
       if (croppedFile != null) {
-        final file = File(croppedFile.path);
+        File file = File(croppedFile.path);
+        // Compress image after crop
+        print('Original size: ${file.lengthSync()}');
+        final compressedFile = await compressImage(file);
+        if (compressedFile != null) {
+          file = compressedFile;
+        }
         final bytes = await file.length();
         print('File size in bytes: $bytes');
         const maxSizeInBytes = 4 * 1024 * 1024; // 4MB
@@ -137,7 +144,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           _imageFile = file;
         });
 
-        // Langsung upload ke API setelah crop dan validasi
+        // Upload ke API setelah crop, compress, dan validasi
         try {
           await ApiService.postAvatar(
             context,
@@ -151,12 +158,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             isSuccess: true,
           );
           //refresh page
-          await _initAll();
-          // Force rebuild by navigating to this screen again
-          // Navigator.pushReplacement(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => ProfileEditScreen()),
-          // );
+          await loadUserData();
+          await loadAvatarById(forceRefresh: true);
         } catch (e) {
           if (!mounted) return;
           showCustomSnackBar(context, 'Upload gambar gagal', isSuccess: false);
@@ -302,6 +305,30 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     );
     final encrypted = encrypter.encrypt(secret, iv: iv);
     return encrypted.base64;
+  }
+
+  // Compress file after crop and before upload
+  Future<File?> compressImage(File file) async {
+    try {
+      final dir = await getTemporaryDirectory();
+      final targetPath = dir.path + '/avatar_compressed.jpg';
+      final result = await FlutterImageCompress.compressAndGetFile(
+        file.absolute.path,
+        targetPath,
+        quality: 10,
+        format: CompressFormat.jpeg,
+        // rotate: 0, // remove rotate for profile
+      );
+      if (result != null) {
+        print('Original size: ${file.lengthSync()}');
+        print('Compressed size: ${File(result.path).lengthSync()}');
+        return File(result.path);
+      }
+      return null;
+    } catch (e) {
+      print('Compress error: $e');
+      return null;
+    }
   }
 
   @override

@@ -155,8 +155,9 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> getCheckVersion() async {
     setState(() => _isCheckingVersion = true); // Mulai loading versi
     final info = await PackageInfo.fromPlatform();
-    final localVersion = info.version;
-    // final localVersion = "${info.version}+${info.buildNumber}";
+    // final localVersion = info.version;
+    final localVersion = "${info.version}+${info.buildNumber}";
+    // final localVersion = "1.0.0+12";
 
     final response = await ApiService.getCheckVersion(context);
     final latestVersion = response['latest_version'] ?? localVersion;
