@@ -415,26 +415,18 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
                                   } catch (e) {
                                     // ignore error, keep evaluate as false
                                   }
-                                } else if (_dataUser['id'] == widget.userId &&
+                                }
+
+                                if (_dataUser['id'] == widget.userId &&
                                     acara['hari'] == 99) {
-                                  final batasWaktu = DateTime(
-                                    2026,
-                                    1,
-                                    02,
-                                    12,
-                                    0,
-                                    0,
-                                  );
-                                  if (_now.isAfter(batasWaktu)) {
-                                    setState(() {
-                                      if (!mounted) return;
-                                      showCustomSnackBar(
-                                        context,
-                                        'Evaluasi keseluruhan dapat dilakukan setelah 02 Januari 2026 pukul 12.00.',
-                                        isSuccess: false,
-                                      );
-                                    });
-                                  }
+                                  setState(() {
+                                    if (!mounted) return;
+                                    showCustomSnackBar(
+                                      context,
+                                      'Evaluasi keseluruhan dapat dilakukan setelah $time.',
+                                      isSuccess: false,
+                                    );
+                                  });
                                 }
 
                                 if (tanggal != null && waktu != null) {
@@ -443,7 +435,7 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
                                       if (!mounted) return;
                                       showCustomSnackBar(
                                         context,
-                                        'Evaluasi ${acara['acara_nama']} dapat dilakukan pada $time (1 jam setelah acara).',
+                                        'Evaluasi ${acara['acara_nama']} dapat dilakukan pada 1 jam setelah acara.\nWaktu acara: $time WIB',
                                         isSuccess: false,
                                       );
                                     });

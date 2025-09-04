@@ -293,7 +293,8 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Hari ke-${_dataAcara?[0]["hari"] ?? '-'}, Jam ${_dataAcara?[0]["waktu"] ?? '-'} - ${_dataAcara?[0]["waktu_end"] ?? '-'}',
+                                'Hari ke-${_dataAcara?[0]["hari"] ?? '-'}, Jam ${_dataAcara?[0]["waktu"] ?? '-'}'
+                                '${_dataAcara?[0]["waktu_end"] != null && (_dataAcara?[0]["waktu_end"] as String).isNotEmpty ? ' - ${_dataAcara?[0]["waktu_end"]}' : ''}',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.normal,
@@ -421,7 +422,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                                         .inMinutes
                                                     : null;
                                             final canEvaluate =
-                                                diff != null && diff > 60;
+                                                diff != null && diff >= 60;
                                             print(
                                               'Acara DateTime: $acaraDateTime, Now: $_now, Diff: $diff minutes, Can Evaluate: $canEvaluate',
                                             );
@@ -528,7 +529,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                                           : () {
                                                             showCustomSnackBar(
                                                               context,
-                                                              'Evaluasi dapat diakses 1 jam setelah acara dimulai. $tanggalStr $waktuStr',
+                                                              'Evaluasi dapat dilakukan 1 jam setelah acara.\nWaktu acara: $tanggalStr $waktuStr WIB',
                                                             );
                                                           },
                                                   child: Text(

@@ -51,9 +51,9 @@ class CustomCard extends StatelessWidget {
                     child: ListTile(
                       title: Text(
                         text,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.black,
-                          fontSize: 16,
+                          fontSize: text.length > 50 ? 14 : 18,
                         ),
                       ),
                     ),

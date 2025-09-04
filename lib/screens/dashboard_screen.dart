@@ -81,7 +81,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'id': 1,
       'acara_nama': 'Welcome to STT SAAT - SYC 2025 & Registration',
       'tanggal': DateTime(2025, 12, 30),
-      'waktu': TimeOfDay(hour: 6, minute: 0),
+      'waktu': TimeOfDay(hour: 7, minute: 0),
       'tempat': 'Plaza Auditorium',
       'gambar': 'assets/mockups/registration.jpg',
     },
@@ -246,7 +246,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/eat.jpg',
     },
     {
-      'id': 22,
+      'id': 21,
       'acara_nama': 'Morning Devotion',
       'tanggal': DateTime(2026, 01, 01),
       'waktu': TimeOfDay(hour: 9, minute: 0),
@@ -254,7 +254,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/devotion.jpg',
     },
     {
-      'id': 23,
+      'id': 22,
       'acara_nama': 'Group Acitivity "Living Redeemed Life"',
       'tanggal': DateTime(2026, 01, 01),
       'waktu': TimeOfDay(hour: 10, minute: 0),
@@ -262,7 +262,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/activity.jpg',
     },
     {
-      'id': 24,
+      'id': 23,
       'acara_nama': 'Lunch',
       'tanggal': DateTime(2026, 01, 01),
       'waktu': TimeOfDay(hour: 12, minute: 30),
@@ -270,7 +270,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/eat.jpg',
     },
     {
-      'id': 25,
+      'id': 24,
       'acara_nama': 'BKC - Final',
       'tanggal': DateTime(2026, 01, 01),
       'waktu': TimeOfDay(hour: 13, minute: 0),
@@ -278,7 +278,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/bkc.jpg',
     },
     {
-      'id': 26,
+      'id': 25,
       'acara_nama': "Self Preparation",
       "tanggal": DateTime(2026, 01, 01),
       "waktu": TimeOfDay(hour: 15, minute: 0),
@@ -286,7 +286,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       "gambar": "assets/mockups/preparation.jpg",
     },
     {
-      'id': 27,
+      'id': 26,
       'acara_nama': 'SYC Talks: The Work of Christ',
       'tanggal': DateTime(2026, 01, 01),
       'waktu': TimeOfDay(hour: 16, minute: 30),
@@ -294,7 +294,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/talks.jpg',
     },
     {
-      'id': 28,
+      'id': 27,
       'acara_nama': 'Dinner',
       'tanggal': DateTime(2026, 01, 01),
       'waktu': TimeOfDay(hour: 18, minute: 30),
@@ -302,7 +302,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/eat.jpg',
     },
     {
-      'id': 29,
+      'id': 28,
       'acara_nama': "KKR 3 - The Redeemed Z's",
       'tanggal': DateTime(2026, 01, 01),
       'waktu': TimeOfDay(hour: 19, minute: 30),
@@ -310,7 +310,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/kkr3.jpg',
     },
     {
-      'id': 30,
+      'id': 29,
       'acara_nama': "Commited Among Us",
       "tanggal": DateTime(2026, 01, 01),
       "waktu": TimeOfDay(hour: 21, minute: 30),
@@ -318,7 +318,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       "gambar": "assets/mockups/amongus.jpg",
     },
     {
-      'id': 31,
+      'id': 30,
       'acara_nama': "Rest",
       "tanggal": DateTime(2026, 01, 01),
       "waktu": TimeOfDay(hour: 22, minute: 30),
@@ -330,7 +330,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   //static data
   final List<Map<String, dynamic>> acaraStatisHari4 = [
     {
-      'id': 32,
+      'id': 31,
       'acara_nama': 'Self Preparation',
       'tanggal': DateTime(2026, 01, 02),
       'waktu': TimeOfDay(hour: 6, minute: 0),
@@ -338,7 +338,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/preparation.jpg',
     },
     {
-      'id': 33,
+      'id': 32,
       'acara_nama': 'Breakfast',
       'tanggal': DateTime(2026, 01, 02),
       'waktu': TimeOfDay(hour: 7, minute: 0),
@@ -346,7 +346,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/eat.jpg',
     },
     {
-      'id': 34,
+      'id': 33,
       'acara_nama': 'Morning Devotion',
       'tanggal': DateTime(2026, 01, 02),
       'waktu': TimeOfDay(hour: 8, minute: 0),
@@ -354,7 +354,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/devotion.jpg',
     },
     {
-      'id': 35,
+      'id': 34,
       'acara_nama': "Closing - Redeemed: The Story I Love to Share",
       'tanggal': DateTime(2026, 01, 02),
       'waktu': TimeOfDay(hour: 9, minute: 0),
@@ -362,7 +362,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/closing.jpg',
     },
     {
-      'id': 36,
+      'id': 35,
       'acara_nama': "Lunch",
       "tanggal": DateTime(2026, 01, 02),
       "waktu": TimeOfDay(hour: 12, minute: 30),
@@ -370,7 +370,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       "gambar": "assets/mockups/eat.jpg",
     },
     {
-      'id': 37,
+      'id': 36,
       'acara_nama':
           "Home, Transformed & Recharged to Worship & Witness For The Glory of God -> See You @ SYC 2026",
       "tanggal": DateTime(2026, 01, 02),
@@ -1425,7 +1425,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             !role.toLowerCase().contains('panitia') &&
                             !role.toLowerCase().contains('pembimbing') &&
                             !role.toLowerCase().contains('pembina') &&
-                            (_timeOfDay.hour >= 20 && _timeOfDay.hour < 24))
+                            (_timeOfDay.hour >= 15 && _timeOfDay.hour < 24))
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 24),
                             child: Column(

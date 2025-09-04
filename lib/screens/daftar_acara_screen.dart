@@ -667,7 +667,13 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                                                   ),
                                                   const SizedBox(width: 4),
                                                   Text(
-                                                    '${acara['waktu'] ?? '-'} - ${acara['waktu_end'] ?? '-'}',
+                                                    acara['waktu_end'] ==
+                                                                null ||
+                                                            acara['waktu_end']
+                                                                .toString()
+                                                                .isEmpty
+                                                        ? '${acara['waktu'] ?? '-'}'
+                                                        : '${acara['waktu'] ?? '-'} - ${acara['waktu_end']}',
                                                     style: const TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 12,
