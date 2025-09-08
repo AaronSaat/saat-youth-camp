@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
 import 'package:syc/screens/bible_share_verse_screen.dart';
+import 'package:syc/screens/catatan_harian_screen.dart';
 import 'package:syc/utils/app_colors.dart';
+import 'package:syc/widgets/custom_card.dart';
 
 import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
@@ -46,6 +48,9 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
   String? _selectedBookName;
   String? _selectedChapterNum;
 
+  int? _countUserDoneRead;
+  int? _totalUser;
+
   @override
   void initState() {
     super.initState();
@@ -59,6 +64,7 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
       await loadUserData();
       await loadBrm(forceRefresh: forceRefresh);
       await loadReportBrmReportByPesertaByDay();
+      await loadCount(forceRefresh: forceRefresh);
     } catch (e) {
       // handle error jika perlu
     }
@@ -117,7 +123,6 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
           } else {
             _dataBible = null;
           }
-          _isLoading = false;
           print('[PREF_API] BRM hari ini (from shared pref): $_dataBrm');
         });
         return;
@@ -144,12 +149,11 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
         } else {
           _dataBible = null;
         }
-        _isLoading = false;
         print('[PREF_API] BRM hari ini (from API): $_dataBrm');
       });
     } catch (e) {
       if (!mounted) return;
-      setState(() => _isLoading = false);
+      setState(() {});
     }
   }
 
@@ -176,6 +180,69 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
         }
       });
     } catch (e) {}
+  }
+
+  Future<void> loadCount({bool forceRefresh = false}) async {
+    if (!mounted) return;
+    setState(() {
+      _countUserDoneRead = null;
+      _totalUser = null;
+    });
+    final prefs = await SharedPreferences.getInstance();
+    final dateKey = widget.date.toIso8601String().substring(0, 10);
+    final countKey = 'brm_count_${dateKey}';
+    final totalUserKey = 'brm_total_user';
+
+    if (!forceRefresh) {
+      final cachedCount = prefs.getString(countKey);
+      final cachedTotalUser = prefs.getString(totalUserKey);
+      print(
+        '[loadCount] Mengambil dari cache: countKey=$countKey, totalUserKey=$totalUserKey',
+      );
+      if (cachedCount != null && cachedTotalUser != null) {
+        final cachedData = jsonDecode(cachedCount);
+        final cachedTotal = int.tryParse(cachedTotalUser);
+        setState(() {
+          _countUserDoneRead =
+              (int.tryParse(cachedData['count_peserta']?.toString() ?? '0') ??
+                  0) +
+              (int.tryParse(cachedData['count_pembina']?.toString() ?? '0') ??
+                  0);
+          _totalUser = cachedTotal;
+        });
+        print(
+          '[loadCount] Data dari cache: countUserDoneRead=$_countUserDoneRead, totalUser=$_totalUser',
+        );
+        return;
+      }
+    }
+    try {
+      print('[loadCount] Memuat data dari API...');
+      final response = await ApiService.getCountUser(context);
+      final dataBacaan = await ApiService.getCountBrmReportByDay(
+        context,
+        dateKey,
+      );
+      // Simpan ke shared preferences
+      await prefs.setString(countKey, jsonEncode(dataBacaan));
+      await prefs.setString(
+        totalUserKey,
+        (response['count']?.toString() ?? '0'),
+      );
+      if (!mounted) return;
+      setState(() {
+        _countUserDoneRead =
+            (int.tryParse(dataBacaan['count_peserta']?.toString() ?? '0') ??
+                0) +
+            (int.tryParse(dataBacaan['count_pembina']?.toString() ?? '0') ?? 0);
+        _totalUser = int.tryParse(response['count']?.toString() ?? '0');
+        print(
+          '[loadCount] Data dari API: countUserDoneRead=$_countUserDoneRead, totalUser=$_totalUser',
+        );
+      });
+    } catch (e) {
+      print('[loadCount] Error: $e');
+    }
   }
 
   List<dynamic> parseBooks(Map<String, dynamic>? dataBible) {
@@ -722,70 +789,108 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                                 ),
                                 child: Align(
                                   alignment: Alignment.centerLeft,
-                                  child: SizedBox(
-                                    width: 120,
-                                    height: 55,
-                                    child: Card(
-                                      color: AppColors.secondary,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      SizedBox(
+                                        width: 120,
+                                        height: 55,
+                                        child: Card(
+                                          color: AppColors.secondary,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8.0,
+                                              vertical: 2.0,
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                IconButton(
+                                                  icon: Icon(
+                                                    Icons.remove,
+                                                    color: Colors.white,
+                                                    size: 24,
+                                                  ),
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      if (fontSize_judul > 18) {
+                                                        fontSize_judul -= 2;
+                                                        fontSize_subjudul -= 1;
+                                                        fontSize_ayat -= 1;
+                                                        fontSize_isi_ayat -= 1;
+                                                      } else {
+                                                        showCustomSnackBar(
+                                                          context,
+                                                          "Font size terlalu kecil",
+                                                        );
+                                                      }
+                                                    });
+                                                  },
+                                                ),
+                                                IconButton(
+                                                  icon: Icon(
+                                                    Icons.add,
+                                                    color: Colors.white,
+                                                    size: 24,
+                                                  ),
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      if (fontSize_judul < 42) {
+                                                        fontSize_judul += 2;
+                                                        fontSize_subjudul += 1;
+                                                        fontSize_ayat += 1;
+                                                        fontSize_isi_ayat += 1;
+                                                      } else {
+                                                        showCustomSnackBar(
+                                                          context,
+                                                          "Font size mencapai batas maksimal",
+                                                        );
+                                                      }
+                                                    });
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                      child: Padding(
+                                      const SizedBox(width: 12),
+                                      Container(
                                         padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0,
-                                          vertical: 2.0,
+                                          horizontal: 12,
+                                          vertical: 8,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.secondary,
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                         ),
                                         child: Row(
-                                          mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            IconButton(
-                                              icon: Icon(
-                                                Icons.remove,
-                                                color: Colors.white,
-                                                size: 24,
-                                              ),
-                                              onPressed: () {
-                                                setState(() {
-                                                  if (fontSize_judul > 18) {
-                                                    fontSize_judul -= 2;
-                                                    fontSize_subjudul -= 1;
-                                                    fontSize_ayat -= 1;
-                                                    fontSize_isi_ayat -= 1;
-                                                  } else {
-                                                    showCustomSnackBar(
-                                                      context,
-                                                      "Font size terlalu kecil",
-                                                    );
-                                                  }
-                                                });
-                                              },
+                                            Icon(
+                                              Icons.people,
+                                              color: Colors.white,
+                                              size: 18,
                                             ),
-                                            IconButton(
-                                              icon: Icon(
-                                                Icons.add,
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              '${_countUserDoneRead ?? '-'}${_totalUser != null ? '/$_totalUser' : ''}',
+                                              style: const TextStyle(
                                                 color: Colors.white,
-                                                size: 24,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
                                               ),
-                                              onPressed: () {
-                                                setState(() {
-                                                  if (fontSize_judul < 42) {
-                                                    fontSize_judul += 2;
-                                                    fontSize_subjudul += 1;
-                                                    fontSize_ayat += 1;
-                                                    fontSize_isi_ayat += 1;
-                                                  } else {
-                                                    showCustomSnackBar(
-                                                      context,
-                                                      "Font size mencapai batas maksimal",
-                                                    );
-                                                  }
-                                                });
-                                              },
                                             ),
                                           ],
                                         ),
                                       ),
-                                    ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -793,7 +898,6 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                                 padding: const EdgeInsets.only(
                                   right: 24,
                                   left: 24,
-                                  bottom: 24,
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -805,97 +909,113 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                                               ? MediaQuery.of(
                                                     context,
                                                   ).size.height *
-                                                  0.7
+                                                  0.6
                                               : (countRead > 0 && !isEdit)
                                               ? MediaQuery.of(
                                                     context,
                                                   ).size.height *
-                                                  0.6
+                                                  0.45
                                               : MediaQuery.of(
                                                     context,
                                                   ).size.height *
-                                                  0.39,
+                                                  0.24,
                                       child: buildBibleContent(),
                                     ),
                                     const SizedBox(height: 16),
                                     if (countRead > 0 && !isEdit)
-                                      Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                        ),
-                                        color: Colors.white,
-                                        child: Stack(
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.all(16),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  const Text(
-                                                    'Bagian berkat yang kamu dapatkan dari bacaan hari ini:',
-                                                    style: TextStyle(
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      fontStyle:
-                                                          FontStyle.italic,
-                                                      color: AppColors.grey4,
-                                                    ),
-                                                    textAlign: TextAlign.left,
-                                                  ),
-                                                  const SizedBox(height: 4),
-                                                  Text(
-                                                    notes.isNotEmpty
-                                                        ? notes
-                                                        : '',
-                                                    style: const TextStyle(
-                                                      color: Colors.black,
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                    ),
-                                                    textAlign: TextAlign.left,
-                                                  ),
-                                                ],
-                                              ),
+                                      Column(
+                                        children: [
+                                          Card(
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
                                             ),
-                                            Positioned(
-                                              bottom: 8,
-                                              right: 8,
-                                              child: Material(
-                                                color: Colors.transparent,
-                                                child: InkWell(
-                                                  borderRadius:
-                                                      BorderRadius.circular(24),
-                                                  onTap: () {
-                                                    setState(() {
-                                                      isEdit = true;
-                                                      _noteController.text =
-                                                          notes;
-                                                      initAll(); // reload data
-                                                    });
-                                                  },
-                                                  child: Container(
-                                                    width: 40,
-                                                    height: 40,
-                                                    decoration: BoxDecoration(
-                                                      color: AppColors.primary,
-                                                      shape: BoxShape.circle,
-                                                    ),
-                                                    child: const Icon(
-                                                      Icons.edit,
-                                                      color: Colors.white,
-                                                      size: 22,
+                                            color: Colors.white,
+                                            child: Stack(
+                                              children: [
+                                                Padding(
+                                                  padding: const EdgeInsets.all(
+                                                    16,
+                                                  ),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      const Text(
+                                                        'Bagian berkat yang kamu dapatkan dari bacaan hari ini:',
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          fontStyle:
+                                                              FontStyle.italic,
+                                                          color:
+                                                              AppColors.grey4,
+                                                        ),
+                                                        textAlign:
+                                                            TextAlign.left,
+                                                      ),
+                                                      const SizedBox(height: 4),
+                                                      Text(
+                                                        notes.isNotEmpty
+                                                            ? notes
+                                                            : '',
+                                                        style: const TextStyle(
+                                                          color: Colors.black,
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.w400,
+                                                        ),
+                                                        textAlign:
+                                                            TextAlign.left,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Positioned(
+                                                  bottom: 8,
+                                                  right: 8,
+                                                  child: Material(
+                                                    color: Colors.transparent,
+                                                    child: InkWell(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            24,
+                                                          ),
+                                                      onTap: () {
+                                                        setState(() {
+                                                          isEdit = true;
+                                                          _noteController.text =
+                                                              notes;
+                                                          initAll(); // reload data
+                                                        });
+                                                      },
+                                                      child: Container(
+                                                        width: 40,
+                                                        height: 40,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                              color:
+                                                                  AppColors
+                                                                      .primary,
+                                                              shape:
+                                                                  BoxShape
+                                                                      .circle,
+                                                            ),
+                                                        child: const Icon(
+                                                          Icons.edit,
+                                                          color: Colors.white,
+                                                          size: 22,
+                                                        ),
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
-                                              ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
                                     if (countRead > 0 && isEdit)
                                       Column(
@@ -977,6 +1097,33 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
                                         ],
                                       ),
                                   ],
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: CustomCard(
+                                  text: 'Lihat catatan dari orang lain',
+                                  icon: Icons.sticky_note_2_rounded,
+                                  iconBackgroundColor: AppColors.brown1,
+                                  showCheckIcon: false,
+                                  onTap: () {
+                                    // if (day <= _hariKe) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => CatatanHarianScreen(
+                                              role: role,
+                                              id: widget.userId,
+                                              initialDate: DateTime(
+                                                DateTime.now().year,
+                                                DateTime.now().month,
+                                                widget.date.day,
+                                              ),
+                                            ),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
                             ],

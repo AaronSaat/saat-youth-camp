@@ -1,6 +1,7 @@
 import 'dart:convert'; // Tambahkan jika belum ada
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemNavigator;
+import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
 import 'package:shimmer/shimmer.dart';
@@ -361,7 +362,7 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
                                                           Row(
                                                             mainAxisAlignment:
                                                                 MainAxisAlignment
-                                                                    .center,
+                                                                    .start,
                                                             children: [
                                                               // Avatar
                                                               _isLoading
@@ -431,44 +432,20 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
                                                                     child: CircleAvatar(
                                                                       radius:
                                                                           50,
-                                                                      backgroundImage:
-                                                                          (() {
-                                                                            final r =
-                                                                                user['role']?.toString().toLowerCase() ??
-                                                                                '';
-                                                                            if (r.contains(
-                                                                              'pembina',
-                                                                            )) {
-                                                                              return AssetImage(
-                                                                                'assets/mockups/pembina.jpg',
-                                                                              );
-                                                                            } else if (r.contains(
-                                                                              'anggota',
-                                                                            )) {
-                                                                              return AssetImage(
-                                                                                'assets/mockups/peserta.jpg',
-                                                                              );
-                                                                            } else if (r.contains(
-                                                                              'pembimbing',
-                                                                            )) {
-                                                                              return AssetImage(
-                                                                                'assets/mockups/pembimbing.jpg',
-                                                                              );
-                                                                            } else if (r.contains(
-                                                                              'panitia',
-                                                                            )) {
-                                                                              return AssetImage(
-                                                                                'assets/mockups/panitia.jpg',
-                                                                              );
-                                                                            } else {
-                                                                              return AssetImage(
-                                                                                'assets/mockups/unknown.jpg',
-                                                                              );
-                                                                            }
-                                                                          })(),
                                                                       backgroundColor:
                                                                           Colors
                                                                               .grey[200],
+                                                                      child: ClipOval(
+                                                                        child: SvgPicture.asset(
+                                                                          'assets/icons/profile.svg',
+                                                                          width:
+                                                                              90,
+                                                                          height:
+                                                                              90,
+                                                                          fit:
+                                                                              BoxFit.cover,
+                                                                        ),
+                                                                      ),
                                                                     ),
                                                                   ),
                                                               const SizedBox(
@@ -491,12 +468,13 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
                                                                             ? 18
                                                                             : 24,
                                                                     color:
-                                                                        AppColors
-                                                                            .secondary,
+                                                                        Colors
+                                                                            .white,
                                                                   ),
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .center,
+                                                                  maxLines: 2,
+                                                                  // textAlign:
+                                                                  //     TextAlign
+                                                                  //         .center,
                                                                 ),
                                                               ),
                                                             ],
@@ -534,18 +512,19 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
                                                                         Flexible(
                                                                           child: Text(
                                                                             '${user['nama_kelompok']}',
-                                                                            style: const TextStyle(
+                                                                            style: TextStyle(
                                                                               fontSize:
-                                                                                  14,
+                                                                                  (user['nama_kelompok'] !=
+                                                                                              null &&
+                                                                                          user['nama_kelompok'].toString().length >
+                                                                                              40)
+                                                                                      ? 12
+                                                                                      : 14,
                                                                               color:
                                                                                   Colors.white,
                                                                             ),
                                                                             textAlign:
                                                                                 TextAlign.center,
-                                                                            maxLines:
-                                                                                2,
-                                                                            overflow:
-                                                                                TextOverflow.ellipsis,
                                                                           ),
                                                                         ),
                                                                       ],

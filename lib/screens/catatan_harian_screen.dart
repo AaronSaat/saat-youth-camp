@@ -84,9 +84,7 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
       _hasMore = true;
     });
 
-    if (widget.role.toLowerCase().contains('panitia')) {
-      await loadCountUser();
-    }
+    await loadCountUser();
     try {
       print(
         "Fetching data for date: ${_selectedDate.toIso8601String().substring(0, 10)}",
@@ -99,24 +97,22 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
         _pageSize,
       );
 
-      if (widget.role.toLowerCase().contains('panitia')) {
-        final dataBacaan = await ApiService.getCountBrmReportByDay(
-          context,
-          _selectedDate.toIso8601String().substring(0, 10),
-        );
+      final dataBacaan = await ApiService.getCountBrmReportByDay(
+        context,
+        _selectedDate.toIso8601String().substring(0, 10),
+      );
 
-        if (!mounted) return;
-        setState(() {
-          _bacaanDoneMapPanitia = dataBacaan.map(
-            (key, value) => MapEntry(key.toString(), value.toString()),
-          );
-        });
-      }
+      if (!mounted) return;
+      setState(() {
+        _bacaanDoneMapPanitia = dataBacaan.map(
+          (key, value) => MapEntry(key.toString(), value.toString()),
+        );
+      });
+      print('Bacaan Done Map: $_bacaanDoneMapPanitia');
 
       if (!mounted) return;
       setState(() {
         _dataCatatanHarian = dataCatatan;
-        // print("📦 LENGTH Data catatan. ${_dataCatatanHarian['data_notes']}");
         print(
           'LENGTH CATATAN LOAD PERTAMA: ${_dataCatatanHarian['data_notes'].length}',
         );
@@ -351,7 +347,7 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                         padding: const EdgeInsets.all(16),
                         margin: const EdgeInsets.only(top: 8),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppColors.brown1,
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
@@ -365,7 +361,7 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                           children: [
                             const Icon(
                               Icons.menu_book_rounded,
-                              color: AppColors.brown1,
+                              color: Colors.white,
                               size: 20,
                             ),
                             const SizedBox(width: 16),
@@ -373,7 +369,7 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                               child: Text(
                                 "${_dataCatatanHarian['data_brm']['passage']}",
                                 style: TextStyle(
-                                  color: AppColors.brown1,
+                                  color: Colors.white,
                                   fontWeight: FontWeight.w500,
                                   fontSize: 14,
                                 ),
@@ -384,71 +380,68 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
                           ],
                         ),
                       ),
-                    if (widget.role.toLowerCase().contains('panitia'))
-                      _isLoading
-                          ? buildProgresBacaanPanitiaShimmerCard(context)
-                          : (() {
-                            final progresPesertaStr =
-                                _bacaanDoneMapPanitia['count_peserta'] ?? '0';
-                            final progresPembinaStr =
-                                _bacaanDoneMapPanitia['count_pembina'] ?? '0';
-                            final totalStr =
-                                _countUserMapPanitia['count_peserta'] ?? '0';
-                            final progresPeserta =
-                                int.tryParse(progresPesertaStr) ?? 0;
-                            final progresPembina =
-                                int.tryParse(progresPembinaStr) ?? 0;
-                            final totalProgres =
-                                progresPeserta + progresPembina;
-                            final total = int.tryParse(totalStr) ?? 0;
-                            return Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(16),
-                              margin: const EdgeInsets.only(top: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 4,
-                                    offset: Offset(0, 2),
+                    _isLoading
+                        ? buildProgresBacaanPanitiaShimmerCard(context)
+                        : (() {
+                          final progresPesertaStr =
+                              _bacaanDoneMapPanitia['count_peserta'] ?? '0';
+                          final progresPembinaStr =
+                              _bacaanDoneMapPanitia['count_pembina'] ?? '0';
+                          final totalStr = _countUserMapPanitia['count'] ?? '0';
+                          final progresPeserta =
+                              int.tryParse(progresPesertaStr) ?? 0;
+                          final progresPembina =
+                              int.tryParse(progresPembinaStr) ?? 0;
+                          final totalProgres = progresPeserta + progresPembina;
+                          final total = int.tryParse(totalStr) ?? 0;
+                          return Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            margin: const EdgeInsets.only(top: 8),
+                            decoration: BoxDecoration(
+                              color: AppColors.brown1,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 4,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.check_circle_rounded,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 16),
+                                CustomCountUp(
+                                  target: totalProgres,
+                                  duration: Duration(seconds: 2),
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white,
                                   ),
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.check_circle_rounded,
-                                    color: AppColors.brown1,
-                                    size: 20,
-                                  ),
-                                  const SizedBox(width: 16),
-                                  CustomCountUp(
-                                    target: totalProgres,
-                                    duration: Duration(seconds: 2),
+                                ),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    "/ $total menyelesaikan bacaannya hari ini",
                                     style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w900,
-                                      color: AppColors.primary,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
                                     ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  const SizedBox(width: 4),
-                                  Flexible(
-                                    child: Text(
-                                      "/ $total menyelesaikan bacaannya hari ini",
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        color: AppColors.primary,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          })(),
+                                ),
+                              ],
+                            ),
+                          );
+                        })(),
                     const SizedBox(height: 16),
                     Expanded(
                       child:

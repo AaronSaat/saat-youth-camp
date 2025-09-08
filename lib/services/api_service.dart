@@ -52,6 +52,24 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>> checkEmail(String email) async {
+    print('Checking email: $email');
+    final url = Uri.parse('${baseurl}check-email');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'email': email}),
+    );
+
+    print(response.statusCode);
+    print(response.body);
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Invalid Email or Secret Code');
+    }
+  }
+
   static Future<Map<String, dynamic>> checkSecret(
     String email,
     String secretCode,
@@ -880,6 +898,41 @@ class ApiService {
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load acara');
+    }
+  }
+
+  static Future<String> getAcaraEvalCount(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}acara-eval-count');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> decoded = json.decode(response.body);
+      final String countEval = decoded['count'] ?? '';
+
+      return countEval;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      // throw Exception('Unauthorized');
+      return '';
+    } else {
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load acara eval count');
     }
   }
 

@@ -12,6 +12,7 @@ import 'package:syc/widgets/custom_snackbar.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart'
     show canLaunchUrl, LaunchMode, launchUrl;
+import 'package:workmanager/workmanager.dart' show Workmanager;
 import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
 import '../widgets/custom_not_found.dart';
@@ -467,8 +468,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'kelompok_id',
       'kelompok_nama',
       'kamar',
-      'status_datang',
       'secret',
+      'status_datang',
     ];
     final Map<String, String> userData = {};
     for (final key in keys) {

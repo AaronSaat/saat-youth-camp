@@ -2,6 +2,7 @@ import 'dart:convert' show jsonEncode, utf8;
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:image_cropper/image_cropper.dart'
     show
         AndroidUiSettings,
@@ -433,32 +434,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                     ),
                                     child: CircleAvatar(
                                       radius: 100,
-                                      backgroundImage:
-                                          (() {
-                                            switch (role) {
-                                              case 'Pembina':
-                                                return AssetImage(
-                                                  'assets/mockups/pembina.jpg',
-                                                );
-                                              case 'Peserta':
-                                                return AssetImage(
-                                                  'assets/mockups/peserta.jpg',
-                                                );
-                                              case 'Pembimbing Kelompok':
-                                                return AssetImage(
-                                                  'assets/mockups/pembimbing.jpg',
-                                                );
-                                              case 'Panitia':
-                                                return AssetImage(
-                                                  'assets/mockups/panitia.jpg',
-                                                );
-                                              default:
-                                                return AssetImage(
-                                                  'assets/mockups/unknown.jpg',
-                                                );
-                                            }
-                                          })(),
                                       backgroundColor: Colors.grey[200],
+                                      child: ClipOval(
+                                        child: SvgPicture.asset(
+                                          'assets/icons/profile.svg',
+                                          width: 150,
+                                          height: 150,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
                                     ),
                                   ),
                               SizedBox(height: 16),

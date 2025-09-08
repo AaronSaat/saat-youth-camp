@@ -1,6 +1,7 @@
 import 'dart:convert'; // Tambahkan import ini di bagian atas file
 import 'dart:io';
 import 'package:flutter/gestures.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
@@ -268,10 +269,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
       final acaraList = await ApiService.getAcara(context);
 
+      final countEval = await ApiService.getAcaraEvalCount(context);
+
       evaluasiDoneMap = evaluasiList.map(
         (key, value) => MapEntry(key.toString(), value.toString()),
       );
-      evaluasiTotal = acaraList.length;
+      evaluasiTotal = int.tryParse(countEval) ?? 0;
 
       // Simpan ke shared pref dengan jsonEncode
       await prefs.setString(evaluasiDoneKey, jsonEncode(evaluasiDoneMap));
@@ -725,33 +728,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 ),
                                                 child: CircleAvatar(
                                                   radius: 50,
-                                                  backgroundImage:
-                                                      (() {
-                                                        switch (role) {
-                                                          case 'Pembina':
-                                                            return AssetImage(
-                                                              'assets/mockups/pembina.jpg',
-                                                            );
-                                                          case 'Peserta':
-                                                            return AssetImage(
-                                                              'assets/mockups/peserta.jpg',
-                                                            );
-                                                          case 'Pembimbing Kelompok':
-                                                            return AssetImage(
-                                                              'assets/mockups/pembimbing.jpg',
-                                                            );
-                                                          case 'Panitia':
-                                                            return AssetImage(
-                                                              'assets/mockups/panitia.jpg',
-                                                            );
-                                                          default:
-                                                            return AssetImage(
-                                                              'assets/mockups/unknown.jpg',
-                                                            );
-                                                        }
-                                                      })(),
                                                   backgroundColor:
                                                       Colors.grey[200],
+                                                  child: ClipOval(
+                                                    child: SvgPicture.asset(
+                                                      'assets/icons/profile.svg',
+                                                      width: 90,
+                                                      height: 90,
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
                                     ),
