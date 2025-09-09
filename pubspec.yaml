@@ -2,7 +2,7 @@ name: syc
 description: "A new Flutter project."
 publish_to: "none"
 
-version: 1.0.0+13
+version: 1.0.1
 
 environment:
   sdk: ^3.7.2
@@ -134,11 +134,6 @@ flutter:
     - assets/mockups/bonding.jpg
     - assets/mockups/eat.jpg
     - assets/mockups/seeyou.png
-    - assets/mockups/peserta.jpg 
-    - assets/mockups/pembina.jpg 
-    - assets/mockups/pembimbing.jpg 
-    - assets/mockups/panitia.jpg 
-    - assets/mockups/unknown.jpg 
 
     # share verse
     - assets/shareverse/photo1.png

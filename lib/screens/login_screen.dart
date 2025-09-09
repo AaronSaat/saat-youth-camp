@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:syc/screens/forgot_password_screen.dart';
+import 'package:syc/screens/lupa_password_screen.dart';
 
 import '../services/api_service.dart';
 import '../widgets/custom_snackbar.dart';
@@ -406,7 +406,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            'Versi Build $_buildVersion+$_buildNumber',
+                            // 'Versi Build $_buildVersion+$_buildNumber',
+                            'Versi Build $_buildVersion',
                             style: const TextStyle(
                               color: AppColors.primary,
                               fontSize: 13,

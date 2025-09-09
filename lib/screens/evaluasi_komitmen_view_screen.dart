@@ -1,11 +1,8 @@
-import 'dart:convert'; // Tambahkan jika belum ada
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/utils/app_colors.dart';
-
 import '../services/api_service.dart';
-import '../widgets/custom_checkbox_card.dart';
 import '../widgets/custom_text_card.dart';
 
 class EvaluasiKomitmenViewScreen extends StatefulWidget {
@@ -226,7 +223,7 @@ class _EvaluasiKomitmenViewScreenState
                                   )
                                 else if (widget.type == 'Komitmen')
                                   Text(
-                                    'Komitmen Hari: ${widget.acaraHariId ?? ''}',
+                                    'Komitmen Hari: ${widget.acaraHariId}',
                                     style: const TextStyle(color: Colors.white),
                                   ),
                               ],
@@ -302,98 +299,6 @@ class _EvaluasiKomitmenViewScreenState
                   ),
                 ),
               ),
-    );
-  }
-
-  Widget _buildChecklistCard(String text, String? value) {
-    bool isYes = (value?.toLowerCase() == 'ya');
-
-    return Card(
-      color: AppColors.brown1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Text(
-                text,
-                style: const TextStyle(fontSize: 16, color: Colors.white),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Icon(
-              isYes ? Icons.check_circle : Icons.cancel,
-              color: isYes ? Colors.green : Colors.red,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSliderCard(String text, double value) {
-    return Card(
-      color: AppColors.brown1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              text,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Text(
-                  '$value dari 6',
-                  style: const TextStyle(fontSize: 16, color: Colors.white),
-                ),
-                const Spacer(),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextCard(String text, String value) {
-    return SizedBox(
-      width: double.infinity,
-      child: Card(
-        color: AppColors.brown1,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                text,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                value.isEmpty ? '(Tidak ada komentar)' : value,
-                style: const TextStyle(fontSize: 16, color: Colors.white),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

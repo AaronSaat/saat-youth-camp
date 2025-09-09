@@ -6,15 +6,12 @@ import 'package:syc/screens/bible_share_verse_screen.dart';
 import 'package:syc/screens/catatan_harian_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 import 'package:syc/widgets/custom_card.dart';
-
 import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
 import '../widgets/custom_alert_dialog.dart';
 import '../widgets/custom_not_found.dart';
 import '../widgets/custom_snackbar.dart';
 import '../widgets/custom_text_field.dart';
-import 'bible_reading_list_screen.dart';
-import 'bible_reading_success_screen.dart';
 
 class BibleReadingMoreScreen extends StatefulWidget {
   final String userId;

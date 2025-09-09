@@ -5,11 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/screens/review_komitmen_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 import '../services/api_service.dart';
-import '../widgets/custom_checkbox.dart';
 import '../widgets/custom_single_choice.dart';
-import '../widgets/custom_slider.dart';
 import '../widgets/custom_text_field.dart';
-import 'review_evaluasi_screen.dart';
 import '../widgets/custom_not_found.dart';
 import '../widgets/custom_snackbar.dart';
 
@@ -34,7 +31,6 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
   final Map<String, FocusNode> _checkboxFocusNodes = {};
   final Map<String, String?> _errorText = {};
   bool isLoading = false;
-  Map<String, dynamic> _acara = {};
   List<Map<String, dynamic>> _dataKomitmen = [];
   bool _isLoading = true;
   final Map<String, Timer?> _debounceTimers = {};

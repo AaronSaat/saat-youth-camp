@@ -7,11 +7,9 @@ import 'package:shared_preferences/shared_preferences.dart'
 import 'package:shimmer/shimmer.dart';
 import 'package:syc/screens/anggota_kelompok_screen.dart';
 import 'package:syc/utils/app_colors.dart';
-
 import '../services/api_service.dart';
 import '../widgets/custom_card.dart';
 import '../widgets/custom_snackbar.dart';
-import 'anggota_gereja_screen.dart';
 
 class ListKelompokScreen extends StatefulWidget {
   const ListKelompokScreen({Key? key}) : super(key: key);
@@ -58,7 +56,7 @@ class _ListKelompokScreenState extends State<ListKelompokScreen> {
       await prefs.setString(kelompokKey, jsonEncode(kelompokList));
       if (!mounted) return;
       setState(() {
-        _kelompokList = kelompokList ?? [];
+        _kelompokList = kelompokList;
         _isLoading = false;
       });
       print('[PREF_API] Kelompok List (from API): $_kelompokList');

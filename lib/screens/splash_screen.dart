@@ -155,8 +155,8 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> getCheckVersion() async {
     setState(() => _isCheckingVersion = true); // Mulai loading versi
     final info = await PackageInfo.fromPlatform();
-    // final localVersion = info.version;
-    final localVersion = "${info.version}+${info.buildNumber}";
+    final localVersion = info.version;
+    // final localVersion = "${info.version}+${info.buildNumber}";
     // final localVersion = "1.0.0+12";
 
     final response = await ApiService.getCheckVersion(context);
@@ -171,7 +171,7 @@ class _SplashScreenState extends State<SplashScreen>
           builder:
               (ctx) => AlertDialog(
                 title: const Text('Update Tersedia'),
-                content: const Text(
+                content: Text(
                   'Versi aplikasi terbaru tersedia. Silakan update aplikasi untuk melanjutkan.',
                 ),
                 actions: [
@@ -180,9 +180,11 @@ class _SplashScreenState extends State<SplashScreen>
                       String url;
                       if (Theme.of(context).platform == TargetPlatform.iOS) {
                         url =
-                            'https://apps.apple.com/us/app/testflight/id899247664';
+                            response['update_url_ios'] ??
+                            'https://apps.apple.com/id/app/saat-youth-camp/id6751375478';
                       } else {
                         url =
+                            response['update_url_android'] ??
                             'https://play.google.com/apps/testing/com.sttsaat.sycapp';
                       }
                       if (await canLaunchUrl(Uri.parse(url))) {
@@ -196,30 +198,6 @@ class _SplashScreenState extends State<SplashScreen>
                     child: const Text('Update'),
                   ),
                 ],
-                // actions: [
-                //   TextButton(
-                //     onPressed: () async {
-                //       String url;
-                //       if (Theme.of(context).platform == TargetPlatform.iOS) {
-                //         url =
-                //             response['update_url_ios'] ??
-                //             'https://apps.apple.com/us/app/clash-of-clans/id529479190';
-                //       } else {
-                //         url =
-                //             response['update_url_android'] ??
-                //             'https://play.google.com/store/apps/details?id=com.supercell.clashofclans';
-                //       }
-                //       if (await canLaunchUrl(Uri.parse(url))) {
-                //         await launchUrl(
-                //           Uri.parse(url),
-                //           mode: LaunchMode.externalApplication,
-                //         );
-                //       }
-                //       // Jangan tutup dialog, biarkan user tetap di sini
-                //     },
-                //     child: const Text('Update'),
-                //   ),
-                // ],
               ),
         );
       }

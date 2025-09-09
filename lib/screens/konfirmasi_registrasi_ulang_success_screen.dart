@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
 import '../utils/app_colors.dart';
-import 'list_evaluasi_screen.dart';
 
 class KonfirmasiRegistrasiUlangSuccessScreen extends StatelessWidget {
   final String nama;

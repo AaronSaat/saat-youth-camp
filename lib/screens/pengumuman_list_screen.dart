@@ -1,20 +1,13 @@
-// lib/screens/login_screen3.dart
-
-import 'dart:convert'; // Tambahkan jika belum ada
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart' show Shimmer;
 import 'package:timeago/timeago.dart'
     as timeago
     show IdMessages, format, setLocaleMessages;
-
 import '../services/api_service.dart';
 import '../widgets/custom_not_found.dart';
-import '../widgets/custom_snackbar.dart';
 import '../utils/app_colors.dart';
-import 'main_screen.dart';
-import 'check_secret_screen.dart';
 import 'pengumuman_detail_screen.dart';
 
 class PengumumanListScreen extends StatefulWidget {
@@ -250,7 +243,10 @@ class _PengumumanListScreenState extends State<PengumumanListScreen> {
                                                             ).then((result) {
                                                               if (result ==
                                                                   'reload') {
-                                                                initAll(forceRefresh: true);
+                                                                initAll(
+                                                                  forceRefresh:
+                                                                      true,
+                                                                );
                                                               }
                                                             });
                                                           },

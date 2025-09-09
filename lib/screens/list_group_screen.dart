@@ -1,8 +1,7 @@
-import 'dart:convert'; // Tambahkan jika belum ada
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:shimmer/shimmer.dart';
-import 'package:syc/screens/anggota_kelompok_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -56,7 +55,7 @@ class _ListGroupScreenState extends State<ListGroupScreen> {
       await prefs.setString(groupKey, jsonEncode(groupList));
       if (!mounted) return;
       setState(() {
-        _groupList = groupList ?? [];
+        _groupList = groupList;
         _isLoading = false;
       });
       print('[PREF_API] Group List (from API): $_groupList');
@@ -173,10 +172,7 @@ class _ListGroupScreenState extends State<ListGroupScreen> {
                                       MaterialPageRoute(
                                         builder:
                                             (context) => AnggotaGroupScreen(
-                                              id:
-                                                  group['group_id']
-                                                      .toString() ??
-                                                  '',
+                                              id: group['group_id'].toString(),
                                             ),
                                       ),
                                     );

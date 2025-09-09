@@ -1,33 +1,22 @@
-import 'dart:convert'; // Tambahkan import ini di bagian atas file
+import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/gestures.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:syc/screens/catatan_harian_screen.dart';
 import 'package:syc/screens/hapus_akun_detail_screen.dart';
 import 'package:syc/screens/kontak_panitia_screen.dart';
 import 'package:syc/screens/list_komitmen_screen.dart';
 import 'package:syc/screens/main_screen.dart' show MainScreen;
-import 'package:syc/widgets/custom_alert_dialog.dart';
+import 'package:syc/screens/ubah_password_screen.dart';
 import '../services/api_service.dart';
-import '../utils/date_formatter.dart';
 import '../utils/global_variables.dart';
-import '../widgets/custom_count_up.dart';
-import '../widgets/custom_circular_progress';
-import '../widgets/custom_not_found.dart';
 import '../widgets/custom_snackbar.dart';
 import 'bible_reading_list_screen.dart';
-import 'daftar_acara_screen.dart';
 import 'package:shimmer/shimmer.dart';
-
 import 'package:syc/utils/app_colors.dart';
-
-import 'detail_acara_screen.dart';
-import 'bible_reading_more_screen.dart';
 import 'list_evaluasi_screen.dart';
 import 'login_screen.dart';
 import 'profile_edit_screen.dart';
@@ -1535,6 +1524,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 ),
                               ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) =>
+                                              UbahPasswordScreen(userId: id),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.lock_reset),
+                                label: const Text('Ubah Password'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.blue,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(32),
+                                  ),
+                                ),
+                              ),
+                            ),
                             const SizedBox(height: 8),
                             SizedBox(
                               width: double.infinity,

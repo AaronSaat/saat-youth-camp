@@ -1,19 +1,14 @@
 // lib/screens/login_screen3.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:syc/screens/hapus_akun_detail_success_screen.dart';
 import 'package:timeago/timeago.dart'
     as timeago
-    show IdMessages, format, setLocaleMessages;
-
+    show IdMessages, setLocaleMessages;
 import '../services/api_service.dart';
 import '../widgets/custom_snackbar.dart';
 import '../utils/app_colors.dart';
-import 'main_screen.dart';
-import 'check_secret_screen.dart';
-import 'hapus_akun_detail_success_screen.dart';
 
 class HapusAkunDetailScreen extends StatefulWidget {
   final String userId;
@@ -88,9 +83,29 @@ class _HapusAkunDetailScreenState extends State<HapusAkunDetailScreen> {
         }
       },
       child: Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios, color: AppColors.primary),
+            onPressed: () {
+              Navigator.pop(context, 'reload');
+            },
+          ),
+          automaticallyImplyLeading: false,
+        ),
         body: Stack(
           fit: StackFit.expand,
           children: [
+            Positioned(
+              child: Image.asset(
+                'assets/images/background_login.jpg',
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                fit: BoxFit.fill,
+              ),
+            ),
             SafeArea(
               child:
                   _isLoading
@@ -103,20 +118,6 @@ class _HapusAkunDetailScreenState extends State<HapusAkunDetailScreen> {
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           children: [
-                            AppBar(
-                              backgroundColor: Colors.transparent,
-                              elevation: 0,
-                              leading: IconButton(
-                                icon: const Icon(
-                                  Icons.arrow_back_ios,
-                                  color: AppColors.primary,
-                                ),
-                                onPressed: () {
-                                  Navigator.pop(context, 'reload');
-                                },
-                              ),
-                              automaticallyImplyLeading: false,
-                            ),
                             Expanded(
                               child: Center(
                                 child: SingleChildScrollView(

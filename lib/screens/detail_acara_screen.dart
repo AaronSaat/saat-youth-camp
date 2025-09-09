@@ -120,7 +120,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
         widget.id,
       );
       if (!mounted) return;
-      if (acaraList == null || acaraList.isEmpty) {
+      if (acaraList.isEmpty) {
         // Jika data kosong, isi dummy agar tidak error/freeze
         final dummy = [
           {
@@ -470,10 +470,8 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                                                   );
                                                               bool
                                                               evaluasiDone =
-                                                                  result !=
-                                                                      null &&
                                                                   result['success'] ==
-                                                                      true;
+                                                                  true;
                                                               if (evaluasiDone) {
                                                                 Navigator.push(
                                                                   context,

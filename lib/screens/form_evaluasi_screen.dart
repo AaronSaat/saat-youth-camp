@@ -6,7 +6,6 @@ import 'package:syc/utils/app_colors.dart';
 import 'package:syc/widgets/custom_multiple_choice.dart';
 import 'package:syc/widgets/custom_snackbar.dart';
 import '../services/api_service.dart';
-import '../widgets/custom_checkbox.dart';
 import '../widgets/custom_single_choice.dart';
 import '../widgets/custom_slider.dart';
 import '../widgets/custom_text_field.dart';
@@ -551,7 +550,7 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                         item['type'] is int
                                             ? item['type']
                                             : int.tryParse(
-                                              item['type'].toString() ?? '',
+                                              item['type'].toString(),
                                             ),
                                       )) {
                                         // Slider with dynamic settings

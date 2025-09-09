@@ -2,17 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart'
     as timeago
     show IdMessages, format, setLocaleMessages;
-
 import '../services/api_service.dart';
-import '../widgets/custom_snackbar.dart';
 import '../utils/app_colors.dart';
-import 'main_screen.dart';
-import 'check_secret_screen.dart';
 
 class PengumumanDetailScreen extends StatefulWidget {
   final String tanggal;

@@ -1,4 +1,3 @@
-import 'dart:convert' show jsonEncode, utf8;
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -12,15 +11,12 @@ import 'package:image_cropper/image_cropper.dart'
         ImageCropper;
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
-import 'package:syc/screens/scan_qr_screen.dart' show ScanQrScreen;
 import 'package:syc/utils/global_variables.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:path_provider/path_provider.dart';
-
 import '../services/api_service.dart';
 import '../utils/app_colors.dart';
 import '../widgets/custom_snackbar.dart';
@@ -31,7 +27,6 @@ class ProfileEditScreen extends StatefulWidget {
 }
 
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
-  File? _imageFile;
   Map<String, String> _dataUser = {};
   bool _isLoading = true;
   String avatar = '';
@@ -142,7 +137,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
         setState(() {
           _isLoading = true;
-          _imageFile = file;
         });
 
         // Upload ke API setelah crop, compress, dan validasi

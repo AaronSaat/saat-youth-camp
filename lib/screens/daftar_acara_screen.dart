@@ -1,14 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemNavigator;
-import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:syc/services/notification_service.dart'
-    show NotificationService;
 import 'package:syc/utils/app_colors.dart';
-import 'package:syc/widgets/custom_panel_shape.dart';
-
 import '../services/api_service.dart';
 import '../utils/global_variables.dart';
 import '../widgets/custom_not_found.dart';
@@ -98,7 +93,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
       });
 
       // Simpan ke shared pref
-      if (acaraList != null && acaraList.isNotEmpty) {
+      if (acaraList.isNotEmpty) {
         await prefs.setString(acaraKey, jsonEncode(acaraList));
       }
     } catch (e) {

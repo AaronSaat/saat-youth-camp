@@ -1,7 +1,4 @@
 import 'package:encrypt/encrypt.dart' as encrypt;
-
-import 'package:syc/screens/catatan_harian_screen.dart';
-import 'dart:convert' show jsonDecode;
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -224,7 +221,7 @@ Widget _buildDecodedResultWidget(
               (() async {
                 final res = await ApiService.getDataKonfirmasi(
                   context,
-                  decryptedSecret!,
+                  decryptedSecret,
                 );
                 if (res['success'] == true && res['data'] != null) {
                   return Map<String, dynamic>.from(res['data']);
@@ -253,7 +250,6 @@ Widget _buildDecodedResultWidget(
             final kelompokSama =
                 kelompokWidget.trim().toLowerCase() ==
                 kelompok.trim().toLowerCase();
-            final statusDatang = dataKonfirmasi['status_datang']?.toString();
             // Cek jika kelompok tidak sama
             if (!kelompokSama) {
               return Column(

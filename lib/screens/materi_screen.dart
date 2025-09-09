@@ -1,23 +1,16 @@
-import 'dart:convert'; // Tambahkan jika belum ada
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemNavigator;
-import 'package:flutter_svg/svg.dart';
 import 'package:html/dom.dart' as dom show Element;
 import 'package:html/parser.dart' as html_parser show parse;
 import 'package:http/http.dart' as http show get;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:syc/screens/bible_reading_list_screen.dart';
-import 'package:syc/screens/list_evaluasi_screen.dart';
-import 'package:syc/screens/bible_reading_more_screen.dart';
 import 'package:syc/utils/app_colors.dart';
-import 'package:syc/widgets/custom_panel_shape.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import '../services/api_service.dart';
 import '../widgets/custom_not_found.dart';
 import '../widgets/custom_snackbar.dart';
-import 'detail_acara_screen.dart';
 
 class MateriScreen extends StatefulWidget {
   final String? userId;

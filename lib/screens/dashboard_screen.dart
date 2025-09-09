@@ -6,17 +6,13 @@ import 'package:syc/screens/main_screen.dart';
 import 'package:syc/screens/profile_edit_screen.dart';
 import 'package:syc/services/notification_service.dart'
     show NotificationService;
-import 'package:syc/services/background_task_service.dart';
 import 'package:syc/utils/global_variables.dart';
 import 'package:syc/widgets/custom_snackbar.dart';
 import 'package:flutter/services.dart';
-import 'package:url_launcher/url_launcher.dart'
-    show canLaunchUrl, LaunchMode, launchUrl;
-import 'package:workmanager/workmanager.dart' show Workmanager;
+import 'package:url_launcher/url_launcher.dart' show LaunchMode, launchUrl;
 import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
 import '../widgets/custom_not_found.dart';
-import 'daftar_acara_screen.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:syc/utils/app_colors.dart';
@@ -24,10 +20,7 @@ import 'package:syc/utils/app_colors.dart';
 import 'detail_acara_screen.dart';
 import 'bible_reading_more_screen.dart';
 import 'evaluasi_komitmen_view_screen.dart';
-import 'pengumuman_detail_screen.dart';
 import 'pengumuman_list_screen.dart';
-
-import 'package:html/parser.dart' as html_parser;
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -39,11 +32,9 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   // Static data untuk acara hari ke-1
 
-  String _email = '';
   String statusDatang = '';
   bool isPanitia = false;
   ScrollController _acaraController = ScrollController();
-  int _currentAcaraPage = 0;
   // List<dynamic> _acaraList = [];
   // List<dynamic> _acaraListAll = [];
   List<dynamic> _komitmenListAll = [];
@@ -55,9 +46,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _isLoading = true;
   bool _isLoadingBrm = true;
   bool _isLoadingPengumuman = true;
-  bool _isLoadingKonfirmasi = false;
   List<Map<String, dynamic>> _dataBrm = [];
-  Map<String, dynamic> _dataBrm10Hari = {}; //load dari shared preferences
   Map<String, String> _dataUser = {};
   bool _komitmenDone = false;
   DateTime? _lastBackPressed;
@@ -407,9 +396,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       } else {
         itemWidth = 160;
       }
-      setState(() {
-        _currentAcaraPage = (_acaraController.offset / itemWidth).round();
-      });
+      setState(() {});
     });
   }
 
@@ -580,7 +567,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       context,
       _dataUser['id'] ?? '',
     );
-    final List<dynamic> dataBrmList = response?['data_brm'] ?? [];
+    final List<dynamic> dataBrmList = response['data_brm'] ?? [];
 
     // Simpan semua ke shared pref
     for (final brm in dataBrmList) {
@@ -812,9 +799,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> checkStatusDatang() async {
     if (!mounted) return;
-    setState(() {
-      _isLoadingKonfirmasi = true;
-    });
+    setState(() {});
     print('Checking status datang... $statusDatang');
     try {
       final res = await ApiService.getStatusDatang(
@@ -824,7 +809,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
       final statusDatangApi = res['data']?['status_datang']?.toString() ?? '';
       final prefs = await SharedPreferences.getInstance();
-      final statusDatangLocal = prefs.getString('status_datang');
 
       if (mounted) {
         setState(() {
@@ -840,9 +824,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       print('❌ Gagal memuat status datang: $e');
     }
     if (!mounted) return;
-    setState(() {
-      _isLoadingKonfirmasi = false;
-    });
+    setState(() {});
   }
 
   // Future<void> setupDailyNotification() async {
@@ -1068,7 +1050,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final userId = _dataUser['id'] ?? '-';
     final role = _dataUser['role'] ?? '-';
     final nama = _dataUser['nama'] ?? '-';
-    final gereja = _dataUser['gereja_nama'] ?? '-';
     final kelompok = _dataUser['kelompok_nama'] ?? '-';
     final status_datang = _dataUser['status_datang'] ?? '-';
     print(' AAAAA Status Datang: $status_datang');

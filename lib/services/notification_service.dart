@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart'
-    show BuildContext, GlobalKey, MaterialPageRoute, Navigator, NavigatorState;
+    show GlobalKey, MaterialPageRoute, Navigator, NavigatorState;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show
         AndroidInitializationSettings,
@@ -16,14 +16,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
         NotificationResponse;
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:syc/screens/splash_screen.dart';
-import 'package:syc/utils/global_variables.dart';
-import 'package:syc/widgets/custom_snackbar.dart' show showCustomSnackBar;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:html/parser.dart' as html_parser;
 
 class NotificationService {
   final notificationPlugin = FlutterLocalNotificationsPlugin();

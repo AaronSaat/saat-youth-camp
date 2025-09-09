@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
@@ -81,13 +80,6 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
   ];
   final List<bool> _logoIsAtas = [true, false, true, false];
   final List<String> _logoLabels = ['Atas', 'Bawah', 'Atas', 'Bawah'];
-
-  final List<AspectRatio> _aspectRatios = [
-    const AspectRatio(aspectRatio: 3 / 4),
-    const AspectRatio(aspectRatio: 9 / 16),
-    const AspectRatio(aspectRatio: 1 / 1),
-  ];
-
   final List<String> _aspectLabels = ['3:4', '9:16', '1:1'];
 
   // Tambahkan item Bagikan Gambar ke list setting
@@ -326,13 +318,6 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Misal data user sudah ada di _dataUser
-    final role = _dataUser['role'] ?? '';
-    final namaUser = _dataUser['nama'] ?? '';
-    final namaKelompok = _dataUser['kelompok_nama'] ?? '';
-    final namaGereja = _dataUser['gereja_nama'] ?? '';
-    final avatarUrl = _dataUser['avatar_url'] ?? ''; // Pastikan field ini ada
-
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(

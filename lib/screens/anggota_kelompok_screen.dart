@@ -1,21 +1,17 @@
-import 'dart:convert'; // Tambahkan jika belum ada
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
 import 'package:shimmer/shimmer.dart';
-import 'package:syc/screens/konfirmasi_registrasi_ulang_screen.dart';
 import 'package:syc/screens/list_komitmen_screen.dart';
 import 'package:syc/screens/scan_qr_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 import 'package:syc/utils/global_variables.dart';
 import '../services/api_service.dart';
 import '../widgets/custom_not_found.dart';
-import '../widgets/custom_snackbar.dart';
 import 'bible_reading_list_screen.dart';
 import 'list_evaluasi_screen.dart';
-import 'list_gereja_screen.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
@@ -39,12 +35,9 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
   bool _isLoading = true;
   Map<String, String> _dataUser = {};
 
-  DateTime? _lastBackPressed;
-
   @override
   void initState() {
     print('[SCREEN] AnggotaKelompokScreen initState');
-    _lastBackPressed = null;
     super.initState();
     _initAll();
   }
@@ -137,16 +130,6 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
     );
   }
 
-  String getRoleImage(String role) {
-    if (role == "Pembimbing") {
-      return 'assets/mockups/pembimbing.jpg';
-    } else if (role == "Anggota") {
-      return 'assets/mockups/peserta.jpg';
-    } else {
-      return 'assets/mockups/panitia.jpg';
-    }
-  }
-
   IconData getRoleIcon(String role) {
     if (role == "Pembimbing") {
       return Icons.church;
@@ -195,9 +178,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
 
   @override
   Widget build(BuildContext context) {
-    _lastBackPressed = null;
     final role = _dataUser['role'] ?? '-';
-    final id = _dataUser['id'] ?? '';
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -636,7 +617,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                                                               'pembimbing kelompok',
                                                               'pembina',
                                                             ].contains(
-                                                              (role ?? '')
+                                                              (role)
                                                                   .toLowerCase(),
                                                             )) &&
                                                             (user['role']

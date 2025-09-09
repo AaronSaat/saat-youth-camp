@@ -1,14 +1,9 @@
-// lib/services/api_service.dart
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/screens/login_screen.dart';
-
 import '/utils/api_helper.dart';
-import '/utils/debug_log.dart';
-
 import '../widgets/custom_snackbar.dart';
 
 class ApiService {
@@ -70,6 +65,41 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>> ubahPassword(
+    String userId,
+    String passwordSekarang,
+    String passwordBaru,
+  ) async {
+    print('Changing password for user ID: $userId');
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+    final url = Uri.parse('${baseurl}ubah-password');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        if (token.isNotEmpty) 'Authorization': 'Bearer $token',
+      },
+      body: json.encode({
+        'data_ubah_password': {
+          'user_id': userId,
+          'current_password': passwordSekarang,
+          'password': passwordBaru,
+        },
+      }),
+    );
+
+    print(response.statusCode);
+    print(response.body);
+    if (response.statusCode == 201) {
+      return json.decode(response.body);
+    } else if (response.statusCode == 400) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to change password');
+    }
+  }
+
   static Future<Map<String, dynamic>> checkSecret(
     String email,
     String secretCode,
@@ -95,7 +125,7 @@ class ApiService {
     BuildContext context, {
     required String token,
   }) async {
-    if (token == null || token.isEmpty) {
+    if (token.isEmpty) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const LoginScreen()),
       );

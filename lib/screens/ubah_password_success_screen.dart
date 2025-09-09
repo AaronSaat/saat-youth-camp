@@ -1,17 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/app_colors.dart';
+import '../utils/global_variables.dart';
+import 'login_screen.dart';
+import 'ubah_password_screen.dart';
 
-class EvaluasiKomitmenSuccessScreen extends StatelessWidget {
-  final String userId;
-  final String type;
+class UbahPasswordSuccessScreen extends StatelessWidget {
   final bool isSuccess;
+  final String message;
+  final String userId;
 
-  const EvaluasiKomitmenSuccessScreen({
+  const UbahPasswordSuccessScreen({
     super.key,
-    required this.userId,
-    required this.type,
     required this.isSuccess,
+    required this.message,
+    required this.userId,
   });
+
+  Future<void> _logout(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    if (!context.mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+    );
+    // reset
+    GlobalVariables.currentIndex = 0;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,15 +53,14 @@ class EvaluasiKomitmenSuccessScreen extends StatelessWidget {
                     children: [
                       Image.asset(
                         isSuccess
-                            ? 'assets/images/answer_saved_success.png'
-                            : 'assets/images/answer_saved_fail.png',
+                            ? 'assets/images/verified_success.png'
+                            : 'assets/images/verified_fail.png',
                         width: size.width * 0.6,
                         fit: BoxFit.contain,
                       ),
+                      const SizedBox(height: 16),
                       Text(
-                        isSuccess
-                            ? '$type berhasil disimpan!'
-                            : '$type gagal disimpan.',
+                        message,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w400,
@@ -56,24 +71,37 @@ class EvaluasiKomitmenSuccessScreen extends StatelessWidget {
                       const SizedBox(height: 16),
                       GestureDetector(
                         onTap: () async {
-                          Navigator.pop(context);
-                          Navigator.pop(context, 'reload');
+                          if (isSuccess) {
+                            await _logout(context);
+                          } else {
+                            // Kembali ke UbahPasswordScreen
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) =>
+                                        UbahPasswordScreen(userId: userId),
+                              ),
+                            );
+                          }
                         },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 32.0),
                           child: Container(
-                            width: MediaQuery.of(context).size.width * 0.5,
-                            height: 40,
+                            width: MediaQuery.of(context).size.width * 0.6,
+                            height: 50,
                             decoration: BoxDecoration(
                               color: AppColors.brown1,
                               borderRadius: BorderRadius.circular(32),
                             ),
                             alignment: Alignment.center,
-                            child: const Text(
-                              'Kembali ke List',
-                              style: TextStyle(
+                            child: Text(
+                              isSuccess
+                                  ? 'Kembali ke Halaman Login'
+                                  : 'Kembali',
+                              style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 16,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w400,
                               ),
                             ),

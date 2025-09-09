@@ -8,8 +8,6 @@ class CheckSecretSuccessScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
@@ -42,18 +40,18 @@ class CheckSecretSuccessScreen extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: const Text(
-                      'Silakan cek email untuk melanjutkan proses pendaftaran!',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
-                        color: AppColors.black1,
-                      ),
-                      textAlign: TextAlign.center,
+                        'Silakan cek email untuk melanjutkan proses pendaftaran!',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
+                          color: AppColors.black1,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                     const SizedBox(height: 12),
                     Padding(
-                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: const Text(
                         'Jika belum menerima email dari SAAT Youth Camp, silakan periksa folder spam atau hubungi panitia.',
                         style: TextStyle(

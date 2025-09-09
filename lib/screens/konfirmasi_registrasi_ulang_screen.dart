@@ -1,10 +1,6 @@
-// lib/screens/login_screen3.dart
-
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:flutter/material.dart';
 import '../utils/app_colors.dart';
-
-import 'dart:convert';
 import '../services/api_service.dart';
 import 'konfirmasi_registrasi_ulang_success_screen.dart';
 import '../widgets/custom_alert_dialog.dart';
@@ -107,33 +103,49 @@ class _KonfirmasiRegistrasiUlangScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.primary),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+        leading: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back_ios, color: AppColors.primary),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
         ),
         automaticallyImplyLeading: false,
       ),
-      body: SafeArea(
-        child: Center(
-          child:
-              _fromQr
-                  ? (_isLoading
-                      ? const CircularProgressIndicator()
-                      : _errorMsg != null
-                      ? Text(
-                        _errorMsg!,
-                        style: const TextStyle(color: Colors.red),
-                      )
-                      : _dataKonfirmasi == null
-                      ? const Text('Data tidak ditemukan')
-                      : _buildContent(context))
-                  : _buildContent(context),
-        ),
+      body: Stack(
+        children: [
+          Positioned(
+            child: Image.asset(
+              'assets/images/background_login.jpg',
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              fit: BoxFit.fill,
+            ),
+          ),
+          SafeArea(
+            child: Center(
+              child:
+                  _fromQr
+                      ? (_isLoading
+                          ? const CircularProgressIndicator()
+                          : _errorMsg != null
+                          ? Text(
+                            _errorMsg!,
+                            style: const TextStyle(color: Colors.red),
+                          )
+                          : _dataKonfirmasi == null
+                          ? const Text('Data tidak ditemukan')
+                          : _buildContent(context))
+                      : _buildContent(context),
+            ),
+          ),
+        ],
       ),
     );
   }

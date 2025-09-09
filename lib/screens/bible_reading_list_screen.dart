@@ -2,18 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
 import 'package:syc/screens/bible_reading_more_screen.dart';
-import 'package:syc/screens/form_evaluasi_screen.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:convert';
-
 import '../services/api_service.dart';
 import '../utils/app_colors.dart';
 import '../utils/date_formatter.dart';
 import '../widgets/custom_card.dart';
-import '../widgets/custom_not_found.dart';
 import '../widgets/custom_snackbar.dart';
 import 'catatan_harian_screen.dart';
-import 'evaluasi_komitmen_view_screen.dart';
 
 class BibleReadingListScreen extends StatefulWidget {
   final String userId;
@@ -33,8 +29,6 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
   String _namaBulan = '';
   List<dynamic> _dataBrm = [];
   Map<String, String> _dataUser = {};
-  List<String> _dataBacaan = [];
-  List<String> _dataNotesBacaan = [];
   List<int> _dataProgressBacaan = [];
   bool _autoSelected = false;
 
@@ -55,8 +49,8 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
 
       if (!mounted) return;
       setState(() {
-        _hariKe = hariKe ?? 0;
-        _jumlahHari = jumlahHari ?? 0;
+        _hariKe = hariKe;
+        _jumlahHari = jumlahHari;
         _namaBulan = getNamaBulan();
       });
       await loadUserData();
@@ -162,9 +156,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
       );
       // response: Map<String, dynamic> sesuai contoh Anda
       List<int> countList = [];
-      if (response != null &&
-          response['success'] == true &&
-          response['brm_report'] != null) {
+      if (response['success'] == true && response['brm_report'] != null) {
         for (final item in response['brm_report']) {
           // "read" bisa "0" atau "1"
           countList.add(int.tryParse(item['read'].toString()) ?? 0);
@@ -342,7 +334,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Text(
               _dataBrm.isNotEmpty
-                  ? DateFormatter.ubahTanggal(_dataBrm![day - 1]['tanggal'])
+                  ? DateFormatter.ubahTanggal(_dataBrm[day - 1]['tanggal'])
                   : '',
               style: const TextStyle(
                 fontSize: 12,

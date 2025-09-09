@@ -9,8 +9,6 @@ import '../utils/app_colors.dart';
 import '../utils/global_variables.dart';
 import '../widgets/custom_card.dart';
 import '../widgets/custom_snackbar.dart';
-import 'form_komitmen_screen.dart';
-import 'review_evaluasi_screen.dart';
 import 'evaluasi_komitmen_view_screen.dart';
 
 class ListEvaluasiScreen extends StatefulWidget {
@@ -117,7 +115,7 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
     try {
       final acaraList = await ApiService.getAcaraByDay(context, day);
       _acaraIdList = acaraList.map((acara) => acara['id']).toList();
-      _evaluasiDoneList = List.filled(acaraList.length ?? 0, false);
+      _evaluasiDoneList = List.filled(acaraList.length, false);
       for (int i = 0; i < _evaluasiDoneList.length; i++) {
         try {
           final result = await ApiService.getEvaluasiByPesertaByAcara(
@@ -125,7 +123,7 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
             widget.userId,
             _acaraIdList[i],
           );
-          if (result != null && result['success'] == true) {
+          if (result['success'] == true) {
             _evaluasiDoneList[i] = true;
           }
         } catch (e) {}
@@ -134,7 +132,7 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
       await prefs.setString(evaluasiDoneKey, jsonEncode(_evaluasiDoneList));
       if (!mounted) return;
       setState(() {
-        _acaraList = acaraList ?? [];
+        _acaraList = acaraList;
         _isLoading = false;
       });
       print('[PREF_API] Acara List (from API): $_acaraList');
@@ -170,12 +168,12 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
     try {
       final countAcara = await ApiService.getAcaraCount(context);
       final countAcaraAll = await ApiService.getAcaraCountAll(context);
-      await prefs.setInt(countAcaraKey, countAcara ?? 0);
-      await prefs.setInt(countAcaraAllKey, countAcaraAll ?? 0);
+      await prefs.setInt(countAcaraKey, countAcara);
+      await prefs.setInt(countAcaraAllKey, countAcaraAll);
       if (!mounted) return;
       setState(() {
-        _countAcara = countAcara ?? 0;
-        _countAcaraAll = countAcaraAll ?? 0;
+        _countAcara = countAcara;
+        _countAcaraAll = countAcaraAll;
       });
       await loadEvaluasiAcara(forceRefresh: forceRefresh);
     } catch (e) {

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:syc/screens/anggota_kelompok_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 import 'package:syc/widgets/custom_count_up.dart' show CustomCountUp;
 import 'package:syc/widgets/custom_snackbar.dart';
@@ -10,8 +8,6 @@ import 'package:timeago/timeago.dart'
     show IdMessages, format, setLocaleMessages;
 
 import '../services/api_service.dart';
-import '../widgets/custom_card.dart';
-import 'anggota_gereja_screen.dart';
 
 class CatatanHarianScreen extends StatefulWidget {
   final String role;

@@ -138,16 +138,6 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
     );
   }
 
-  String getRoleImage(String role) {
-    if (role == "Pembimbing") {
-      return 'assets/mockups/pembimbing.jpg';
-    } else if (role == "Anggota") {
-      return 'assets/mockups/peserta.jpg';
-    } else {
-      return 'assets/mockups/panitia.jpg';
-    }
-  }
-
   IconData getRoleIcon(String role) {
     if (role == "Pembimbing") {
       return Icons.church;
@@ -198,7 +188,6 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
   Widget build(BuildContext context) {
     _lastBackPressed = null;
     final role = _dataUser['role'] ?? '-';
-    final id = _dataUser['id'] ?? '';
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) {
@@ -666,7 +655,7 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                                                                 'pembimbing kelompok',
                                                                 'pembina',
                                                               ].contains(
-                                                                (role ?? '')
+                                                                (role)
                                                                     .toLowerCase(),
                                                               )) &&
                                                               (user['role']
@@ -698,18 +687,9 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                                                                       ),
                                                                       child: SizedBox(
                                                                         height:
-                                                                            35, // Set your desired button height here
-                                                                        child: ElevatedButton(
-                                                                          style: ElevatedButton.styleFrom(
-                                                                            backgroundColor:
-                                                                                Colors.white,
-                                                                            shape: RoundedRectangleBorder(
-                                                                              borderRadius: BorderRadius.circular(
-                                                                                16,
-                                                                              ),
-                                                                            ),
-                                                                          ),
-                                                                          onPressed: () {
+                                                                            35,
+                                                                        child: GestureDetector(
+                                                                          onTap: () {
                                                                             Navigator.push(
                                                                               context,
                                                                               MaterialPageRoute(
@@ -724,13 +704,26 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                                                                               ),
                                                                             );
                                                                           },
-                                                                          child: const Text(
-                                                                            'Evaluasi',
-                                                                            style: TextStyle(
+                                                                          child: Container(
+                                                                            decoration: BoxDecoration(
                                                                               color:
-                                                                                  AppColors.primary,
-                                                                              fontSize:
-                                                                                  13,
+                                                                                  Colors.white,
+                                                                              borderRadius: BorderRadius.circular(
+                                                                                16,
+                                                                              ),
+                                                                            ),
+                                                                            alignment:
+                                                                                Alignment.center,
+                                                                            child: const Text(
+                                                                              'Evaluasi',
+                                                                              style: TextStyle(
+                                                                                color:
+                                                                                    AppColors.primary,
+                                                                                fontSize:
+                                                                                    14,
+                                                                                fontWeight:
+                                                                                    FontWeight.bold,
+                                                                              ),
                                                                             ),
                                                                           ),
                                                                         ),
@@ -747,17 +740,8 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                                                                     child: SizedBox(
                                                                       height:
                                                                           35, // Set your desired button height here
-                                                                      child: ElevatedButton(
-                                                                        style: ElevatedButton.styleFrom(
-                                                                          backgroundColor:
-                                                                              Colors.white,
-                                                                          shape: RoundedRectangleBorder(
-                                                                            borderRadius: BorderRadius.circular(
-                                                                              16,
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                        onPressed: () {
+                                                                      child: GestureDetector(
+                                                                        onTap: () {
                                                                           Navigator.push(
                                                                             context,
                                                                             MaterialPageRoute(
@@ -772,13 +756,26 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                                                                             ),
                                                                           );
                                                                         },
-                                                                        child: Text(
-                                                                          'Komitmen',
-                                                                          style: TextStyle(
+                                                                        child: Container(
+                                                                          decoration: BoxDecoration(
                                                                             color:
-                                                                                AppColors.primary,
-                                                                            fontSize:
-                                                                                10,
+                                                                                Colors.white,
+                                                                            borderRadius: BorderRadius.circular(
+                                                                              16,
+                                                                            ),
+                                                                          ),
+                                                                          alignment:
+                                                                              Alignment.center,
+                                                                          child: const Text(
+                                                                            'Komitmen',
+                                                                            style: TextStyle(
+                                                                              color:
+                                                                                  AppColors.primary,
+                                                                              fontSize:
+                                                                                  14,
+                                                                              fontWeight:
+                                                                                  FontWeight.bold,
+                                                                            ),
                                                                           ),
                                                                         ),
                                                                       ),
@@ -795,17 +792,8 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                                                                     child: SizedBox(
                                                                       height:
                                                                           35, // Set your desired button height here
-                                                                      child: ElevatedButton(
-                                                                        style: ElevatedButton.styleFrom(
-                                                                          backgroundColor:
-                                                                              Colors.white,
-                                                                          shape: RoundedRectangleBorder(
-                                                                            borderRadius: BorderRadius.circular(
-                                                                              16,
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                        onPressed: () async {
+                                                                      child: GestureDetector(
+                                                                        onTap: () async {
                                                                           Navigator.push(
                                                                             context,
                                                                             MaterialPageRoute(
@@ -826,13 +814,26 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                                                                             }
                                                                           });
                                                                         },
-                                                                        child: Text(
-                                                                          'Bacaan',
-                                                                          style: TextStyle(
+                                                                        child: Container(
+                                                                          decoration: BoxDecoration(
                                                                             color:
-                                                                                AppColors.primary,
-                                                                            fontSize:
-                                                                                13,
+                                                                                Colors.white,
+                                                                            borderRadius: BorderRadius.circular(
+                                                                              16,
+                                                                            ),
+                                                                          ),
+                                                                          alignment:
+                                                                              Alignment.center,
+                                                                          child: const Text(
+                                                                            'Bacaan',
+                                                                            style: TextStyle(
+                                                                              color:
+                                                                                  AppColors.primary,
+                                                                              fontSize:
+                                                                                  14,
+                                                                              fontWeight:
+                                                                                  FontWeight.bold,
+                                                                            ),
                                                                           ),
                                                                         ),
                                                                       ),

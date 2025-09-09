@@ -2,22 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/screens/anggota_group_main_screen.dart';
-import 'package:syc/screens/anggota_group_screen.dart';
 import 'package:syc/screens/anggota_kelompok_main_screen.dart';
-import 'package:syc/screens/anggota_kelompok_screen.dart';
-import 'package:syc/screens/list_gereja_screen.dart';
 import 'package:syc/screens/list_group_screen.dart';
 import 'package:syc/screens/list_kelompok_screen.dart';
 import 'package:syc/utils/app_colors.dart';
-import 'package:syc/widgets/custom_alert_dialog.dart';
-
-import '../services/api_service.dart';
 import '../utils/global_variables.dart';
-import 'login_screen.dart';
 import 'dashboard_screen.dart';
-import 'anggota_gereja_screen.dart';
 import 'profile_screen.dart';
-import 'daftar_acara_screen.dart';
 import 'daftar_acara_screen.dart';
 import 'materi_screen.dart';
 
@@ -32,7 +23,6 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   String? id;
   String? role;
-  List<dynamic> _kelompokList = [];
 
   List<Widget> _pages = [];
 

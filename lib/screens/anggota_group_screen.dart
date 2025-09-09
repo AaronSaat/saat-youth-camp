@@ -1,6 +1,5 @@
 import 'dart:convert'; // Tambahkan jika belum ada
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
@@ -35,12 +34,9 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
   bool _isLoading = true;
   Map<String, String> _dataUser = {};
 
-  DateTime? _lastBackPressed;
-
   @override
   void initState() {
     print('[SCREEN]AnggotaGroupScreen initState');
-    _lastBackPressed = null;
     super.initState();
     _initAll();
   }
@@ -127,16 +123,6 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
     );
   }
 
-  String getRoleImage(String role) {
-    if (role == "Pembina") {
-      return 'assets/mockups/pembina.jpg';
-    } else if (role == "Anggota") {
-      return 'assets/mockups/peserta.jpg';
-    } else {
-      return 'assets/mockups/panitia.jpg';
-    }
-  }
-
   IconData getRoleIcon(String role) {
     if (role == "Pembina") {
       return Icons.church;
@@ -185,9 +171,7 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    _lastBackPressed = null;
     final role = _dataUser['role'] ?? '-';
-    final id = _dataUser['id'] ?? '';
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -640,7 +624,7 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
                                                                 'pembimbing',
                                                                 'pembina',
                                                               ].contains(
-                                                                (role ?? '')
+                                                                (role)
                                                                     .toLowerCase(),
                                                               )) &&
                                                               (user['role']
@@ -664,38 +648,46 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
                                                                         horizontal:
                                                                             2,
                                                                       ),
-                                                                      child: ElevatedButton(
-                                                                        style: ElevatedButton.styleFrom(
-                                                                          backgroundColor:
-                                                                              Colors.white,
-                                                                          shape: RoundedRectangleBorder(
-                                                                            borderRadius: BorderRadius.circular(
-                                                                              16,
+                                                                      child: SizedBox(
+                                                                        height:
+                                                                            35,
+                                                                        child: GestureDetector(
+                                                                          onTap: () {
+                                                                            Navigator.push(
+                                                                              context,
+                                                                              MaterialPageRoute(
+                                                                                builder:
+                                                                                    (
+                                                                                      context,
+                                                                                    ) => ListEvaluasiScreen(
+                                                                                      userId:
+                                                                                          user['id'] ??
+                                                                                          '',
+                                                                                    ),
+                                                                              ),
+                                                                            );
+                                                                          },
+                                                                          child: Container(
+                                                                            decoration: BoxDecoration(
+                                                                              color:
+                                                                                  Colors.white,
+                                                                              borderRadius: BorderRadius.circular(
+                                                                                16,
+                                                                              ),
                                                                             ),
-                                                                          ),
-                                                                        ),
-                                                                        onPressed: () {
-                                                                          Navigator.push(
-                                                                            context,
-                                                                            MaterialPageRoute(
-                                                                              builder:
-                                                                                  (
-                                                                                    context,
-                                                                                  ) => ListEvaluasiScreen(
-                                                                                    userId:
-                                                                                        user['id'] ??
-                                                                                        '',
-                                                                                  ),
+                                                                            alignment:
+                                                                                Alignment.center,
+                                                                            child: const Text(
+                                                                              'Evaluasi',
+                                                                              style: TextStyle(
+                                                                                color:
+                                                                                    AppColors.primary,
+                                                                                fontSize:
+                                                                                    14,
+                                                                                fontWeight:
+                                                                                    FontWeight.bold,
+                                                                              ),
                                                                             ),
-                                                                          );
-                                                                        },
-                                                                        child: const Text(
-                                                                          'Evaluasi',
-                                                                          style: TextStyle(
-                                                                            color:
-                                                                                AppColors.primary,
-                                                                            fontSize:
-                                                                                13,
                                                                           ),
                                                                         ),
                                                                       ),
@@ -708,38 +700,46 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
                                                                           horizontal:
                                                                               2,
                                                                         ),
-                                                                    child: ElevatedButton(
-                                                                      style: ElevatedButton.styleFrom(
-                                                                        backgroundColor:
-                                                                            Colors.white,
-                                                                        shape: RoundedRectangleBorder(
-                                                                          borderRadius: BorderRadius.circular(
-                                                                            16,
+                                                                    child: SizedBox(
+                                                                      height:
+                                                                          35, // Set your desired button height here
+                                                                      child: GestureDetector(
+                                                                        onTap: () {
+                                                                          Navigator.push(
+                                                                            context,
+                                                                            MaterialPageRoute(
+                                                                              builder:
+                                                                                  (
+                                                                                    context,
+                                                                                  ) => ListKomitmenScreen(
+                                                                                    userId:
+                                                                                        user['id'] ??
+                                                                                        '',
+                                                                                  ),
+                                                                            ),
+                                                                          );
+                                                                        },
+                                                                        child: Container(
+                                                                          decoration: BoxDecoration(
+                                                                            color:
+                                                                                Colors.white,
+                                                                            borderRadius: BorderRadius.circular(
+                                                                              16,
+                                                                            ),
                                                                           ),
-                                                                        ),
-                                                                      ),
-                                                                      onPressed: () {
-                                                                        Navigator.push(
-                                                                          context,
-                                                                          MaterialPageRoute(
-                                                                            builder:
-                                                                                (
-                                                                                  context,
-                                                                                ) => ListKomitmenScreen(
-                                                                                  userId:
-                                                                                      user['id'] ??
-                                                                                      '',
-                                                                                ),
+                                                                          alignment:
+                                                                              Alignment.center,
+                                                                          child: const Text(
+                                                                            'Komitmen',
+                                                                            style: TextStyle(
+                                                                              color:
+                                                                                  AppColors.primary,
+                                                                              fontSize:
+                                                                                  14,
+                                                                              fontWeight:
+                                                                                  FontWeight.bold,
+                                                                            ),
                                                                           ),
-                                                                        );
-                                                                      },
-                                                                      child: Text(
-                                                                        'Komitmen',
-                                                                        style: TextStyle(
-                                                                          color:
-                                                                              AppColors.primary,
-                                                                          fontSize:
-                                                                              10,
                                                                         ),
                                                                       ),
                                                                     ),
@@ -752,45 +752,52 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
                                                                           horizontal:
                                                                               2,
                                                                         ),
-                                                                    child: ElevatedButton(
-                                                                      style: ElevatedButton.styleFrom(
-                                                                        backgroundColor:
-                                                                            Colors.white,
-                                                                        shape: RoundedRectangleBorder(
-                                                                          borderRadius: BorderRadius.circular(
-                                                                            16,
+                                                                    child: SizedBox(
+                                                                      height:
+                                                                          35, // Set your desired button height here
+                                                                      child: GestureDetector(
+                                                                        onTap: () async {
+                                                                          Navigator.push(
+                                                                            context,
+                                                                            MaterialPageRoute(
+                                                                              builder:
+                                                                                  (
+                                                                                    context,
+                                                                                  ) => BibleReadingListScreen(
+                                                                                    userId:
+                                                                                        user['id'],
+                                                                                  ),
+                                                                            ),
+                                                                          ).then((
+                                                                            result,
+                                                                          ) {
+                                                                            if (result ==
+                                                                                'reload') {
+                                                                              _initAll(); // reload dashboard
+                                                                            }
+                                                                          });
+                                                                        },
+                                                                        child: Container(
+                                                                          decoration: BoxDecoration(
+                                                                            color:
+                                                                                Colors.white,
+                                                                            borderRadius: BorderRadius.circular(
+                                                                              16,
+                                                                            ),
                                                                           ),
-                                                                        ),
-                                                                      ),
-                                                                      onPressed: () async {
-                                                                        Navigator.push(
-                                                                          context,
-                                                                          MaterialPageRoute(
-                                                                            builder:
-                                                                                (
-                                                                                  context,
-                                                                                ) => BibleReadingListScreen(
-                                                                                  userId:
-                                                                                      user['id'] ??
-                                                                                      '',
-                                                                                ),
+                                                                          alignment:
+                                                                              Alignment.center,
+                                                                          child: const Text(
+                                                                            'Bacaan',
+                                                                            style: TextStyle(
+                                                                              color:
+                                                                                  AppColors.primary,
+                                                                              fontSize:
+                                                                                  14,
+                                                                              fontWeight:
+                                                                                  FontWeight.bold,
+                                                                            ),
                                                                           ),
-                                                                        ).then((
-                                                                          result,
-                                                                        ) {
-                                                                          if (result ==
-                                                                              'reload') {
-                                                                            _initAll(); // reload dashboard
-                                                                          }
-                                                                        });
-                                                                      },
-                                                                      child: Text(
-                                                                        'Bacaan',
-                                                                        style: TextStyle(
-                                                                          color:
-                                                                              AppColors.primary,
-                                                                          fontSize:
-                                                                              13,
                                                                         ),
                                                                       ),
                                                                     ),

@@ -1,21 +1,16 @@
-import 'dart:convert'; // Tambahkan jika belum ada
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:syc/screens/anggota_kelompok_screen.dart';
 import 'package:syc/utils/app_colors.dart';
-import 'package:syc/widgets/custom_count_up.dart' show CustomCountUp;
 import 'package:syc/widgets/custom_snackbar.dart';
 import 'package:timeago/timeago.dart'
     as timeago
-    show IdMessages, format, setLocaleMessages;
+    show IdMessages, setLocaleMessages;
 import 'package:url_launcher/url_launcher.dart'
     show canLaunchUrl, LaunchMode, launchUrl;
-
 import '../services/api_service.dart';
-import '../widgets/custom_card.dart';
-import 'anggota_gereja_screen.dart';
 
 class KontakPanitiaScreen extends StatefulWidget {
   const KontakPanitiaScreen({Key? key}) : super(key: key);
@@ -25,20 +20,8 @@ class KontakPanitiaScreen extends StatefulWidget {
 }
 
 class _KontakPanitiaScreenState extends State<KontakPanitiaScreen> {
-  // Map<String, dynamic> _dataCatatanHarian = {
-  //   "success": true,
-  //   "message": "Data ditemukan",
-  //   "data_notes": [
-  //     {"nama": "Aaron", "peran": "BPH", "nomor": "+62 812-3453-602"},
-  //     {"nama": "Aaron", "peran": "Kesehatan", "nomor": "029-964-1153"},
-  //     {"nama": "Aaron", "peran": "Perlengkapan", "nomor": "029-964-1153"},
-  //   ],
-  // };
-
   // loadingnya jadi satu saja (tidak perlu dipisah dengan data panitia)
   bool _isLoading = false;
-
-  DateTime _selectedDate = DateTime.now();
 
   // progress untuk panitia
   List<dynamic> _dataPanitiaHarian = [];

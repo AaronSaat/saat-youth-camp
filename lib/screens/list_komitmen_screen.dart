@@ -1,16 +1,13 @@
-import 'dart:convert'; // Tambahkan jika belum ada
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:syc/screens/form_evaluasi_screen.dart';
 import 'package:shimmer/shimmer.dart';
-
 import '../services/api_service.dart';
 import '../utils/app_colors.dart';
 import '../utils/global_variables.dart';
 import '../widgets/custom_card.dart';
 import '../widgets/custom_snackbar.dart';
 import 'form_komitmen_screen.dart';
-import 'review_evaluasi_screen.dart';
 import 'evaluasi_komitmen_view_screen.dart';
 
 class ListKomitmenScreen extends StatefulWidget {
@@ -101,7 +98,7 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
 
     try {
       final komitmenList = await ApiService.getKomitmen(context);
-      _komitmenDoneList = List.filled(komitmenList.length ?? 0, false);
+      _komitmenDoneList = List.filled(komitmenList.length, false);
       for (int i = 0; i < _komitmenDoneList.length; i++) {
         try {
           final result = await ApiService.getKomitmenByPesertaByDay(
@@ -109,7 +106,7 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
             widget.userId,
             i + 1,
           );
-          if (result != null && result['success'] == true) {
+          if (result['success'] == true) {
             _komitmenDoneList[i] = true;
           }
         } catch (e) {}
@@ -117,7 +114,7 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
       await prefs.setString(komitmenKey, jsonEncode(komitmenList));
       await prefs.setString(komitmenDoneKey, jsonEncode(_komitmenDoneList));
       setState(() {
-        _komitmenList = komitmenList ?? [];
+        _komitmenList = komitmenList;
         // _komitmenDoneList sudah di-set di atas
         _isLoading = false;
       });
