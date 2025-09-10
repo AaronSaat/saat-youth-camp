@@ -87,6 +87,14 @@ class _PengumumanDetailScreenState extends State<PengumumanDetailScreen> {
         body: Stack(
           fit: StackFit.expand,
           children: [
+            Positioned(
+              child: Image.asset(
+                'assets/images/background_login.jpg',
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                fit: BoxFit.fill,
+              ),
+            ),
             SafeArea(
               child:
                   _isLoading
