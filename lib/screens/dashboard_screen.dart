@@ -1,6 +1,10 @@
 import 'dart:convert';
+import 'package:app_badge_plus/app_badge_plus.dart' show AppBadgePlus;
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syc/main.dart';
 import 'package:syc/screens/form_komitmen_screen.dart';
 import 'package:syc/screens/main_screen.dart';
 import 'package:syc/screens/profile_edit_screen.dart';
@@ -51,6 +55,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _komitmenDone = false;
   DateTime? _lastBackPressed;
   // DateTime _today = DateTime.now();
+
+  bool isSupported = false;
 
   // ini dipakai untuk acara hari ini statis, kartu komitmen, kartu dokumentasi
   // [DEVELOPMENT NOTES] nanti hapus
@@ -380,6 +386,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() {
       _today = GlobalVariables.today;
       _timeOfDay = GlobalVariables.timeOfDay;
+    });
+
+    // Inisialisasi plugin notifikasi lokal
+    const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const iosInit = DarwinInitializationSettings();
+    const initSettings = InitializationSettings(
+      android: androidInit,
+      iOS: iosInit,
+    );
+    flutterLocalNotificationsPlugin.initialize(initSettings);
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print('Pesan FCM masuk: ${message.notification?.title}');
+      _showLocalNotification(message);
     });
 
     initNotificationService();
@@ -759,6 +779,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _pengumumanList = pengumumanList2;
         _isLoadingPengumuman = false;
         print('[PREF_API] Pengumuman List (from API): $_pengumumanList');
+
+        AppBadgePlus.isSupported().then((value) {
+          isSupported = value;
+          setState(() {});
+        });
+
+        AppBadgePlus.updateBadge(_pengumumanList.length);
+        print('Badge updated: ${_pengumumanList.length}');
       });
     } catch (e) {
       print('❌ Gagal memuat pengumuman: $e');
@@ -1036,6 +1064,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     return scheduledTime;
+  }
+
+  void _showLocalNotification(RemoteMessage message) {
+    const androidDetails = AndroidNotificationDetails(
+      'fcm_channel', // id channel
+      'FCM Notifications', // nama channel
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+    const notifDetails = NotificationDetails(android: androidDetails);
+
+    flutterLocalNotificationsPlugin.show(
+      message.hashCode,
+      message.notification?.title ?? 'Notifikasi',
+      message.notification?.body ?? '',
+      notifDetails,
+    );
   }
 
   @override

@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:syc/firebase_options.dart';
 import 'package:syc/screens/main_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -153,6 +156,33 @@ void main() async {
   //     seconds: 30,
   //   ), // minimal 15 menit di Android, iOS tidak support interval pendek
   // );
+
+  // Request notification permission khusus iOS
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  if (Platform.isIOS) {
+    NotificationSettings settings = await FirebaseMessaging.instance
+        .requestPermission(alert: true, badge: true, sound: true);
+    if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+        settings.authorizationStatus == AuthorizationStatus.provisional) {
+      // Listen for token refresh (APNS token ready)
+      FirebaseMessaging.instance.onTokenRefresh.listen((token) {
+        print('FCM Token (onTokenRefresh): $token');
+      });
+      // Optionally, try getToken() (will return null if APNS belum siap)
+      String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+      print('FCM Token (getAPNSToken): $apnsToken');
+      String? token = await FirebaseMessaging.instance.getToken();
+      print('FCM Token (getToken): $token');
+    } else {
+      print('User declined or has not accepted notification permissions');
+    }
+  } else if (Platform.isAndroid) {
+    String? token = await FirebaseMessaging.instance.getToken();
+    print('FCM Token (Android): $token');
+    FirebaseMessaging.instance.onTokenRefresh.listen((token) {
+      print('FCM Token (Android onTokenRefresh): $token');
+    });
+  }
 
   runApp(const MyApp());
 }
