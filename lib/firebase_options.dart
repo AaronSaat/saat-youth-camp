@@ -50,19 +50,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCL2b9BX1L7_PRNmRH5c0XcyON0Cxj4ZnM',
-    appId: '1:48544706607:android:bb9be59a60345f98f0d6da',
-    messagingSenderId: '48544706607',
-    projectId: 'saat-youth-camp-9e3bb',
-    storageBucket: 'saat-youth-camp-9e3bb.firebasestorage.app',
+    apiKey: 'AIzaSyDBUOxGyEplJr11OYE6cx7yYA9O3zoXi6Y',
+    appId: '1:928108247385:android:ed7a54c556ba445bf7b448',
+    messagingSenderId: '928108247385',
+    projectId: 'mobile-apps-saat',
+    storageBucket: 'mobile-apps-saat.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDWv2aoRF0GAoyi10v60suAO9BcoiFLfoQ',
-    appId: '1:48544706607:ios:463e75a5e1581537f0d6da',
-    messagingSenderId: '48544706607',
-    projectId: 'saat-youth-camp-9e3bb',
-    storageBucket: 'saat-youth-camp-9e3bb.firebasestorage.app',
+    apiKey: 'AIzaSyCsiRmVtYfS3uNHGBxpO_THRDybNY67ndM',
+    appId: '1:928108247385:ios:da277bc7096a0eadf7b448',
+    messagingSenderId: '928108247385',
+    projectId: 'mobile-apps-saat',
+    storageBucket: 'mobile-apps-saat.firebasestorage.app',
     iosBundleId: 'com.saat.sycapp',
   );
+
 }

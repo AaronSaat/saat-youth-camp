@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyDWv2aoRF0GAoyi10v60suAO9BcoiFLfoQ</string>
+	<string>AIzaSyCsiRmVtYfS3uNHGBxpO_THRDybNY67ndM</string>
 	<key>GCM_SENDER_ID</key>
-	<string>48544706607</string>
+	<string>928108247385</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.saat.sycapp</string>
 	<key>PROJECT_ID</key>
-	<string>saat-youth-camp-9e3bb</string>
+	<string>mobile-apps-saat</string>
 	<key>STORAGE_BUCKET</key>
-	<string>saat-youth-camp-9e3bb.firebasestorage.app</string>
+	<string>mobile-apps-saat.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:48544706607:ios:463e75a5e1581537f0d6da</string>
+	<string>1:928108247385:ios:da277bc7096a0eadf7b448</string>
 </dict>
 </plist>

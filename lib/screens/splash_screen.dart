@@ -181,11 +181,11 @@ class _SplashScreenState extends State<SplashScreen>
                       if (Theme.of(context).platform == TargetPlatform.iOS) {
                         url =
                             response['update_url_ios'] ??
-                            'https://apps.apple.com/id/app/saat-youth-camp/id6751375478';
+                            'https://apps.apple.com/id/app/testflight/id899247664';
                       } else {
                         url =
                             response['update_url_android'] ??
-                            'https://play.google.com/apps/testing/com.sttsaat.sycapp';
+                            'https://play.google.com/store/apps/details?id=com.sttsaat.sycapp';
                       }
                       if (await canLaunchUrl(Uri.parse(url))) {
                         await launchUrl(

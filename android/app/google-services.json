@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "48544706607",
-    "project_id": "saat-youth-camp-9e3bb",
-    "storage_bucket": "saat-youth-camp-9e3bb.firebasestorage.app"
+    "project_number": "928108247385",
+    "project_id": "mobile-apps-saat",
+    "storage_bucket": "mobile-apps-saat.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:48544706607:android:bb9be59a60345f98f0d6da",
+        "mobilesdk_app_id": "1:928108247385:android:ed7a54c556ba445bf7b448",
         "android_client_info": {
           "package_name": "com.sttsaat.sycapp"
         }
@@ -15,7 +15,26 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCL2b9BX1L7_PRNmRH5c0XcyON0Cxj4ZnM"
+          "current_key": "AIzaSyDBUOxGyEplJr11OYE6cx7yYA9O3zoXi6Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:928108247385:android:2bf6c6387780c2fff7b448",
+        "android_client_info": {
+          "package_name": "com.sttsaat.validator"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBUOxGyEplJr11OYE6cx7yYA9O3zoXi6Y"
         }
       ],
       "services": {

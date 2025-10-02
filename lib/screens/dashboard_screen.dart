@@ -57,6 +57,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // DateTime _today = DateTime.now();
 
   bool isSupported = false;
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
 
   // ini dipakai untuk acara hari ini statis, kartu komitmen, kartu dokumentasi
   // [DEVELOPMENT NOTES] nanti hapus
