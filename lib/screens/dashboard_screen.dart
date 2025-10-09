@@ -1,8 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:app_badge_plus/app_badge_plus.dart' show AppBadgePlus;
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart'
+    as permission_handler;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/main.dart';
 import 'package:syc/screens/form_komitmen_screen.dart';
@@ -404,7 +408,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _showLocalNotification(message);
     });
 
-    initNotificationService();
+    AppBadgePlus.isSupported().then((value) {
+      isSupported = value;
+      setState(() {});
+    });
+
     initAll();
     // print('[BackgroundSync] Dashboard dibuka pada: ${DateTime.now()}');
     // setupBackgroundSync(); // Setup background sync untuk pengumuman
@@ -422,13 +430,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
-  Future<void> initNotificationService() async {
-    final notificationService = NotificationService();
-    await notificationService.initialize();
-
-    print('🔔[NotificationService] Initialized');
-  }
-
   Future<void> initAll({bool forceRefresh = false}) async {
     setState(() {
       _isLoading = true;
@@ -437,24 +438,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     print(
       '_today: ${_today.toIso8601String().substring(0, 10)}, acaraStatisHari1[0][tanggal]: ${acaraStatisHari1[0]["tanggal"]}, eq: ${_today.toIso8601String().substring(0, 10) == acaraStatisHari1[0]["tanggal"].toString().substring(0, 10)}',
     );
-    print("HEY");
-    try {
-      // Selalu update status_datang di SharedPreferences dari API sebelum loadUserData
-      await loadUserData();
 
-      // if (_dataUser['role'] == 'Peserta' && _dataUser['status_datang'] == "0") {
-      //   print('Checking status datang...');
-      // await checkStatusDatang();
-      // }
+    // Selalu update status_datang di SharedPreferences dari API sebelum loadUserData
+    await loadUserData();
 
-      await loadBrmData(forceRefresh: forceRefresh);
-      await loadPengumumanByUserId(forceRefresh: forceRefresh);
-      await checkKomitmenDone();
-
-      // ...existing code...
-    } catch (e) {
-      // handle error jika perlu
-    }
+    // if (_dataUser['role'] == 'Peserta' && _dataUser['status_datang'] == "0") {
+    //   print('Checking status datang...');
+    // await checkStatusDatang();
+    // }
+    // await saveUserDevice();
+    await loadBrmData(forceRefresh: forceRefresh);
+    await loadPengumumanByUserId(forceRefresh: forceRefresh);
+    await checkKomitmenDone();
     if (!mounted) return;
     setState(() {
       _isLoading = false;
@@ -1083,6 +1078,122 @@ class _DashboardScreenState extends State<DashboardScreen> {
       message.notification?.body ?? '',
       notifDetails,
     );
+  }
+
+  Future<void> saveUserDevice() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Cek izin notifikasi terlebih dahulu
+    bool notificationAllowed = false;
+    if (Platform.isIOS) {
+      NotificationSettings settings = await FirebaseMessaging.instance
+          .requestPermission(alert: true, badge: true, sound: true);
+      notificationAllowed =
+          settings.authorizationStatus == AuthorizationStatus.authorized ||
+          settings.authorizationStatus == AuthorizationStatus.provisional;
+      print(
+        notificationAllowed
+            ? 'User granted permission'
+            : 'User declined or has not accepted notification permissions',
+      );
+    } else if (Platform.isAndroid) {
+      try {
+        final deviceInfo = await DeviceInfoPlugin().androidInfo;
+        if (deviceInfo.version.sdkInt >= 33) {
+          final permission =
+              await permission_handler.Permission.notification.request();
+          notificationAllowed = permission.isGranted;
+          print(
+            notificationAllowed
+                ? 'Android notification permission granted'
+                : 'Android notification permission denied',
+          );
+        } else {
+          // For Android < 13, permission is granted by default
+          notificationAllowed = true;
+        }
+      } catch (e) {
+        print('Error requesting Android notification permission: $e');
+      }
+    }
+
+    if (!notificationAllowed) {
+      print('Notifikasi belum diizinkan, tidak menyimpan device.');
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    // Print device info
+    final deviceInfoPlugin = DeviceInfoPlugin();
+    String deviceModelInfo = '';
+    String deviceManufacturerInfo = '';
+    String deviceVersionInfo = '';
+    String platformInfo = '';
+    String fcm_token = '';
+
+    if (Platform.isAndroid) {
+      final androidInfo = await deviceInfoPlugin.androidInfo;
+      deviceModelInfo = androidInfo.model ?? '';
+      deviceManufacturerInfo = androidInfo.manufacturer ?? '';
+      deviceVersionInfo = androidInfo.version.release ?? '';
+      platformInfo = 'Android';
+      print(
+        'Device Info (Android): $deviceModelInfo, $deviceManufacturerInfo, $deviceVersionInfo',
+      );
+    } else if (Platform.isIOS) {
+      final iosInfo = await deviceInfoPlugin.iosInfo;
+      deviceModelInfo = iosInfo.utsname.machine ?? '';
+      deviceManufacturerInfo = iosInfo.name ?? '';
+      deviceVersionInfo = iosInfo.systemVersion ?? '';
+      platformInfo = 'iOS';
+      print(
+        'Device Info (iOS): $deviceModelInfo, $deviceVersionInfo, $deviceManufacturerInfo',
+      );
+    }
+
+    if (Platform.isIOS) {
+      NotificationSettings settings = await FirebaseMessaging.instance
+          .requestPermission(alert: true, badge: true, sound: true);
+      if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+          settings.authorizationStatus == AuthorizationStatus.provisional) {
+        fcm_token = await FirebaseMessaging.instance.getToken() ?? '';
+        print('FCM Token (Ios): $fcm_token');
+      }
+    } else if (Platform.isAndroid) {
+      fcm_token = await FirebaseMessaging.instance.getToken() ?? '';
+      print('FCM Token (Android): $fcm_token');
+    }
+
+    try {
+      final result = await ApiService.saveUserDevice(
+        userId: prefs.getInt('id')?.toString() ?? '',
+        username: prefs.getString('username') ?? '',
+        fcmToken: fcm_token,
+        platform: platformInfo,
+        deviceModel: deviceModelInfo,
+        deviceManufacturer: deviceManufacturerInfo,
+        deviceVersion: deviceVersionInfo,
+      );
+      setState(() {
+        print('saveUserDevice result: $result');
+      });
+    } catch (e) {
+      setState(() {
+        print('Error saving user device: $e');
+      });
+    } finally {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override

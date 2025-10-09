@@ -2232,4 +2232,71 @@ class ApiService {
       throw Exception('Failed to post hapus akun');
     }
   }
+
+  static Future<Map<String, dynamic>> saveUserDevice({
+    required String userId,
+    required String username,
+    required String fcmToken,
+    required String platform,
+    required String deviceModel,
+    required String deviceManufacturer,
+    required String deviceVersion,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+
+    final url = Uri.parse('${baseurl}save-user-device');
+    final response = await http
+        .post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          body: json.encode({
+            'user_id': userId,
+            'username': username,
+            'fcm_token': fcmToken,
+            'platform': platform,
+            'device_model': deviceModel,
+            'device_manufacturer': deviceManufacturer,
+            'device_version': deviceVersion,
+          }),
+        )
+        .timeout(const Duration(seconds: 10));
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      final error = json.decode(response.body);
+      throw Exception(error['message'] ?? 'Save user device failed');
+    }
+  }
+
+  static Future<Map<String, dynamic>> deleteUserDevice({
+    required String fcmToken,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+
+    final url = Uri.parse('${baseurl}delete-user-device');
+    final response = await http
+        .post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          body: json.encode({'fcm_token': fcmToken}),
+        )
+        .timeout(const Duration(seconds: 10));
+
+    print('Request Body: ${json.encode({'fcm_token': fcmToken})}');
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      final error = json.decode(response.body);
+      throw Exception(error['message'] ?? 'Delete user device failed');
+    }
+  }
 }

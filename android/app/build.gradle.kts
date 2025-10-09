@@ -30,7 +30,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.example.syc"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36
     ndkVersion = "27.0.12077973"
 
     signingConfigs {
@@ -59,7 +59,7 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 23
         targetSdk = flutter.targetSdkVersion
-        versionCode = 17
+        versionCode = 18
         versionName = flutter.versionName   
     }
 
@@ -83,4 +83,5 @@ flutter {
 dependencies {
     // ...existing dependencies...
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
 }
