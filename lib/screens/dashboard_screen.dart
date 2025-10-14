@@ -44,7 +44,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool isPanitia = false;
   ScrollController _acaraController = ScrollController();
   // List<dynamic> _acaraList = [];
-  // List<dynamic> _acaraListAll = [];
+  List<dynamic> _acaraListAll = []; //untuk flutter local notification
   List<dynamic> _komitmenListAll = [];
   List<dynamic> _acaraDateList = [];
   List<Map<String, dynamic>> _pengumumanList = [];
@@ -450,6 +450,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     await loadBrmData(forceRefresh: forceRefresh);
     await loadPengumumanByUserId(forceRefresh: forceRefresh);
     await checkKomitmenDone();
+
+    await loadAllAcara();
+    await loadAllKomitmen();
+    await setupAllNotification();
     if (!mounted) return;
     setState(() {
       _isLoading = false;
@@ -694,29 +698,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
   //   }
   // }
 
-  // untuk notifikasi
-  // Future<void> loadAllAcara() async {
-  //   if (!mounted) return;
-  //   setState(() {
-  //     _isLoading = true;
-  //   });
+  // untuk notifikasi lokal
+  Future<void> loadAllAcara() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+    });
 
-  //   try {
-  //     final acaraList = await ApiService.getAcara(context);
-  //     if (!mounted) return;
-  //     setState(() {
-  //       _acaraListAll = acaraList;
-  //       _isLoading = false;
-  //       print('Acara List All: \n$_acaraListAll');
-  //     });
-  //   } catch (e) {
-  //     print('❌ Gagal memuat all acara : $e');
-  //     if (!mounted) return;
-  //     setState(() {
-  //       _isLoading = false;
-  //     });
-  //   }
-  // }
+    try {
+      final acaraList = await ApiService.getAcara(context);
+      if (!mounted) return;
+      setState(() {
+        _acaraListAll = acaraList;
+        _isLoading = false;
+        print('Acara List All: \n$_acaraListAll');
+      });
+    } catch (e) {
+      print('❌ Gagal memuat all acara : $e');
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   // untuk notifikasi
   Future<void> loadAllKomitmen() async {
@@ -882,168 +886,171 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // 2. Notifikasi evaluasi 1 jam setelah acara dimulai hari 1 - 4 (untuk peserta, pembina)
   // 3. Notifikasi evaluasi keseluruhan 1x hari terakhir jam 12 siang (untuk peserta, pembina)
   // 4. Notifikasi komitmen setiap hari tiap jam 3 sore (untuk peserta)
-  // Future<void> setupAllNotification() async {
-  //   try {
-  //     final notificationService = NotificationService();
-  //     await notificationService.initialize();
+  Future<void> setupAllNotification() async {
+    try {
+      final notificationService = NotificationService();
+      await notificationService.initialize();
 
-  //     // CANCEL SEMUA NOTIFIKASI LAMA TERLEBIH DAHULU
-  //     await notificationService.cancelNotification();
+      // CANCEL SEMUA NOTIFIKASI LAMA TERLEBIH DAHULU
+      await notificationService.cancelNotification();
 
-  //     // Debug: Jadwalkan notifikasi dengan waktu yang diinputkan sendiri
-  //     // Ganti tanggal dan waktu sesuai kebutuhan debug
-  //     final debugScheduledTime = DateTime(
-  //       2025,
-  //       7,
-  //       14,
-  //       13,
-  //       28,
-  //       0,
-  //     ); // contoh: 20 Juli 2025 jam 10:00
-  //     if (debugScheduledTime.isAfter(DateTime.now())) {
-  //       await notificationService.scheduledNotification(
-  //         title: '🔔 Debug Notification',
-  //         body: 'Ini adalah notifikasi debug pada $debugScheduledTime',
-  //         scheduledTime: debugScheduledTime,
-  //         payload: 'splash',
-  //       );
-  //       print('🔔 Debug notification scheduled at $debugScheduledTime');
-  //     }
+      // Debug: Jadwalkan notifikasi dengan waktu yang diinputkan sendiri
+      // Ganti tanggal dan waktu sesuai kebutuhan debug
+      // final debugScheduledTime = DateTime(
+      //   2025,
+      //   7,
+      //   14,
+      //   13,
+      //   28,
+      //   0,
+      // ); // contoh: 20 Juli 2025 jam 10:00
+      // if (debugScheduledTime.isAfter(DateTime.now())) {
+      //   await notificationService.scheduledNotification(
+      //     title: '🔔 Debug Notification',
+      //     body: 'Ini adalah notifikasi debug pada $debugScheduledTime',
+      //     scheduledTime: debugScheduledTime,
+      //     payload: 'splash',
+      //   );
+      //   print('🔔 Debug notification scheduled at $debugScheduledTime');
+      // }
 
-  //     // 15 menit sebelum acara
-  //     for (final acara in _acaraListAll) {
-  //       final hari = acara['hari']?.toString();
-  //       if (hari == "99") continue; // skip hari 99
-  //       final tanggal = acara['tanggal'] ?? '';
-  //       final waktu = acara['waktu'] ?? '';
-  //       final namaAcara = acara['acara_nama'] ?? 'Acara';
-  //       DateTime? scheduledTime;
-  //       try {
-  //         scheduledTime = DateTime.parse(
-  //           '$tanggal ${waktu.length == 5 ? waktu : '00:00'}:00',
-  //         );
-  //         scheduledTime = scheduledTime.subtract(const Duration(minutes: 15));
-  //       } catch (e) {
-  //         continue;
-  //       }
-  //       print(
-  //         '🔔 Jadwalkan notif 15 menit sebelum acara "$namaAcara" pada $scheduledTime',
-  //       );
-  //       if (scheduledTime.isAfter(DateTime.now())) {
-  //         await notificationService.scheduledNotification(
-  //           title: '⏰ Acara akan dimulai!',
-  //           body: '${namaAcara} akan dimulai dalam 15 menit!',
-  //           scheduledTime: scheduledTime,
-  //           payload: 'splash',
-  //         );
-  //       }
-  //     }
+      // 15 menit sebelum acara
+      for (final acara in _acaraListAll) {
+        final hari = acara['hari']?.toString();
+        if (hari == "99") continue; // skip hari 99
+        final tanggal = acara['tanggal'] ?? '';
+        final waktu = acara['waktu'] ?? '';
+        final namaAcara = acara['acara_nama'] ?? 'Acara';
+        DateTime? scheduledTime;
+        try {
+          scheduledTime = DateTime.parse(
+            '$tanggal ${waktu.length == 5 ? waktu : '00:00'}:00',
+          );
+          scheduledTime = scheduledTime.subtract(const Duration(minutes: 15));
+        } catch (e) {
+          continue;
+        }
+        print(
+          '🔔 Jadwalkan notif 15 menit sebelum acara "$namaAcara" pada $scheduledTime',
+        );
+        if (scheduledTime.isAfter(DateTime.now())) {
+          await notificationService.scheduledNotification(
+            title: '⏰ Acara akan dimulai!',
+            body: '${namaAcara} akan dimulai dalam 15 menit!',
+            scheduledTime: scheduledTime,
+            payload: 'splash',
+          );
+        }
+      }
 
-  //     final userRole = _dataUser['role']?.toLowerCase() ?? '';
-  //     // Evaluasi
-  //     // Notifikasi evaluasi 1 jam setelah acara dimulai
-  //     // Hanya untuk role peserta atau pembina
-  //     if (userRole == 'peserta' || userRole == 'pembina') {
-  //       for (final acara in _acaraListAll) {
-  //         final hari = acara['hari']?.toString();
-  //         if (hari == "99") continue; // skip hari 99
-  //         final tanggal = acara['tanggal'] ?? '';
-  //         final waktu = acara['waktu'] ?? '';
-  //         final namaAcara = acara['acara_nama'] ?? 'Acara';
-  //         DateTime? scheduledTime;
-  //         try {
-  //           // Gabungkan tanggal dan waktu, misal: '2025-12-31' + '07:30'
-  //           scheduledTime = DateTime.parse(
-  //             '$tanggal ${waktu.length == 5 ? waktu : '00:00'}:00',
-  //           );
-  //           // Tambahkan 1 jam setelah acara dimulai
-  //           scheduledTime = scheduledTime.add(const Duration(hours: 1));
-  //         } catch (e) {
-  //           print(
-  //             '❌ Gagal parsing tanggal/waktu evaluasi: $tanggal $waktu ($e)',
-  //           );
-  //           continue;
-  //         }
-  //         print(
-  //           '🔔 Jadwalkan notif evaluasi 1 jam setelah acara "$namaAcara" pada $scheduledTime',
-  //         );
-  //         if (scheduledTime.isAfter(DateTime.now())) {
-  //           await notificationService.scheduledNotification(
-  //             title: '📝 Reminder Evaluasi!',
-  //             body: 'Jangan lupa mengisi evaluasi acara : ${namaAcara}',
-  //             scheduledTime: scheduledTime,
-  //             payload: 'splash',
-  //           );
-  //         }
-  //       }
-  //     }
+      final userRole = _dataUser['role']?.toLowerCase() ?? '';
+      // Evaluasi
+      // Notifikasi evaluasi 1 jam setelah acara dimulai
+      // Hanya untuk role peserta atau pembina
+      if (userRole == 'peserta' || userRole == 'pembina') {
+        for (final acara in _acaraListAll) {
+          final hari = acara['hari']?.toString();
+          if (hari == "99") continue; // skip hari 99
+          final tanggal = acara['tanggal'] ?? '';
+          final waktu = acara['waktu'] ?? '';
+          final namaAcara = acara['acara_nama'] ?? 'Acara';
+          DateTime? scheduledTime;
+          try {
+            // Gabungkan tanggal dan waktu, misal: '2025-12-31' + '07:30'
+            scheduledTime = DateTime.parse(
+              '$tanggal ${waktu.length == 5 ? waktu : '00:00'}:00',
+            );
+            // Tambahkan 1 jam setelah acara dimulai
+            scheduledTime = scheduledTime.add(const Duration(hours: 1));
+          } catch (e) {
+            print(
+              '❌ Gagal parsing tanggal/waktu evaluasi: $tanggal $waktu ($e)',
+            );
+            continue;
+          }
+          print(
+            '🔔 Jadwalkan notif evaluasi 1 jam setelah acara "$namaAcara" pada $scheduledTime',
+          );
+          if (scheduledTime.isAfter(DateTime.now())) {
+            await notificationService.scheduledNotification(
+              title: '📝 Reminder Evaluasi!',
+              body: 'Jangan lupa mengisi evaluasi acara : ${namaAcara}',
+              scheduledTime: scheduledTime,
+              payload: 'splash',
+            );
+          }
+        }
+      }
 
-  //     // Evaluasi keseluruhan
-  //     // Evaluasi keseluruhan: cari acara dengan hari == "99"
-  //     // Evaluasi keseluruhan: hanya untuk role peserta atau pembina
-  //     if (userRole == 'peserta' || userRole == 'pembina') {
-  //       final acaraEvaluasi = _acaraListAll.firstWhere(
-  //         (acara) => acara['hari']?.toString() == "99",
-  //         orElse: () => null,
-  //       );
+      // Evaluasi keseluruhan
+      // Evaluasi keseluruhan: cari acara dengan hari == "99"
+      // Evaluasi keseluruhan: hanya untuk role peserta atau pembina
+      if (userRole == 'peserta' || userRole == 'pembina') {
+        final acaraEvaluasi = _acaraListAll.firstWhere(
+          (acara) => acara['hari']?.toString() == "99",
+          orElse: () => null,
+        );
 
-  //       if (acaraEvaluasi != null) {
-  //         final tanggal = acaraEvaluasi['tanggal'];
-  //         try {
-  //           // Set jam 12:00 siang pada tanggal tersebut
-  //           // Jika tanggal == '2026-01-02', set scheduledTime ke 2 Januari 2026 jam 12:00:00
-  //           final scheduledTime = DateTime.parse('2025-07-17 12:00:00');
-  //           print(
-  //             '🔔 Jadwalkan notif evaluasi keseluruhan pada $scheduledTime',
-  //           );
-  //           if (scheduledTime.isAfter(DateTime.now())) {
-  //             await notificationService.scheduledNotification(
-  //               title: 'Thank you for attending SYC 2025 - Redeemed!',
-  //               body:
-  //                   '📝 Jangan lupa mengisi evaluasi keseluruhan pada profil kamu 😊',
-  //               scheduledTime: scheduledTime,
-  //               payload: 'splash',
-  //             );
-  //           }
-  //         } catch (e) {
-  //           print(
-  //             '❌ Gagal parsing tanggal evaluasi keseluruhan: $tanggal ($e)',
-  //           );
-  //         }
-  //       }
-  //     }
+        if (acaraEvaluasi != null) {
+          final tanggal = acaraEvaluasi['tanggal'];
+          try {
+            // Set jam 12:00 siang pada tanggal tersebut
+            // Jika tanggal == '2026-01-02', set scheduledTime ke 2 Januari 2026 jam 12:00:00
+            final scheduledTime = DateTime.parse('2025-07-17 12:00:00');
+            print(
+              '🔔 Jadwalkan notif evaluasi keseluruhan pada $scheduledTime',
+            );
+            if (scheduledTime.isAfter(DateTime.now())) {
+              await notificationService.scheduledNotification(
+                title: 'Thank you for attending SYC 2025 - Redeemed!',
+                body:
+                    '📝 Jangan lupa mengisi evaluasi keseluruhan pada profil kamu 😊',
+                scheduledTime: scheduledTime,
+                payload: 'splash',
+              );
+            }
+          } catch (e) {
+            print(
+              '❌ Gagal parsing tanggal evaluasi keseluruhan: $tanggal ($e)',
+            );
+          }
+        }
+      }
 
-  //     // Komitmen harian
-  //     // Notifikasi komitmen harian: iterasi semua komitmen, jadwalkan pada tanggal terkait jam 15:00
-  //     // Komitmen harian: hanya untuk role peserta
-  //     if (userRole == 'peserta') {
-  //       for (final komitmen in _komitmenListAll) {
-  //         final tanggal = komitmen['tanggal'];
-  //         final hariKomitmen = komitmen['hari'] ?? '0';
-  //         if (tanggal != null && tanggal is String && tanggal.isNotEmpty) {
-  //           try {
-  //             // Set jam 15:00 (3 sore) pada tanggal tersebut
-  //             final scheduledTime = DateTime.parse('$tanggal 15:00:00');
-  //             if (scheduledTime.isAfter(DateTime.now())) {
-  //               await notificationService.scheduledNotification(
-  //                 title: '🙏 Reminder Komitmen!',
-  //                 body:
-  //                     'Jangan lupa mengisi komitmen hari ke : ${hariKomitmen}',
-  //                 scheduledTime: scheduledTime,
-  //                 payload: 'splash',
-  //               );
-  //             }
-  //           } catch (e) {
-  //             print('❌ Gagal parsing tanggal komitmen: $tanggal ($e)');
-  //           }
-  //         }
-  //       }
-  //     }
-  //     print('Notificaton setup completed');
-  //   } catch (e) {
-  //     print('❌ Error setting up daily notifications: $e');
-  //   }
-  // }
+      // Komitmen harian
+      // Notifikasi komitmen harian: iterasi semua komitmen, jadwalkan pada tanggal terkait jam 15:00
+      // Komitmen harian: hanya untuk role peserta
+      if (userRole == 'peserta') {
+        for (final komitmen in _komitmenListAll) {
+          final tanggal = komitmen['tanggal'];
+          final hariKomitmen = komitmen['hari'] ?? '0';
+          if (tanggal != null && tanggal is String && tanggal.isNotEmpty) {
+            try {
+              // Set jam 15:00 (3 sore) pada tanggal tersebut
+              final scheduledTime = DateTime.parse('$tanggal 15:00:00');
+              print(
+                '🔔 Jadwalkan notif komitmen hari ke $hariKomitmen pada $scheduledTime',
+              );
+              if (scheduledTime.isAfter(DateTime.now())) {
+                await notificationService.scheduledNotification(
+                  title: '🙏 Reminder Komitmen!',
+                  body:
+                      'Jangan lupa mengisi komitmen hari ke : ${hariKomitmen}',
+                  scheduledTime: scheduledTime,
+                  payload: 'splash',
+                );
+              }
+            } catch (e) {
+              print('❌ Gagal parsing tanggal komitmen: $tanggal ($e)');
+            }
+          }
+        }
+      }
+      print('Notificaton setup completed');
+    } catch (e) {
+      print('❌ Error setting up daily notifications: $e');
+    }
+  }
 
   DateTime _getNext9AM() {
     final now = DateTime.now();

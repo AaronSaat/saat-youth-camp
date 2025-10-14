@@ -132,6 +132,7 @@ class NotificationService {
     // Pastikan timezone WIB (Asia/Jakarta)
     final wib = tz.getLocation('Asia/Jakarta');
     final now = tz.TZDateTime.now(wib);
+    // final now = tz.TZDateTime(wib, DateTime.now().year, 12, 30, 6, 0, 0);
     print('Current time (WIB): $now');
 
     // Konversi scheduledTime ke WIB
