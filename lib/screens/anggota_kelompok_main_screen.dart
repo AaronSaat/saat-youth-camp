@@ -60,11 +60,10 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
       await loadAnggotaKelompok(widget.id, forceRefresh: forceRefresh);
       await loadUserData();
     } catch (e) {}
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    if (!mounted) return;
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<void> loadUserData() async {
@@ -101,6 +100,7 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
       final cachedAnggota = prefs.getString(anggotaKey);
       if (cachedAnggota != null) {
         final decoded = jsonDecode(cachedAnggota);
+        if (!mounted) return;
         setState(() {
           nama = decoded['nama_kelompok'];
           anggota = decoded['data_anggota_kelompok'];
@@ -110,18 +110,13 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
       }
     }
 
-    try {
-      final response = await ApiService.getAnggotaKelompok(context, kelompokId);
-      await prefs.setString(anggotaKey, jsonEncode(response));
-      setState(() {
-        nama = response['nama_kelompok'];
-        anggota = response['data_anggota_kelompok'];
-      });
-      print('[PREF_API] Anggota Kelompok (from API): $anggota');
-    } catch (e) {
-      setState(() {});
-      print('Gagal mengambil data kelompok: $e');
-    }
+    final response = await ApiService.getAnggotaKelompok(context, kelompokId);
+    await prefs.setString(anggotaKey, jsonEncode(response));
+    setState(() {
+      nama = response['nama_kelompok'];
+      anggota = response['data_anggota_kelompok'];
+    });
+    print('[PREF_API] Anggota Kelompok (from API): $anggota');
 
     // load avatar dan download
     for (var user in anggota) {

@@ -193,6 +193,47 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>> getInfoKamarKelompok(
+    BuildContext context,
+    String userId,
+    String role,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse(
+      '${baseurl}info-kamar-kelompok?user_id=$userId&role=$role',
+    );
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('url: $url');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> dataUser = json.decode(response.body);
+
+      return dataUser;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      // throw Exception('Unauthorized');
+      return {};
+    } else {
+      print('❌ Error test: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load info kamar kelompok by user');
+    }
+  }
+
   static Future<Map<String, dynamic>> getBrmToday(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');

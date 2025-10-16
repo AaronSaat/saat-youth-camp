@@ -9,6 +9,8 @@ import '../services/api_service.dart';
 import '../utils/app_colors.dart';
 import 'login_screen.dart';
 import 'main_screen.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -164,6 +166,27 @@ class _SplashScreenState extends State<SplashScreen>
     print('CEK VERSI: $localVersion vs $latestVersion');
 
     if (localVersion != latestVersion) {
+      // Hapus semua data SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+      print('SharedPreferences cleared due to version mismatch.');
+
+      // Hapus semua file gambar yang sudah didownload lokal (misal di direktori cache/app)
+      // (Contoh: hapus semua file di direktori temporary dan application documents)
+      try {
+        final tempDir = await getTemporaryDirectory();
+        if (await tempDir.exists()) {
+          await tempDir.delete(recursive: true);
+        }
+        final appDocDir = await getApplicationDocumentsDirectory();
+        if (await appDocDir.exists()) {
+          await appDocDir.delete(recursive: true);
+        }
+        print('Local files cleared due to version mismatch.');
+      } catch (e) {
+        print('Gagal menghapus file lokal: $e');
+      }
+
       if (mounted) {
         await showDialog(
           context: context,
@@ -181,7 +204,7 @@ class _SplashScreenState extends State<SplashScreen>
                       if (Theme.of(context).platform == TargetPlatform.iOS) {
                         url =
                             response['update_url_ios'] ??
-                            'https://apps.apple.com/id/app/testflight/id899247664';
+                            'https://apps.apple.com/id/app/saat-youth-camp/id6751375478';
                       } else {
                         url =
                             response['update_url_android'] ??

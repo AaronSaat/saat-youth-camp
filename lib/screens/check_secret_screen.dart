@@ -16,10 +16,41 @@ class CheckSecretScreen extends StatefulWidget {
 
 class _CheckSecretScreenState extends State<CheckSecretScreen> {
   final TextEditingController emailController = TextEditingController();
+  final FocusNode emailFocusNode = FocusNode();
+  bool isEmailValid = true;
   final TextEditingController secretCodeController = TextEditingController();
 
   bool isLoading = false;
   String resultMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    emailFocusNode.addListener(_onEmailFocusChange);
+  }
+
+  @override
+  void dispose() {
+    emailFocusNode.removeListener(_onEmailFocusChange);
+    emailFocusNode.dispose();
+    emailController.dispose();
+    secretCodeController.dispose();
+    super.dispose();
+  }
+
+  void _onEmailFocusChange() {
+    if (!emailFocusNode.hasFocus) {
+      // Cek validasi email saat user tidak mengetik (unfocus)
+      setState(() {
+        isEmailValid = _validateEmail(emailController.text);
+      });
+    }
+  }
+
+  bool _validateEmail(String email) {
+    final emailRegex = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}");
+    return emailRegex.hasMatch(email);
+  }
 
   Future<void> _checkSecret() async {
     setState(() {
@@ -112,28 +143,54 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                       // Email
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(32),
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          child: TextFormField(
-                            controller: emailController,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              hintText: 'Email',
-                              hintStyle: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w300,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                borderRadius: BorderRadius.circular(32),
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 2,
+                                ),
                               ),
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
+                              child: TextFormField(
+                                controller: emailController,
+                                focusNode: emailFocusNode,
+                                style: const TextStyle(color: Colors.white),
+                                decoration: InputDecoration(
+                                  hintText: 'Email',
+                                  hintStyle: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                  border: InputBorder.none,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 14,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+                            const SizedBox(height: 8),
+                            if (!emailFocusNode.hasFocus &&
+                                emailController.text.isNotEmpty &&
+                                !isEmailValid)
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 12.0,
+                                  top: 2.0,
+                                ),
+                                child: Text(
+                                  'Email tidak valid',
+                                  style: const TextStyle(
+                                    color: AppColors.accent,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 16),

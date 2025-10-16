@@ -10,6 +10,7 @@ import 'package:permission_handler/permission_handler.dart'
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/main.dart';
 import 'package:syc/screens/form_komitmen_screen.dart';
+import 'package:syc/screens/list_tutorial_screen.dart';
 import 'package:syc/screens/main_screen.dart';
 import 'package:syc/screens/profile_edit_screen.dart';
 import 'package:syc/services/notification_service.dart'
@@ -440,7 +441,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
 
     // Selalu update status_datang di SharedPreferences dari API sebelum loadUserData
-    await loadUserData();
+    await loadUserData(forceRefresh: forceRefresh);
 
     // if (_dataUser['role'] == 'Peserta' && _dataUser['status_datang'] == "0") {
     //   print('Checking status datang...');
@@ -461,28 +462,110 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
-  Future<void> loadUserData() async {
+  Future<void> loadUserData({bool forceRefresh = false}) async {
+    if (!mounted) return;
+    setState(() {});
     final prefs = await SharedPreferences.getInstance();
     final keys = [
       'id',
       'username',
       'nama',
+      'divisi',
       'email',
       'group_id',
       'role',
+      'count_roles',
       'token',
       'gereja_id',
       'gereja_nama',
       'kelompok_id',
       'kelompok_nama',
       'kamar',
-      'secret',
       'status_datang',
     ];
     final Map<String, String> userData = {};
     for (final key in keys) {
       userData[key] = prefs.getString(key) ?? '';
     }
+
+    // Jika forceRefresh, ambil data kamar & kelompok dari API, update shared pref
+    if (forceRefresh) {
+      final userId = prefs.getString('id') ?? '';
+      var role = prefs.getString('role') ?? '';
+      if (role == 'Pembimbing Kelompok') {
+        role = 'Pembimbing';
+      }
+      if (userId.isNotEmpty) {
+        final response = await ApiService.getInfoKamarKelompok(
+          context,
+          userId,
+          role,
+        );
+        print(
+          'SWITCH Kelompok Nama (shared pref): ${userData['kelompok_nama']}',
+        );
+        print('SWITCH Kelompok ID (shared pref): ${userData['kelompok_id']}');
+        print('SWITCH Kamar (shared pref): ${userData['kamar']}');
+        print('SWITCH getInfoKamarKelompok response: $response');
+        // Simpan nilai lama untuk dibandingkan
+        final oldKelompokNama = userData['kelompok_nama'] ?? '';
+        final oldKamar = userData['kamar'] ?? '';
+
+        // response diharapkan Map<String, dynamic> sesuai contoh
+        if (response != null && response['data'] != null) {
+          final data = response['data'];
+          // Kelompok
+          if (data['kelompok'] != null) {
+            final kelompok = data['kelompok'];
+            await prefs.setString(
+              'kelompok_id',
+              kelompok['id']?.toString() ?? '',
+            );
+            userData['kelompok_id'] = kelompok['id']?.toString() ?? '';
+            await prefs.setString(
+              'kelompok_nama',
+              kelompok['nama_kelompok']?.toString() ?? '',
+            );
+            userData['kelompok_nama'] =
+                kelompok['nama_kelompok']?.toString() ?? '';
+          } else {
+            await prefs.setString('kelompok_id', 'Null');
+            userData['kelompok_id'] = 'Null';
+            await prefs.setString('kelompok_nama', 'Tidak ada kelompok');
+            userData['kelompok_nama'] = 'Tidak ada kelompok';
+          }
+          // Kamar
+          if (data['kamar'] != null) {
+            await prefs.setString('kamar', data['kamar'].toString());
+            userData['kamar'] = data['kamar'].toString();
+          } else {
+            await prefs.setString('kamar', 'Tidak ada kamar');
+            userData['kamar'] = 'Tidak ada kamar';
+          }
+          // Bandingkan, jika berubah, pushReplacement ke MainScreen
+          final newKelompokNama = userData['kelompok_nama'] ?? '';
+          final newKamar = userData['kamar'] ?? '';
+          if ((oldKelompokNama != newKelompokNama) || (oldKamar != newKamar)) {
+            print(
+              'SWITCH Kelompok berubah: $oldKelompokNama -> $newKelompokNama, Kamar: $oldKamar -> $newKamar',
+            );
+            if (mounted) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const MainScreen()),
+              );
+            }
+          }
+          // Update state after fetching and saving data
+          if (!mounted) return;
+          setState(() {
+            GlobalVariables.currentIndex = 0;
+            _dataUser = userData;
+          });
+        }
+      }
+    }
+
     if (!mounted) return;
     setState(() {
       _dataUser = userData;
@@ -608,6 +691,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       orElse: () => null,
     );
 
+    if (!mounted) return;
     setState(() {
       _dataBrm =
           todayBrm != null
@@ -4096,6 +4180,89 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                               ],
                             ),
+
+                        // Dokumentasi Card
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const SizedBox(height: 24),
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => ListTutorialScreen(),
+                                    ),
+                                  );
+                                },
+                                borderRadius: BorderRadius.circular(16),
+                                child: Stack(
+                                  children: [
+                                    Container(
+                                      height: 180,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(16),
+                                        image: const DecorationImage(
+                                          image: AssetImage(
+                                            'assets/images/card_tutorial.png',
+                                          ),
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                      child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: 8.0,
+                                          ),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color: AppColors.secondary,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                padding: const EdgeInsets.all(
+                                                  12,
+                                                ),
+                                                child: const Icon(
+                                                  Icons.arrow_forward_ios,
+                                                  color: Colors.white,
+                                                  size: 28,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              const Text(
+                                                'Tutorial Aplikasi',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w900,
+                                                  color: Colors.white,
+                                                  fontSize: 16,
+                                                ),
+                                                textAlign: TextAlign.right,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
 
                         // Dokumentasi Card
                         Padding(

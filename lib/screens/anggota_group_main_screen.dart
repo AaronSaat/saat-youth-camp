@@ -53,11 +53,10 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
     } catch (e) {
       // handle error jika perlu
     }
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    if (!mounted) return;
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<void> loadUserData() async {

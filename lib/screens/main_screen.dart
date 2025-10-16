@@ -37,6 +37,7 @@ class _MainScreenState extends State<MainScreen> {
     final prefs = await SharedPreferences.getInstance();
     id = prefs.getString('id');
     role = prefs.getString('role');
+    print('[SWITCH] User ID: $id, Role: $role');
 
     if (role == 'Peserta') {
       id =

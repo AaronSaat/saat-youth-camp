@@ -39,6 +39,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
   }
 
   Future<void> initAll({bool forceRefresh = false}) async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       print('🔄 Memuat data bacaan harian...');
@@ -103,6 +104,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
       final cachedBrm = prefs.getString(brmKey);
       if (cachedBrm != null) {
         final List<dynamic> decoded = jsonDecode(cachedBrm);
+        if (!mounted) return;
         setState(() {
           _dataBrm = decoded;
           print('[PREF_API] Data Brm Bulanan (from sha`red pref)');
@@ -174,6 +176,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
       });
     } catch (e) {
       // fallback jika error
+      if (!mounted) return;
       setState(() {
         _dataProgressBacaan = List.filled(_jumlahHari, 0);
       });
@@ -224,6 +227,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       int selectedIdx = days.indexOf(day);
       if (!_autoSelected && day == 1 && _hariKe > 0 && _hariKe <= _jumlahHari) {
+        if (!mounted) return;
         setState(() {
           day = _hariKe;
           _autoSelected = true; //supaya tidak reselect kalo bukan hari ke-1
@@ -257,6 +261,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
             final bool selected = day == d;
             return GestureDetector(
               onTap: () {
+                if (!mounted) return;
                 setState(() {
                   day = d;
                   print('Selected day: $day');
@@ -444,8 +449,8 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
                                         }
                                       });
                                     } else if (widget.userId != id) {
+                                      if (!mounted) return;
                                       setState(() {
-                                        if (!mounted) return;
                                         showCustomSnackBar(
                                           context,
                                           'Tidak bisa mengakses bacaan milik orang lain',

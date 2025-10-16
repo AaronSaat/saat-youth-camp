@@ -82,6 +82,7 @@ flutter:
     - assets/images/card_bacaan.png
     - assets/images/card_kontak.jpg
     - assets/images/card_dokumentasi.jpg
+    - assets/images/card_tutorial.png
     - assets/images/background_pengumuman.jpg
 
     - assets/icons/profile.svg
@@ -107,6 +108,7 @@ flutter:
     - assets/texts/daftar_kelompok.png
     - assets/texts/daftar_acara.png
     - assets/texts/materi.png
+    - assets/texts/tutorial.png
 
     # logos
     - assets/logos/appicon4.png #untuk share verse
