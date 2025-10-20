@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import '../services/api_service.dart';
+import '../services/notification_service.dart';
 import '../utils/app_colors.dart';
 import '../utils/global_variables.dart';
 import '../widgets/custom_card.dart';
@@ -24,6 +25,9 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
   List<dynamic> _komitmenDoneList = [];
   Map<String, String> _dataUser = {};
   bool _isLoading = true;
+  // Komitmen notification setting (default OFF)
+  bool _notifKomitmenEnabled = false;
+  final NotificationService _notificationService = NotificationService();
 
   // [DEVELOPMENT NOTES] nanti hapus
   // DateTime _today = DateTime.now();
@@ -58,7 +62,9 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
 
     try {
       await loadUserData();
+      // load komitmen first so we can schedule notifications immediately if needed
       await loadKomitmen(forceRefresh: forceRefresh);
+      await _loadNotifSetting();
       setState(() {
         _isLoading = false;
       });
@@ -68,6 +74,135 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
       setState(() {
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _loadNotifSetting() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final key = 'notif_komitmen_${widget.userId}';
+      // If pref missing, default to disabled (false)
+      final enabled = prefs.getBool(key) ?? false;
+      if (!mounted) return;
+      setState(() {
+        _notifKomitmenEnabled = enabled;
+      });
+
+      // If enabled but no saved notif ids exist yet, schedule them now.
+      final notifIdsKey = 'notif_komitmen_ids_${widget.userId}';
+      final existingIds = prefs.getStringList(notifIdsKey) ?? [];
+      if (_notifKomitmenEnabled &&
+          (existingIds.isEmpty) &&
+          _komitmenList.isNotEmpty) {
+        await _scheduleKomitmenNotifications();
+      }
+    } catch (e) {
+      // ignore errors and keep default false
+      print('Error loading komitmen notif setting: $e');
+    }
+  }
+
+  Future<void> _toggleNotifKomitmen(bool enabled) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final key = 'notif_komitmen_${widget.userId}';
+      await prefs.setBool(key, enabled);
+      if (!mounted) return;
+      setState(() {
+        _notifKomitmenEnabled = enabled;
+      });
+      if (enabled) {
+        await _scheduleKomitmenNotifications();
+      } else {
+        await _cancelKomitmenNotifications();
+      }
+      showCustomSnackBar(
+        context,
+        enabled
+            ? 'Notifikasi Komitmen diaktifkan'
+            : 'Notifikasi Komitmen dinonaktifkan',
+        isSuccess: true,
+      );
+    } catch (e) {
+      print('Error saving komitmen notif setting: $e');
+      showCustomSnackBar(
+        context,
+        'Gagal menyimpan pengaturan notifikasi',
+        isSuccess: false,
+      );
+    }
+  }
+
+  /// Schedule up to 3 reminders (one per day) at 21:00 before each komitmen date.
+  /// Assumption: schedule reminders for the 3 days prior to the komitmen date
+  /// (i.e. -3, -2, -1 days) at 21:00 local time. Only future scheduled times
+  /// will be created. Persist the notification ids so they can be cancelled.
+  Future<void> _scheduleKomitmenNotifications() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final notifIdsKey = 'notif_komitmen_ids_${widget.userId}';
+      final now = DateTime.now();
+      final List<String> scheduledIds = [];
+
+      for (final komitmen in _komitmenList) {
+        final tanggal = komitmen['tanggal']?.toString() ?? '';
+        final hari = komitmen['hari']?.toString() ?? '';
+        if (tanggal.isEmpty) continue;
+
+        // Parse komitmen date and schedule ONE reminder at 21:00 on that date
+        try {
+          final scheduledDate = DateTime.parse('$tanggal 21:00:00');
+
+          if (scheduledDate.isBefore(now)) continue; // skip past
+
+          // Build a deterministic id per komitmen: userBucket * 100 + hariNum
+          final baseUser =
+              int.tryParse(widget.userId) ??
+              DateTime.now().millisecondsSinceEpoch ~/ 1000;
+          final hariNum = int.tryParse(hari) ?? 0;
+          final notifId = baseUser.abs() % 100000 * 100 + hariNum;
+
+          final title = '🙏 Komitmen Hari ke-$hari';
+          final body = 'Jangan lupa mengisi komitmen untuk tanggal $tanggal.';
+          final payload = 'splash';
+
+          await _notificationService.scheduledNotification(
+            id: notifId,
+            title: title,
+            body: body,
+            scheduledTime: scheduledDate,
+            payload: payload,
+          );
+          print('Scheduled komitmen notif (ID: $notifId) for $scheduledDate');
+
+          scheduledIds.add(notifId.toString());
+        } catch (e) {
+          print('Error scheduling komitmen reminder for $komitmen: $e');
+        }
+      }
+
+      if (scheduledIds.isNotEmpty) {
+        await prefs.setStringList(notifIdsKey, scheduledIds);
+      }
+    } catch (e) {
+      print('Error scheduling komitmen notifications: $e');
+    }
+  }
+
+  Future<void> _cancelKomitmenNotifications() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final notifIdsKey = 'notif_komitmen_ids_${widget.userId}';
+      final ids = prefs.getStringList(notifIdsKey) ?? [];
+      for (final idStr in ids) {
+        final id = int.tryParse(idStr);
+        if (id != null) {
+          await _notificationService.cancelNotificationById(id);
+        }
+      }
+      await prefs.remove(notifIdsKey);
+    } catch (e) {
+      print('Error cancelling komitmen notifications: $e');
     }
   }
 
@@ -85,12 +220,28 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
         final komitmenDoneList = jsonDecode(cachedDone);
         setState(() {
           _komitmenList = komitmenList ?? [];
+          // For testing: override cached data with sample entries
+          try {
+            komitmenList.clear();
+            komitmenList.addAll([
+              {'hari': 1, 'tanggal': '2025-10-20'},
+              {'hari': 2, 'tanggal': '2025-10-21'},
+              {'hari': 3, 'tanggal': '2025-10-22'},
+            ]);
+
+            komitmenDoneList.clear();
+            komitmenDoneList.addAll([false, false, false]);
+          } catch (e) {
+            // ignore if cached values are not mutable
+          }
           _komitmenDoneList = komitmenDoneList ?? [];
           _isLoading = false;
         });
-        print('[PREF_API] Komitmen List (from shared pref): $_komitmenList');
         print(
-          '[PREF_API] Komitmen Done List (from shared pref): $_komitmenDoneList',
+          '[PREF_API] Scheduled Komitmen List (from shared pref): $_komitmenList',
+        );
+        print(
+          '[PREF_API] Scheduled Komitmen Done List (from shared pref): $_komitmenDoneList',
         );
         return;
       }
@@ -162,6 +313,24 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
             onPressed: () => Navigator.pop(context, 'reload'),
           ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: IconButton(
+              tooltip:
+                  _notifKomitmenEnabled
+                      ? 'Nonaktifkan Notifikasi'
+                      : 'Aktifkan Notifikasi',
+              icon: Icon(
+                _notifKomitmenEnabled
+                    ? Icons.notifications_active
+                    : Icons.notifications_none,
+                color: Colors.white,
+              ),
+              onPressed: () => _toggleNotifKomitmen(!_notifKomitmenEnabled),
+            ),
+          ),
+        ],
       ),
       body: Stack(
         children: [
@@ -244,16 +413,16 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
                                         );
                                       });
                                     } else {
-                                      // hDEVELOPMENT NOTES] nanti setting
+                                      // [DEVELOPMENT NOTES] nanti setting
                                       DateTime tanggalKomitmen = DateTime.parse(
-                                        '$tanggal 15:00:00',
+                                        '$tanggal 21:00:00',
                                       );
 
-                                      // Komitmen hanya bisa diisi pada tanggal yang sama atau setelahnya, dan setelah jam 3 sore
+                                      // Komitmen hanya bisa diisi pada tanggal yang sama atau setelahnya, dan setelah jam 9 malam
                                       if (_now.isBefore(tanggalKomitmen)) {
                                         showCustomSnackBar(
                                           context,
-                                          'Komitmen hanya dapat diisi pada tanggal ${tanggal} pukul 15:00.',
+                                          'Komitmen hanya dapat diisi pada tanggal ${tanggal} pukul 21:00.',
                                           isSuccess: false,
                                         );
                                       } else {

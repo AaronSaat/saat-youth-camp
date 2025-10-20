@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart'
 import 'package:shimmer/shimmer.dart';
 import 'package:syc/screens/konfirmasi_registrasi_ulang_screen.dart';
 import 'package:syc/screens/list_komitmen_screen.dart';
+import 'package:syc/screens/materi_screen.dart';
 import 'package:syc/screens/scan_qr_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 import 'package:syc/utils/global_variables.dart';
@@ -348,7 +349,7 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                                                                         .contains(
                                                                           'panitia',
                                                                         ))) //sebagai anggota dan role user pembimbing kelompok atau panitia
-                                                            ? 325
+                                                            ? 375 //ganti 325
                                                             : 260,
                                                     child: Padding(
                                                       padding:
@@ -642,6 +643,133 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                                                                 ],
                                                               ),
                                                             ),
+                                                          // Progress bar with "1/5" at the right, hardcoded white color
+                                                          Row(
+                                                            children: [
+                                                              Expanded(
+                                                                child: ClipRRect(
+                                                                  borderRadius:
+                                                                      BorderRadius.circular(
+                                                                        8,
+                                                                      ),
+                                                                  child: SizedBox(
+                                                                    height: 8,
+                                                                    child: LinearProgressIndicator(
+                                                                      value:
+                                                                          1 / 5,
+                                                                      valueColor: const AlwaysStoppedAnimation<
+                                                                        Color
+                                                                      >(
+                                                                        Colors
+                                                                            .white,
+                                                                      ),
+                                                                      backgroundColor:
+                                                                          Colors
+                                                                              .white24,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                width: 8,
+                                                              ),
+                                                              const Text(
+                                                                ' Hari-1 : 1/5',
+                                                                style: TextStyle(
+                                                                  color:
+                                                                      Colors
+                                                                          .white,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              Expanded(
+                                                                child: ClipRRect(
+                                                                  borderRadius:
+                                                                      BorderRadius.circular(
+                                                                        8,
+                                                                      ),
+                                                                  child: SizedBox(
+                                                                    height: 8,
+                                                                    child: LinearProgressIndicator(
+                                                                      value:
+                                                                          1 / 5,
+                                                                      valueColor: const AlwaysStoppedAnimation<
+                                                                        Color
+                                                                      >(
+                                                                        Colors
+                                                                            .white,
+                                                                      ),
+                                                                      backgroundColor:
+                                                                          Colors
+                                                                              .white24,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                width: 8,
+                                                              ),
+                                                              const Text(
+                                                                ' Hari-2 : 1/5',
+                                                                style: TextStyle(
+                                                                  color:
+                                                                      Colors
+                                                                          .white,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              Expanded(
+                                                                child: ClipRRect(
+                                                                  borderRadius:
+                                                                      BorderRadius.circular(
+                                                                        8,
+                                                                      ),
+                                                                  child: SizedBox(
+                                                                    height: 8,
+                                                                    child: LinearProgressIndicator(
+                                                                      value:
+                                                                          1 / 5,
+                                                                      valueColor: const AlwaysStoppedAnimation<
+                                                                        Color
+                                                                      >(
+                                                                        Colors
+                                                                            .white,
+                                                                      ),
+                                                                      backgroundColor:
+                                                                          Colors
+                                                                              .white24,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                width: 8,
+                                                              ),
+                                                              const Text(
+                                                                ' Hari-3 : 1/5',
+                                                                style: TextStyle(
+                                                                  color:
+                                                                      Colors
+                                                                          .white,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
                                                           // Three buttons in a row at the bottom, hidden if role == 'peserta'
                                                           // Tampilkan tombol jika role login adalah panitia, pembimbing, atau pembina
                                                           // DAN user yang ditampilkan BUKAN pembimbing
@@ -837,6 +965,9 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                                                                 ),
                                                               ],
                                                             ),
+                                                          const SizedBox(
+                                                            height: 8,
+                                                          ),
                                                         ],
                                                       ),
                                                     ),

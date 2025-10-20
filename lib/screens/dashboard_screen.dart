@@ -71,6 +71,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // DateTime _today = DateTime.now();
   // DateTime _today = DateTime(2025, 12, 31);
   late DateTime _today;
+  late String komitmenDay;
   // TimeOfDay _timeOfDay = TimeOfDay.now();
   late TimeOfDay _timeOfDay;
   ScrollController _acaraStatisHari1Controller = ScrollController();
@@ -450,11 +451,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // await saveUserDevice();
     await loadBrmData(forceRefresh: forceRefresh);
     await loadPengumumanByUserId(forceRefresh: forceRefresh);
-    await checkKomitmenDone();
+    await checkKomitmenDoneForReminderCard();
 
     await loadAllAcara();
     await loadAllKomitmen();
-    await setupAllNotification();
+    // await setupAllNotification();
     if (!mounted) return;
     setState(() {
       _isLoading = false;
@@ -572,57 +573,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
-  // Setup background sync untuk pengumuman
-  // Future<void> setupBackgroundSync() async {
-  //   try {
-  //     print(
-  //       '[BackgroundSync] setupBackgroundSync dipanggil pada: ${DateTime.now()}',
-  //     );
-  //     // Initialize pengumuman sync (set last check time pertama kali)
-  //     await NotificationService.initializePengumumanSync();
-
-  //     // Register periodic background task (workmanager)
-  //     await BackgroundTaskService.registerPeriodicTask();
-
-  //     // Configure background fetch (iOS dan Android)
-  //     BackgroundFetch.configure(
-  //           BackgroundFetchConfig(
-  //             minimumFetchInterval: 15, // 15 menit (minimum yang diizinkan)
-  //             forceAlarmManager: false,
-  //             stopOnTerminate: false,
-  //             startOnBoot: true,
-  //             enableHeadless: true,
-  //           ),
-  //           (String taskId) async {
-  //             print('[BackgroundFetch] Event received: $taskId');
-  //             // Check pengumuman terbaru
-  //             await NotificationService.checkLatestPengumuman();
-  //             // Always finish task
-  //             BackgroundFetch.finish(taskId);
-  //           },
-  //         )
-  //         .then((int status) {
-  //           print('[BackgroundFetch] configure success: $status');
-  //         })
-  //         .catchError((e) {
-  //           print('[BackgroundFetch] configure ERROR: $e');
-  //         });
-
-  //     // Start background fetch
-  //     BackgroundFetch.start()
-  //         .then((int status) {
-  //           print('[BackgroundFetch] start success: $status');
-  //         })
-  //         .catchError((e) {
-  //           print('[BackgroundFetch] start ERROR: $e');
-  //         });
-
-  //     print('Background sync setup completed');
-  //   } catch (e) {
-  //     print('Error setting up background sync: $e');
-  //   }
-  // }
-
   // Future<void> loadBrm() async {
   //   try {
   //     final brm = await ApiService.getBrmToday(context);
@@ -711,51 +661,51 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   // untuk load acara berdasarkan hari ini
-  Future<void> loadDayHariIni() async {
-    if (!mounted) return;
-    setState(() {});
-    try {
-      final acaraList = await ApiService.getAcara(context);
-      if (!mounted) return;
-      setState(() {
-        print('Acara Date List: $acaraList');
+  // Future<void> loadDayHariIni() async {
+  //   if (!mounted) return;
+  //   setState(() {});
+  //   try {
+  //     final acaraList = await ApiService.getAcara(context);
+  //     if (!mounted) return;
+  //     setState(() {
+  //       print('Acara Date List: $acaraList');
 
-        // Ambil list tanggal dan hari unik
-        final List<Map<String, dynamic>> tanggalHariList = [];
-        final Set<String> tanggalHariSet = {};
+  //       // Ambil list tanggal dan hari unik
+  //       final List<Map<String, dynamic>> tanggalHariList = [];
+  //       final Set<String> tanggalHariSet = {};
 
-        for (var acara in acaraList) {
-          final tanggal = acara['tanggal'];
-          final hari = acara['hari'];
-          final key = '$tanggal|$hari';
-          if (!tanggalHariSet.contains(key)) {
-            tanggalHariSet.add(key);
-            tanggalHariList.add({'tanggal': tanggal, 'hari': hari});
-          }
-        }
+  //       for (var acara in acaraList) {
+  //         final tanggal = acara['tanggal'];
+  //         final hari = acara['hari'];
+  //         final key = '$tanggal|$hari';
+  //         if (!tanggalHariSet.contains(key)) {
+  //           tanggalHariSet.add(key);
+  //           tanggalHariList.add({'tanggal': tanggal, 'hari': hari});
+  //         }
+  //       }
 
-        _acaraDateList = tanggalHariList;
-        print("$_acaraDateList");
+  //       _acaraDateList = tanggalHariList;
+  //       print("$_acaraDateList");
 
-        // Cek apakah today ada di tanggalHariList
-        final todayEntry = tanggalHariList.firstWhere(
-          (item) =>
-              item['tanggal'] == _today.toIso8601String().substring(0, 10),
-          orElse: () => {},
-        );
-        if (todayEntry.isNotEmpty) {
-          day = todayEntry['hari'] ?? 0;
-          print('Hari ini: $day');
-        } else {
-          day = 0; //  default
-        }
-      });
-    } catch (e) {
-      print('❌ Gagal memuat tanggal acara: $e');
-      if (!mounted) return;
-      setState(() {});
-    }
-  }
+  //       // Cek apakah today ada di tanggalHariList
+  //       final todayEntry = tanggalHariList.firstWhere(
+  //         (item) =>
+  //             item['tanggal'] == _today.toIso8601String().substring(0, 10),
+  //         orElse: () => {},
+  //       );
+  //       if (todayEntry.isNotEmpty) {
+  //         day = todayEntry['hari'] ?? 0;
+  //         print('Hari ini: $day');
+  //       } else {
+  //         day = 0; //  default
+  //       }
+  //     });
+  //   } catch (e) {
+  //     print('❌ Gagal memuat tanggal acara: $e');
+  //     if (!mounted) return;
+  //     setState(() {});
+  //   }
+  // }
 
   // Future<void> loadAcaraByDay() async {
   //   if (!mounted) return;
@@ -882,27 +832,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  Future<void> checkKomitmenDone() async {
+  Future<void> checkKomitmenDoneForReminderCard() async {
     if (!mounted) return;
     setState(() {
       _isLoading = true;
     });
     try {
+      final komitmenList = await ApiService.getKomitmen(context);
+      print('HEI Komitmen List: $komitmenList');
+      final todayStr = GlobalVariables.today.toIso8601String().substring(0, 10);
+      for (final item in komitmenList) {
+        final tanggal = item['tanggal']?.toString() ?? '';
+        if (tanggal == todayStr) {
+          final hariParsed =
+              int.tryParse(item['hari']?.toString() ?? '') ?? day;
+          if (!mounted) break;
+          setState(() {
+            komitmenDay = tanggal;
+            day = hariParsed;
+          });
+          print('HEI komitmen for today: hari=$day, tanggal=$tanggal');
+          break;
+        }
+      }
+    } catch (e) {
+      print('❌ HEI Gagal memuat daftar komitmen untuk menentukan day: $e');
+    }
+    try {
       final komitmenProgress = await ApiService.getKomitmenByPesertaByDay(
         context,
         _dataUser['id'],
-        1, //hardcoded
+        day,
       );
       if (!mounted) return;
       setState(() {
         // Ambil status komitmen dari response
         final dataKomitmen = komitmenProgress['success'] ?? false;
         _komitmenDone = dataKomitmen;
-        print('Status komitmen: $_komitmenDone');
+        print('HEI Status komitmen: $_komitmenDone');
         _isLoading = false;
       });
     } catch (e) {
-      print('❌ Gagal memuat progress komitmen: $e');
+      print('❌HEI Gagal memuat progress komitmen: $e');
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -940,201 +911,57 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() {});
   }
 
-  // Future<void> setupDailyNotification() async {
-  //   try {
-  //     final notificationService = NotificationService();
-  //     await notificationService.initialize();
-
-  //     // ⬅️ CANCEL SEMUA NOTIFIKASI LAMA TERLEBIH DAHULU
-  //     await notificationService.cancelNotification();
-
-  //     // Setup notifikasi baru
-  //     await notificationService.scheduledNotification(
-  //       title: '📖 Waktu Bacaan Harian!',
-  //       body:
-  //           'Jangan lupa baca Alkitab hari ini. Tuhan menunggu waktu bersamamu!',
-  //       scheduledTime: _getNext9AM(),
-  //       payload: 'splash',
-  //     );
-
-  //     print(
-  //       '✅ Daily BRM notification setup completed (old notifications cancelled)',
-  //     );
-  //   } catch (e) {
-  //     print('❌ Error setting up daily notifications: $e');
-  //   }
-  // }
-
   // ini adalah notifikasi pasti yaitu:
   // 1. Notifikasi acara 15 menit sebelum acara hari 1 - 4 (untuk semua role)
   // 2. Notifikasi evaluasi 1 jam setelah acara dimulai hari 1 - 4 (untuk peserta, pembina)
   // 3. Notifikasi evaluasi keseluruhan 1x hari terakhir jam 12 siang (untuk peserta, pembina)
-  // 4. Notifikasi komitmen setiap hari tiap jam 3 sore (untuk peserta)
-  Future<void> setupAllNotification() async {
-    try {
-      final notificationService = NotificationService();
-      await notificationService.initialize();
+  // 4. Notifikasi komitmen setiap hari tiap jam 21 (untuk peserta)
+  // Future<void> setupAllNotification() async {
+  //   try {
+  //     final notificationService = NotificationService();
+  //     await notificationService.initialize();
+  //     // Pastikan semua key notif di SharedPreferences diset ke true (default: nyala)
+  //     final prefs = await SharedPreferences.getInstance();
+  //     try {
+  //       // Cari semua key yang kemungkinan terkait notifikasi
+  //       final notifKeys =
+  //           prefs.getKeys().where((k) {
+  //             final lower = k.toLowerCase();
+  //             return lower.startsWith('notif') ||
+  //                 lower.contains('notif') ||
+  //                 lower.contains('notifikasi') ||
+  //                 lower.contains('notification');
+  //           }).toList();
 
-      // CANCEL SEMUA NOTIFIKASI LAMA TERLEBIH DAHULU
-      await notificationService.cancelNotification();
-
-      // Debug: Jadwalkan notifikasi dengan waktu yang diinputkan sendiri
-      // Ganti tanggal dan waktu sesuai kebutuhan debug
-      // final debugScheduledTime = DateTime(
-      //   2025,
-      //   7,
-      //   14,
-      //   13,
-      //   28,
-      //   0,
-      // ); // contoh: 20 Juli 2025 jam 10:00
-      // if (debugScheduledTime.isAfter(DateTime.now())) {
-      //   await notificationService.scheduledNotification(
-      //     title: '🔔 Debug Notification',
-      //     body: 'Ini adalah notifikasi debug pada $debugScheduledTime',
-      //     scheduledTime: debugScheduledTime,
-      //     payload: 'splash',
-      //   );
-      //   print('🔔 Debug notification scheduled at $debugScheduledTime');
-      // }
-
-      // 15 menit sebelum acara
-      for (final acara in _acaraListAll) {
-        final hari = acara['hari']?.toString();
-        if (hari == "99") continue; // skip hari 99
-        final tanggal = acara['tanggal'] ?? '';
-        final waktu = acara['waktu'] ?? '';
-        final namaAcara = acara['acara_nama'] ?? 'Acara';
-        DateTime? scheduledTime;
-        try {
-          scheduledTime = DateTime.parse(
-            '$tanggal ${waktu.length == 5 ? waktu : '00:00'}:00',
-          );
-          scheduledTime = scheduledTime.subtract(const Duration(minutes: 15));
-        } catch (e) {
-          continue;
-        }
-        print(
-          '🔔 Jadwalkan notif 15 menit sebelum acara "$namaAcara" pada $scheduledTime',
-        );
-        if (scheduledTime.isAfter(DateTime.now())) {
-          await notificationService.scheduledNotification(
-            title: '⏰ Acara akan dimulai!',
-            body: '${namaAcara} akan dimulai dalam 15 menit!',
-            scheduledTime: scheduledTime,
-            payload: 'splash',
-          );
-        }
-      }
-
-      final userRole = _dataUser['role']?.toLowerCase() ?? '';
-      // Evaluasi
-      // Notifikasi evaluasi 1 jam setelah acara dimulai
-      // Hanya untuk role peserta atau pembina
-      if (userRole == 'peserta' || userRole == 'pembina') {
-        for (final acara in _acaraListAll) {
-          final hari = acara['hari']?.toString();
-          if (hari == "99") continue; // skip hari 99
-          final tanggal = acara['tanggal'] ?? '';
-          final waktu = acara['waktu'] ?? '';
-          final namaAcara = acara['acara_nama'] ?? 'Acara';
-          DateTime? scheduledTime;
-          try {
-            // Gabungkan tanggal dan waktu, misal: '2025-12-31' + '07:30'
-            scheduledTime = DateTime.parse(
-              '$tanggal ${waktu.length == 5 ? waktu : '00:00'}:00',
-            );
-            // Tambahkan 1 jam setelah acara dimulai
-            scheduledTime = scheduledTime.add(const Duration(hours: 1));
-          } catch (e) {
-            print(
-              '❌ Gagal parsing tanggal/waktu evaluasi: $tanggal $waktu ($e)',
-            );
-            continue;
-          }
-          print(
-            '🔔 Jadwalkan notif evaluasi 1 jam setelah acara "$namaAcara" pada $scheduledTime',
-          );
-          if (scheduledTime.isAfter(DateTime.now())) {
-            await notificationService.scheduledNotification(
-              title: '📝 Reminder Evaluasi!',
-              body: 'Jangan lupa mengisi evaluasi acara : ${namaAcara}',
-              scheduledTime: scheduledTime,
-              payload: 'splash',
-            );
-          }
-        }
-      }
-
-      // Evaluasi keseluruhan
-      // Evaluasi keseluruhan: cari acara dengan hari == "99"
-      // Evaluasi keseluruhan: hanya untuk role peserta atau pembina
-      if (userRole == 'peserta' || userRole == 'pembina') {
-        final acaraEvaluasi = _acaraListAll.firstWhere(
-          (acara) => acara['hari']?.toString() == "99",
-          orElse: () => null,
-        );
-
-        if (acaraEvaluasi != null) {
-          final tanggal = acaraEvaluasi['tanggal'];
-          try {
-            // Set jam 12:00 siang pada tanggal tersebut
-            // Jika tanggal == '2026-01-02', set scheduledTime ke 2 Januari 2026 jam 12:00:00
-            final scheduledTime = DateTime.parse('2025-07-17 12:00:00');
-            print(
-              '🔔 Jadwalkan notif evaluasi keseluruhan pada $scheduledTime',
-            );
-            if (scheduledTime.isAfter(DateTime.now())) {
-              await notificationService.scheduledNotification(
-                title: 'Thank you for attending SYC 2025 - Redeemed!',
-                body:
-                    '📝 Jangan lupa mengisi evaluasi keseluruhan pada profil kamu 😊',
-                scheduledTime: scheduledTime,
-                payload: 'splash',
-              );
-            }
-          } catch (e) {
-            print(
-              '❌ Gagal parsing tanggal evaluasi keseluruhan: $tanggal ($e)',
-            );
-          }
-        }
-      }
-
-      // Komitmen harian
-      // Notifikasi komitmen harian: iterasi semua komitmen, jadwalkan pada tanggal terkait jam 15:00
-      // Komitmen harian: hanya untuk role peserta
-      if (userRole == 'peserta') {
-        for (final komitmen in _komitmenListAll) {
-          final tanggal = komitmen['tanggal'];
-          final hariKomitmen = komitmen['hari'] ?? '0';
-          if (tanggal != null && tanggal is String && tanggal.isNotEmpty) {
-            try {
-              // Set jam 15:00 (3 sore) pada tanggal tersebut
-              final scheduledTime = DateTime.parse('$tanggal 15:00:00');
-              print(
-                '🔔 Jadwalkan notif komitmen hari ke $hariKomitmen pada $scheduledTime',
-              );
-              if (scheduledTime.isAfter(DateTime.now())) {
-                await notificationService.scheduledNotification(
-                  title: '🙏 Reminder Komitmen!',
-                  body:
-                      'Jangan lupa mengisi komitmen hari ke : ${hariKomitmen}',
-                  scheduledTime: scheduledTime,
-                  payload: 'splash',
-                );
-              }
-            } catch (e) {
-              print('❌ Gagal parsing tanggal komitmen: $tanggal ($e)');
-            }
-          }
-        }
-      }
-      print('Notificaton setup completed');
-    } catch (e) {
-      print('❌ Error setting up daily notifications: $e');
-    }
-  }
+  //       if (notifKeys.isNotEmpty) {
+  //         for (final key in notifKeys) {
+  //           await prefs.setBool(key, true);
+  //         }
+  //         print('SharedPref: set existing notif keys to true -> $notifKeys');
+  //       } else {
+  //         // Jika tidak ditemukan key notif apapun, set beberapa key default yang umum dipakai
+  //         final defaultNotifKeys = <String>[
+  //           'notif_acara',
+  //           'notif_evaluasi',
+  //           'notif_komitmen',
+  //           'notif_pengumuman',
+  //           'notif_daily_reminder',
+  //         ];
+  //         for (final key in defaultNotifKeys) {
+  //           await prefs.setBool(key, true);
+  //         }
+  //         print(
+  //           'SharedPref: set default notif keys to true -> $defaultNotifKeys',
+  //         );
+  //       }
+  //     } catch (e) {
+  //       print('❌ Gagal meng-set default notif di SharedPreferences: $e');
+  //     }
+  //     print('Notificaton setup completed');
+  //   } catch (e) {
+  //     print('❌ Error setting up daily notifications: $e');
+  //   }
+  // }
 
   DateTime _getNext9AM() {
     final now = DateTime.now();
@@ -1381,68 +1208,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         const SizedBox(height: 24),
 
                         // kartu alert registrasi ulang
-                        // if (status_datang == "0")
-                        //   Column(
-                        //     children: [
-                        //       Padding(
-                        //         padding: const EdgeInsets.symmetric(
-                        //           horizontal: 24,
-                        //         ),
-                        //         child: InkWell(
-                        //           borderRadius: BorderRadius.circular(16),
-                        //           onTap: () {
-                        //             // Navigasi ke halaman edit profil
-                        //             Navigator.push(
-                        //               context,
-                        //               MaterialPageRoute(
-                        //                 builder:
-                        //                     (context) => ProfileEditScreen(),
-                        //               ),
-                        //             ).then((result) {
-                        //               if (result == 'reload') {
-                        //                 print('Refreshed');
-                        //                 initAll(forceRefresh: true);
-                        //               }
-                        //             });
-                        //           },
-                        //           child: Container(
-                        //             width: double.infinity,
-                        //             padding: const EdgeInsets.all(20),
-                        //             decoration: BoxDecoration(
-                        //               color: AppColors.accent,
-                        //               borderRadius: BorderRadius.circular(16),
-                        //             ),
-                        //             child: Row(
-                        //               children: [
-                        //                 const Icon(
-                        //                   Icons.warning_amber_rounded,
-                        //                   color: Colors.white,
-                        //                   size: 32,
-                        //                 ),
-                        //                 const SizedBox(width: 16),
-                        //                 Expanded(
-                        //                   child: Text(
-                        //                     "Kamu belum melakukan konfirmasi registrasi ulang. Segera konfirmasi ke pembimbing kelompokmu!",
-                        //                     style: const TextStyle(
-                        //                       color: Colors.white,
-                        //                       fontWeight: FontWeight.bold,
-                        //                       fontSize: 14,
-                        //                     ),
-                        //                   ),
-                        //                 ),
-                        //                 const Icon(
-                        //                   Icons.arrow_forward_ios,
-                        //                   color: Colors.white,
-                        //                   size: 20,
-                        //                 ),
-                        //               ],
-                        //             ),
-                        //           ),
-                        //         ),
-                        //       ),
-                        //       const SizedBox(height: 24),
-                        //     ],
-                        //   ),
                         status_datang == "0"
                             ? AnimatedOpacity(
                               opacity: 1.0,
@@ -1648,197 +1413,698 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           const SizedBox(height: 24),
 
                         // Komitmen Card untuk Peserta
-                        // Card ini muncul di jam 20 - 00
+                        // Card ini muncul di jam 21 - 00
                         // Tampilkan Komitmen Card hanya jika:
                         // - BUKAN panitia, pembimbing, pembina
                         // - day antara 1 sampai 3 (inklusif)
-                        if ((day >= 1 && day <= 3) &&
-                            !role.toLowerCase().contains('panitia') &&
+                        // Komitmen Cards (3 duplicated cards with cross-midnight windows)
+                        if (!role.toLowerCase().contains('panitia') &&
                             !role.toLowerCase().contains('pembimbing') &&
-                            !role.toLowerCase().contains('pembina') &&
-                            (_timeOfDay.hour >= 15 && _timeOfDay.hour < 24))
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    // Cek apakah sudah jam 15:00 pada hari ini
-                                    final now = DateTime.now();
-                                    final aksesTime = DateTime(
-                                      now.year,
-                                      now.month,
-                                      now.day,
-                                      15,
-                                      0,
-                                    );
-                                    if (now.isBefore(aksesTime)) {
-                                      // Belum jam 15:00, tampilkan custom snackbar
-                                      showCustomSnackBar(
-                                        context,
-                                        'Tidak bisa akses komitmen sebelum ${DateFormatter.ubahTanggal(now.toIso8601String().substring(0, 10))} pukul 15:00',
+                            !role.toLowerCase().contains('pembina')) ...[
+                          // Kartu 1: day 1 hour 21 - 24 AND day 2 hour 0 - 15 (targetDay = 1)
+                          if ((day == 1 &&
+                                  _timeOfDay.hour >= 21 &&
+                                  _timeOfDay.hour < 24) ||
+                              (day == 2 &&
+                                  _timeOfDay.hour >= 0 &&
+                                  _timeOfDay.hour < 15))
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  InkWell(
+                                    onTap: () async {
+                                      final targetDay = 1;
+                                      final now = DateTime(
+                                        GlobalVariables.today.year,
+                                        GlobalVariables.today.month,
+                                        GlobalVariables.today.day,
+                                        GlobalVariables.timeOfDay.hour,
+                                        GlobalVariables.timeOfDay.minute,
                                       );
-                                      return;
-                                    }
-                                    if (_komitmenDone) {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) =>
-                                                  EvaluasiKomitmenViewScreen(
-                                                    type: 'Komitmen',
-                                                    userId: userId,
-                                                    acaraHariId: day,
-                                                  ),
-                                        ),
+
+                                      // compute aksesTime based on offset between targetDay and current day variable
+                                      final int deltaDays = targetDay - day;
+                                      final aksesDateBase = GlobalVariables
+                                          .today
+                                          .add(Duration(days: deltaDays));
+                                      final aksesTime = DateTime(
+                                        aksesDateBase.year,
+                                        aksesDateBase.month,
+                                        aksesDateBase.day,
+                                        15,
+                                        0,
                                       );
-                                    } else {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) => FormKomitmenScreen(
-                                                userId: userId,
-                                                acaraHariId: day,
-                                              ),
-                                        ),
-                                      ).then((result) {
-                                        if (result == 'reload') {
-                                          initAll(forceRefresh: true);
+
+                                      if (now.isBefore(aksesTime)) {
+                                        showCustomSnackBar(
+                                          context,
+                                          'Tidak bisa akses komitmen sebelum ${DateFormatter.ubahTanggal(aksesTime.toIso8601String().substring(0, 10))} pukul 15:00',
+                                        );
+                                        return;
+                                      }
+
+                                      try {
+                                        final komitmenProgress =
+                                            await ApiService.getKomitmenByPesertaByDay(
+                                              context,
+                                              userId,
+                                              targetDay,
+                                            );
+                                        final done =
+                                            komitmenProgress['success'] ??
+                                            false;
+                                        if (done) {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      EvaluasiKomitmenViewScreen(
+                                                        type: 'Komitmen',
+                                                        userId: userId,
+                                                        acaraHariId: targetDay,
+                                                      ),
+                                            ),
+                                          );
+                                        } else {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      FormKomitmenScreen(
+                                                        userId: userId,
+                                                        acaraHariId: targetDay,
+                                                      ),
+                                            ),
+                                          ).then((result) {
+                                            if (result == 'reload') {
+                                              initAll(forceRefresh: true);
+                                            }
+                                          });
                                         }
-                                      });
-                                    }
-                                  },
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: Stack(
-                                    children: [
-                                      Container(
-                                        height: 180,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            16,
+                                      } catch (e) {
+                                        showCustomSnackBar(
+                                          context,
+                                          'Gagal memeriksa status komitmen. Coba lagi.',
+                                        );
+                                      }
+                                    },
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Stack(
+                                      children: [
+                                        Container(
+                                          height: 180,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
                                           ),
-                                          image: const DecorationImage(
-                                            image: AssetImage(
-                                              'assets/images/card_dashboard_komitmen.png',
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              16,
                                             ),
-                                            fit: BoxFit.fill,
-                                          ),
-                                        ),
-                                        child: Center(
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.max,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            children: [
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                  right: 16.0,
-                                                  bottom: 16.0,
-                                                  left: 64,
-                                                ),
-                                                child: Text(
-                                                  _komitmenDone
-                                                      ? 'Terima kasih telah mengisi komitmen hari ini!'
-                                                      : 'Jangan lupa mengisi komitmen harianmu!',
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.w900,
-                                                    color: Colors.white,
-                                                    fontSize: 16,
-                                                  ),
-                                                  textAlign: TextAlign.right,
-                                                ),
+                                            image: const DecorationImage(
+                                              image: AssetImage(
+                                                'assets/images/card_dashboard_komitmen.png',
                                               ),
-                                            ],
+                                              fit: BoxFit.fill,
+                                            ),
                                           ),
-                                        ),
-                                      ),
-                                      if (_komitmenDone)
-                                        Positioned(
-                                          top: 0,
-                                          left: 0,
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              color: Colors.green,
-                                              borderRadius:
-                                                  const BorderRadius.only(
-                                                    topLeft: Radius.circular(
-                                                      16,
+                                          child: Center(
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.max,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                        right: 16.0,
+                                                        bottom: 16.0,
+                                                        left: 64,
+                                                      ),
+                                                  child: Text(
+                                                    _komitmenDone
+                                                        ? 'Terima kasih telah mengisi komitmen hari ini!'
+                                                        : 'Jangan lupa mengisi komitmen harianmu!',
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w900,
+                                                      color: Colors.white,
+                                                      fontSize: 16,
                                                     ),
-                                                    bottomRight:
-                                                        Radius.circular(8),
-                                                  ),
-                                            ),
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 8,
-                                            ),
-                                            child: Row(
-                                              children: const [
-                                                Icon(
-                                                  Icons.check_circle,
-                                                  color: Colors.white,
-                                                  size: 16,
-                                                ),
-                                                SizedBox(width: 4),
-                                                Text(
-                                                  'Selesai',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
+                                                    textAlign: TextAlign.right,
                                                   ),
                                                 ),
                                               ],
                                             ),
                                           ),
                                         ),
-                                      Positioned(
-                                        top: 0,
-                                        right: 0,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: AppColors.secondary,
-                                            borderRadius:
-                                                const BorderRadius.only(
-                                                  topRight: Radius.circular(16),
-                                                  bottomLeft: Radius.circular(
-                                                    8,
+                                        if (_komitmenDone)
+                                          Positioned(
+                                            top: 0,
+                                            left: 0,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.green,
+                                                borderRadius:
+                                                    const BorderRadius.only(
+                                                      topLeft: Radius.circular(
+                                                        16,
+                                                      ),
+                                                      bottomRight:
+                                                          Radius.circular(8),
+                                                    ),
+                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 8,
                                                   ),
-                                                ),
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 8,
-                                          ),
-                                          child: Text(
-                                            DateFormatter.ubahTanggal(
-                                              DateTime.now()
-                                                  .toIso8601String()
-                                                  .substring(0, 10),
+                                              child: Row(
+                                                children: const [
+                                                  Icon(
+                                                    Icons.check_circle,
+                                                    color: Colors.white,
+                                                    size: 16,
+                                                  ),
+                                                  SizedBox(width: 4),
+                                                  Text(
+                                                    'Selesai',
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
+                                          ),
+                                        Positioned(
+                                          top: 0,
+                                          right: 0,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: AppColors.secondary,
+                                              borderRadius:
+                                                  const BorderRadius.only(
+                                                    topRight: Radius.circular(
+                                                      16,
+                                                    ),
+                                                    bottomLeft: Radius.circular(
+                                                      8,
+                                                    ),
+                                                  ),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 8,
+                                            ),
+                                            child: Text(
+                                              DateFormatter.ubahTanggal(
+                                                GlobalVariables.today
+                                                    .toIso8601String()
+                                                    .substring(0, 10),
+                                              ),
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 24),
-                              ],
+                                  const SizedBox(height: 24),
+                                ],
+                              ),
                             ),
-                          ),
+
+                          // Kartu 2: day 2 hour 21 - 24 AND day 3 hour 0 - 15 (targetDay = 2)
+                          if ((day == 2 &&
+                                  _timeOfDay.hour >= 21 &&
+                                  _timeOfDay.hour < 24) ||
+                              (day == 3 &&
+                                  _timeOfDay.hour >= 0 &&
+                                  _timeOfDay.hour < 15))
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  InkWell(
+                                    onTap: () async {
+                                      final targetDay = 2;
+                                      final now = DateTime(
+                                        GlobalVariables.today.year,
+                                        GlobalVariables.today.month,
+                                        GlobalVariables.today.day,
+                                        GlobalVariables.timeOfDay.hour,
+                                        GlobalVariables.timeOfDay.minute,
+                                      );
+
+                                      final int deltaDays = targetDay - day;
+                                      final aksesDateBase = GlobalVariables
+                                          .today
+                                          .add(Duration(days: deltaDays));
+                                      final aksesTime = DateTime(
+                                        aksesDateBase.year,
+                                        aksesDateBase.month,
+                                        aksesDateBase.day,
+                                        15,
+                                        0,
+                                      );
+
+                                      if (now.isBefore(aksesTime)) {
+                                        showCustomSnackBar(
+                                          context,
+                                          'Tidak bisa akses komitmen sebelum ${DateFormatter.ubahTanggal(aksesTime.toIso8601String().substring(0, 10))} pukul 15:00',
+                                        );
+                                        return;
+                                      }
+
+                                      try {
+                                        final komitmenProgress =
+                                            await ApiService.getKomitmenByPesertaByDay(
+                                              context,
+                                              userId,
+                                              targetDay,
+                                            );
+                                        final done =
+                                            komitmenProgress['success'] ??
+                                            false;
+                                        if (done) {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      EvaluasiKomitmenViewScreen(
+                                                        type: 'Komitmen',
+                                                        userId: userId,
+                                                        acaraHariId: targetDay,
+                                                      ),
+                                            ),
+                                          );
+                                        } else {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      FormKomitmenScreen(
+                                                        userId: userId,
+                                                        acaraHariId: targetDay,
+                                                      ),
+                                            ),
+                                          ).then((result) {
+                                            if (result == 'reload') {
+                                              initAll(forceRefresh: true);
+                                            }
+                                          });
+                                        }
+                                      } catch (e) {
+                                        showCustomSnackBar(
+                                          context,
+                                          'Gagal memeriksa status komitmen. Coba lagi.',
+                                        );
+                                      }
+                                    },
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Stack(
+                                      children: [
+                                        Container(
+                                          height: 180,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
+                                            image: const DecorationImage(
+                                              image: AssetImage(
+                                                'assets/images/card_dashboard_komitmen.png',
+                                              ),
+                                              fit: BoxFit.fill,
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.max,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                        right: 16.0,
+                                                        bottom: 16.0,
+                                                        left: 64,
+                                                      ),
+                                                  child: Text(
+                                                    _komitmenDone
+                                                        ? 'Terima kasih telah mengisi komitmen hari ini!'
+                                                        : 'Jangan lupa mengisi komitmen harianmu!',
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w900,
+                                                      color: Colors.white,
+                                                      fontSize: 16,
+                                                    ),
+                                                    textAlign: TextAlign.right,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        if (_komitmenDone)
+                                          Positioned(
+                                            top: 0,
+                                            left: 0,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.green,
+                                                borderRadius:
+                                                    const BorderRadius.only(
+                                                      topLeft: Radius.circular(
+                                                        16,
+                                                      ),
+                                                      bottomRight:
+                                                          Radius.circular(8),
+                                                    ),
+                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 8,
+                                                  ),
+                                              child: Row(
+                                                children: const [
+                                                  Icon(
+                                                    Icons.check_circle,
+                                                    color: Colors.white,
+                                                    size: 16,
+                                                  ),
+                                                  SizedBox(width: 4),
+                                                  Text(
+                                                    'Selesai',
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        Positioned(
+                                          top: 0,
+                                          right: 0,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: AppColors.secondary,
+                                              borderRadius:
+                                                  const BorderRadius.only(
+                                                    topRight: Radius.circular(
+                                                      16,
+                                                    ),
+                                                    bottomLeft: Radius.circular(
+                                                      8,
+                                                    ),
+                                                  ),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 8,
+                                            ),
+                                            child: Text(
+                                              DateFormatter.ubahTanggal(
+                                                GlobalVariables.today
+                                                    .toIso8601String()
+                                                    .substring(0, 10),
+                                              ),
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                ],
+                              ),
+                            ),
+
+                          // Kartu 3: day 3 hour 21 - 24 AND day 4 hour 0 - 15 (targetDay = 3)
+                          if ((day == 3 &&
+                                  _timeOfDay.hour >= 21 &&
+                                  _timeOfDay.hour < 24) ||
+                              (GlobalVariables.today.year == 2026 &&
+                                  GlobalVariables.today.month == 1 &&
+                                  GlobalVariables.today.day == 2 &&
+                                  _timeOfDay.hour >= 0 &&
+                                  _timeOfDay.hour < 15))
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  InkWell(
+                                    onTap: () async {
+                                      final targetDay = 3;
+                                      final now = DateTime(
+                                        GlobalVariables.today.year,
+                                        GlobalVariables.today.month,
+                                        GlobalVariables.today.day,
+                                        GlobalVariables.timeOfDay.hour,
+                                        GlobalVariables.timeOfDay.minute,
+                                      );
+
+                                      final int deltaDays = targetDay - day;
+                                      final aksesDateBase = GlobalVariables
+                                          .today
+                                          .add(Duration(days: deltaDays));
+                                      final aksesTime = DateTime(
+                                        aksesDateBase.year,
+                                        aksesDateBase.month,
+                                        aksesDateBase.day,
+                                        15,
+                                        0,
+                                      );
+
+                                      if (now.isBefore(aksesTime)) {
+                                        showCustomSnackBar(
+                                          context,
+                                          'Tidak bisa akses komitmen sebelum ${DateFormatter.ubahTanggal(aksesTime.toIso8601String().substring(0, 10))} pukul 15:00',
+                                        );
+                                        return;
+                                      }
+
+                                      try {
+                                        final komitmenProgress =
+                                            await ApiService.getKomitmenByPesertaByDay(
+                                              context,
+                                              userId,
+                                              targetDay,
+                                            );
+                                        final done =
+                                            komitmenProgress['success'] ??
+                                            false;
+                                        if (done) {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      EvaluasiKomitmenViewScreen(
+                                                        type: 'Komitmen',
+                                                        userId: userId,
+                                                        acaraHariId: targetDay,
+                                                      ),
+                                            ),
+                                          );
+                                        } else {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      FormKomitmenScreen(
+                                                        userId: userId,
+                                                        acaraHariId: targetDay,
+                                                      ),
+                                            ),
+                                          ).then((result) {
+                                            if (result == 'reload') {
+                                              initAll(forceRefresh: true);
+                                            }
+                                          });
+                                        }
+                                      } catch (e) {
+                                        showCustomSnackBar(
+                                          context,
+                                          'Gagal memeriksa status komitmen. Coba lagi.',
+                                        );
+                                      }
+                                    },
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Stack(
+                                      children: [
+                                        Container(
+                                          height: 180,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
+                                            image: const DecorationImage(
+                                              image: AssetImage(
+                                                'assets/images/card_dashboard_komitmen.png',
+                                              ),
+                                              fit: BoxFit.fill,
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.max,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                        right: 16.0,
+                                                        bottom: 16.0,
+                                                        left: 64,
+                                                      ),
+                                                  child: Text(
+                                                    _komitmenDone
+                                                        ? 'Terima kasih telah mengisi komitmen hari ini!'
+                                                        : 'Jangan lupa mengisi komitmen harianmu!',
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w900,
+                                                      color: Colors.white,
+                                                      fontSize: 16,
+                                                    ),
+                                                    textAlign: TextAlign.right,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        if (_komitmenDone)
+                                          Positioned(
+                                            top: 0,
+                                            left: 0,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.green,
+                                                borderRadius:
+                                                    const BorderRadius.only(
+                                                      topLeft: Radius.circular(
+                                                        16,
+                                                      ),
+                                                      bottomRight:
+                                                          Radius.circular(8),
+                                                    ),
+                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 8,
+                                                  ),
+                                              child: Row(
+                                                children: const [
+                                                  Icon(
+                                                    Icons.check_circle,
+                                                    color: Colors.white,
+                                                    size: 16,
+                                                  ),
+                                                  SizedBox(width: 4),
+                                                  Text(
+                                                    'Selesai',
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        Positioned(
+                                          top: 0,
+                                          right: 0,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: AppColors.secondary,
+                                              borderRadius:
+                                                  const BorderRadius.only(
+                                                    topRight: Radius.circular(
+                                                      16,
+                                                    ),
+                                                    bottomLeft: Radius.circular(
+                                                      8,
+                                                    ),
+                                                  ),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 8,
+                                            ),
+                                            child: Text(
+                                              DateFormatter.ubahTanggal(
+                                                GlobalVariables.today
+                                                    .toIso8601String()
+                                                    .substring(0, 10),
+                                              ),
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                ],
+                              ),
+                            ),
+                        ],
 
                         // if ((day >= 1 && day <= 3) &&
                         //     !role.toLowerCase().contains('panitia') &&

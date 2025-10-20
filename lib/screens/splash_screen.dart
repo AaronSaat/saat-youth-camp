@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
 import 'package:package_info_plus/package_info_plus.dart' show PackageInfo;
+import 'package:syc/screens/pengumuman_list_screen.dart';
 import 'package:url_launcher/url_launcher.dart'
     show canLaunchUrl, LaunchMode, launchUrl;
 
@@ -13,7 +14,18 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+  final bool fromNotification;
+  final String? tujuan;
+  final int? id;
+  final int? userId;
+
+  const SplashScreen({
+    Key? key,
+    this.fromNotification = false,
+    this.tujuan,
+    this.id,
+    this.userId,
+  }) : super(key: key);
 
   @override
   _SplashScreenState createState() => _SplashScreenState();
@@ -35,6 +47,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void initState() {
+    print('SplashScreen initState called [navigating]');
     super.initState();
 
     _bgFadeController = AnimationController(
@@ -90,15 +103,29 @@ class _SplashScreenState extends State<SplashScreen>
       final isValid = await ApiService.validateToken(context, token: getToken);
       setState(() => _isCheckingToken = false); // <-- Selesai loading
       if (isValid) {
-        print('CEK TOKEN: VALID');
-        if (mounted) {
+        print('Navigating CEK TOKEN: VALID');
+        if (widget.tujuan == 'pengumuman_list') {
+          // Pertama ke MainScreen
+          print('Navigating to Main Screen');
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const MainScreen()),
+          );
+          // Setelah MainScreen dipush, lanjut ke PengumumanListScreen
+          print('Navigating to Pengumuman List Screen');
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => const PengumumanListScreen(),
+            ),
+          );
+        } else {
+          print('Navigating to Main Screen');
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const MainScreen()),
           );
         }
       } else {
-        print('CEK TOKEN: TIDAK VALID');
+        print('Navigating CEK TOKEN: TIDAK VALID');
         // lakukan animasi
         await _bgFadeController.forward();
         await Future.wait([
@@ -127,7 +154,7 @@ class _SplashScreenState extends State<SplashScreen>
       }
     } else {
       // Token tidak ada, langsung lakukan animasi
-      print('CEK TOKEN: TOKEN TIDAK ADA');
+      print('Navigating CEK TOKEN: TOKEN TIDAK ADA');
       await _bgFadeController.forward();
       await Future.wait([
         _logoMoveController.forward(),

@@ -20,20 +20,32 @@ void main() async {
 
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
     // Navigasi ke screen sesuai data notifikasi
-    final tujuan = message.data['screen'];
+    final tujuan = message.data['tujuan']?.toString() ?? '';
+    final id = int.tryParse(message.data['id']?.toString() ?? '0') ?? 0;
+    final userId =
+        int.tryParse(message.data['user_id']?.toString() ?? '0') ?? 0;
+    print('Navigating with tujuan: $tujuan, id: $id, userId: $userId');
 
     switch (tujuan) {
-      case 'splash':
-        print('Navigating to Splash Screen');
-        navigatorKey.currentState?.pushReplacement(
-          MaterialPageRoute(builder: (_) => const SplashScreen()),
+      case 'pengumuman_list':
+        print('Navigating to Splash Screen First');
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder:
+                (_) => SplashScreen(
+                  fromNotification: true,
+                  tujuan: tujuan,
+                  id: id,
+                  userId: userId,
+                ),
+          ),
         );
         break;
       // Tambahkan case lain sesuai kebutuhan
       default:
         // Default action jika screen tidak dikenali
         print('Navigating to Splash Screen');
-        navigatorKey.currentState?.pushReplacement(
+        navigatorKey.currentState?.push(
           MaterialPageRoute(builder: (_) => const SplashScreen()),
         );
         break;
@@ -66,6 +78,22 @@ void main() async {
       print('Error requesting Android notification permission: $e');
     }
   }
+
+  try {
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    if (fcmToken != null && fcmToken.isNotEmpty) {
+      print('FCM Token: $fcmToken');
+    } else {
+      print('FCM Token is null or empty');
+    }
+  } catch (e) {
+    print('Error fetching FCM token: $e');
+  }
+
+  // Listen for token refreshes
+  FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
+    print('FCM Token refreshed: $newToken');
+  });
 
   FirebaseMessaging.instance.subscribeToTopic('syc');
   print('Subscribed to topic "syc"');

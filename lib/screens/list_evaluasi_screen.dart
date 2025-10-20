@@ -66,7 +66,7 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
     try {
       await loadUserData();
       await loadCountAcaraCountAll();
-      await loadEvaluasiAcara(forceRefresh: true);
+      await loadEvaluasiAcara(forceRefresh: forceRefresh);
     } catch (e) {
       print('❌ Gagal memuat data: $e');
       if (!mounted) return;

@@ -56,7 +56,13 @@ class NotificationService {
       iOS: initializationSettingsIOS,
     );
 
-    await notificationPlugin.initialize(initializationSettings);
+    await notificationPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: onNotificationTap,
+      // onDidReceiveBackgroundNotificationResponse requires a top-level or static
+      // function; reuse the same handler so background taps are also routed.
+      onDidReceiveBackgroundNotificationResponse: onNotificationTap,
+    );
     _isInitialized = true;
     // } catch (e) {
     //   final context = NotificationService.navigatorKey.currentContext;
@@ -97,9 +103,8 @@ class NotificationService {
       final context = navigatorKey.currentState!.context;
 
       // Navigate to SplashScreen dan clear semua route sebelumnya
-      Navigator.of(context).pushAndRemoveUntil(
+      Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => SplashScreen()),
-        (route) => false, // Remove all previous routes
       );
     }
   }
@@ -109,13 +114,14 @@ class NotificationService {
     required String title,
     required String body,
     String? payload,
+    int? id,
   }) async {
     if (!_isInitialized) {
       await initialize();
     }
 
     return notificationPlugin.show(
-      DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      id ?? DateTime.now().millisecondsSinceEpoch ~/ 1000,
       title,
       body,
       notificationDetails(),
@@ -128,6 +134,7 @@ class NotificationService {
     required String body,
     required DateTime scheduledTime,
     required String payload,
+    int? id,
   }) async {
     // Pastikan timezone WIB (Asia/Jakarta)
     final wib = tz.getLocation('Asia/Jakarta');
@@ -141,24 +148,26 @@ class NotificationService {
 
     try {
       await notificationPlugin.zonedSchedule(
-        DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        id ?? DateTime.now().millisecondsSinceEpoch ~/ 1000,
         title,
         body,
         scheduledDateTime,
         notificationDetails(),
+        payload: payload,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         matchDateTimeComponents: DateTimeComponents.time,
       );
     } catch (e) {
       print('Exact alarm not permitted, fallback to inexact: $e');
       await notificationPlugin.zonedSchedule(
-        DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        id ?? DateTime.now().millisecondsSinceEpoch ~/ 1000,
         title,
         body,
         scheduledDateTime.isBefore(now)
             ? now.add(const Duration(seconds: 1))
             : scheduledDateTime,
         notificationDetails(),
+        payload: payload,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         matchDateTimeComponents: DateTimeComponents.time,
       );
@@ -174,6 +183,17 @@ class NotificationService {
       await initialize();
     }
     await notificationPlugin.cancelAll();
+  }
+
+  /// Cancel a single notification by its id.
+  ///
+  /// Use this when you scheduled notifications with a known `id` so you can
+  /// cancel only that one instead of calling `cancelAll()`.
+  Future<void> cancelNotificationById(int id) async {
+    if (!_isInitialized) {
+      await initialize();
+    }
+    await notificationPlugin.cancel(id);
   }
 
   // Background sync untuk pengumuman terbaru

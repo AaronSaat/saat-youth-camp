@@ -257,16 +257,19 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     });
     try {
       final prefs = await SharedPreferences.getInstance();
-      final statusDatangLocal = prefs.getString('status_datang');
+      final prevStatus =
+          prefs.getString('status_datang') ?? _dataUser['status_datang'] ?? '0';
+
       // Jika ada data lokal dan tidak force refresh, langsung pakai lokal
-      if (statusDatangLocal != null && !forceRefresh) {
-        print('[STATUS DATANG] Ambil dari local: $statusDatangLocal');
+      if (prevStatus.isNotEmpty && !forceRefresh) {
+        print('[STATUS DATANG] Ambil dari local: $prevStatus');
         setState(() {
-          _dataUser['status_datang'] = statusDatangLocal;
+          _dataUser['status_datang'] = prevStatus;
           _isLoading = false;
         });
         return;
       }
+
       // Jika belum ada data lokal atau user refresh, ambil dari API
       final res = await ApiService.getStatusDatang(
         context,
@@ -274,13 +277,26 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         _dataUser['email'] ?? '',
       );
       if (!mounted) return;
-      final statusDatangApi = res['data']?['status_datang']?.toString() ?? '0';
+      final statusDatangApi = res['status_datang']?.toString() ?? '0';
       print('[STATUS DATANG] Ambil dari API: $statusDatangApi');
+
+      final hasChanged = statusDatangApi != prevStatus;
+      print('[STATUS DATANG] Has changed: $hasChanged');
+
       await prefs.setString('status_datang', statusDatangApi);
+      if (!mounted) return;
       setState(() {
         _dataUser['status_datang'] = statusDatangApi;
         _isLoading = false;
       });
+
+      // Jika berubah, refresh dengan pushReplacement ke MainScreen
+      if (hasChanged && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => ProfileEditScreen()),
+        );
+      }
     } catch (e) {
       print('❌ Gagal memuat status datang: $e');
       if (!mounted) return;
