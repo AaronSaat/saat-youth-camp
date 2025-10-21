@@ -943,7 +943,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                                                       ),
                                                       const SizedBox(width: 4),
                                                       Text(
-                                                        'Belum install app',
+                                                        'Belum buat akun',
                                                         style: const TextStyle(
                                                           color: Colors.white,
                                                           fontWeight:
@@ -981,7 +981,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                   clipBehavior: Clip.none,
                   children: [
                     FloatingActionButton(
-                      backgroundColor: AppColors.brown1,
+                      backgroundColor: AppColors.floating_button,
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -998,7 +998,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
                           }
                         });
                       },
-                      child: const Icon(Icons.qr_code, color: Colors.white),
+                      child: const Icon(Icons.qr_code, color: AppColors.brown1),
                     ),
                   ],
                 ),

@@ -62,9 +62,12 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
 
     try {
       await loadUserData();
-      // load komitmen first so we can schedule notifications immediately if needed
-      await loadKomitmen(forceRefresh: forceRefresh);
+      // Load notif setting early so the AppBar icon reflects user preference
       await _loadNotifSetting();
+      // load komitmen (notification scheduling will run after komitmen is loaded)
+      await loadKomitmen(forceRefresh: forceRefresh);
+      // After komitmen is available, schedule notifications if the pref is enabled
+      await _maybeScheduleKomitmenNotifications();
       setState(() {
         _isLoading = false;
       });
@@ -79,6 +82,10 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
 
   Future<void> _loadNotifSetting() async {
     try {
+      if (!mounted) return;
+      setState(() {
+        _notifKomitmenEnabled = false;
+      });
       final prefs = await SharedPreferences.getInstance();
       final key = 'notif_komitmen_${widget.userId}';
       // If pref missing, default to disabled (false)
@@ -87,8 +94,17 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
       setState(() {
         _notifKomitmenEnabled = enabled;
       });
+    } catch (e) {
+      // ignore errors and keep default false
+      print('Error loading komitmen notif setting: $e');
+    }
+  }
 
-      // If enabled but no saved notif ids exist yet, schedule them now.
+  /// After komitmen list is loaded, schedule notifications if the user has
+  /// enabled komitmen notifications and we don't already have saved notif ids.
+  Future<void> _maybeScheduleKomitmenNotifications() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
       final notifIdsKey = 'notif_komitmen_ids_${widget.userId}';
       final existingIds = prefs.getStringList(notifIdsKey) ?? [];
       if (_notifKomitmenEnabled &&
@@ -97,12 +113,21 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
         await _scheduleKomitmenNotifications();
       }
     } catch (e) {
-      // ignore errors and keep default false
-      print('Error loading komitmen notif setting: $e');
+      print('Error checking/scheduling komitmen notifications: $e');
     }
   }
 
   Future<void> _toggleNotifKomitmen(bool enabled) async {
+    // Only allow peserta role to toggle this setting
+    final role = _dataUser['role'] ?? '';
+    if (role.toString().toLowerCase() != 'peserta') {
+      showCustomSnackBar(
+        context,
+        'Hanya peserta yang dapat mengatur notifikasi komitmen.',
+        isSuccess: false,
+      );
+      return;
+    }
     try {
       final prefs = await SharedPreferences.getInstance();
       final key = 'notif_komitmen_${widget.userId}';
@@ -201,6 +226,7 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
         }
       }
       await prefs.remove(notifIdsKey);
+      print('Scheduled - cancel komitmen notifications: $ids');
     } catch (e) {
       print('Error cancelling komitmen notifications: $e');
     }
@@ -228,9 +254,6 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
               {'hari': 2, 'tanggal': '2025-10-21'},
               {'hari': 3, 'tanggal': '2025-10-22'},
             ]);
-
-            komitmenDoneList.clear();
-            komitmenDoneList.addAll([false, false, false]);
           } catch (e) {
             // ignore if cached values are not mutable
           }
@@ -314,22 +337,31 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
           ),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: IconButton(
-              tooltip:
+          // Only show the bell when the logged-in user is the owner of this
+          // komitmen list and has role 'Peserta'. Otherwise hide it.
+          if ((_dataUser['id'] ?? '') == widget.userId &&
+              ((_dataUser['role'] ?? '').toString().toLowerCase() ==
+                      'peserta' ||
+                  (_dataUser['role'] ?? '').toString().toLowerCase() ==
+                      'pembina'))
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: IconButton(
+                tooltip:
+                    _notifKomitmenEnabled
+                        ? 'Nonaktifkan Notifikasi'
+                        : 'Aktifkan Notifikasi',
+                icon: Icon(
                   _notifKomitmenEnabled
-                      ? 'Nonaktifkan Notifikasi'
-                      : 'Aktifkan Notifikasi',
-              icon: Icon(
-                _notifKomitmenEnabled
-                    ? Icons.notifications_active
-                    : Icons.notifications_none,
-                color: Colors.white,
+                      ? Icons.notifications_active
+                      : Icons.notifications_none,
+                  color: Colors.white,
+                ),
+                onPressed: () => _toggleNotifKomitmen(!_notifKomitmenEnabled),
               ),
-              onPressed: () => _toggleNotifKomitmen(!_notifKomitmenEnabled),
-            ),
-          ),
+            )
+          else
+            const SizedBox.shrink(),
         ],
       ),
       body: Stack(

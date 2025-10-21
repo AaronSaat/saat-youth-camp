@@ -871,7 +871,7 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
                                                           width: 4,
                                                         ),
                                                         Text(
-                                                          'Belum install app',
+                                                          'Belum buat akun',
                                                           style:
                                                               const TextStyle(
                                                                 color:

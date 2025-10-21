@@ -7,6 +7,7 @@ class AppColors {
   static const Color green = Color(0xFF4CAF50);
   static const Color blue = Color(0xFF2196F3);
   static const Color dark = Color(0xFF8B322C);
+  static const Color floating_button = Color.fromARGB(255, 230, 185, 168);
   static const Color brown1 = Color(0xFF894A34); //kepake di evaluasi komitmen
   static const Color black1 = Color(0xFF1e1411); //kepake di snackbar
   static const Color grey1 = Color(0xFFe4e4e4); //kepake di dashboard

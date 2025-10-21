@@ -155,7 +155,8 @@ class NotificationService {
         notificationDetails(),
         payload: payload,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        matchDateTimeComponents: DateTimeComponents.time,
+        // ini untuk repeated notification : setiap hari di jam yang sama
+        // matchDateTimeComponents: DateTimeComponents.time,
       );
     } catch (e) {
       print('Exact alarm not permitted, fallback to inexact: $e');
@@ -169,7 +170,6 @@ class NotificationService {
         notificationDetails(),
         payload: payload,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        matchDateTimeComponents: DateTimeComponents.time,
       );
     }
 

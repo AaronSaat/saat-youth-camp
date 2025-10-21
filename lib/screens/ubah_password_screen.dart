@@ -478,7 +478,7 @@ class _UbahPasswordScreenState extends State<UbahPasswordScreen> {
                                         color: Colors.white,
                                       )
                                       : const Text(
-                                        'Kirim Email Reset Password',
+                                        'Ubah Password',
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 16,

@@ -2123,6 +2123,7 @@ class ApiService {
     );
 
     print('test url: $url');
+    print('test body: $body');
     print('test response: ${response.statusCode} - ${response.body}');
 
     if (response.statusCode == 201) {

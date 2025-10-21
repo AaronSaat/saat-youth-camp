@@ -60,6 +60,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _komitmenDone = false;
   DateTime? _lastBackPressed;
   // DateTime _today = DateTime.now();
+  final NotificationService _notificationService = NotificationService();
 
   bool isSupported = false;
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -453,8 +454,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     await loadPengumumanByUserId(forceRefresh: forceRefresh);
     await checkKomitmenDoneForReminderCard();
 
-    await loadAllAcara();
-    await loadAllKomitmen();
+    await loadAllNotifikasiAcara();
+
+    final roleLower = (_dataUser['role'] ?? '').toString().toLowerCase();
+    if (roleLower.contains('peserta') || roleLower.contains('pembina')) {
+      await loadAllNotifikasiKomitmen();
+    }
     // await setupAllNotification();
     if (!mounted) return;
     setState(() {
@@ -733,7 +738,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // }
 
   // untuk notifikasi lokal
-  Future<void> loadAllAcara() async {
+  Future<void> loadAllNotifikasiAcara() async {
     if (!mounted) return;
     setState(() {
       _isLoading = true;
@@ -744,6 +749,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (!mounted) return;
       setState(() {
         _acaraListAll = acaraList;
+        scheduleReminderDanEvaluasiNotificationsForUser(_dataUser['id'] ?? '');
         _isLoading = false;
         print('Acara List All: \n$_acaraListAll');
       });
@@ -756,8 +762,170 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  // untuk notifikasi
-  Future<void> loadAllKomitmen() async {
+  Future<void> scheduleReminderDanEvaluasiNotificationsForUser(
+    String userId,
+  ) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final notifIdsKey = 'notif_acara_ids_$userId';
+      final List<String> scheduledIds = <String>[];
+
+      // Determine role-based permission for evaluasi notifications
+      final roleLower = (_dataUser['role'] ?? '').toString().toLowerCase();
+      final bool shouldScheduleEval =
+          roleLower.contains('peserta') || roleLower.contains('pembina');
+
+      // Ensure notification service initialized once
+      await _notificationService.initialize();
+
+      final now = DateTime.now();
+
+      for (final acara in _acaraListAll) {
+        try {
+          // Determine whether this acara has notif enabled (handle multiple representations)
+          final isNotifRaw = acara['is_notif'];
+          final bool isNotif =
+              (isNotifRaw == true) ||
+              (isNotifRaw == 1) ||
+              (isNotifRaw == '1') ||
+              (isNotifRaw?.toString().toLowerCase() == 'true');
+
+          if (!isNotif) continue;
+
+          final acaraIdStr = (acara['id']?.toString() ?? '');
+          final acaraIdNum = int.tryParse(acaraIdStr) ?? acara.hashCode.abs();
+          final tanggalStr = acara['tanggal']?.toString() ?? '';
+          final waktuStr = acara['waktu']?.toString() ?? '';
+
+          if (tanggalStr.isEmpty || waktuStr.isEmpty) {
+            print('👟 Skipping acara ${acaraIdStr}: missing tanggal/waktu');
+            continue;
+          }
+
+          DateTime eventStart;
+          try {
+            // Expect waktu in "HH:mm" most of the time
+            final waktuNormalized =
+                (waktuStr.length == 5 && waktuStr.contains(':'))
+                    ? waktuStr
+                    : '00:00';
+            eventStart = DateTime.parse('$tanggalStr $waktuNormalized:00');
+          } catch (e) {
+            // Try fallback parse from just date then add hours if waktu is numeric/hhmm
+            try {
+              final base = DateTime.parse(tanggalStr);
+              final parts = waktuStr.split(':');
+              final hh = int.tryParse(parts.isNotEmpty ? parts[0] : '') ?? 0;
+              final mm = int.tryParse(parts.length > 1 ? parts[1] : '') ?? 0;
+              eventStart = DateTime(base.year, base.month, base.day, hh, mm);
+            } catch (e2) {
+              print(
+                'Failed to parse event start for acara $acaraIdStr: $e / $e2',
+              );
+              continue;
+            }
+          }
+
+          // Reminder (15 minutes before) - for all roles
+          final scheduledReminder = eventStart.subtract(
+            const Duration(minutes: 15),
+          );
+          if (scheduledReminder.isAfter(now)) {
+            // Stable notif id composition to reduce collisions
+            final baseUser =
+                int.tryParse(userId) ?? (now.millisecondsSinceEpoch ~/ 1000);
+            final reminderId =
+                (baseUser.abs() % 100000) * 100000 +
+                (acaraIdNum.abs() % 100000);
+
+            final titleRem = '⏰ ${acara['acara_nama'] ?? 'Acara'} akan dimulai';
+            final bodyRem =
+                '${acara['acara_nama'] ?? 'Acara'} akan dimulai dalam 15 menit';
+
+            await _notificationService.scheduledNotification(
+              id: reminderId,
+              title: titleRem,
+              body: bodyRem,
+              scheduledTime: scheduledReminder,
+              payload: 'splash',
+            );
+
+            scheduledIds.add(reminderId.toString());
+            await prefs.setBool('notif_acara_${acaraIdStr}_reminder', true);
+            await prefs.setString(
+              'notif_acara_${acaraIdStr}_time',
+              scheduledReminder.toIso8601String(),
+            );
+
+            print(
+              'Scheduled acara reminder (ID:$reminderId) for $scheduledReminder',
+            );
+          } else {
+            print(
+              'Skip scheduling reminder for acara $acaraIdStr: time already passed',
+            );
+          }
+
+          // Evaluasi (1 hour after event start) - only for peserta and pembimbing
+          final scheduledEval = eventStart.add(const Duration(hours: 1));
+          if (!shouldScheduleEval) {
+            print(
+              'Skipping evaluasi scheduling for user role "$roleLower" (acara $acaraIdStr)',
+            );
+          } else if (scheduledEval.isAfter(now)) {
+            final baseUser =
+                int.tryParse(userId) ?? (now.millisecondsSinceEpoch ~/ 1000);
+            final reminderId =
+                (baseUser.abs() % 100000) * 100000 +
+                (acaraIdNum.abs() % 100000);
+            final evalId = reminderId + 1000000; // offset for evaluasi
+
+            final titleEval = '📝 Waktu Evaluasi';
+            final bodyEval =
+                'Silakan isi evaluasi untuk acara: ${acara['acara_nama'] ?? 'Acara'}';
+
+            await _notificationService.scheduledNotification(
+              id: evalId,
+              title: titleEval,
+              body: bodyEval,
+              scheduledTime: scheduledEval,
+              payload: 'splash',
+            );
+
+            scheduledIds.add(evalId.toString());
+            await prefs.setBool('notif_acara_${acaraIdStr}_evaluasi', true);
+            await prefs.setString(
+              'notif_acara_${acaraIdStr}_eval_time',
+              scheduledEval.toIso8601String(),
+            );
+
+            print('Scheduled acara evaluasi (ID:$evalId) for $scheduledEval');
+          } else {
+            print(
+              'Skip scheduling evaluasi for acara $acaraIdStr: time already passed',
+            );
+          }
+        } catch (e) {
+          print('Error scheduling notifications for acara entry $acara : $e');
+        }
+      }
+
+      if (scheduledIds.isNotEmpty) {
+        // Merge with existing ids if present
+        final existing = prefs.getStringList(notifIdsKey) ?? <String>[];
+        final merged = <String>{...existing, ...scheduledIds}.toList();
+        await prefs.setStringList(notifIdsKey, merged);
+        print('Saved acara notif ids ($notifIdsKey): $merged');
+      } else {
+        print('No acara notifications were scheduled for user $userId');
+      }
+    } catch (e) {
+      print('Error in scheduleReminderDanEvaluasiNotificationsForUser: $e');
+    }
+  }
+
+  // untuk notifikasi lokal
+  Future<void> loadAllNotifikasiKomitmen() async {
     if (!mounted) return;
     setState(() {
       _isLoading = true;
@@ -768,6 +936,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (!mounted) return;
       setState(() {
         _komitmenListAll = komitmenList;
+        // For testing: override cached data with sample entries
+        try {
+          _komitmenListAll.clear();
+          _komitmenListAll.addAll([
+            {'hari': 1, 'tanggal': '2025-10-20'},
+            {'hari': 2, 'tanggal': '2025-10-21'},
+            {'hari': 3, 'tanggal': '2025-10-22'},
+          ]);
+        } catch (e) {
+          // ignore if cached values are not mutable
+        }
+        scheduleKomitmenNotificationsForUser(_dataUser['id'] ?? '');
         _isLoading = false;
         print('Komitmen List All: \n$_komitmenListAll');
       });
@@ -777,6 +957,102 @@ class _DashboardScreenState extends State<DashboardScreen> {
       setState(() {
         _isLoading = false;
       });
+    }
+  }
+
+  // Schedule komitmen notifications for a user based on _komitmenListAll.
+  // Saves setting bool at 'notif_komitmen_<userId>' and saves ids at
+  // 'notif_komitmen_ids_<userId>'.
+  Future<void> scheduleKomitmenNotificationsForUser(String userId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final notifEnabledKey = 'notif_komitmen_$userId';
+      final notifIdsKey = 'notif_komitmen_ids_$userId';
+
+      // mark enabled in list_komitmen_screen
+      await prefs.setBool(notifEnabledKey, true);
+
+      // Ensure notification plugin initialized
+      await _notificationService.initialize();
+
+      final now = DateTime.now();
+      final List<String> scheduledIds = [];
+
+      // Use _komitmenListAll (assumed loaded by loadAllNotifikasiKomitmen)
+      for (final komitmen in _komitmenListAll) {
+        try {
+          final tanggalStr = komitmen['tanggal']?.toString() ?? '';
+          if (tanggalStr.isEmpty) continue;
+
+          // Build scheduled DateTime at 21:00 on the komitmen date
+          DateTime scheduledDate;
+          try {
+            scheduledDate = DateTime.parse('$tanggalStr 21:00:00');
+          } catch (_) {
+            // try a fallback without assuming exact format
+            scheduledDate = DateTime.parse(
+              tanggalStr,
+            ).add(const Duration(hours: 21));
+          }
+
+          if (scheduledDate.isBefore(now)) {
+            // skip past dates
+            continue;
+          }
+
+          // Prefer a stable komitmen id if available
+          int notifId;
+          final komitmenId = int.tryParse(komitmen['id']?.toString() ?? '');
+          if (komitmenId != null && komitmenId > 0) {
+            // compose id using userId and komitmenId to reduce collision risk
+            final u = int.tryParse(userId) ?? 0;
+            notifId = (u.abs() % 100000) * 100000 + (komitmenId.abs() % 100000);
+          } else {
+            // fallback to previous formula using hari
+            final baseUser =
+                int.tryParse(userId) ??
+                DateTime.now().millisecondsSinceEpoch ~/ 1000;
+            final hariNum =
+                int.tryParse(komitmen['hari']?.toString() ?? '') ?? 0;
+            notifId = baseUser.abs() % 100000 * 100 + hariNum;
+          }
+
+          final title = '🙏 Komitmen Hari ke-${komitmen['hari'] ?? '-'}';
+          final body =
+              'Jangan lupa mengisi komitmen untuk tanggal $tanggalStr.';
+          final payload = 'splash';
+
+          await _notificationService.scheduledNotification(
+            id: notifId,
+            title: title,
+            body: body,
+            scheduledTime: scheduledDate,
+            payload: payload,
+          );
+
+          // record scheduled id (string)
+          scheduledIds.add(notifId.toString());
+
+          // debug log
+          print(
+            'Scheduled komitmen notif (ID: $notifId) for $scheduledDate (user $userId)',
+          );
+        } catch (e) {
+          print('Error scheduling komitmen reminder for entry $komitmen : $e');
+        }
+      }
+
+      // persist scheduled ids
+      if (scheduledIds.isNotEmpty) {
+        await prefs.setStringList(notifIdsKey, scheduledIds);
+        print('Saved komitmen notif ids ($notifIdsKey): $scheduledIds');
+      } else {
+        print(
+          'No komitmen notifications scheduled (no future komitmen found).',
+        );
+      }
+    } catch (e) {
+      print('Error in scheduleKomitmenNotificationsForUser: $e');
     }
   }
 
@@ -4644,7 +4920,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             clipBehavior: Clip.none,
             children: [
               FloatingActionButton(
-                backgroundColor: AppColors.brown1,
+                backgroundColor: AppColors.floating_button,
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -4659,7 +4935,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 },
                 child: const Icon(
                   Icons.campaign, // megaphone icon
-                  color: Colors.white,
+                  color: AppColors.brown1,
                 ),
               ),
               if (_pengumumanList.length > 0)
