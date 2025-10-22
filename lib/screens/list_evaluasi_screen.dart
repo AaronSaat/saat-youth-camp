@@ -345,6 +345,15 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
                           print(
                             '[PREF_API] Evaluasi status for $item: $status',
                           );
+                          final isEvalVal = acara['is_eval'];
+                          final bool isEval =
+                              isEvalVal == 1 ||
+                              isEvalVal == '1' ||
+                              isEvalVal == true;
+                          if (!isEval) {
+                            return const SizedBox.shrink();
+                          }
+
                           return CustomCard(
                             text: item,
                             icon:

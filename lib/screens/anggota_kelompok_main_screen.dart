@@ -44,6 +44,21 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
   DateTime? _lastBackPressed;
   // control whether the full info card is shown or shrunk
   bool _showInfoCard = true;
+  // sample progress response (usage: state._progress['eval_day_1'])
+  final Map<String, int> _progress = {
+    'eval_day_1': 2,
+    'total_eval_day_1': 5,
+    'eval_day_2': 0,
+    'total_eval_day_2': 9,
+    'eval_day_3': 0,
+    'total_eval_day_3': 8,
+    'eval_day_4': 0,
+    'total_eval_day_4': 3,
+    'eval_all': 0,
+    'total_eval_all': 2,
+    'komitmen_day': 1,
+    'total_komitmen_day': 3,
+  };
 
   @override
   void initState() {
@@ -296,7 +311,7 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                         backgroundColor: AppColors.floating_button,
                         onPressed: _toggleInfoCardView,
                         child: Icon(
-                          _showInfoCard ? Icons.bar_chart : Icons.view_list,
+                          _showInfoCard ? Icons.view_list : Icons.info,
                           color: AppColors.brown1,
                         ),
                       ),
@@ -510,28 +525,6 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
-                                          const Icon(
-                                            Icons.location_on,
-                                            size: 18,
-                                            color: Colors.white,
-                                          ),
-                                          const SizedBox(width: 6),
-                                          Text(
-                                            '${user['provinsi'] ?? 'Tidak ada provinsi'}',
-                                            style: TextStyle(
-                                              fontSize:
-                                                  (user['provinsi'] != null &&
-                                                          user['provinsi']
-                                                                  .toString()
-                                                                  .length >
-                                                              20)
-                                                      ? 10
-                                                      : 14,
-                                              color: Colors.white,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                          const SizedBox(width: 16),
                                           if ((user['umur'] ?? '')
                                               .toString()
                                               .isNotEmpty) ...[
@@ -783,7 +776,7 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                               vertical: 8,
                             ),
                             child: const Text(
-                              'Belum verifikasi',
+                              'Belum konfirmasi',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -811,7 +804,7 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                             vertical: 8,
                           ),
                           child: const Text(
-                            'Sudah verifikasi',
+                            'Sudah konfirmasi',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -1116,7 +1109,11 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                                   SizedBox(
                                                     height: 28,
                                                     child: LinearProgressIndicator(
-                                                      value: 1 / 5,
+                                                      value:
+                                                          ((user['progress']?['eval_day_1'] ??
+                                                                  0) /
+                                                              (user['progress']?['total_eval_day_1'] ??
+                                                                  1)),
                                                       minHeight: 28,
                                                       valueColor:
                                                           AlwaysStoppedAnimation<
@@ -1126,9 +1123,9 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                                           Colors.white24,
                                                     ),
                                                   ),
-                                                  const Text(
-                                                    'Eval Hari-1 : 1/5',
-                                                    style: TextStyle(
+                                                  Text(
+                                                    'Eval Hari-1: ${(user['progress']?['eval_day_1'] ?? 0)}/${(user['progress']?['total_eval_day_1'] ?? 0)}',
+                                                    style: const TextStyle(
                                                       color: Colors.white,
                                                       fontWeight:
                                                           FontWeight.bold,
@@ -1150,7 +1147,11 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                                   SizedBox(
                                                     height: 28,
                                                     child: LinearProgressIndicator(
-                                                      value: 2 / 5,
+                                                      value:
+                                                          ((user['progress']?['eval_day_2'] ??
+                                                                  0) /
+                                                              (user['progress']?['total_eval_day_2'] ??
+                                                                  1)),
                                                       minHeight: 28,
                                                       valueColor:
                                                           AlwaysStoppedAnimation<
@@ -1160,9 +1161,9 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                                           Colors.white24,
                                                     ),
                                                   ),
-                                                  const Text(
-                                                    'Eval Hari-2 : 2/5',
-                                                    style: TextStyle(
+                                                  Text(
+                                                    'Eval Hari-2: ${(user['progress']?['eval_day_2'] ?? 0)}/${(user['progress']?['total_eval_day_2'] ?? 0)}',
+                                                    style: const TextStyle(
                                                       color: Colors.white,
                                                       fontWeight:
                                                           FontWeight.bold,
@@ -1184,7 +1185,11 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                                   SizedBox(
                                                     height: 28,
                                                     child: LinearProgressIndicator(
-                                                      value: 1 / 5,
+                                                      value:
+                                                          ((user['progress']?['eval_day_3'] ??
+                                                                  0) /
+                                                              (user['progress']?['total_eval_day_3'] ??
+                                                                  1)),
                                                       minHeight: 28,
                                                       valueColor:
                                                           AlwaysStoppedAnimation<
@@ -1194,9 +1199,9 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                                           Colors.white24,
                                                     ),
                                                   ),
-                                                  const Text(
-                                                    'Eval Hari-3 : 1/5',
-                                                    style: TextStyle(
+                                                  Text(
+                                                    'Eval Hari-3: ${(user['progress']?['eval_day_3'] ?? 0)}/${(user['progress']?['total_eval_day_3'] ?? 0)}',
+                                                    style: const TextStyle(
                                                       color: Colors.white,
                                                       fontWeight:
                                                           FontWeight.bold,
@@ -1223,7 +1228,11 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                                 SizedBox(
                                                   height: 28,
                                                   child: LinearProgressIndicator(
-                                                    value: 5 / 5,
+                                                    value:
+                                                        ((user['progress']?['eval_day_4'] ??
+                                                                0) /
+                                                            (user['progress']?['total_eval_day_4'] ??
+                                                                1)),
                                                     minHeight: 28,
                                                     valueColor:
                                                         AlwaysStoppedAnimation<
@@ -1233,9 +1242,9 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                                         Colors.white24,
                                                   ),
                                                 ),
-                                                const Text(
-                                                  'Eval Hari-4 : 5/5',
-                                                  style: TextStyle(
+                                                Text(
+                                                  'Eval Hari-4: ${(user['progress']?['eval_day_4'] ?? 0)}/${(user['progress']?['total_eval_day_4'] ?? 0)}',
+                                                  style: const TextStyle(
                                                     color: Colors.white,
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 10,
@@ -1257,7 +1266,11 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                                 SizedBox(
                                                   height: 28,
                                                   child: LinearProgressIndicator(
-                                                    value: 2 / 5,
+                                                    value:
+                                                        ((user['progress']?['eval_all'] ??
+                                                                0) /
+                                                            (user['progress']?['total_eval_all'] ??
+                                                                1)),
                                                     minHeight: 28,
                                                     valueColor:
                                                         AlwaysStoppedAnimation<
@@ -1267,9 +1280,9 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                                         Colors.white24,
                                                   ),
                                                 ),
-                                                const Text(
-                                                  'Eval Keseluruhan : 2/5',
-                                                  style: TextStyle(
+                                                Text(
+                                                  'Eval Keseluruhan: ${(user['progress']?['eval_all'] ?? 0)}/${(user['progress']?['total_eval_all'] ?? 0)}',
+                                                  style: const TextStyle(
                                                     color: Colors.white,
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 8,
@@ -1291,7 +1304,11 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                                 SizedBox(
                                                   height: 28,
                                                   child: LinearProgressIndicator(
-                                                    value: 1 / 3,
+                                                    value:
+                                                        ((user['progress']?['komitmen_day'] ??
+                                                                0) /
+                                                            (user['progress']?['total_komitmen_day'] ??
+                                                                1)),
                                                     minHeight: 28,
                                                     valueColor:
                                                         AlwaysStoppedAnimation<
@@ -1301,9 +1318,9 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                                         Colors.white24,
                                                   ),
                                                 ),
-                                                const Text(
-                                                  'Komitmen : 1/3',
-                                                  style: TextStyle(
+                                                Text(
+                                                  'Komitmen: ${(user['progress']?['komitmen_day'] ?? 0)}/${(user['progress']?['total_komitmen_day'] ?? 0)}',
+                                                  style: const TextStyle(
                                                     color: Colors.white,
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 10,
@@ -1385,7 +1402,7 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                               vertical: 8,
                             ),
                             child: const Text(
-                              'Belum verifikasi',
+                              'Belum konfirmasi',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -1413,7 +1430,7 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                             vertical: 8,
                           ),
                           child: const Text(
-                            'Sudah verifikasi',
+                            'Sudah konfirmasi',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
