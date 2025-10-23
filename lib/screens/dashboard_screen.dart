@@ -937,16 +937,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
       setState(() {
         _komitmenListAll = komitmenList;
         // For testing: override cached data with sample entries
-        try {
-          _komitmenListAll.clear();
-          _komitmenListAll.addAll([
-            {'hari': 1, 'tanggal': '2025-10-20'},
-            {'hari': 2, 'tanggal': '2025-10-21'},
-            {'hari': 3, 'tanggal': '2025-10-22'},
-          ]);
-        } catch (e) {
-          // ignore if cached values are not mutable
-        }
+        // try {
+        //   _komitmenListAll.clear();
+        //   _komitmenListAll.addAll([
+        //     {'hari': 1, 'tanggal': '2025-10-20'},
+        //     {'hari': 2, 'tanggal': '2025-10-21'},
+        //     {'hari': 3, 'tanggal': '2025-10-22'},
+        //   ]);
+        // } catch (e) {
+        //   // ignore if cached values are not mutable
+        // }
         scheduleKomitmenNotificationsForUser(_dataUser['id'] ?? '');
         _isLoading = false;
         print('Komitmen List All: \n$_komitmenListAll');

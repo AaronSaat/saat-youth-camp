@@ -66,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
     await prefs.setString('nama', nama);
     await prefs.setString('divisi', divisi);
     await prefs.setString('email', email);
-    await prefs.setString('group_id', group_id);
+    await prefs.setString('group_id', group_id); //ga dipake
     await prefs.setString('role', role);
     await prefs.setString('count_roles', count_roles);
     await prefs.setString('token', token);

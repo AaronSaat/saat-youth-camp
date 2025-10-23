@@ -8,6 +8,7 @@ import '../widgets/custom_alert_dialog.dart';
 class KonfirmasiRegistrasiUlangScreen extends StatefulWidget {
   final String? qrResult;
   final String? userId;
+  final String? pembimbingId;
   final String? nama;
   final String? email;
   final String? kelompok;
@@ -18,6 +19,7 @@ class KonfirmasiRegistrasiUlangScreen extends StatefulWidget {
     super.key,
     this.qrResult,
     this.userId,
+    this.pembimbingId,
     this.nama,
     this.email,
     this.kelompok,
@@ -203,6 +205,13 @@ class _KonfirmasiRegistrasiUlangScreenState
                     final body = {
                       'user_id': _dataKonfirmasi?['user_id']?.toString() ?? '',
                       'email': _dataKonfirmasi?['email'] ?? '',
+                      'pk_id': widget.pembimbingId ?? '',
+                      'via':
+                          widget.metode == 'QR'
+                              ? '1'
+                              : widget.metode == 'Manual'
+                              ? '2'
+                              : widget.metode,
                     };
                     final result = await ApiService.postKonfirmasiDatang(
                       context,

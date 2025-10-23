@@ -11,7 +11,12 @@ import '../services/api_service.dart';
 
 class ScanQrScreen extends StatefulWidget {
   final String namakelompok;
-  const ScanQrScreen({Key? key, required this.namakelompok}) : super(key: key);
+  final String pembimbingId;
+  const ScanQrScreen({
+    Key? key,
+    required this.namakelompok,
+    required this.pembimbingId,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _ScanQrScreenState();
@@ -121,6 +126,7 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
                                   _buildDecodedResultWidget(
                                     result,
                                     widget.namakelompok,
+                                    widget.pembimbingId,
                                     context,
                                   ),
                                 ],
@@ -174,6 +180,7 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
 Widget _buildDecodedResultWidget(
   Barcode? result,
   String kelompokWidget,
+  String pembimbingId,
   BuildContext context,
 ) {
   if (result == null) return const SizedBox();
@@ -413,6 +420,7 @@ Widget _buildDecodedResultWidget(
                         builder:
                             (context) => KonfirmasiRegistrasiUlangScreen(
                               qrResult: data ?? '',
+                              pembimbingId: pembimbingId,
                               metode: 'QR',
                             ),
                       ),

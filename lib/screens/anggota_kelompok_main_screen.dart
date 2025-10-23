@@ -44,21 +44,6 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
   DateTime? _lastBackPressed;
   // control whether the full info card is shown or shrunk
   bool _showInfoCard = true;
-  // sample progress response (usage: state._progress['eval_day_1'])
-  final Map<String, int> _progress = {
-    'eval_day_1': 2,
-    'total_eval_day_1': 5,
-    'eval_day_2': 0,
-    'total_eval_day_2': 9,
-    'eval_day_3': 0,
-    'total_eval_day_3': 8,
-    'eval_day_4': 0,
-    'total_eval_day_4': 3,
-    'eval_all': 0,
-    'total_eval_all': 2,
-    'komitmen_day': 1,
-    'total_komitmen_day': 3,
-  };
 
   @override
   void initState() {
@@ -289,8 +274,16 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                               ),
                             )
                             : (_showInfoCard
-                                ? AnggotaKelompokInfoCard()
-                                : AnggotaKelompokStatsCard()),
+                                ? AnggotaKelompokInfoCard(
+                                  pembimbingId:
+                                      _dataUser['id'] ??
+                                      '', //untuk kirim pembimbingId di halaman konfirmasi
+                                )
+                                : AnggotaKelompokStatsCard(
+                                  pembimbingId:
+                                      _dataUser['id'] ??
+                                      '', //untuk kirim pembimbingId di halaman konfirmasi
+                                )),
                   ),
                 ),
               ),
@@ -300,7 +293,9 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
 
         floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
         floatingActionButton:
-            _dataUser['role']?.toLowerCase() == 'pembimbing kelompok'
+            _dataUser['role']?.toLowerCase() == 'pembimbing kelompok' ||
+                    _dataUser['role']?.toLowerCase() == 'panitia' ||
+                    widget.id == '99'
                 ? Padding(
                   padding: const EdgeInsets.only(bottom: 96.0),
                   child: Column(
@@ -326,6 +321,7 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
                                   (context) => ScanQrScreen(
                                     namakelompok:
                                         _dataUser['kelompok_nama'] ?? '',
+                                    pembimbingId: _dataUser['id'] ?? '',
                                   ),
                             ),
                           ).then((result) {
@@ -349,7 +345,9 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
 }
 
 class AnggotaKelompokInfoCard extends StatelessWidget {
-  const AnggotaKelompokInfoCard({Key? key}) : super(key: key);
+  final String pembimbingId;
+  const AnggotaKelompokInfoCard({Key? key, required this.pembimbingId})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -444,7 +442,7 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                                     (role.contains('pembimbing kelompok') ||
                                         role.contains('panitia'))
                                 ? 325
-                                : 260,
+                                : 325,
                         child: Padding(
                           padding: const EdgeInsets.only(
                             left: 16,
@@ -732,7 +730,7 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                           child: const Text(
                             'Pembimbing',
                             style: TextStyle(
-                              color: Colors.black,
+                              color: AppColors.black1,
                               fontWeight: FontWeight.bold,
                               fontSize: 10,
                             ),
@@ -745,23 +743,32 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                         right: 16,
                         child: GestureDetector(
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (c) => KonfirmasiRegistrasiUlangScreen(
-                                      userId: user['id'],
-                                      nama: user['nama'],
-                                      email: user['email'],
-                                      kelompok: nama,
-                                      role: user['role'],
-                                      metode: 'Manual',
-                                    ),
-                              ),
-                            ).then((result) {
-                              if (result == 'reload')
-                                state._initAll(forceRefresh: true);
-                            });
+                            if (role == 'pembimbing kelompok') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (c) => KonfirmasiRegistrasiUlangScreen(
+                                        userId: user['id'],
+                                        pembimbingId: pembimbingId,
+                                        nama: user['nama'],
+                                        email: user['email'],
+                                        kelompok: nama,
+                                        role: user['role'],
+                                        metode: 'Manual',
+                                      ),
+                                ),
+                              ).then((result) {
+                                if (result == 'reload')
+                                  state._initAll(forceRefresh: true);
+                              });
+                            } else {
+                              showCustomSnackBar(
+                                context,
+                                'Konfirmasi dilakukan oleh pembimbing kelompok kamu',
+                                duration: const Duration(seconds: 3),
+                              );
+                            }
                           },
                           child: Container(
                             decoration: const BoxDecoration(
@@ -849,7 +856,10 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
 }
 
 class AnggotaKelompokStatsCard extends StatelessWidget {
-  const AnggotaKelompokStatsCard({Key? key}) : super(key: key);
+  const AnggotaKelompokStatsCard({Key? key, required this.pembimbingId})
+    : super(key: key);
+
+  final String pembimbingId;
 
   @override
   Widget build(BuildContext context) {
@@ -943,8 +953,8 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                 : userRole.contains('anggota') &&
                                     (role.contains('pembimbing kelompok') ||
                                         role.contains('panitia'))
-                                ? 325
-                                : 260,
+                                ? 250
+                                : 325,
                         child: Padding(
                           padding: const EdgeInsets.only(
                             left: 16,
@@ -983,115 +993,6 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              if (userRole != 'pembimbing')
-                                Center(
-                                  child: Column(
-                                    children: [
-                                      if ((user['gereja_nama'] ?? '')
-                                          .toString()
-                                          .isNotEmpty)
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            const Icon(
-                                              Icons.church,
-                                              size: 18,
-                                              color: Colors.white,
-                                            ),
-                                            const SizedBox(width: 5),
-                                            Flexible(
-                                              child: Text(
-                                                '${user['gereja_nama']}',
-                                                style: TextStyle(
-                                                  fontSize:
-                                                      (user['gereja_nama'] !=
-                                                                  null &&
-                                                              user['gereja_nama']
-                                                                      .toString()
-                                                                      .length >
-                                                                  40)
-                                                          ? 12
-                                                          : 14,
-                                                  color: Colors.white,
-                                                ),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      const SizedBox(height: 8),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          const Icon(
-                                            Icons.location_on,
-                                            size: 18,
-                                            color: Colors.white,
-                                          ),
-                                          const SizedBox(width: 6),
-                                          Text(
-                                            '${user['provinsi'] ?? 'Tidak ada provinsi'}',
-                                            style: TextStyle(
-                                              fontSize:
-                                                  (user['provinsi'] != null &&
-                                                          user['provinsi']
-                                                                  .toString()
-                                                                  .length >
-                                                              20)
-                                                      ? 10
-                                                      : 14,
-                                              color: Colors.white,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                          const SizedBox(width: 16),
-                                          if ((user['umur'] ?? '')
-                                              .toString()
-                                              .isNotEmpty) ...[
-                                            const Icon(
-                                              Icons.cake,
-                                              size: 18,
-                                              color: Colors.white,
-                                            ),
-                                            const SizedBox(width: 6),
-                                            Text(
-                                              '${user['umur']}',
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 16),
-                                          ],
-                                          const Icon(
-                                            Icons.bed,
-                                            size: 18,
-                                            color: Colors.white,
-                                          ),
-                                          const SizedBox(width: 6),
-                                          Text(
-                                            "${user['kamar'] ?? 'Tidak ada kamar'}",
-                                            style: TextStyle(
-                                              fontSize:
-                                                  (user['kamar'] != null &&
-                                                          user['kamar']
-                                                                  .toString()
-                                                                  .length >
-                                                              20)
-                                                      ? 10
-                                                      : 14,
-                                              color: Colors.white,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              const SizedBox(height: 8),
                               if (userRole.contains('anggota'))
                                 Column(
                                   children: [
@@ -1118,7 +1019,9 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                                       valueColor:
                                                           AlwaysStoppedAnimation<
                                                             Color
-                                                          >(AppColors.blue),
+                                                          >(
+                                                            AppColors.secondary,
+                                                          ),
                                                       backgroundColor:
                                                           Colors.white24,
                                                     ),
@@ -1156,7 +1059,9 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                                       valueColor:
                                                           AlwaysStoppedAnimation<
                                                             Color
-                                                          >(AppColors.blue),
+                                                          >(
+                                                            AppColors.secondary,
+                                                          ),
                                                       backgroundColor:
                                                           Colors.white24,
                                                     ),
@@ -1194,7 +1099,9 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                                       valueColor:
                                                           AlwaysStoppedAnimation<
                                                             Color
-                                                          >(AppColors.blue),
+                                                          >(
+                                                            AppColors.secondary,
+                                                          ),
                                                       backgroundColor:
                                                           Colors.white24,
                                                     ),
@@ -1237,7 +1144,7 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                                     valueColor:
                                                         AlwaysStoppedAnimation<
                                                           Color
-                                                        >(AppColors.blue),
+                                                        >(AppColors.secondary),
                                                     backgroundColor:
                                                         Colors.white24,
                                                   ),
@@ -1275,7 +1182,7 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                                     valueColor:
                                                         AlwaysStoppedAnimation<
                                                           Color
-                                                        >(AppColors.blue),
+                                                        >(AppColors.secondary),
                                                     backgroundColor:
                                                         Colors.white24,
                                                   ),
@@ -1313,7 +1220,7 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                                     valueColor:
                                                         AlwaysStoppedAnimation<
                                                           Color
-                                                        >(AppColors.accent),
+                                                        >(AppColors.secondary),
                                                     backgroundColor:
                                                         Colors.white24,
                                                   ),
@@ -1371,23 +1278,32 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                         right: 16,
                         child: GestureDetector(
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (c) => KonfirmasiRegistrasiUlangScreen(
-                                      userId: user['id'],
-                                      nama: user['nama'],
-                                      email: user['email'],
-                                      kelompok: nama,
-                                      role: user['role'],
-                                      metode: 'Manual',
-                                    ),
-                              ),
-                            ).then((result) {
-                              if (result == 'reload')
-                                state._initAll(forceRefresh: true);
-                            });
+                            if (role == 'pembimbing kelompok') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (c) => KonfirmasiRegistrasiUlangScreen(
+                                        userId: user['id'],
+                                        pembimbingId: pembimbingId,
+                                        nama: user['nama'],
+                                        email: user['email'],
+                                        kelompok: nama,
+                                        role: user['role'],
+                                        metode: 'Manual',
+                                      ),
+                                ),
+                              ).then((result) {
+                                if (result == 'reload')
+                                  state._initAll(forceRefresh: true);
+                              });
+                            } else {
+                              showCustomSnackBar(
+                                context,
+                                'Konfirmasi dilakukan oleh pembimbing kelompok kamu',
+                                duration: const Duration(seconds: 3),
+                              );
+                            }
                           },
                           child: Container(
                             decoration: const BoxDecoration(

@@ -22,6 +22,8 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   String? id;
+  String? kelompokId;
+  String? gerejaId;
   String? role;
 
   List<Widget> _pages = [];
@@ -40,16 +42,20 @@ class _MainScreenState extends State<MainScreen> {
     print('[SWITCH] User ID: $id, Role: $role');
 
     if (role == 'Peserta') {
-      id =
+      kelompokId =
           prefs.getString('kelompok_id') ??
           "1"; // Default value if no kelompok found
     } else if (role == 'Pembimbing Kelompok') {
-      id =
+      kelompokId =
           prefs.getString('kelompok_id') ??
           "1"; // Default value if no kelompok found
     } else if (role == 'Pembina') {
-      id =
-          prefs.getString('group_id') ?? "1"; // Default value if no group found
+      kelompokId =
+          prefs.getString('kelompok_id') ??
+          "1"; // Default value if no kelompok found
+      gerejaId =
+          prefs.getString('gereja_id') ??
+          "1"; // Default value if no gereja found
     }
 
     if (role == 'Peserta') {
@@ -57,7 +63,9 @@ class _MainScreenState extends State<MainScreen> {
         const DashboardScreen(),
         const DaftarAcaraScreen(),
         // const DaftarAcaraScreen(),
-        AnggotaKelompokMainScreen(id: id), //nanti masukkan parameter gerejanya
+        AnggotaKelompokMainScreen(
+          id: kelompokId,
+        ), //nanti masukkan parameter gerejanya
         MateriScreen(userId: id.toString()),
         const ProfileScreen(),
       ];
@@ -67,9 +75,9 @@ class _MainScreenState extends State<MainScreen> {
         const DaftarAcaraScreen(),
         // baca IMPORTANT NOTES di filenya
         AnggotaKelompokMainScreen(
-          id: id,
-        ), //nantt masukkan parameter kelompoknya
-        MateriScreen(userId: id.toString()),
+          id: kelompokId,
+        ), //nanti masukkan parameter kelompoknya
+        MateriScreen(userId: id),
         const ProfileScreen(),
       ];
     } else if (role == 'Pembina') {
@@ -77,7 +85,10 @@ class _MainScreenState extends State<MainScreen> {
         const DashboardScreen(),
         const DaftarAcaraScreen(),
         // baca IMPORTANT NOTES di filenya
-        AnggotaGroupMainScreen(id: id), //nanti masukkan parameter gerejanya
+        AnggotaGroupMainScreen(
+          id: gerejaId,
+        ), //nanti masukkan parameter gerejanya
+        AnggotaKelompokMainScreen(id: kelompokId),
         MateriScreen(userId: id),
         const ProfileScreen(),
       ];
@@ -153,11 +164,16 @@ class _MainScreenState extends State<MainScreen> {
         ),
         buildSvgNavItem(
           'assets/icons/navigation_bar/kelompok_pendaftaran.svg',
-          'Group',
+          'Gereja',
           2,
         ),
-        buildSvgNavItem('assets/icons/navigation_bar/materi.svg', 'Materi', 3),
-        buildSvgNavItem('assets/icons/navigation_bar/profile.svg', 'Profil', 4),
+        buildSvgNavItem(
+          'assets/icons/navigation_bar/kelompok.svg',
+          'Kelompok',
+          3,
+        ),
+        buildSvgNavItem('assets/icons/navigation_bar/materi.svg', 'Materi', 4),
+        buildSvgNavItem('assets/icons/navigation_bar/profile.svg', 'Profil', 5),
       ];
     } else if (role == 'Panitia') {
       return [
@@ -173,7 +189,7 @@ class _MainScreenState extends State<MainScreen> {
         ),
         buildSvgNavItem(
           'assets/icons/navigation_bar/kelompok_pendaftaran.svg',
-          'Group',
+          'Gereja',
           2,
         ),
         buildSvgNavItem(

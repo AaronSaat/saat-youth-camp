@@ -250,8 +250,7 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                             : anggota.isEmpty
                             ? Center(
                               child: CustomNotFound(
-                                text:
-                                    "Gagal memuat anggota group pendaftaran :(",
+                                text: "Gagal memuat anggota gereja :(",
                                 textColor: AppColors.brown1,
                                 imagePath: 'assets/images/data_not_found.png',
 
@@ -295,7 +294,7 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                                 children: [
                                                   Card(
                                                     elevation: 0,
-                                                    color: AppColors.brown1,
+                                                    color: AppColors.primary,
                                                     margin:
                                                         const EdgeInsets.only(
                                                           left: 16,
@@ -330,7 +329,7 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                                                       .contains(
                                                                         'peserta',
                                                                       )))
-                                                              ? 250 //sebagai anggota dan role user peserta
+                                                              ? 300 //sebagai anggota dan role user peserta
                                                               : (user['role']
                                                                       .toString()
                                                                       .toLowerCase()
@@ -341,7 +340,7 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                                                           .toString()
                                                                           .toLowerCase()
                                                                           .contains(
-                                                                            'pembina',
+                                                                            'pembimbing',
                                                                           ) ||
                                                                       role
                                                                           .toString()
@@ -540,46 +539,15 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                                                           ),
                                                                         ],
                                                                       ),
-                                                                    if ((user['provinsi'] ??
-                                                                            '')
-                                                                        .toString()
-                                                                        .isNotEmpty)
-                                                                      Row(
-                                                                        mainAxisAlignment:
-                                                                            MainAxisAlignment.center,
-                                                                        children: [
-                                                                          const Icon(
-                                                                            Icons.location_on,
-                                                                            size:
-                                                                                18,
-                                                                            color:
-                                                                                Colors.white,
-                                                                          ),
-                                                                          const SizedBox(
-                                                                            width:
-                                                                                6,
-                                                                          ),
-                                                                          Text(
-                                                                            '${user['provinsi']}',
-                                                                            style: const TextStyle(
-                                                                              fontSize:
-                                                                                  14,
-                                                                              color:
-                                                                                  Colors.white,
-                                                                            ),
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    if ((user['umur'] ??
-                                                                            '')
-                                                                        .toString()
-                                                                        .isNotEmpty)
-                                                                      Row(
-                                                                        mainAxisAlignment:
-                                                                            MainAxisAlignment.center,
-                                                                        children: [
+                                                                    Row(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .center,
+                                                                      children: [
+                                                                        if ((user['umur'] ??
+                                                                                '')
+                                                                            .toString()
+                                                                            .isNotEmpty) ...[
                                                                           const Icon(
                                                                             Icons.cake,
                                                                             size:
@@ -599,43 +567,42 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                                                               color:
                                                                                   Colors.white,
                                                                             ),
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    if ((user['kamar'] ??
-                                                                            '')
-                                                                        .toString()
-                                                                        .isNotEmpty)
-                                                                      Row(
-                                                                        mainAxisAlignment:
-                                                                            MainAxisAlignment.center,
-                                                                        children: [
-                                                                          const Icon(
-                                                                            Icons.bed,
-                                                                            size:
-                                                                                18,
-                                                                            color:
-                                                                                Colors.white,
                                                                           ),
                                                                           const SizedBox(
                                                                             width:
-                                                                                6,
-                                                                          ),
-                                                                          Text(
-                                                                            '${user['kamar']}',
-                                                                            style: const TextStyle(
-                                                                              fontSize:
-                                                                                  14,
-                                                                              color:
-                                                                                  Colors.white,
-                                                                            ),
-                                                                            textAlign:
-                                                                                TextAlign.center,
+                                                                                16,
                                                                           ),
                                                                         ],
-                                                                      ),
+                                                                        const Icon(
+                                                                          Icons
+                                                                              .bed,
+                                                                          size:
+                                                                              18,
+                                                                          color:
+                                                                              Colors.white,
+                                                                        ),
+                                                                        const SizedBox(
+                                                                          width:
+                                                                              6,
+                                                                        ),
+                                                                        Text(
+                                                                          "${user['kamar'] ?? 'Tidak ada kamar'}",
+                                                                          style: TextStyle(
+                                                                            fontSize:
+                                                                                (user['kamar'] !=
+                                                                                            null &&
+                                                                                        user['kamar'].toString().length >
+                                                                                            20)
+                                                                                    ? 10
+                                                                                    : 14,
+                                                                            color:
+                                                                                Colors.white,
+                                                                          ),
+                                                                          textAlign:
+                                                                              TextAlign.center,
+                                                                        ),
+                                                                      ],
+                                                                    ),
                                                                   ],
                                                                 ),
                                                               ),
@@ -869,8 +836,8 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                                           style:
                                                               const TextStyle(
                                                                 color:
-                                                                    Colors
-                                                                        .white,
+                                                                    AppColors
+                                                                        .black1,
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .bold,
