@@ -434,7 +434,7 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                       child: SizedBox(
                         height:
                             userRole.contains('pembimbing')
-                                ? 190
+                                ? 220
                                 : userRole.contains('anggota') &&
                                     role.contains('peserta')
                                 ? 250
@@ -448,7 +448,7 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                             left: 16,
                             right: 16,
                             top: 48,
-                            bottom: 16,
+                            bottom: 24,
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -481,6 +481,35 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                                   ),
                                 ],
                               ),
+                              if (userRole == 'pembimbing')
+                                Center(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.bed,
+                                        size: 18,
+                                        color: Colors.white,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        "${user['kamar'] ?? 'Tidak ada kamar'}",
+                                        style: TextStyle(
+                                          fontSize:
+                                              (user['kamar'] != null &&
+                                                      user['kamar']
+                                                              .toString()
+                                                              .length >
+                                                          20)
+                                                  ? 10
+                                                  : 14,
+                                          color: Colors.white,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               if (userRole != 'pembimbing')
                                 Center(
                                   child: Column(
@@ -1188,11 +1217,11 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                                   ),
                                                 ),
                                                 Text(
-                                                  'Eval Keseluruhan: ${(user['progress']?['eval_all'] ?? 0)}/${(user['progress']?['total_eval_all'] ?? 0)}',
+                                                  'Eval Semua: ${(user['progress']?['eval_all'] ?? 0)}/${(user['progress']?['total_eval_all'] ?? 0)}',
                                                   style: const TextStyle(
                                                     color: Colors.white,
                                                     fontWeight: FontWeight.bold,
-                                                    fontSize: 8,
+                                                    fontSize: 10,
                                                   ),
                                                 ),
                                               ],

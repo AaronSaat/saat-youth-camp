@@ -650,13 +650,18 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                         ),
                                         // Tampilkan switch "Evaluasi" hanya jika user adalah panitia
                                         if (_userData != null &&
-                                                _userData!['role'] != null &&
-                                                _userData!['role']!
+                                            _userData!['role'] != null &&
+                                            (_userData!['role']!
                                                     .toLowerCase()
                                                     .contains('peserta') ||
-                                            _userData!['role']!
-                                                .toLowerCase()
-                                                .contains('pembina')) ...[
+                                                _userData!['role']!
+                                                    .toLowerCase()
+                                                    .contains('pembina')) &&
+                                            _dataAcara != null &&
+                                            _dataAcara!.isNotEmpty &&
+                                            _dataAcara![0]['is_eval']
+                                                    ?.toString() ==
+                                                '1') ...[
                                           const SizedBox(width: 12),
                                           Column(
                                             children: [

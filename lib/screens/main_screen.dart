@@ -54,7 +54,7 @@ class _MainScreenState extends State<MainScreen> {
           prefs.getString('kelompok_id') ??
           "1"; // Default value if no kelompok found
       gerejaId =
-          prefs.getString('gereja_id') ??
+          prefs.getString('group_id') ??
           "1"; // Default value if no gereja found
     }
 
@@ -164,7 +164,7 @@ class _MainScreenState extends State<MainScreen> {
         ),
         buildSvgNavItem(
           'assets/icons/navigation_bar/kelompok_pendaftaran.svg',
-          'Gereja',
+          'Grup',
           2,
         ),
         buildSvgNavItem(
@@ -189,7 +189,7 @@ class _MainScreenState extends State<MainScreen> {
         ),
         buildSvgNavItem(
           'assets/icons/navigation_bar/kelompok_pendaftaran.svg',
-          'Gereja',
+          'Grup',
           2,
         ),
         buildSvgNavItem(

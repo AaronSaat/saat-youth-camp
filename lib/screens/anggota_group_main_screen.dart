@@ -47,6 +47,10 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
   }
 
   Future<void> _initAll({bool forceRefresh = false}) async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+    });
     try {
       await loadUserData();
       await loadAnggotaGereja(widget.id, forceRefresh: forceRefresh);
@@ -94,7 +98,7 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
           nama = decoded['nama_gereja'];
           anggota = decoded['data_anggota_gereja'];
         });
-        print('[PREF_API] Anggota Gereja (from shared pref): $anggota');
+        print('[PREF_API] Anggota grup (from shared pref): $anggota');
         return;
       }
     }
@@ -106,10 +110,10 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
         nama = response['nama_gereja'];
         anggota = response['data_anggota_gereja'];
       });
-      print('[PREF_API] Anggota Gereja (from API): $anggota');
+      print('[PREF_API] Anggota grup (from API): $anggota');
     } catch (e) {
       setState(() {});
-      print('Gagal mengambil data gereja: $e');
+      print('Gagal mengambil data grup: $e');
     }
 
     // load avatar dan download
@@ -123,7 +127,7 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
 
     await prefs.setString(
       anggotaKey,
-      jsonEncode({'nama_kelompok': nama, 'data_anggota_kelompok': anggota}),
+      jsonEncode({'nama_gereja': nama, 'data_anggota_gereja': anggota}),
     );
   }
 
@@ -250,7 +254,8 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                             : anggota.isEmpty
                             ? Center(
                               child: CustomNotFound(
-                                text: "Gagal memuat anggota gereja :(",
+                                text:
+                                    "Gagal memuat anggota grup pendaftaran :(",
                                 textColor: AppColors.brown1,
                                 imagePath: 'assets/images/data_not_found.png',
 
@@ -261,7 +266,7 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                             : Column(
                               children: [
                                 Text(
-                                  'Group ${nama ?? ''}',
+                                  'Grup ${nama ?? ''}',
                                   style: const TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
@@ -363,7 +368,7 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                                                           "Pembina"
                                                                   ? 48
                                                                   : 16,
-                                                          bottom: 16,
+                                                          bottom: 24,
                                                         ),
                                                         child: Column(
                                                           mainAxisAlignment:
@@ -509,7 +514,7 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                                                             MainAxisAlignment.center,
                                                                         children: [
                                                                           Icon(
-                                                                            Icons.person,
+                                                                            Icons.groups,
                                                                             size:
                                                                                 18,
                                                                             color:
