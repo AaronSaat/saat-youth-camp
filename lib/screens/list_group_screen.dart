@@ -127,7 +127,7 @@ class _ListGroupScreenState extends State<ListGroupScreen> {
                         Column(
                           children: [
                             Image.asset(
-                              'assets/texts/daftar_gereja.png',
+                              'assets/texts/daftar_grup_pendaftaran.png',
                               height: 128,
                             ),
                           ],

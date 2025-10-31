@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -769,62 +770,95 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               children: [
                                 Stack(
                                   children: [
-                                    SizedBox(
-                                      width:
-                                          MediaQuery.of(context).size.width *
-                                          0.3,
-                                      height:
-                                          MediaQuery.of(context).size.width *
-                                          0.3,
-                                      child:
-                                          _isLoading_avatar
-                                              ? Container(
-                                                padding: EdgeInsets.all(4),
-                                                child: Container(
-                                                  width: 100,
-                                                  height: 100,
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) =>
+                                                    ProfileEditScreen(),
+                                          ),
+                                        ).then((result) async {
+                                          if (result == 'reload') {
+                                            if (!mounted) return;
+                                            setState(() {
+                                              _isLoading_userdata = true;
+                                              _isLoading_avatar = true;
+                                            });
+                                            try {
+                                              await loadUserData();
+                                              await loadAvatarById(
+                                                forceRefresh: true,
+                                              );
+                                            } catch (e) {
+                                              // handle error jika perlu
+                                            }
+                                            if (!mounted) return;
+                                            setState(() {
+                                              _isLoading_userdata = false;
+                                              _isLoading_avatar = false;
+                                            });
+                                          }
+                                        });
+                                      },
+                                      child: SizedBox(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                            0.3,
+                                        height:
+                                            MediaQuery.of(context).size.width *
+                                            0.3,
+                                        child:
+                                            _isLoading_avatar
+                                                ? Container(
+                                                  padding: EdgeInsets.all(4),
+                                                  child: Container(
+                                                    width: 100,
+                                                    height: 100,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.grey[300],
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                  ),
+                                                )
+                                                : (avatar.isNotEmpty &&
+                                                    File(avatar).existsSync())
+                                                ? Container(
+                                                  padding: EdgeInsets.all(4),
                                                   decoration: BoxDecoration(
-                                                    color: Colors.grey[300],
                                                     shape: BoxShape.circle,
                                                   ),
-                                                ),
-                                              )
-                                              : (avatar.isNotEmpty &&
-                                                  File(avatar).existsSync())
-                                              ? Container(
-                                                padding: EdgeInsets.all(4),
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: CircleAvatar(
-                                                  key: ValueKey(avatar),
-                                                  radius: 50,
-                                                  backgroundImage: FileImage(
-                                                    File(avatar),
+                                                  child: CircleAvatar(
+                                                    key: ValueKey(avatar),
+                                                    radius: 50,
+                                                    backgroundImage: FileImage(
+                                                      File(avatar),
+                                                    ),
+                                                    backgroundColor:
+                                                        Colors.grey[200],
                                                   ),
-                                                  backgroundColor:
-                                                      Colors.grey[200],
-                                                ),
-                                              )
-                                              : Container(
-                                                padding: EdgeInsets.all(4),
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: CircleAvatar(
-                                                  radius: 50,
-                                                  backgroundColor:
-                                                      Colors.grey[200],
-                                                  child: ClipOval(
-                                                    child: SvgPicture.asset(
-                                                      'assets/icons/profile.svg',
-                                                      width: 90,
-                                                      height: 90,
-                                                      fit: BoxFit.cover,
+                                                )
+                                                : Container(
+                                                  padding: EdgeInsets.all(4),
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: CircleAvatar(
+                                                    radius: 50,
+                                                    backgroundColor:
+                                                        Colors.grey[200],
+                                                    child: ClipOval(
+                                                      child: SvgPicture.asset(
+                                                        'assets/icons/profile.svg',
+                                                        width: 90,
+                                                        height: 90,
+                                                        fit: BoxFit.cover,
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
-                                              ),
+                                      ),
                                     ),
                                     Positioned(
                                       top: 5,
@@ -1691,7 +1725,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
 
-                            // const SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             // //[DEVELOPMENT NOTES] untuk testing, nanti dihapus
                             Padding(
                               padding: const EdgeInsets.symmetric(
@@ -1699,11 +1733,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 vertical: 8,
                               ),
                               child: const Text(
-                                "Tombol Testing (nanti dihapus)",
+                                "Tombol testing untuk ganti tanggal waktu",
                                 style: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.red,
+                                  color: Colors.white,
                                 ),
                               ),
                             ),

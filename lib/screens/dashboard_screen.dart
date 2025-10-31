@@ -495,7 +495,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     // Jika forceRefresh, ambil data kamar & kelompok dari API, update shared pref
-    if (forceRefresh) {
+    // khusus bagi yang bukan Panitia saja (karena Panitia tidak punya kelompok & kamar)
+    if (forceRefresh && userData['role'] != 'Panitia') {
       final userId = prefs.getString('id') ?? '';
       var role = prefs.getString('role') ?? '';
       if (role == 'Pembimbing Kelompok') {

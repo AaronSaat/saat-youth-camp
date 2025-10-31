@@ -2,7 +2,7 @@ name: syc
 description: "A new Flutter project."
 publish_to: "none"
 
-version: 1.0.2
+version: 1.0.3
 
 environment:
   sdk: ^3.7.2
@@ -107,6 +107,8 @@ flutter:
     - assets/texts/daftar_gereja.png
     - assets/texts/daftar_kelompok.png
     - assets/texts/daftar_acara.png
+    - assets/texts/daftar_grup_pendaftaran.png
+    - assets/texts/daftar_grup_gereja.png
     - assets/texts/materi.png
     - assets/texts/tutorial.png
 

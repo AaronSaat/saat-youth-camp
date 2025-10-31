@@ -57,9 +57,9 @@ android {
         applicationId = "com.sttsaat.sycapp"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 23
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = 18
+        versionCode = 19
         versionName = flutter.versionName   
     }
 
