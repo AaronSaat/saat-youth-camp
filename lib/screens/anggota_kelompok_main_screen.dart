@@ -293,9 +293,9 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
 
         floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
         floatingActionButton:
-            _dataUser['role']?.toLowerCase() == 'pembimbing kelompok' ||
-                    _dataUser['role']?.toLowerCase() == 'panitia' ||
-                    widget.id == '99'
+            (_dataUser['role']?.toLowerCase() == 'pembimbing kelompok' ||
+                        _dataUser['role']?.toLowerCase() == 'panitia') &&
+                    widget.id != '41'
                 ? Padding(
                   padding: const EdgeInsets.only(bottom: 96.0),
                   child: Column(
@@ -440,8 +440,14 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                                 ? 250
                                 : userRole.contains('anggota') &&
                                     (role.contains('pembimbing kelompok') ||
-                                        role.contains('panitia'))
+                                        role.contains('panitia')) &&
+                                    state.widget.id != '41'
                                 ? 325
+                                : userRole.contains('anggota') &&
+                                    (role.contains('pembimbing kelompok') ||
+                                        role.contains('panitia')) &&
+                                    state.widget.id == '41'
+                                ? 260
                                 : 325,
                         child: Padding(
                           padding: const EdgeInsets.only(
@@ -596,12 +602,13 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                              if (([
-                                    'panitia',
-                                    'pembimbing kelompok',
-                                    'pembina',
-                                  ].contains(role)) &&
-                                  userRole != 'pembimbing')
+                              if ((([
+                                        'panitia',
+                                        'pembimbing kelompok',
+                                        'pembina',
+                                      ].contains(role)) &&
+                                      userRole != 'pembimbing') &&
+                                  state.widget.id != '41')
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,

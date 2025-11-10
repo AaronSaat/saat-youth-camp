@@ -94,7 +94,7 @@ class _ListTutorialScreenState extends State<ListTutorialScreen> {
         }
       }
 
-      final tutorialList = await ApiService.getMateri(context);
+      final tutorialList = await ApiService.getTutorial(context);
       // Fetch meta tags untuk semua tutorial sekaligus
       final tutorialWithMeta = await Future.wait(
         tutorialList.map((tutorial) async {

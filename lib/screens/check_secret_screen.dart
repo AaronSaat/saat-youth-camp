@@ -1,8 +1,8 @@
 // lib/screens/check_secret_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:syc/screens/check_secret_success_screen.dart.dart';
 import '../services/api_service.dart';
-import 'check_secret_success_screen.dart.dart';
 import '../utils/app_colors.dart';
 
 import 'login_screen.dart';
@@ -23,10 +23,23 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
   bool isLoading = false;
   String resultMessage = '';
 
+  bool get _isEmailValidNow => _validateEmail(emailController.text.trim());
+  bool get _hasSecret => secretCodeController.text.trim().isNotEmpty;
+  bool get _canSubmit => !isLoading && _isEmailValidNow && _hasSecret;
+
   @override
   void initState() {
     super.initState();
     emailFocusNode.addListener(_onEmailFocusChange);
+    // update button state when inputs change
+    emailController.addListener(() {
+      if (!mounted) return;
+      setState(() {});
+    });
+    secretCodeController.addListener(() {
+      if (!mounted) return;
+      setState(() {});
+    });
   }
 
   @override
@@ -65,6 +78,13 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
       );
 
       if (response['success'] == true) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const CheckSecretSuccessScreen()),
+        );
+      } else if ((response['success'] == false &&
+          response['message'] ==
+              'Email sudah terdaftar, silakan login menggunakan email/username dan password Anda.')) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const CheckSecretSuccessScreen()),
@@ -236,12 +256,13 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: GestureDetector(
-                          onTap: isLoading ? null : _checkSecret,
+                          onTap: _canSubmit ? _checkSecret : null,
                           child: Container(
                             width: double.infinity,
                             height: 50,
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color:
+                                  _canSubmit ? Colors.white : AppColors.grey4,
                               borderRadius: BorderRadius.circular(32),
                             ),
                             alignment: Alignment.center,
@@ -250,10 +271,13 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                                     ? const CircularProgressIndicator(
                                       color: AppColors.brown1,
                                     )
-                                    : const Text(
+                                    : Text(
                                       'Check Secret',
                                       style: TextStyle(
-                                        color: AppColors.brown1,
+                                        color:
+                                            _canSubmit
+                                                ? AppColors.brown1
+                                                : Colors.white.withAlpha(60),
                                         fontSize: 18,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -261,29 +285,59 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                           ),
                         ),
                       ),
+                      // const SizedBox(height: 16),
+                      // Padding(
+                      //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      //   child: GestureDetector(
+                      //     onTap: () {},
+                      //     child: Container(
+                      //       width: double.infinity,
+                      //       height: 50,
+                      //       decoration: BoxDecoration(
+                      //         color: Colors.transparent,
+                      //         borderRadius: BorderRadius.circular(32),
+                      //         border: Border.all(color: Colors.white, width: 2),
+                      //       ),
+                      //       alignment: Alignment.center,
+                      //       child:
+                      //           isLoading
+                      //               ? const CircularProgressIndicator(
+                      //                 color: Colors.white,
+                      //               )
+                      //               : const Text(
+                      //                 'Sudah Punya Akun? Login disini',
+                      //                 style: TextStyle(
+                      //                   color: Colors.white,
+                      //                   fontSize: 14,
+                      //                   fontWeight: FontWeight.w500,
+                      //                 ),
+                      //               ),
+                      //     ),
+                      //   ),
+                      // ),
                       const SizedBox(height: 24),
                       // Login Saja
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text(
-                            'Sudah Punya Akun? ',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w300,
-                              fontSize: 16,
-                              color: Colors.white,
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LoginScreen(),
                             ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const LoginScreen(),
-                                ),
-                              );
-                            },
-                            child: const Text(
+                          );
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'Sudah Punya Akun? ',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w300,
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const Text(
                               'Login',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -292,8 +346,8 @@ class _CheckSecretScreenState extends State<CheckSecretScreen> {
                                 decoration: TextDecoration.underline,
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 16),
                       // Row(

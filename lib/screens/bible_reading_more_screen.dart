@@ -539,7 +539,8 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
           if (countRead == 0 &&
               !isEdit &&
               (role.toLowerCase().contains('peserta') ||
-                  role.toLowerCase().contains('pembina')))
+                  role.toLowerCase().contains('pembina') ||
+                  role.toLowerCase().contains('pembimbing kelompok')))
             Column(
               children: [
                 Card(

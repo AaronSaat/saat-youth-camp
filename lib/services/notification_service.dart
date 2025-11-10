@@ -136,6 +136,11 @@ class NotificationService {
     required String payload,
     int? id,
   }) async {
+    // Ensure the plugin (and timezone DB) is initialized before using tz.getLocation
+    if (!_isInitialized) {
+      await initialize();
+    }
+
     // Pastikan timezone WIB (Asia/Jakarta)
     final wib = tz.getLocation('Asia/Jakarta');
     final now = tz.TZDateTime.now(wib);

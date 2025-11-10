@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
 import 'package:package_info_plus/package_info_plus.dart' show PackageInfo;
 import 'package:syc/screens/pengumuman_list_screen.dart';
+import 'package:timezone/timezone.dart';
 import 'package:url_launcher/url_launcher.dart'
     show canLaunchUrl, LaunchMode, launchUrl;
 
@@ -184,22 +185,60 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> getCheckVersion() async {
     setState(() => _isCheckingVersion = true); // Mulai loading versi
     final info = await PackageInfo.fromPlatform();
-    final localVersion = info.version;
-    // final localVersion = "${info.version}+${info.buildNumber}";
-    // final localVersion = "1.0.0+12";
+    var localVersion = info.version;
+    // var localVersion = '1.0.3'; // Hardcode versi lokal sesuai pubspec.yaml
+    // Hapus build metadata jika ada (misal "1.0.0+12")
+    localVersion = localVersion.split('+').first;
 
     final response = await ApiService.getCheckVersion(context);
-    final latestVersion = response['latest_version'] ?? localVersion;
-    print('CEK VERSI: $localVersion vs $latestVersion');
+    final latestVersionRaw = response['latest_version'] ?? localVersion;
+    final latestVersion = latestVersionRaw.split('+').first;
+    final minimumVersionRaw = response['minimum_version'] ?? localVersion;
+    final minimumVersion = minimumVersionRaw.split('+').first;
 
-    if (localVersion != latestVersion) {
+    print(
+      'CEK VERSI: local=$localVersion latest=$latestVersion minimum=$minimumVersion',
+    );
+
+    bool isLocalVersionValid(
+      String localVersion,
+      String latestVersion,
+      String minimumVersion,
+    ) {
+      List<int> parseVersion(String v) =>
+          v.split('.').map((s) => int.tryParse(s) ?? 0).toList();
+
+      int compareVersions(List<int> a, List<int> b) {
+        final maxLen = a.length > b.length ? a.length : b.length;
+        for (var i = 0; i < maxLen; i++) {
+          final ai = i < a.length ? a[i] : 0;
+          final bi = i < b.length ? b[i] : 0;
+          if (ai < bi) return -1;
+          if (ai > bi) return 1;
+        }
+        return 0;
+      }
+
+      final a = parseVersion(localVersion);
+      final latest = parseVersion(latestVersion);
+      final minimum = parseVersion(minimumVersion);
+
+      final cmpWithMin = compareVersions(a, minimum);
+      final cmpWithLatest = compareVersions(a, latest);
+
+      // localVersion harus > minimumVersion (cmpWithMin > 0)
+      // localVersion harus <= latestVersion (cmpWithLatest <= 0)
+      return (cmpWithMin > 0) && (cmpWithLatest <= 0);
+    }
+
+    // Force update if below minimum_version or below latest (update available)
+    if (!isLocalVersionValid(localVersion, latestVersion, minimumVersion)) {
       // Hapus semua data SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.clear();
       print('SharedPreferences cleared due to version mismatch.');
 
       // Hapus semua file gambar yang sudah didownload lokal (misal di direktori cache/app)
-      // (Contoh: hapus semua file di direktori temporary dan application documents)
       try {
         final tempDir = await getTemporaryDirectory();
         if (await tempDir.exists()) {
@@ -221,14 +260,14 @@ class _SplashScreenState extends State<SplashScreen>
           builder:
               (ctx) => AlertDialog(
                 title: const Text('Update Tersedia'),
-                content: Text(
+                content: const Text(
                   'Versi aplikasi terbaru tersedia. Silakan update aplikasi untuk melanjutkan.',
                 ),
                 actions: [
                   TextButton(
                     onPressed: () async {
                       String url;
-                      if (Theme.of(context).platform == TargetPlatform.iOS) {
+                      if (Theme.of(ctx).platform == TargetPlatform.iOS) {
                         url =
                             response['update_url_ios'] ??
                             'https://apps.apple.com/id/app/saat-youth-camp/id6751375478';
@@ -254,6 +293,7 @@ class _SplashScreenState extends State<SplashScreen>
       setState(() => _isCheckingVersion = false);
       return; // Stop proses, user harus update dan buka ulang aplikasi
     }
+
     setState(() => _isCheckingVersion = false);
   }
 

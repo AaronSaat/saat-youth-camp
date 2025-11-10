@@ -440,7 +440,7 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
                                         if (!mounted) return;
                                         showCustomSnackBar(
                                           context,
-                                          'Komitmen hanya bisa diisi oleh pemilikinya.',
+                                          'Komitmen hanya bisa diisi oleh pemiliknya.',
                                           isSuccess: false,
                                         );
                                       });

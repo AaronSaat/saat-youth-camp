@@ -403,7 +403,7 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
                                   setState(() {
                                     showCustomSnackBar(
                                       context,
-                                      'Evaluasi hanya bisa diisi oleh pemilikinya.',
+                                      'Evaluasi hanya bisa diisi oleh pemiliknya.',
                                       isSuccess: false,
                                     );
                                   });

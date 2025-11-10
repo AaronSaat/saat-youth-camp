@@ -280,7 +280,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'tanggal': DateTime(2026, 01, 01),
       'waktu': TimeOfDay(hour: 13, minute: 0),
       'tempat': 'Auditorium',
-      'gambar': 'assets/mockups/bkc.jpg',
+      'gambar': 'assets/mockups/bkc2.jpg',
     },
     {
       'id': 25,
@@ -2400,8 +2400,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         //         width: double.infinity,
                         //         child: ElevatedButton.icon(
                         //           onPressed: () {
-                        //             print('🔔 Test Notification Button Pressed');
-                        //             print('🔔 Test Notification Button Pressed');
+                        //             print(
+                        //               '🔔 Test Notification Button Pressed',
+                        //             );
+                        //             print(
+                        //               '🔔 Test Notification Button Pressed',
+                        //             );
                         //             print('Datetime now: ${DateTime.now()}');
                         //             NotificationService().showNotification(
                         //               title: 'Test Notification',
@@ -2410,7 +2414,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         //               payload: 'splash',
                         //             );
                         //           },
-                        //           icon: const Icon(Icons.notifications, size: 16),
+                        //           icon: const Icon(
+                        //             Icons.notifications,
+                        //             size: 16,
+                        //           ),
                         //           label: const Text('Test Notifications'),
                         //           style: ElevatedButton.styleFrom(
                         //             backgroundColor: AppColors.secondary,
@@ -2460,10 +2467,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         //             // 07:40 WIB = UTC+7
                         //             final scheduledTime = DateTime.utc(
                         //               2025,
-                        //               7,
-                        //               14,
-                        //               6,
-                        //               26,
+                        //               11,
+                        //               10,
+                        //               3,
+                        //               54,
                         //             );
                         //             NotificationService().scheduledNotification(
                         //               title: 'Notifikasi Terjadwal',
@@ -2477,7 +2484,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         //               'Notifikasi berhasil dijadwalkan pada ${scheduledTime.toLocal()}',
                         //             );
                         //           },
-                        //           icon: const Icon(Icons.schedule_send, size: 16),
+                        //           icon: const Icon(
+                        //             Icons.schedule_send,
+                        //             size: 16,
+                        //           ),
                         //           label: const Text(
                         //             'Schedule Notif 14 Juli 2025 13.26 WIB',
                         //           ),
@@ -4724,7 +4734,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ],
                             ),
 
-                        // Dokumentasi Card
+                        // Tutorial Card
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24),
                           child: Column(
@@ -4817,7 +4827,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               InkWell(
                                 onTap: () async {
                                   const url =
-                                      'https://drive.google.com/drive/folders/1J7qIoUL7aI2YGy7tR_ZFQxX-7ylzVZrg?usp=sharing';
+                                      'https://drive.google.com/drive/folders/1zurqXnhLKzCcqOAFeqphnrf6dpJoYiai';
                                   final uri = Uri.parse(url);
                                   bool launched = false;
                                   try {
@@ -4906,6 +4916,110 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ],
                           ),
                         ),
+
+                        // Morning Devotion Card (khusus PK)
+                        if (!role.toLowerCase().contains('pembimbing')) ...[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const SizedBox(height: 24),
+                                InkWell(
+                                  onTap: () async {
+                                    const url =
+                                        'https://drive.google.com/drive/folders/1zurqXnhLKzCcqOAFeqphnrf6dpJoYiai';
+                                    final uri = Uri.parse(url);
+                                    bool launched = false;
+                                    try {
+                                      launched = await launchUrl(
+                                        uri,
+                                        mode: LaunchMode.externalApplication,
+                                      );
+                                    } catch (_) {}
+                                    if (!launched) {
+                                      try {
+                                        launched = await launchUrl(
+                                          uri,
+                                          mode: LaunchMode.platformDefault,
+                                        );
+                                      } catch (_) {}
+                                    }
+                                    if (!launched) {
+                                      showCustomSnackBar(
+                                        context,
+                                        'Tidak dapat membuka link. Pastikan ada browser di perangkat Anda.',
+                                      );
+                                    }
+                                  },
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        height: 180,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          image: const DecorationImage(
+                                            image: AssetImage(
+                                              'assets/images/card_devotion.jpg',
+                                            ),
+                                            fit: BoxFit.fill,
+                                          ),
+                                        ),
+                                        child: Align(
+                                          alignment: Alignment.centerRight,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                              right: 8.0,
+                                            ),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: AppColors.secondary,
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  padding: const EdgeInsets.all(
+                                                    12,
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.arrow_forward_ios,
+                                                    color: Colors.white,
+                                                    size: 28,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 8),
+                                                const Text(
+                                                  'Morning Devotion',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w900,
+                                                    color: Colors.white,
+                                                    fontSize: 16,
+                                                  ),
+                                                  textAlign: TextAlign.right,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),

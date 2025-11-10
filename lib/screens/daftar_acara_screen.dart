@@ -516,9 +516,12 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                                                   'assets/mockups/eat.jpg',
                                                 ).image;
                                               case 'BKC - Semifinal':
-                                              case 'BKC - Final':
                                                 return Image.asset(
                                                   'assets/mockups/bkc.jpg',
+                                                ).image;
+                                              case 'BKC - Final':
+                                                return Image.asset(
+                                                  'assets/mockups/bkc2.jpg',
                                                 ).image;
                                               case 'SYC Talks: The Book of Galatian':
                                               case 'SYC Talks: The Work of Christ':
@@ -556,7 +559,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                                                 ).image;
                                               case "Home, Transformed & Recharged to Worship & Witness For The Glory of God -> See You @ SYC 2026":
                                                 return Image.asset(
-                                                  'assets/mockups/seeyou.png',
+                                                  'assets/mockups/seeyou.jpg',
                                                 ).image;
                                               default:
                                                 return Image.asset(

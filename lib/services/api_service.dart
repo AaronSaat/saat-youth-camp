@@ -116,6 +116,8 @@ class ApiService {
     print(response.body);
     if (response.statusCode == 200) {
       return json.decode(response.body);
+    } else if (response.statusCode == 400) {
+      return json.decode(response.body);
     } else {
       throw Exception('Invalid Email or Secret Code');
     }
@@ -2097,6 +2099,44 @@ class ApiService {
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load materi');
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> getTutorial(
+    BuildContext context,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}tutorial');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('url $url');
+    print('response ${response.statusCode} - ${response.body}');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> decoded = json.decode(response.body);
+      final List materi = decoded['data_materi'] ?? [];
+      return List<Map<String, dynamic>>.from(materi);
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      // throw Exception('Unauthorized');
+      return [];
+    } else {
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load tutorial');
     }
   }
 

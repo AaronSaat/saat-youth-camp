@@ -58,7 +58,6 @@ class _LoginScreenState extends State<LoginScreen> {
     String kelompok_nama,
     String kamar,
     String status_datang,
-    String secret,
   ) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('id', id);
@@ -76,7 +75,6 @@ class _LoginScreenState extends State<LoginScreen> {
     await prefs.setString('kelompok_nama', kelompok_nama);
     await prefs.setString('kamar', kamar);
     await prefs.setString('status_datang', status_datang);
-    await prefs.setString('secret', secret);
     print('Login data saved:');
     print('id: $id');
     print('username: $username');
@@ -93,7 +91,6 @@ class _LoginScreenState extends State<LoginScreen> {
     print('kelompok_nama: $kelompok_nama');
     print('kamar: $kamar');
     print('status_datang: $status_datang');
-    print('secret: $secret');
   }
 
   void _login() async {
@@ -130,7 +127,6 @@ class _LoginScreenState extends State<LoginScreen> {
               'Tidak ada kelompok',
           response['user']['kamar'] ?? 'Tidak ada kamar',
           response['user']['status_datang'] ?? 'Null',
-          response['user']['secret'] ?? 'Null',
         );
 
         if (!mounted) return;
@@ -364,26 +360,59 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
+                      // const SizedBox(height: 8),
+                      // Padding(
+                      //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      //   child: GestureDetector(
+                      //     onTap: isLoading ? null : _login,
+                      //     child: Container(
+                      //       width: double.infinity,
+                      //       height: 50,
+                      //       decoration: BoxDecoration(
+                      //         color: Colors.white,
+                      //         borderRadius: BorderRadius.circular(32),
+                      //         border: Border.all(
+                      //           color: AppColors.primary,
+                      //           width: 2,
+                      //         ),
+                      //       ),
+                      //       alignment: Alignment.center,
+                      //       child:
+                      //           isLoading
+                      //               ? const CircularProgressIndicator(
+                      //                 color: AppColors.primary,
+                      //               )
+                      //               : const Text(
+                      //                 'Belum Punya Akun? Check Secret disini',
+                      //                 style: TextStyle(
+                      //                   color: AppColors.primary,
+                      //                   fontSize: 14,
+                      //                   fontWeight: FontWeight.w500,
+                      //                 ),
+                      //               ),
+                      //     ),
+                      //   ),
+                      // ),
                       const SizedBox(height: 24),
 
                       // Daftar sekarang
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Belum punya akun? ',
-                            style: TextStyle(color: AppColors.primary),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const CheckSecretScreen(),
-                                ),
-                              );
-                            },
-                            child: const Text(
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const CheckSecretScreen(),
+                            ),
+                          );
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Belum punya akun? ',
+                              style: TextStyle(color: AppColors.primary),
+                            ),
+                            const Text(
                               'Daftar sekarang',
                               style: TextStyle(
                                 color: AppColors.primary,
@@ -391,8 +420,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 decoration: TextDecoration.underline,
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 16),
                       // Version Info

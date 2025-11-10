@@ -83,6 +83,7 @@ flutter:
     - assets/images/card_kontak.jpg
     - assets/images/card_dokumentasi.jpg
     - assets/images/card_tutorial.png
+    - assets/images/card_devotion.jpg
     - assets/images/background_pengumuman.jpg
 
     - assets/icons/profile.svg
@@ -121,6 +122,7 @@ flutter:
     #mockups
     - assets/mockups/bible_reading.jpg #dashboard
     - assets/mockups/bkc.jpg 
+    - assets/mockups/bkc2.jpg 
     - assets/mockups/kkr2.jpg 
     - assets/mockups/kkr3.jpg 
     - assets/mockups/talks.jpg 
@@ -137,7 +139,7 @@ flutter:
     - assets/mockups/awg.jpg
     - assets/mockups/bonding.jpg
     - assets/mockups/eat.jpg
-    - assets/mockups/seeyou.png
+    - assets/mockups/seeyou.jpg
 
     # share verse
     - assets/shareverse/photo1.png
