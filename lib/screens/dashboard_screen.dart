@@ -10,6 +10,7 @@ import 'package:permission_handler/permission_handler.dart'
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/main.dart';
 import 'package:syc/screens/form_komitmen_screen.dart';
+import 'package:syc/screens/list_devotion_screen.dart';
 import 'package:syc/screens/list_tutorial_screen.dart';
 import 'package:syc/screens/main_screen.dart';
 import 'package:syc/screens/profile_edit_screen.dart';
@@ -454,10 +455,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     await loadPengumumanByUserId(forceRefresh: forceRefresh);
     await checkKomitmenDoneForReminderCard();
 
-    await loadAllNotifikasiAcara();
+    if (Platform.isIOS) {
+      await loadAllNotifikasiAcara();
+    }
 
     final roleLower = (_dataUser['role'] ?? '').toString().toLowerCase();
-    if (roleLower.contains('peserta') || roleLower.contains('pembina')) {
+    if ((roleLower.contains('peserta') || roleLower.contains('pembina')) &&
+        Platform.isIOS) {
       await loadAllNotifikasiKomitmen();
     }
     // await setupAllNotification();
@@ -2460,46 +2464,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         //       ),
                         //       const SizedBox(height: 12),
                         //       // Schedule Notification Button (9 July 2025 07:40 WIB)
-                        //       SizedBox(
-                        //         width: double.infinity,
-                        //         child: ElevatedButton.icon(
-                        //           onPressed: () {
-                        //             // 07:40 WIB = UTC+7
-                        //             final scheduledTime = DateTime.utc(
-                        //               2025,
-                        //               11,
-                        //               10,
-                        //               3,
-                        //               54,
-                        //             );
-                        //             NotificationService().scheduledNotification(
-                        //               title: 'Notifikasi Terjadwal',
-                        //               body:
-                        //                   'Ini notifikasi untuk 14 Juli 2025 jam 13.26 WIB.',
-                        //               scheduledTime: scheduledTime,
-                        //               payload: 'splash',
-                        //             );
-                        //             showCustomSnackBar(
-                        //               context,
-                        //               'Notifikasi berhasil dijadwalkan pada ${scheduledTime.toLocal()}',
-                        //             );
-                        //           },
-                        //           icon: const Icon(
-                        //             Icons.schedule_send,
-                        //             size: 16,
-                        //           ),
-                        //           label: const Text(
-                        //             'Schedule Notif 14 Juli 2025 13.26 WIB',
-                        //           ),
-                        //           style: ElevatedButton.styleFrom(
-                        //             backgroundColor: AppColors.secondary,
-                        //             foregroundColor: Colors.white,
-                        //             padding: const EdgeInsets.symmetric(
-                        //               vertical: 12,
-                        //             ),
-                        //           ),
-                        //         ),
-                        //       ),
+                        //       // SizedBox(
+                        //       //   width: double.infinity,
+                        //       //   child: ElevatedButton.icon(
+                        //       //     onPressed: () {
+                        //       //       // 07:40 WIB = UTC+7
+                        //       //       final scheduledTime = DateTime.utc(
+                        //       //         2025,
+                        //       //         11,
+                        //       //         10,
+                        //       //         3,
+                        //       //         54,
+                        //       //       );
+                        //       //       NotificationService().scheduledNotification(
+                        //       //         title: 'Notifikasi Terjadwal',
+                        //       //         body:
+                        //       //             'Ini notifikasi untuk 14 Juli 2025 jam 13.26 WIB.',
+                        //       //         scheduledTime: scheduledTime,
+                        //       //         payload: 'splash',
+                        //       //       );
+                        //       //       showCustomSnackBar(
+                        //       //         context,
+                        //       //         'Notifikasi berhasil dijadwalkan pada ${scheduledTime.toLocal()}',
+                        //       //       );
+                        //       //     },
+                        //       //     icon: const Icon(
+                        //       //       Icons.schedule_send,
+                        //       //       size: 16,
+                        //       //     ),
+                        //       //     label: const Text(
+                        //       //       'Schedule Notif 14 Juli 2025 13.26 WIB',
+                        //       //     ),
+                        //       //     style: ElevatedButton.styleFrom(
+                        //       //       backgroundColor: AppColors.secondary,
+                        //       //       foregroundColor: Colors.white,
+                        //       //       padding: const EdgeInsets.symmetric(
+                        //       //         vertical: 12,
+                        //       //       ),
+                        //       //     ),
+                        //       //   ),
+                        //       // ),
                         //     ],
                         //   ),
                         // ),
@@ -4918,7 +4922,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
 
                         // Morning Devotion Card (khusus PK)
-                        if (!role.toLowerCase().contains('pembimbing')) ...[
+                        if (role.toLowerCase().contains('pembimbing')) ...[
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 24),
                             child: Column(
@@ -4926,31 +4930,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               children: [
                                 const SizedBox(height: 24),
                                 InkWell(
-                                  onTap: () async {
-                                    const url =
-                                        'https://drive.google.com/drive/folders/1zurqXnhLKzCcqOAFeqphnrf6dpJoYiai';
-                                    final uri = Uri.parse(url);
-                                    bool launched = false;
-                                    try {
-                                      launched = await launchUrl(
-                                        uri,
-                                        mode: LaunchMode.externalApplication,
-                                      );
-                                    } catch (_) {}
-                                    if (!launched) {
-                                      try {
-                                        launched = await launchUrl(
-                                          uri,
-                                          mode: LaunchMode.platformDefault,
-                                        );
-                                      } catch (_) {}
-                                    }
-                                    if (!launched) {
-                                      showCustomSnackBar(
-                                        context,
-                                        'Tidak dapat membuka link. Pastikan ada browser di perangkat Anda.',
-                                      );
-                                    }
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => ListDevotionScreen(),
+                                      ),
+                                    );
                                   },
                                   borderRadius: BorderRadius.circular(16),
                                   child: Stack(

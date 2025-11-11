@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
@@ -343,7 +344,8 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
               ((_dataUser['role'] ?? '').toString().toLowerCase() ==
                       'peserta' ||
                   (_dataUser['role'] ?? '').toString().toLowerCase() ==
-                      'pembina'))
+                      'pembina') &&
+              Platform.isIOS)
             Padding(
               padding: const EdgeInsets.only(right: 8.0),
               child: IconButton(

@@ -7,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart'
 import 'package:shimmer/shimmer.dart';
 import 'package:syc/screens/konfirmasi_registrasi_ulang_screen.dart';
 import 'package:syc/screens/list_komitmen_screen.dart';
-import 'package:syc/screens/materi_screen.dart';
 import 'package:syc/screens/scan_qr_screen.dart';
 import 'package:syc/utils/app_colors.dart';
 import 'package:syc/utils/global_variables.dart';

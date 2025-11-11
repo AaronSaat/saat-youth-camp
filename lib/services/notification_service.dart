@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart'
     show GlobalKey, MaterialPageRoute, Navigator, NavigatorState;
+import 'dart:io' show Platform;
+import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show
         AndroidInitializationSettings,
@@ -12,7 +14,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
         InitializationSettings,
         NotificationDetails,
         Priority,
-        DateTimeComponents,
         NotificationResponse;
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:syc/screens/splash_screen.dart';
@@ -21,6 +22,8 @@ import 'package:timezone/timezone.dart' as tz;
 
 class NotificationService {
   final notificationPlugin = FlutterLocalNotificationsPlugin();
+  // notificationPlugin.resolvePlatformSpecificImplementation<
+  //   AndroidFlutterLocalNotificationsPlugin>().requestNotificationsPermission();
 
   bool _isInitialized = false;
 
@@ -29,13 +32,29 @@ class NotificationService {
   bool get isInitialized => _isInitialized;
 
   // Initialize
-  Future<void> initialize() async {
+  Future<void> initialize({
+    bool requestPermission = true,
+    bool sendTestNotification = false,
+  }) async {
     if (_isInitialized) return; // Prevent re-initialization
 
-    // try {1q
     tz.initializeTimeZones();
     final String timeZoneName = await FlutterTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(timeZoneName));
+
+    // request notification permission on Android 13+
+    if (requestPermission && Platform.isAndroid) {
+      try {
+        final status = await Permission.notification.status;
+        print('Notification permission current status: $status');
+        if (status.isDenied || status.isRestricted || status.isLimited) {
+          final req = await Permission.notification.request();
+          print('Notification permission request result: $req');
+        }
+      } catch (e) {
+        print('Permission request error: $e');
+      }
+    }
 
     // const initializationSettingsAndroid = AndroidInitializationSettings(
     //   'iconsmall.png',
@@ -64,11 +83,21 @@ class NotificationService {
       onDidReceiveBackgroundNotificationResponse: onNotificationTap,
     );
     _isInitialized = true;
-    // } catch (e) {
-    //   final context = NotificationService.navigatorKey.currentContext;
-    //   if (context != null) {
-    //     showCustomSnackBar(context, 'Gagal inisialisasi notifikasi: $e');
-    //   }
+    print('NotificationService initialized. Timezone: $timeZoneName');
+
+    if (sendTestNotification) {
+      // send a quick test notification to verify show works on device
+      try {
+        await showNotification(
+          title: 'Init Test Notification',
+          body: 'This is a test notification sent during initialize()',
+          payload: 'init_test',
+        );
+        print('Init test notification sent');
+      } catch (e, st) {
+        print('Failed to send init test notification: $e\n$st');
+      }
+    }
     // }
   }
 
@@ -151,32 +180,19 @@ class NotificationService {
     var scheduledDateTime = tz.TZDateTime.from(scheduledTime, wib);
     print('Scheduled time (WIB): $scheduledDateTime');
 
-    try {
-      await notificationPlugin.zonedSchedule(
-        id ?? DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        title,
-        body,
-        scheduledDateTime,
-        notificationDetails(),
-        payload: payload,
-        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        // ini untuk repeated notification : setiap hari di jam yang sama
-        // matchDateTimeComponents: DateTimeComponents.time,
-      );
-    } catch (e) {
-      print('Exact alarm not permitted, fallback to inexact: $e');
-      await notificationPlugin.zonedSchedule(
-        id ?? DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        title,
-        body,
-        scheduledDateTime.isBefore(now)
-            ? now.add(const Duration(seconds: 1))
-            : scheduledDateTime,
-        notificationDetails(),
-        payload: payload,
-        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-      );
-    }
+    notificationPlugin.zonedSchedule(
+      id ?? DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      title,
+      body,
+      scheduledDateTime,
+      notificationDetails(),
+      payload: payload,
+      // androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.alarmClock,
+
+      // ini untuk repeated notification : setiap hari di jam yang sama
+      // matchDateTimeComponents: DateTimeComponents.time,
+    );
 
     print(
       'Scheduled notification for $title at ${scheduledDateTime.toLocal()} (WIB)',

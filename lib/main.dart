@@ -4,8 +4,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:syc/screens/main_screen.dart';
+import 'package:syc/services/notification_service.dart';
 import 'package:syc/utils/app_colors.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 // import 'orientation_guard.dart';
 import 'screens/login_screen.dart';
@@ -15,6 +17,8 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService().initialize();
+  tz.initializeTimeZones();
   await Firebase.initializeApp();
 
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
