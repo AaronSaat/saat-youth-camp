@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart' show Shimmer;
 import 'package:timeago/timeago.dart'
@@ -22,6 +23,8 @@ class _PengumumanListScreenState extends State<PengumumanListScreen> {
   List<Map<String, dynamic>> _pengumumanList = [];
   Map<String, dynamic> _dataUser = {};
 
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+
   @override
   void initState() {
     timeago.setLocaleMessages('id', timeago.IdMessages());
@@ -41,13 +44,15 @@ class _PengumumanListScreenState extends State<PengumumanListScreen> {
   }
 
   Future<void> loadUserData() async {
+    final token = await secureStorage.read(key: 'token');
+    final email = await secureStorage.read(key: 'email');
     final prefs = await SharedPreferences.getInstance();
     final keys = [
       'id',
       'username',
-      'email',
+      // 'token',
+      // 'email',
       'role',
-      'token',
       'gereja_id',
       'gereja_nama',
       'kelompok_id',
@@ -57,6 +62,8 @@ class _PengumumanListScreenState extends State<PengumumanListScreen> {
     for (final key in keys) {
       userData[key] = prefs.getString(key) ?? '';
     }
+    userData['token'] = token ?? '';
+    userData['email'] = email ?? '';
     if (!mounted) return;
     setState(() {
       _dataUser = userData;
@@ -87,7 +94,7 @@ class _PengumumanListScreenState extends State<PengumumanListScreen> {
     }
 
     try {
-      final pengumumanList = await ApiService.getPengumuman(context, userId);
+      final pengumumanList = await ApiService().getPengumuman(context, userId);
       await prefs.setString(pengumumanKey, jsonEncode(pengumumanList));
       if (!mounted) return;
       setState(() {

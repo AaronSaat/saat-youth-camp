@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
 import 'package:syc/screens/bible_reading_more_screen.dart';
@@ -31,6 +32,8 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
   Map<String, String> _dataUser = {};
   List<int> _dataProgressBacaan = [];
   bool _autoSelected = false;
+
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
   @override
   void initState() {
@@ -72,13 +75,15 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
   }
 
   Future<void> loadUserData() async {
+    final token = await secureStorage.read(key: 'token');
+    final email = await secureStorage.read(key: 'email');
     final prefs = await SharedPreferences.getInstance();
     final keys = [
       'id',
       'username',
-      'email',
+      // 'token',
+      // 'email',
       'role',
-      'token',
       'gereja_id',
       'gereja_nama',
       'kelompok_id',
@@ -88,6 +93,8 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
     for (final key in keys) {
       userData[key] = prefs.getString(key) ?? '';
     }
+    userData['token'] = token ?? '';
+    userData['email'] = email ?? '';
     if (!mounted) return;
     setState(() {
       _dataUser = userData;
@@ -114,7 +121,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
     }
 
     try {
-      final brm = await ApiService.getBrmByBulan(context, month);
+      final brm = await ApiService().getBrmByBulan(context, month);
       await prefs.setString(brmKey, jsonEncode(brm));
       if (!mounted) return;
       setState(() {
@@ -150,7 +157,7 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
 
     try {
       // Ganti dengan pemanggilan API bulanan
-      final response = await ApiService.getBrmReportByPesertaByBulan(
+      final response = await ApiService().getBrmReportByPesertaByBulan(
         context,
         widget.userId,
         month,

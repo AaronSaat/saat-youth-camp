@@ -54,7 +54,7 @@ class _PengumumanDetailScreenState extends State<PengumumanDetailScreen> {
       print('Submitting answers: $pengumumanData');
       // Kirim ke API
       try {
-        await ApiService.postPengumumanMarkRead(context, pengumumanData);
+        await ApiService().postPengumumanMarkRead(context, pengumumanData);
         if (mounted) {
           // showCustomSnackBar(context, "Jawaban evaluasi berhasil dikirim.");
           print('Pengumuman marked as read successfully');

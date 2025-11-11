@@ -226,7 +226,7 @@ Widget _buildDecodedResultWidget(
         FutureBuilder<Map<String, dynamic>>(
           future:
               (() async {
-                final res = await ApiService.getDataKonfirmasi(
+                final res = await ApiService().getDataKonfirmasi(
                   context,
                   decryptedSecret,
                 );

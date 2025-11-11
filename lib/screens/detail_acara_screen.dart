@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
 import 'package:syc/screens/form_evaluasi_screen.dart';
@@ -43,6 +44,8 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
   late DateTime _today;
   late TimeOfDay _timeOfDay;
   late DateTime _now;
+
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
   @override
   void initState() {
@@ -323,14 +326,16 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
   }
 
   Future<void> loadUserData() async {
+    final token = await secureStorage.read(key: 'token');
+    final email = await secureStorage.read(key: 'email');
     final prefs = await SharedPreferences.getInstance();
     final keys = [
       'id',
       'username',
-      'email',
+      // 'token',
+      // 'email',
       'group_id',
       'role',
-      'token',
       'gereja_id',
       'gereja_nama',
       'kelompok_id',
@@ -340,6 +345,8 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
     for (final key in keys) {
       userData[key] = prefs.getString(key) ?? '';
     }
+    userData['token'] = token ?? '';
+    userData['email'] = email ?? '';
     if (!mounted) return;
     setState(() {
       _userData = userData;
@@ -351,7 +358,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
     setState(() {});
 
     try {
-      final List<dynamic> acaraList = await ApiService.getAcaraById(
+      final List<dynamic> acaraList = await ApiService().getAcaraById(
         context,
         widget.id,
       );
@@ -411,18 +418,18 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
     setState(() {});
 
     try {
-      final evaluasiDone = await ApiService.getEvaluasiByPesertaByAcara(
+      final evaluasiDone = await ApiService().getEvaluasiByPesertaByAcara(
         context,
         widget.userId,
         widget.id,
       );
 
-      final evaluasiList = await ApiService.getCountEvaluasiAnsweredByAcara(
+      final evaluasiList = await ApiService().getCountEvaluasiAnsweredByAcara(
         context,
         widget.id.toString(),
       );
 
-      final _countUser = await ApiService.getCountUser(context);
+      final _countUser = await ApiService().getCountUser(context);
       if (!mounted) return;
       setState(() {
         _evaluasiDone =
@@ -844,13 +851,20 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                             return FutureBuilder(
                                               future:
                                                   canEvaluate
-                                                      ? ApiService.getEvaluasiByPesertaByAcara(
-                                                        context,
-                                                        _userData!['id']!,
-                                                        _dataAcara![0]['id'],
-                                                      )
+                                                      ? ApiService()
+                                                          .getEvaluasiByPesertaByAcara(
+                                                            context,
+                                                            _userData!['id']!,
+                                                            _dataAcara![0]['id'],
+                                                          )
                                                       : null,
                                               builder: (context, snapshot) {
+                                                final isChecking =
+                                                    snapshot.connectionState ==
+                                                        ConnectionState
+                                                            .waiting ||
+                                                    snapshot.connectionState ==
+                                                        ConnectionState.active;
                                                 bool evaluasiDone = false;
                                                 if (snapshot.connectionState ==
                                                         ConnectionState.done &&
@@ -863,6 +877,52 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                                 if (_dataAcara![0]['is_eval']
                                                         ?.toString() ==
                                                     '1') {
+                                                  // during checking show disabled grey button with loading indicator
+                                                  if (isChecking) {
+                                                    return ElevatedButton(
+                                                      style: ElevatedButton.styleFrom(
+                                                        backgroundColor:
+                                                            AppColors.grey4,
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                32,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                      onPressed: null,
+                                                      child: Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          SizedBox(
+                                                            width: 16,
+                                                            height: 16,
+                                                            child:
+                                                                CircularProgressIndicator(
+                                                                  strokeWidth:
+                                                                      2,
+                                                                  color:
+                                                                      Colors
+                                                                          .grey,
+                                                                ),
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 8,
+                                                          ),
+                                                          const Text(
+                                                            'MEMERIKSA...',
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.black,
+                                                              fontSize: 12,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  }
+
                                                   return ElevatedButton(
                                                     style: ElevatedButton.styleFrom(
                                                       backgroundColor:
@@ -880,17 +940,17 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                                         canEvaluate
                                                             ? () async {
                                                               try {
-                                                                final result =
-                                                                    await ApiService.getEvaluasiByPesertaByAcara(
+                                                                final result = await ApiService()
+                                                                    .getEvaluasiByPesertaByAcara(
                                                                       context,
                                                                       _userData!['id']!,
                                                                       _dataAcara![0]['id'],
                                                                     );
                                                                 bool
-                                                                evaluasiDone =
+                                                                evaluasiDoneLocal =
                                                                     result['success'] ==
                                                                     true;
-                                                                if (evaluasiDone) {
+                                                                if (evaluasiDoneLocal) {
                                                                   Navigator.push(
                                                                     context,
                                                                     MaterialPageRoute(
@@ -952,9 +1012,11 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                                       evaluasiDone
                                                           ? 'REVIEW EVALUASI'
                                                           : 'EVALUASI',
-                                                      style: TextStyle(
+                                                      style: const TextStyle(
                                                         color: Colors.white,
                                                         fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.bold,
                                                       ),
                                                     ),
                                                   );
@@ -972,8 +1034,10 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                               const SizedBox(height: 4),
                               // counter evaluasi card
                               if (_userData!['role']!.toLowerCase().contains(
-                                'panitia',
-                              ))
+                                    'panitia',
+                                  ) &&
+                                  _dataAcara![0]['is_eval']?.toString() ==
+                                      '1') ...[
                                 Center(
                                   child: Card(
                                     shape: RoundedRectangleBorder(
@@ -997,7 +1061,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           const Text(
-                                            'Konter evaluasi acara ini:',
+                                            'Konter yang telah mengisi\nevaluasi acara ini:',
                                             style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
@@ -1046,6 +1110,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                     ),
                                   ),
                                 ),
+                              ],
                             ],
                           ),
                 ),

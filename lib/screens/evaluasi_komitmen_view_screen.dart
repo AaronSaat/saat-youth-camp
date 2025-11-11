@@ -74,7 +74,7 @@ class _EvaluasiKomitmenViewScreenState
         }
       }
 
-      final evaluasi = await ApiService.getEvaluasiByPesertaByAcara(
+      final evaluasi = await ApiService().getEvaluasiByPesertaByAcara(
         context,
         widget.userId,
         widget.acaraHariId,
@@ -124,7 +124,7 @@ class _EvaluasiKomitmenViewScreenState
         }
       }
 
-      final komitmen = await ApiService.getKomitmenByPesertaByDay(
+      final komitmen = await ApiService().getKomitmenByPesertaByDay(
         context,
         widget.userId,
         widget.acaraHariId,

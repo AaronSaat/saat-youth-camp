@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/screens/login_screen.dart';
@@ -12,6 +13,8 @@ class ApiService {
   // static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
   // static const String baseurl = 'http://172.172.52.11:90/api-syc2025/';
   static const String baseurl = 'https://netunim.seabs.ac.id/api-syc2025/';
+
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
   static Future<Map<String, dynamic>> loginUser(
     String username,
@@ -65,14 +68,18 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> ubahPassword(
+  Future<Map<String, dynamic>> ubahPassword(
     String userId,
     String passwordSekarang,
     String passwordBaru,
   ) async {
     print('Changing password for user ID: $userId');
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token') ?? '';
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token') ?? '';
+
+    final token = await secureStorage.read(key: 'token') ?? '';
+    print('Token: $token');
+
     final url = Uri.parse('${baseurl}ubah-password');
     final response = await http.post(
       url,
@@ -160,9 +167,12 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getCountUser(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+  Future<Map<String, dynamic>> getCountUser(BuildContext context) async {
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+
+    final token = await secureStorage.read(key: 'token') ?? '';
+    print('Token: $token');
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -195,13 +205,16 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getInfoKamarKelompok(
+  Future<Map<String, dynamic>> getInfoKamarKelompok(
     BuildContext context,
     String userId,
     String role,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+
+    final token = await secureStorage.read(key: 'token') ?? '';
+    print('Token: $token');
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -236,9 +249,12 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getBrmToday(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+  Future<Map<String, dynamic>> getBrmToday(BuildContext context) async {
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+
+    final token = await secureStorage.read(key: 'token') ?? '';
+    print('Token: $token');
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -277,9 +293,11 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getBrmToday2(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+  Future<Map<String, dynamic>> getBrmToday2(BuildContext context) async {
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
+    print('Token: $token');
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -319,12 +337,14 @@ class ApiService {
   }
 
   // untuk bacaan harian dashboard supaya tidak loading lama
-  static Future<Map<String, dynamic>> getBrmTenDays(
+  Future<Map<String, dynamic>> getBrmTenDays(
     BuildContext context,
     String userId,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
+    print('Token: $token');
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -358,12 +378,14 @@ class ApiService {
   }
 
   // untuk catatan list supaya tidak loading lama
-  static Future<Map<String, dynamic>> getBrmByDay(
+  Future<Map<String, dynamic>> getBrmByDay(
     BuildContext context,
     String day,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
+    print('Token: $token');
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -397,12 +419,13 @@ class ApiService {
   }
 
   // untuk catatan list supaya tidak loading lama
-  static Future<List<dynamic>> getBrmByBulan(
+  Future<List<dynamic>> getBrmByBulan(
     BuildContext context,
     String bulan,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -437,9 +460,11 @@ class ApiService {
   }
 
   // di bible_reading_list
-  static Future<String> getBacaanByDay(BuildContext context, String day) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+  Future<String> getBacaanByDay(BuildContext context, String day) async {
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
+    print('Token: $token');
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -475,12 +500,13 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getCountBrmReportByDay(
+  Future<Map<String, dynamic>> getCountBrmReportByDay(
     BuildContext context,
     String day,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -514,13 +540,14 @@ class ApiService {
   }
 
   // untuk dashboaard bacaan
-  static Future<Map<String, dynamic>> getBrmReportByPesertaByDay(
+  Future<Map<String, dynamic>> getBrmReportByPesertaByDay(
     BuildContext context,
     String userId,
     String day,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -556,14 +583,15 @@ class ApiService {
   }
 
   // untuk catatan harian biar ga loading lama
-  static Future<Map<String, dynamic>> getBrmReportByPesertaByBulan(
+  Future<Map<String, dynamic>> getBrmReportByPesertaByBulan(
     BuildContext context,
     String userId,
     String bulan,
     String tahun,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -598,13 +626,14 @@ class ApiService {
     }
   }
 
-  static Future<int> getBrmReportCountByPesertaByDay(
+  Future<int> getBrmReportCountByPesertaByDay(
     BuildContext context,
     String userId,
     String day,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -639,12 +668,13 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> postBrmDoneRead(
+  Future<Map<String, dynamic>> postBrmDoneRead(
     BuildContext context,
     Map<String, dynamic> brmDoneRead,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -683,12 +713,13 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> postBrmNotes(
+  Future<Map<String, dynamic>> postBrmNotes(
     BuildContext context,
     Map<String, dynamic> brmNotes,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -727,12 +758,13 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> putBrmNotes(
+  Future<Map<String, dynamic>> putBrmNotes(
     BuildContext context,
     Map<String, dynamic> brmNotes,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -772,15 +804,16 @@ class ApiService {
   }
 
   // untuk notes_harian
-  static Future<Map<String, dynamic>> getBrmNotesByDay(
+  Future<Map<String, dynamic>> getBrmNotesByDay(
     BuildContext context,
     String day,
     String userId,
     int page,
     int pageSize,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -818,9 +851,10 @@ class ApiService {
     }
   }
 
-  static Future<List<dynamic>> getAcara(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+  Future<List<dynamic>> getAcara(BuildContext context) async {
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -858,9 +892,10 @@ class ApiService {
     }
   }
 
-  static Future<int> getAcaraCount(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+  Future<int> getAcaraCount(BuildContext context) async {
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -896,9 +931,10 @@ class ApiService {
     }
   }
 
-  static Future<int> getAcaraCountAll(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+  Future<int> getAcaraCountAll(BuildContext context) async {
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -934,9 +970,10 @@ class ApiService {
     }
   }
 
-  static Future<List<dynamic>> getAcaraByDay(BuildContext context, day) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+  Future<List<dynamic>> getAcaraByDay(BuildContext context, day) async {
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -974,9 +1011,10 @@ class ApiService {
     }
   }
 
-  static Future<String> getAcaraEvalCount(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+  Future<String> getAcaraEvalCount(BuildContext context) async {
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1009,12 +1047,10 @@ class ApiService {
     }
   }
 
-  static Future<List<dynamic>> getAcaraById(
-    BuildContext context,
-    String id,
-  ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+  Future<List<dynamic>> getAcaraById(BuildContext context, String id) async {
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1052,9 +1088,10 @@ class ApiService {
     }
   }
 
-  static Future<List<dynamic>> getTanggalAcara(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+  Future<List<dynamic>> getTanggalAcara(BuildContext context) async {
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1091,12 +1128,13 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getEvaluasiByAcara(
+  Future<Map<String, dynamic>> getEvaluasiByAcara(
     BuildContext context,
     acaraId,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1136,13 +1174,14 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getEvaluasiByPesertaByAcara(
+  Future<Map<String, dynamic>> getEvaluasiByPesertaByAcara(
     BuildContext context,
     userId,
     acaraId,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1189,12 +1228,13 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getCountEvaluasiAnsweredByPeserta(
+  Future<Map<String, dynamic>> getCountEvaluasiAnsweredByPeserta(
     BuildContext context,
     String userId,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1229,12 +1269,13 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getCountEvaluasiAnsweredByAcara(
+  Future<Map<String, dynamic>> getCountEvaluasiAnsweredByAcara(
     BuildContext context,
     String acaraId,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1269,12 +1310,13 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> postEvaluasiAnswer(
+  Future<Map<String, dynamic>> postEvaluasiAnswer(
     BuildContext context,
     List<Map<String, dynamic>> evaluasiAnswers,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1313,9 +1355,10 @@ class ApiService {
     }
   }
 
-  static Future<List<dynamic>> getKomitmen(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+  Future<List<dynamic>> getKomitmen(BuildContext context) async {
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1353,12 +1396,13 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getKomitmenByDay(
+  Future<Map<String, dynamic>> getKomitmenByDay(
     BuildContext context,
     day,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1398,13 +1442,14 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getKomitmenByPesertaByDay(
+  Future<Map<String, dynamic>> getKomitmenByPesertaByDay(
     BuildContext context,
     userId,
     day,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1452,12 +1497,13 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getCountKomitmenAnsweredByPeserta(
+  Future<Map<String, dynamic>> getCountKomitmenAnsweredByPeserta(
     BuildContext context,
     String userId,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1492,12 +1538,13 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getCountKomitmenAnsweredByDay(
+  Future<Map<String, dynamic>> getCountKomitmenAnsweredByDay(
     BuildContext context,
     String day,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1530,12 +1577,13 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> postKomitmenAnswer(
+  Future<Map<String, dynamic>> postKomitmenAnswer(
     BuildContext context,
     List<Map<String, dynamic>> komitmenAnswers,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1570,9 +1618,10 @@ class ApiService {
     }
   }
 
-  static Future<List<dynamic>> getGereja(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+  Future<List<dynamic>> getGereja(BuildContext context) async {
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1610,12 +1659,13 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getAnggotaGereja(
+  Future<Map<String, dynamic>> getAnggotaGereja(
     BuildContext context,
     String gerejaId,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1650,9 +1700,10 @@ class ApiService {
     }
   }
 
-  static Future<List<dynamic>> getGroup(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+  Future<List<dynamic>> getGroup(BuildContext context) async {
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1691,9 +1742,10 @@ class ApiService {
     }
   }
 
-  static Future<List<dynamic>> getPanitia(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+  Future<List<dynamic>> getPanitia(BuildContext context) async {
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1730,12 +1782,13 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getAnggotaGroup(
+  Future<Map<String, dynamic>> getAnggotaGroup(
     BuildContext context,
     String groupId,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1772,9 +1825,10 @@ class ApiService {
     }
   }
 
-  static Future<List<dynamic>> getKelompok(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+  Future<List<dynamic>> getKelompok(BuildContext context) async {
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1812,12 +1866,13 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getAnggotaKelompok(
+  Future<Map<String, dynamic>> getAnggotaKelompok(
     BuildContext context,
     String kelompokId,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1852,12 +1907,13 @@ class ApiService {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getPengumuman(
+  Future<List<Map<String, dynamic>>> getPengumuman(
     BuildContext context,
     id,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1891,12 +1947,13 @@ class ApiService {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getPengumumanNotRead(
+  Future<List<Map<String, dynamic>>> getPengumumanNotRead(
     BuildContext context,
     id,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1930,12 +1987,13 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> postPengumumanMarkRead(
+  Future<Map<String, dynamic>> postPengumumanMarkRead(
     BuildContext context,
     Map<String, dynamic> pengumumanData,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -1970,9 +2028,10 @@ class ApiService {
     }
   }
 
-  static Future<String> getAvatarById(BuildContext context, String id) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+  Future<String> getAvatarById(BuildContext context, String id) async {
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -2008,13 +2067,14 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> postAvatar(
+  Future<Map<String, dynamic>> postAvatar(
     BuildContext context,
     String filePath, {
     Map<String, dynamic>? body,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -2064,11 +2124,10 @@ class ApiService {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getMateri(
-    BuildContext context,
-  ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+  Future<List<Map<String, dynamic>>> getMateri(BuildContext context) async {
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -2102,11 +2161,10 @@ class ApiService {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getTutorial(
-    BuildContext context,
-  ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+  Future<List<Map<String, dynamic>>> getTutorial(BuildContext context) async {
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -2140,11 +2198,12 @@ class ApiService {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getMorningDevotion(
+  Future<List<Map<String, dynamic>>> getMorningDevotion(
     BuildContext context,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -2178,12 +2237,13 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> postKonfirmasiDatang(
+  Future<Map<String, dynamic>> postKonfirmasiDatang(
     BuildContext context,
     Map<String, dynamic> konfirmasiData,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -2243,13 +2303,14 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getStatusDatang(
+  Future<Map<String, dynamic>> getStatusDatang(
     BuildContext context,
     String secret,
     String email,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -2276,12 +2337,13 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getDataKonfirmasi(
+  Future<Map<String, dynamic>> getDataKonfirmasi(
     BuildContext context,
     String secret,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -2310,12 +2372,13 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> postHapusAkun(
+  Future<Map<String, dynamic>> postHapusAkun(
     BuildContext context,
     Map<String, dynamic> hapusAkunData,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
     if (token == null || token.isEmpty) {
       throw Exception('Token not found in SharedPreferences');
     }
@@ -2353,7 +2416,7 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> saveUserDevice({
+  Future<Map<String, dynamic>> saveUserDevice({
     required String userId,
     required String username,
     required String fcmToken,
@@ -2362,8 +2425,9 @@ class ApiService {
     required String deviceManufacturer,
     required String deviceVersion,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token') ?? '';
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token') ?? '';
+    final token = await secureStorage.read(key: 'token') ?? '';
 
     final url = Uri.parse('${baseurl}save-user-device');
     final response = await http
@@ -2393,12 +2457,12 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> deleteUserDevice({
+  Future<Map<String, dynamic>> deleteUserDevice({
     required String fcmToken,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token') ?? '';
-
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token') ?? '';
+    final token = await secureStorage.read(key: 'token') ?? '';
     final url = Uri.parse('${baseurl}delete-user-device');
     final response = await http
         .post(

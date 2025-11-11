@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import '../services/api_service.dart';
@@ -36,6 +37,8 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
   late DateTime _today;
   late TimeOfDay _timeOfDay;
   late DateTime _now;
+
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
   @override
   void initState() {
@@ -272,11 +275,11 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
     }
 
     try {
-      final komitmenList = await ApiService.getKomitmen(context);
+      final komitmenList = await ApiService().getKomitmen(context);
       _komitmenDoneList = List.filled(komitmenList.length, false);
       for (int i = 0; i < _komitmenDoneList.length; i++) {
         try {
-          final result = await ApiService.getKomitmenByPesertaByDay(
+          final result = await ApiService().getKomitmenByPesertaByDay(
             context,
             widget.userId,
             i + 1,
@@ -302,13 +305,15 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
   }
 
   Future<void> loadUserData() async {
+    final token = await secureStorage.read(key: 'token');
+    final email = await secureStorage.read(key: 'email');
     final prefs = await SharedPreferences.getInstance();
     final keys = [
       'id',
       'username',
-      'email',
+      // 'token',
+      // 'email',
       'role',
-      'token',
       'gereja_id',
       'gereja_nama',
       'kelompok_id',
@@ -318,6 +323,8 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
     for (final key in keys) {
       userData[key] = prefs.getString(key) ?? '';
     }
+    userData['token'] = token ?? '';
+    userData['email'] = email ?? '';
     if (!mounted) return;
     setState(() {
       _dataUser = userData;

@@ -1,6 +1,7 @@
 import 'dart:convert'; // Tambahkan jika belum ada
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemNavigator;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
@@ -38,6 +39,8 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
 
   DateTime? _lastBackPressed;
 
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+
   @override
   void initState() {
     print('[SCREEN]AnggotaGroupMainScreen initState');
@@ -64,13 +67,15 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
   }
 
   Future<void> loadUserData() async {
+    final token = await secureStorage.read(key: 'token');
+    final email = await secureStorage.read(key: 'email');
     final prefs = await SharedPreferences.getInstance();
     final keys = [
       'id',
       'username',
-      'email',
+      // 'token',
+      // 'email',
       'role',
-      'token',
       'gereja_id',
       'gereja_nama',
       'kelompok_id',
@@ -80,6 +85,9 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
     for (final key in keys) {
       userData[key] = prefs.getString(key) ?? '';
     }
+    userData['token'] = token ?? '';
+    userData['email'] = email ?? '';
+
     if (!mounted) return;
     setState(() {
       _dataUser = userData;
@@ -104,7 +112,7 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
     }
 
     try {
-      final response = await ApiService.getAnggotaGroup(context, groupId);
+      final response = await ApiService().getAnggotaGroup(context, groupId);
       await prefs.setString(anggotaKey, jsonEncode(response));
       setState(() {
         nama = response['nama_gereja'];

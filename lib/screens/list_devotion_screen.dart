@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:html/dom.dart' as dom show Element;
 import 'package:html/parser.dart' as html_parser show parse;
 import 'package:http/http.dart' as http show get;
@@ -22,6 +23,8 @@ class _ListDevotionScreenState extends State<ListDevotionScreen> {
   int day = 1;
   Map<String, String> _dataUser = {};
   List<Map<String, dynamic>> _devotionList = [];
+
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
   @override
   void initState() {
@@ -46,13 +49,15 @@ class _ListDevotionScreenState extends State<ListDevotionScreen> {
   }
 
   Future<void> loadUserData() async {
+    final token = await secureStorage.read(key: 'token');
+    final email = await secureStorage.read(key: 'email');
     final prefs = await SharedPreferences.getInstance();
     final keys = [
       'id',
       'username',
-      'email',
+      // 'token',
+      // 'email',
       'role',
-      'token',
       'gereja_id',
       'gereja_nama',
       'kelompok_id',
@@ -62,6 +67,8 @@ class _ListDevotionScreenState extends State<ListDevotionScreen> {
     for (final key in keys) {
       userData[key] = prefs.getString(key) ?? '';
     }
+    userData['token'] = token ?? '';
+    userData['email'] = email ?? '';
     if (!mounted) return;
     setState(() {
       _dataUser = userData;
@@ -92,7 +99,7 @@ class _ListDevotionScreenState extends State<ListDevotionScreen> {
         }
       }
 
-      final devotionList = await ApiService.getMorningDevotion(context);
+      final devotionList = await ApiService().getMorningDevotion(context);
       // Fetch meta tags untuk semua devotion sekaligus
       final devotionWithMeta = await Future.wait(
         devotionList.map((devotion) async {

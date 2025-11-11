@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_cropper/image_cropper.dart'
     show
@@ -31,6 +32,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   bool _isLoading = true;
   String avatar = '';
 
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+
   @override
   void initState() {
     super.initState();
@@ -56,20 +59,23 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   }
 
   Future<void> loadUserData() async {
+    final token = await secureStorage.read(key: 'token');
+    final email = await secureStorage.read(key: 'email');
+    final secret = await secureStorage.read(key: 'secret');
     final prefs = await SharedPreferences.getInstance();
     final keys = [
       'id',
       'username',
       'nama',
-      'email',
+      // 'token',
+      // 'email',
+      // 'secret',
       'role',
-      'token',
       'gereja_id',
       'gereja_nama',
       'kelompok_id',
       'kelompok_nama',
       'kamar',
-      'secret',
       'status_datang',
       'avatar',
     ];
@@ -77,6 +83,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     for (final key in keys) {
       userData[key] = prefs.getString(key) ?? '';
     }
+    userData['token'] = token ?? '';
+    userData['email'] = email ?? '';
+    userData['secret'] = secret ?? '';
     if (!mounted) return;
     setState(() {
       _dataUser = userData;
@@ -141,7 +150,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
         // Upload ke API setelah crop, compress, dan validasi
         try {
-          await ApiService.postAvatar(
+          await ApiService().postAvatar(
             context,
             file.path,
             body: {'user_id': _dataUser['id'] ?? ''},
@@ -198,7 +207,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     if (forceRefresh || !file.existsSync()) {
       print('[AVATAR] Ambil dari API...');
       try {
-        final avatarUrl = await ApiService.getAvatarById(context, userId);
+        final avatarUrl = await ApiService().getAvatarById(context, userId);
         String fullAvatarUrl = avatarUrl;
         if (avatarUrl.isNotEmpty && !avatarUrl.startsWith('http')) {
           // Ganti dengan domain server Anda
@@ -271,7 +280,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       }
 
       // Jika belum ada data lokal atau user refresh, ambil dari API
-      final res = await ApiService.getStatusDatang(
+      final res = await ApiService().getStatusDatang(
         context,
         _dataUser['secret'] ?? '',
         _dataUser['email'] ?? '',

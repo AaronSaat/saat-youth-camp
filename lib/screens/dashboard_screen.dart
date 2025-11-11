@@ -5,6 +5,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:permission_handler/permission_handler.dart'
     as permission_handler;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -80,6 +81,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ScrollController _acaraStatisHari2Controller = ScrollController();
   ScrollController _acaraStatisHari3Controller = ScrollController();
   ScrollController _acaraStatisHari4Controller = ScrollController();
+
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
   //static data
   final List<Map<String, dynamic>> acaraStatisHari1 = [
@@ -475,17 +478,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> loadUserData({bool forceRefresh = false}) async {
     if (!mounted) return;
     setState(() {});
+    final token = await secureStorage.read(key: 'token');
+    final email = await secureStorage.read(key: 'email');
     final prefs = await SharedPreferences.getInstance();
     final keys = [
       'id',
       'username',
       'nama',
       'divisi',
-      'email',
+      // 'token',
+      // 'email',
       'group_id',
       'role',
       'count_roles',
-      'token',
       'gereja_id',
       'gereja_nama',
       'kelompok_id',
@@ -497,6 +502,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     for (final key in keys) {
       userData[key] = prefs.getString(key) ?? '';
     }
+    userData['token'] = token ?? '';
+    userData['email'] = email ?? '';
 
     // Jika forceRefresh, ambil data kamar & kelompok dari API, update shared pref
     // khusus bagi yang bukan Panitia saja (karena Panitia tidak punya kelompok & kamar)
@@ -507,7 +514,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         role = 'Pembimbing';
       }
       if (userId.isNotEmpty) {
-        final response = await ApiService.getInfoKamarKelompok(
+        final response = await ApiService().getInfoKamarKelompok(
           context,
           userId,
           role,
@@ -627,7 +634,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     // Fetch dari API
-    final response = await ApiService.getBrmTenDays(
+    final response = await ApiService().getBrmTenDays(
       context,
       _dataUser['id'] ?? '',
     );
@@ -750,7 +757,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
 
     try {
-      final acaraList = await ApiService.getAcara(context);
+      final acaraList = await ApiService().getAcara(context);
       if (!mounted) return;
       setState(() {
         _acaraListAll = acaraList;
@@ -877,7 +884,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             print(
               'Skipping evaluasi scheduling for user role "$roleLower" (acara $acaraIdStr)',
             );
-          } else if (scheduledEval.isAfter(now)) {
+          } else if (acara['is_eval'].toString() == '1' &&
+              scheduledEval.isAfter(now)) {
             final baseUser =
                 int.tryParse(userId) ?? (now.millisecondsSinceEpoch ~/ 1000);
             final reminderId =
@@ -885,9 +893,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 (acaraIdNum.abs() % 100000);
             final evalId = reminderId + 1000000; // offset for evaluasi
 
-            final titleEval = '📝 Waktu Evaluasi';
+            final titleEval = '📝 Waktu Mengisi Evaluasi';
             final bodyEval =
-                'Silakan isi evaluasi untuk acara: ${acara['acara_nama'] ?? 'Acara'}';
+                'Jangan lupa mengisi evaluasi untuk acara: ${acara['acara_nama'] ?? 'Acara'}';
 
             await _notificationService.scheduledNotification(
               id: evalId,
@@ -937,7 +945,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
 
     try {
-      final komitmenList = await ApiService.getKomitmen(context);
+      final komitmenList = await ApiService().getKomitmen(context);
       if (!mounted) return;
       setState(() {
         _komitmenListAll = komitmenList;
@@ -1084,7 +1092,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     try {
-      final pengumumanList = await ApiService.getPengumumanNotRead(
+      final pengumumanList = await ApiService().getPengumumanNotRead(
         context,
         userId,
       );
@@ -1119,7 +1127,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _isLoading = true;
     });
     try {
-      final komitmenList = await ApiService.getKomitmen(context);
+      final komitmenList = await ApiService().getKomitmen(context);
       print('HEI Komitmen List: $komitmenList');
       final todayStr = GlobalVariables.today.toIso8601String().substring(0, 10);
       for (final item in komitmenList) {
@@ -1140,7 +1148,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       print('❌ HEI Gagal memuat daftar komitmen untuk menentukan day: $e');
     }
     try {
-      final komitmenProgress = await ApiService.getKomitmenByPesertaByDay(
+      final komitmenProgress = await ApiService().getKomitmenByPesertaByDay(
         context,
         _dataUser['id'],
         day,
@@ -1167,7 +1175,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() {});
     print('Checking status datang... $statusDatang');
     try {
-      final res = await ApiService.getStatusDatang(
+      final res = await ApiService().getStatusDatang(
         context,
         _dataUser['secret'] ?? '',
         _dataUser['email'] ?? '',
@@ -1371,7 +1379,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     try {
-      final result = await ApiService.saveUserDevice(
+      final result = await ApiService().saveUserDevice(
         userId: prefs.getInt('id')?.toString() ?? '',
         username: prefs.getString('username') ?? '',
         fcmToken: fcm_token,
@@ -1409,7 +1417,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final nama = _dataUser['nama'] ?? '-';
     final kelompok = _dataUser['kelompok_nama'] ?? '-';
     final status_datang = _dataUser['status_datang'] ?? '-';
-    print(' AAAAA Status Datang: $status_datang');
     final kamar = _dataUser['kamar'] ?? '-';
 
     return PopScope(
@@ -1750,11 +1757,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                                       try {
                                         final komitmenProgress =
-                                            await ApiService.getKomitmenByPesertaByDay(
-                                              context,
-                                              userId,
-                                              targetDay,
-                                            );
+                                            await ApiService()
+                                                .getKomitmenByPesertaByDay(
+                                                  context,
+                                                  userId,
+                                                  targetDay,
+                                                );
                                         final done =
                                             komitmenProgress['success'] ??
                                             false;
@@ -1977,11 +1985,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                                       try {
                                         final komitmenProgress =
-                                            await ApiService.getKomitmenByPesertaByDay(
-                                              context,
-                                              userId,
-                                              targetDay,
-                                            );
+                                            await ApiService()
+                                                .getKomitmenByPesertaByDay(
+                                                  context,
+                                                  userId,
+                                                  targetDay,
+                                                );
                                         final done =
                                             komitmenProgress['success'] ??
                                             false;
@@ -2206,11 +2215,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                                       try {
                                         final komitmenProgress =
-                                            await ApiService.getKomitmenByPesertaByDay(
-                                              context,
-                                              userId,
-                                              targetDay,
-                                            );
+                                            await ApiService()
+                                                .getKomitmenByPesertaByDay(
+                                                  context,
+                                                  userId,
+                                                  targetDay,
+                                                );
                                         final done =
                                             komitmenProgress['success'] ??
                                             false;

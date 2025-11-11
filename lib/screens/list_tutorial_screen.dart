@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemNavigator;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:html/dom.dart' as dom show Element;
 import 'package:html/parser.dart' as html_parser show parse;
 import 'package:http/http.dart' as http show get;
@@ -25,6 +26,8 @@ class _ListTutorialScreenState extends State<ListTutorialScreen> {
   Map<String, String> _dataUser = {};
   List<Map<String, dynamic>> _tutorialList = [];
 
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+
   @override
   void initState() {
     super.initState();
@@ -48,13 +51,15 @@ class _ListTutorialScreenState extends State<ListTutorialScreen> {
   }
 
   Future<void> loadUserData() async {
+    final token = await secureStorage.read(key: 'token');
+    final email = await secureStorage.read(key: 'email');
     final prefs = await SharedPreferences.getInstance();
     final keys = [
       'id',
       'username',
-      'email',
+      // 'token',
+      // 'email',
       'role',
-      'token',
       'gereja_id',
       'gereja_nama',
       'kelompok_id',
@@ -64,6 +69,8 @@ class _ListTutorialScreenState extends State<ListTutorialScreen> {
     for (final key in keys) {
       userData[key] = prefs.getString(key) ?? '';
     }
+    userData['token'] = token ?? '';
+    userData['email'] = email ?? '';
     if (!mounted) return;
     setState(() {
       _dataUser = userData;
@@ -94,7 +101,7 @@ class _ListTutorialScreenState extends State<ListTutorialScreen> {
         }
       }
 
-      final tutorialList = await ApiService.getTutorial(context);
+      final tutorialList = await ApiService().getTutorial(context);
       // Fetch meta tags untuk semua tutorial sekaligus
       final tutorialWithMeta = await Future.wait(
         tutorialList.map((tutorial) async {

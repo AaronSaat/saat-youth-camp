@@ -37,7 +37,7 @@ class _HapusAkunDetailScreenState extends State<HapusAkunDetailScreen> {
       };
       print('Submitting hapus akun: $hapusAkunData');
       try {
-        final result = await ApiService.postHapusAkun(context, hapusAkunData);
+        final result = await ApiService().postHapusAkun(context, hapusAkunData);
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
@@ -159,6 +159,9 @@ class _HapusAkunDetailScreenState extends State<HapusAkunDetailScreen> {
                                           '2. Progres bacaan harian pengguna dan catatannya\n'
                                           '3. Foto profil pengguna\n'
                                           '4. Progres membaca pengumuman oleh pengguna\n\n'
+                                          'Berikut data yang tidak dihapus di sistem:\n\n'
+                                          '1. Progres jawaban evaluasi oleh peserta\n'
+                                          '2. Progres jawaban komitmen oleh peserta\n\n'
                                           'Data yang telah dihapus tidak dapat dipulihkan. Anda perlu melakukan pendaftaran kembali menggunakan email dan secret code untuk menggunakan aplikasi SAAT Youth Camp.\n',
                                           style: TextStyle(
                                             color: AppColors.primary,

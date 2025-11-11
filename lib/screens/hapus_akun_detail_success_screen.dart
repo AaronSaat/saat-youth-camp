@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import '../utils/app_colors.dart';
@@ -9,6 +10,8 @@ class HapusAkunDetailSuccessScreen extends StatelessWidget {
   final String name;
   final bool isSuccess;
 
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+
   const HapusAkunDetailSuccessScreen({
     super.key,
     required this.name,
@@ -18,6 +21,9 @@ class HapusAkunDetailSuccessScreen extends StatelessWidget {
   Future<void> _logout(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+    print('Shared prefs cleared on account deletion.');
+    await secureStorage.deleteAll();
+    print('Secure storage cleared on account deletion.');
 
     // Hapus semua file gambar yang sudah didownload lokal (misal di direktori cache/app)
     // (Contoh: hapus semua file di direktori temporary dan application documents)

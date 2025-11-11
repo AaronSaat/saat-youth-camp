@@ -1,5 +1,6 @@
 import 'dart:convert'; // Tambahkan jika belum ada
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
 import 'package:syc/screens/bible_share_verse_screen.dart';
@@ -48,6 +49,8 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
   int? _countUserDoneRead;
   int? _totalUser;
 
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+
   @override
   void initState() {
     super.initState();
@@ -70,13 +73,15 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
   }
 
   Future<void> loadUserData() async {
+    final token = await secureStorage.read(key: 'token');
+    final email = await secureStorage.read(key: 'email');
     final prefs = await SharedPreferences.getInstance();
     final keys = [
       'id',
       'username',
-      'email',
+      // 'token',
+      // 'email',
       'role',
-      'token',
       'gereja_id',
       'gereja_nama',
       'kelompok_id',
@@ -86,6 +91,8 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
     for (final key in keys) {
       userData[key] = prefs.getString(key) ?? '';
     }
+    userData['token'] = token ?? '';
+    userData['email'] = email ?? '';
     if (!mounted) return;
     setState(() {
       _dataUser = userData;
@@ -129,7 +136,7 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
     try {
       // final response = await ApiService.getBrmToday(context);
       print('[API] Memuat BRM hari ini... $date');
-      final response = await ApiService.getBrmByDay(context, date);
+      final response = await ApiService().getBrmByDay(context, date);
       await prefs.setString(brmKey, jsonEncode(response));
       setState(() {
         _dataBible = response['data_bible'] as Map<String, dynamic>?;
@@ -156,7 +163,7 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
 
   Future<void> loadReportBrmReportByPesertaByDay() async {
     try {
-      final report = await ApiService.getBrmReportByPesertaByDay(
+      final report = await ApiService().getBrmReportByPesertaByDay(
         context,
         widget.userId,
         widget.date.toIso8601String().substring(0, 10),
@@ -215,8 +222,8 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
     }
     try {
       print('[loadCount] Memuat data dari API...');
-      final response = await ApiService.getCountUser(context);
-      final dataBacaan = await ApiService.getCountBrmReportByDay(
+      final response = await ApiService().getCountUser(context);
+      final dataBacaan = await ApiService().getCountBrmReportByDay(
         context,
         dateKey,
       );
@@ -279,11 +286,11 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
               };
 
               try {
-                final res1 = await ApiService.postBrmDoneRead(
+                final res1 = await ApiService().postBrmDoneRead(
                   context,
                   brmDoneRead,
                 );
-                final res2 = await ApiService.postBrmNotes(context, brmNotes);
+                final res2 = await ApiService().postBrmNotes(context, brmNotes);
                 print('VANILLA res1: $res1');
                 print('VANILLA res2: $res2');
 
@@ -349,7 +356,7 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
               };
 
               try {
-                final res2 = await ApiService.putBrmNotes(context, brmNotes);
+                final res2 = await ApiService().putBrmNotes(context, brmNotes);
                 print('VANILLA res2: $res2');
 
                 if (res2['success'] == true) {

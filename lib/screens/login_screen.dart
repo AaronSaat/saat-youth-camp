@@ -1,6 +1,7 @@
 // lib/screens/login_screen3.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -27,6 +28,8 @@ class _LoginScreenState extends State<LoginScreen> {
   String errorMessage = '';
   String _buildVersion = '';
   String _buildNumber = '';
+
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
   @override
   void initState() {
@@ -57,18 +60,28 @@ class _LoginScreenState extends State<LoginScreen> {
     String kelompok_id,
     String kelompok_nama,
     String kamar,
+    String secret,
     String status_datang,
   ) async {
+    await secureStorage.deleteAll();
+    await secureStorage.write(key: 'token', value: token);
+    await secureStorage.write(key: 'email', value: email);
+    await secureStorage.write(key: 'secret', value: secret);
+
+    print('Data token from secure storage: ' + token);
+    print('Data email from secure storage: ' + email);
+    print('Data email from secure storage: ' + email);
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('id', id);
     await prefs.setString('username', username);
     await prefs.setString('nama', nama);
     await prefs.setString('divisi', divisi);
-    await prefs.setString('email', email);
+    // await prefs.setString('token', token);
+    // await prefs.setString('email', email);
     await prefs.setString('group_id', group_id); //ga dipake
     await prefs.setString('role', role);
     await prefs.setString('count_roles', count_roles);
-    await prefs.setString('token', token);
     await prefs.setString('gereja_id', gereja_id);
     await prefs.setString('gereja_nama', gereja_nama);
     await prefs.setString('kelompok_id', kelompok_id);
@@ -80,11 +93,11 @@ class _LoginScreenState extends State<LoginScreen> {
     print('username: $username');
     print('nama: $nama');
     print('divisi: $divisi');
-    print('email: $email');
+    // print('token: $token');
+    // print('email: $email');
     print('group_id: $group_id');
     print('role: $role');
     print('count_roles: $count_roles');
-    print('token: $token');
     print('gereja_id: $gereja_id');
     print('gereja_nama: $gereja_nama');
     print('kelompok_id: $kelompok_id');
@@ -126,6 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
           response['user']['kelompok']?['nama_kelompok'] ??
               'Tidak ada kelompok',
           response['user']['kamar'] ?? 'Tidak ada kamar',
+          response['user']['secret'] ?? 'Null',
           response['user']['status_datang'] ?? 'Null',
         );
 

@@ -51,7 +51,7 @@ class _ListGroupScreenState extends State<ListGroupScreen> {
         }
       }
 
-      final groupList = await ApiService.getGroup(context);
+      final groupList = await ApiService().getGroup(context);
       await prefs.setString(groupKey, jsonEncode(groupList));
       if (!mounted) return;
       setState(() {

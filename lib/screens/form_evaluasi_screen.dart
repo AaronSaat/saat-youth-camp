@@ -62,7 +62,7 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
     setState(() => _isLoading = true);
     print('AARON Load Form Evaluasi');
     try {
-      final evaluasi = await ApiService.getEvaluasiByAcara(
+      final evaluasi = await ApiService().getEvaluasiByAcara(
         context,
         widget.acaraHariId,
       );

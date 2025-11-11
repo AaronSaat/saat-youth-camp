@@ -1,5 +1,6 @@
 import 'dart:convert'; // Tambahkan jika belum ada
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/screens/form_evaluasi_screen.dart';
 import 'package:shimmer/shimmer.dart';
@@ -37,6 +38,8 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
   late DateTime _today;
   late TimeOfDay _timeOfDay;
   late DateTime _now;
+
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
   @override
   void initState() {
@@ -113,12 +116,12 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
     }
 
     try {
-      final acaraList = await ApiService.getAcaraByDay(context, day);
+      final acaraList = await ApiService().getAcaraByDay(context, day);
       _acaraIdList = acaraList.map((acara) => acara['id']).toList();
       _evaluasiDoneList = List.filled(acaraList.length, false);
       for (int i = 0; i < _evaluasiDoneList.length; i++) {
         try {
-          final result = await ApiService.getEvaluasiByPesertaByAcara(
+          final result = await ApiService().getEvaluasiByPesertaByAcara(
             context,
             widget.userId,
             _acaraIdList[i],
@@ -166,8 +169,8 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
     }
 
     try {
-      final countAcara = await ApiService.getAcaraCount(context);
-      final countAcaraAll = await ApiService.getAcaraCountAll(context);
+      final countAcara = await ApiService().getAcaraCount(context);
+      final countAcaraAll = await ApiService().getAcaraCountAll(context);
       await prefs.setInt(countAcaraKey, countAcara);
       await prefs.setInt(countAcaraAllKey, countAcaraAll);
       if (!mounted) return;
@@ -182,13 +185,15 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
   }
 
   Future<void> loadUserData() async {
+    final token = await secureStorage.read(key: 'token');
+    final email = await secureStorage.read(key: 'email');
     final prefs = await SharedPreferences.getInstance();
     final keys = [
       'id',
       'username',
-      'email',
+      // 'token',
+      // 'email',
       'role',
-      'token',
       'gereja_id',
       'gereja_nama',
       'kelompok_id',
@@ -198,6 +203,8 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
     for (final key in keys) {
       userData[key] = prefs.getString(key) ?? '';
     }
+    userData['token'] = token ?? '';
+    userData['email'] = email ?? '';
     if (!mounted) return;
     setState(() {
       _dataUser = userData;

@@ -44,7 +44,7 @@ class _FormKomitmenScreenState extends State<FormKomitmenScreen> {
   void loadKomitmen() async {
     setState(() => _isLoading = true);
     try {
-      final komitmen = await ApiService.getKomitmenByDay(
+      final komitmen = await ApiService().getKomitmenByDay(
         context,
         widget.acaraHariId,
       );

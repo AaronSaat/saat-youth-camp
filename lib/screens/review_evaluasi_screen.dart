@@ -37,7 +37,7 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
   void _loadEvaluasi() async {
     setState(() => _isLoading = true);
     try {
-      final evaluasi = await ApiService.getEvaluasiByAcara(
+      final evaluasi = await ApiService().getEvaluasiByAcara(
         context,
         widget.acaraHariId,
       );
@@ -144,7 +144,7 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
     print('Submitting answers: $evaluasiAnswer');
     // Kirim ke API
     try {
-      await ApiService.postEvaluasiAnswer(context, evaluasiAnswer);
+      await ApiService().postEvaluasiAnswer(context, evaluasiAnswer);
       if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(

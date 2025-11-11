@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
 import 'package:package_info_plus/package_info_plus.dart' show PackageInfo;
 import 'package:syc/screens/pengumuman_list_screen.dart';
-import 'package:timezone/timezone.dart';
 import 'package:url_launcher/url_launcher.dart'
     show canLaunchUrl, LaunchMode, launchUrl;
-
 import '../services/api_service.dart';
 import '../utils/app_colors.dart';
 import 'login_screen.dart';
 import 'main_screen.dart';
-import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -44,7 +42,9 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _textFadeAnimation;
 
   bool _isCheckingToken = false;
-  bool _isCheckingVersion = false; // Tambahkan ini
+  bool _isCheckingVersion = false;
+
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
   @override
   void initState() {
@@ -96,8 +96,11 @@ class _SplashScreenState extends State<SplashScreen>
     setState(() => _isCheckingVersion = false);
 
     // Lanjut cek token (existing code)
-    final prefs = await SharedPreferences.getInstance();
-    final getToken = prefs.getString('token');
+    // final prefs = await SharedPreferences.getInstance();
+    // final getToken = prefs.getString('token');
+
+    final getToken = await secureStorage.read(key: 'token');
+    print('Data token from secure storage: $getToken');
 
     if (getToken != null && getToken.isNotEmpty) {
       setState(() => _isCheckingToken = true); // <-- Mulai loading
@@ -237,6 +240,8 @@ class _SplashScreenState extends State<SplashScreen>
       final prefs = await SharedPreferences.getInstance();
       await prefs.clear();
       print('SharedPreferences cleared due to version mismatch.');
+      await secureStorage.deleteAll();
+      print('Secure storage cleared due to version mismatch.');
 
       // Hapus semua file gambar yang sudah didownload lokal (misal di direktori cache/app)
       try {

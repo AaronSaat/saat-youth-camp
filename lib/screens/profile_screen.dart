@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -62,6 +63,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Map<String, String> _komitmenDoneDay3MapPanitia = {};
   Map<String, String> _countUserMapPanitia = {};
 
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+
   @override
   void initState() {
     _lastBackPressed = null;
@@ -117,17 +120,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       _isLoading_userdata = true;
     });
+    final token = await secureStorage.read(key: 'token');
+    final email = await secureStorage.read(key: 'email');
     final prefs = await SharedPreferences.getInstance();
     final keys = [
       'id',
       'username',
       'nama',
       'divisi',
-      'email',
+      // 'token',
+      // 'email',
       'group_id',
       'role',
       'count_roles',
-      'token',
       'gereja_id',
       'gereja_nama',
       'kelompok_id',
@@ -139,6 +144,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     for (final key in keys) {
       userData[key] = prefs.getString(key) ?? '';
     }
+    userData['token'] = token ?? '';
+    userData['email'] = email ?? '';
 
     // Jika forceRefresh, ambil data kamar & kelompok dari API, update shared pref
     if (forceRefresh) {
@@ -148,7 +155,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         role = 'Pembimbing';
       }
       if (userId.isNotEmpty) {
-        final response = await ApiService.getInfoKamarKelompok(
+        final response = await ApiService().getInfoKamarKelompok(
           context,
           userId,
           role,
@@ -262,12 +269,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
 
       // Jika forceRefresh atau belum ada di shared pref, fetch dari API
-      final komitmenList = await ApiService.getCountKomitmenAnsweredByPeserta(
+      final komitmenList = await ApiService().getCountKomitmenAnsweredByPeserta(
         context,
         userId,
       );
-      final komitmen = await ApiService.getKomitmen(context);
-
+      final komitmen = await ApiService().getKomitmen(context);
       komitmenDoneMap = komitmenList.map(
         (key, value) => MapEntry(key.toString(), value.toString()),
       );
@@ -330,13 +336,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
 
       // Jika forceRefresh atau belum ada di shared pref, fetch dari API
-      final evaluasiList = await ApiService.getCountEvaluasiAnsweredByPeserta(
+      final evaluasiList = await ApiService().getCountEvaluasiAnsweredByPeserta(
         context,
         userId,
       );
-      final acaraList = await ApiService.getAcara(context);
+      final acaraList = await ApiService().getAcara(context);
 
-      final countEval = await ApiService.getAcaraEvalCount(context);
+      final countEval = await ApiService().getAcaraEvalCount(context);
 
       evaluasiDoneMap = evaluasiList.map(
         (key, value) => MapEntry(key.toString(), value.toString()),
@@ -379,7 +385,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (forceRefresh || !file.existsSync()) {
       print('[AVATAR] Ambil dari API...');
       try {
-        final avatarUrl = await ApiService.getAvatarById(context, userId);
+        final avatarUrl = await ApiService().getAvatarById(context, userId);
         String fullAvatarUrl = avatarUrl;
         if (avatarUrl.isNotEmpty && !avatarUrl.startsWith('http')) {
           // Ganti dengan domain server Anda
@@ -454,7 +460,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
       }
 
-      final _countUser = await ApiService.getCountUser(context);
+      final _countUser = await ApiService().getCountUser(context);
       countUserMap = _countUser.map(
         (key, value) => MapEntry(key.toString(), value.toString()),
       );
@@ -493,7 +499,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
       }
 
-      final _countKomitmen = await ApiService.getCountKomitmenAnsweredByDay(
+      final _countKomitmen = await ApiService().getCountKomitmenAnsweredByDay(
         context,
         "1",
       );
@@ -538,7 +544,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
       }
 
-      final _countKomitmen = await ApiService.getCountKomitmenAnsweredByDay(
+      final _countKomitmen = await ApiService().getCountKomitmenAnsweredByDay(
         context,
         "2",
       );
@@ -583,7 +589,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
       }
 
-      final _countKomitmen = await ApiService.getCountKomitmenAnsweredByDay(
+      final _countKomitmen = await ApiService().getCountKomitmenAnsweredByDay(
         context,
         "3",
       );
@@ -607,6 +613,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
     print('SharedPreferences cleared due to version mismatch.');
+    await secureStorage.deleteAll();
+    print('Secure storage cleared due to version mismatch.');
 
     // Hapus semua file gambar yang sudah didownload lokal (misal di direktori cache/app)
     // (Contoh: hapus semua file di direktori temporary dan application documents)

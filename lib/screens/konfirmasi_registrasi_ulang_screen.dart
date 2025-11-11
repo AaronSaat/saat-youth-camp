@@ -82,7 +82,10 @@ class _KonfirmasiRegistrasiUlangScreenState
       }
       // Dekripsi secret
       final decryptedSecret = decryptSecret(secret);
-      final res = await ApiService.getDataKonfirmasi(context, decryptedSecret);
+      final res = await ApiService().getDataKonfirmasi(
+        context,
+        decryptedSecret,
+      );
       if (res['success'] == true && res['data'] != null) {
         setState(() {
           _dataKonfirmasi = Map<String, dynamic>.from(res['data']);
@@ -213,7 +216,7 @@ class _KonfirmasiRegistrasiUlangScreenState
                               ? '2'
                               : widget.metode,
                     };
-                    final result = await ApiService.postKonfirmasiDatang(
+                    final result = await ApiService().postKonfirmasiDatang(
                       context,
                       body,
                     );

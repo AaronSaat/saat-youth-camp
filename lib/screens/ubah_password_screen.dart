@@ -60,7 +60,7 @@ class _UbahPasswordScreenState extends State<UbahPasswordScreen> {
       return;
     }
     try {
-      final response = await ApiService.ubahPassword(
+      final response = await ApiService().ubahPassword(
         widget.userId,
         passwordSekarangController.text,
         passwordBaruController.text,

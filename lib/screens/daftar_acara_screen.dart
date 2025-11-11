@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemNavigator;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:syc/utils/app_colors.dart';
@@ -30,6 +31,8 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
   // DateTime _today = DateTime(2026, 01, 01);
   late DateTime _today;
   // [DEVELOPMENT NOTES] nanti hapus
+
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
   @override
   void initState() {
@@ -84,7 +87,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
       }
 
       // Jika forceRefresh atau belum ada di shared pref, fetch dari API
-      final acaraList = await ApiService.getAcaraByDay(context, day);
+      final acaraList = await ApiService().getAcaraByDay(context, day);
       if (!mounted) return;
       setState(() {
         print('[PREF_API] Fetched acara from API for day $day');
@@ -122,7 +125,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
 
     if (forceRefresh || tanggalList.isEmpty) {
       // Jika forceRefresh atau belum ada di shared pref, fetch dari API
-      final tanggalListResponse = await ApiService.getTanggalAcara(context);
+      final tanggalListResponse = await ApiService().getTanggalAcara(context);
       if (tanggalListResponse.isNotEmpty) {
         if (tanggalListResponse[0] is List) {
           tanggalList = tanggalListResponse[0];
@@ -183,7 +186,7 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
     if (forceRefresh || countAcara == null) {
       // Jika forceRefresh atau belum ada di shared pref, fetch dari API
       try {
-        final apiCountAcara = await ApiService.getAcaraCount(context);
+        final apiCountAcara = await ApiService().getAcaraCount(context);
         if (!mounted) return;
         setState(() {
           _countAcara = apiCountAcara;
@@ -205,13 +208,15 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
   }
 
   Future<void> loadUserData() async {
+    final token = await secureStorage.read(key: 'token');
+    final email = await secureStorage.read(key: 'email');
     final prefs = await SharedPreferences.getInstance();
     final keys = [
       'id',
       'username',
-      'email',
+      // 'token',
+      // 'email',
       'role',
-      'token',
       'gereja_id',
       'gereja_nama',
       'kelompok_id',
@@ -221,6 +226,8 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
     for (final key in keys) {
       userData[key] = prefs.getString(key) ?? '';
     }
+    userData['token'] = token ?? '';
+    userData['email'] = email ?? '';
     if (!mounted) return;
     setState(() {
       _dataUser = userData;

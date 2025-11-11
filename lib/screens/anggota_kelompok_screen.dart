@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
@@ -36,6 +37,8 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
   bool _isLoading = true;
   Map<String, String> _dataUser = {};
 
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+
   // control whether the full info card is shown or shrunk
   bool _showInfoCard = true;
 
@@ -70,13 +73,15 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
   }
 
   Future<void> loadUserData() async {
+    final token = await secureStorage.read(key: 'token');
+    final email = await secureStorage.read(key: 'email');
     final prefs = await SharedPreferences.getInstance();
     final keys = [
       'id',
       'username',
-      'email',
+      // 'token',
+      // 'email',
       'role',
-      'token',
       'gereja_id',
       'gereja_nama',
       'kelompok_id',
@@ -86,6 +91,8 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
     for (final key in keys) {
       userData[key] = prefs.getString(key) ?? '';
     }
+    userData['token'] = token ?? '';
+    userData['email'] = email ?? '';
     if (!mounted) return;
     setState(() {
       _dataUser = userData;
@@ -113,7 +120,7 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
       }
     }
 
-    final response = await ApiService.getAnggotaKelompok(context, kelompokId);
+    final response = await ApiService().getAnggotaKelompok(context, kelompokId);
     await prefs.setString(anggotaKey, jsonEncode(response));
     if (!mounted) return;
     setState(() {
@@ -185,7 +192,6 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final role = _dataUser['role'] ?? '-';
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -717,7 +723,7 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                             } else {
                               showCustomSnackBar(
                                 context,
-                                'Konfirmasi dilakukan oleh pembimbing kelompok. Jika kamu double role, switch to Pembimbing Kelompok di halaman profile',
+                                'Konfirmasi dilakukan oleh salah satu pembimbing kelompok. Jika kamu double role, switch to Pembimbing Kelompok di halaman profile',
                                 duration: const Duration(seconds: 3),
                               );
                             }
@@ -1241,7 +1247,7 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                           onTap: () {
                             showCustomSnackBar(
                               context,
-                              'Konfirmasi dilakukan oleh pembimbing kelompok. Jika kamu double role, switch to Pembimbing Kelompok di halaman profile',
+                              'Konfirmasi dilakukan oleh salah satu pembimbing kelompok. Jika kamu double role, switch to Pembimbing Kelompok di halaman profile',
                               duration: const Duration(seconds: 3),
                             );
                           },

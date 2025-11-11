@@ -52,7 +52,7 @@ class _ListKelompokScreenState extends State<ListKelompokScreen> {
         }
       }
 
-      final kelompokList = await ApiService.getKelompok(context);
+      final kelompokList = await ApiService().getKelompok(context);
       await prefs.setString(kelompokKey, jsonEncode(kelompokList));
       if (!mounted) return;
       setState(() {

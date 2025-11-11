@@ -55,7 +55,7 @@ class _KontakPanitiaScreenState extends State<KontakPanitiaScreen> {
         }
       }
 
-      final dataPanitia = await ApiService.getPanitia(context);
+      final dataPanitia = await ApiService().getPanitia(context);
 
       await prefs.setString(panitiaKey, jsonEncode(dataPanitia));
       if (!mounted) return;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import '../utils/app_colors.dart';
@@ -11,6 +12,8 @@ class UbahPasswordSuccessScreen extends StatelessWidget {
   final String message;
   final String userId;
 
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+
   const UbahPasswordSuccessScreen({
     super.key,
     required this.isSuccess,
@@ -21,6 +24,9 @@ class UbahPasswordSuccessScreen extends StatelessWidget {
   Future<void> _logout(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+    print('Shared prefs cleared on password change.');
+    await secureStorage.deleteAll();
+    print('Secure storage cleared on password change.');
 
     // Hapus semua file gambar yang sudah didownload lokal (misal di direktori cache/app)
     // (Contoh: hapus semua file di direktori temporary dan application documents)

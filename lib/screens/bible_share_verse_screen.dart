@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
@@ -96,6 +97,8 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
   String _ayatFontFamily = 'Roboto';
   String _perikopFontFamily = 'Roboto';
 
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+
   @override
   void initState() {
     super.initState();
@@ -120,17 +123,19 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
   Future<void> loadUserData() async {
     if (!mounted) return;
     setState(() {});
+    final token = await secureStorage.read(key: 'token');
+    final email = await secureStorage.read(key: 'email');
     final prefs = await SharedPreferences.getInstance();
     final keys = [
       'id',
       'username',
       'nama',
       'divisi',
-      'email',
+      // 'token',
+      // 'email',
       'group_id',
       'role',
       'count_roles',
-      'token',
       'gereja_id',
       'gereja_nama',
       'kelompok_id',
@@ -140,6 +145,8 @@ class _BibleShareVerseScreenState extends State<BibleShareVerseScreen> {
     for (final key in keys) {
       userData[key] = prefs.getString(key) ?? '';
     }
+    userData['token'] = token ?? '';
+    userData['email'] = email ?? '';
     if (!mounted) return;
     setState(() {
       _dataUser = userData;

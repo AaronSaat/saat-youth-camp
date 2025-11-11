@@ -85,7 +85,7 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
       print(
         "Fetching data for date: ${_selectedDate.toIso8601String().substring(0, 10)}",
       );
-      final dataCatatan = await ApiService.getBrmNotesByDay(
+      final dataCatatan = await ApiService().getBrmNotesByDay(
         context,
         _selectedDate.toIso8601String().substring(0, 10),
         widget.id,
@@ -93,7 +93,7 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
         _pageSize,
       );
 
-      final dataBacaan = await ApiService.getCountBrmReportByDay(
+      final dataBacaan = await ApiService().getCountBrmReportByDay(
         context,
         _selectedDate.toIso8601String().substring(0, 10),
       );
@@ -129,7 +129,7 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
     if (!mounted) return;
     setState(() {});
     try {
-      final _countUser = await ApiService.getCountUser(context);
+      final _countUser = await ApiService().getCountUser(context);
       if (!mounted) return;
       setState(() {
         _countUserMapPanitia = _countUser.map(
@@ -181,7 +181,7 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
     if (_isLoadingMore || !_hasMore) return;
     setState(() => _isLoadingMore = true);
     try {
-      final newNotes = await ApiService.getBrmNotesByDay(
+      final newNotes = await ApiService().getBrmNotesByDay(
         context,
         _selectedDate.toIso8601String().substring(0, 10),
         widget.id,

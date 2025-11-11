@@ -37,7 +37,7 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
   void _loadKomitmen() async {
     setState(() => _isLoading = true);
     try {
-      final komitmen = await ApiService.getKomitmenByDay(
+      final komitmen = await ApiService().getKomitmenByDay(
         context,
         widget.acaraHariId,
       );
@@ -110,7 +110,7 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
     print('Submitting answers: $komitmenAnswer');
     // Kirim ke API
     try {
-      await ApiService.postKomitmenAnswer(context, komitmenAnswer);
+      await ApiService().postKomitmenAnswer(context, komitmenAnswer);
       if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
