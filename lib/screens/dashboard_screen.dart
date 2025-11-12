@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/main.dart';
 import 'package:syc/screens/form_komitmen_screen.dart';
 import 'package:syc/screens/list_devotion_screen.dart';
+import 'package:syc/screens/list_evaluasi_screen.dart';
 import 'package:syc/screens/list_tutorial_screen.dart';
 import 'package:syc/screens/main_screen.dart';
 import 'package:syc/screens/profile_edit_screen.dart';
@@ -761,7 +762,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (!mounted) return;
       setState(() {
         _acaraListAll = acaraList;
-        scheduleReminderDanEvaluasiNotificationsForUser(_dataUser['id'] ?? '');
+
+        // scheduleReminderDanEvaluasiNotificationsForUser(_dataUser['id'] ?? '');
+
         _isLoading = false;
         print('Acara List All: \n$_acaraListAll');
       });
@@ -960,7 +963,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         // } catch (e) {
         //   // ignore if cached values are not mutable
         // }
-        scheduleKomitmenNotificationsForUser(_dataUser['id'] ?? '');
+
+        // scheduleKomitmenNotificationsForUser(_dataUser['id'] ?? '');
+
         _isLoading = false;
         print('Komitmen List All: \n$_komitmenListAll');
       });
@@ -2385,6 +2390,92 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold,
                                               ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                ],
+                              ),
+                            ),
+
+                          // Kartu khusus reminder evaluasi keseluruhan: day 4 hour 12 - 24
+                          if (((day == 4 &&
+                                      _timeOfDay.hour >= 12 &&
+                                      _timeOfDay.hour < 24) ||
+                                  (GlobalVariables.today.year == 2026 &&
+                                      GlobalVariables.today.month == 1 &&
+                                      GlobalVariables.today.day == 2 &&
+                                      _timeOfDay.hour >= 12 &&
+                                      _timeOfDay.hour < 24)) &&
+                              role.toLowerCase().trim() == 'peserta')
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) => ListEvaluasiScreen(
+                                                userId: userId,
+                                              ),
+                                        ),
+                                      );
+                                    },
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Stack(
+                                      children: [
+                                        Container(
+                                          height: 180,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
+                                            image: const DecorationImage(
+                                              image: AssetImage(
+                                                'assets/images/card_dashboard_komitmen.png',
+                                              ),
+                                              fit: BoxFit.fill,
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.max,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                        right: 16.0,
+                                                        bottom: 16.0,
+                                                        left: 64,
+                                                      ),
+                                                  child: Text(
+                                                    'Jangan lupa mengisi semua evaluasi keseluruhan!',
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w900,
+                                                      color: Colors.white,
+                                                      fontSize: 16,
+                                                    ),
+                                                    textAlign: TextAlign.right,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ),

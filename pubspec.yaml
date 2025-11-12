@@ -113,6 +113,7 @@ flutter:
     - assets/texts/daftar_grup_gereja.png
     - assets/texts/materi.png
     - assets/texts/tutorial.png
+    - assets/texts/devotion.png
 
     # logos
     - assets/logos/appicon4.png #untuk share verse

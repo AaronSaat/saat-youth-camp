@@ -1692,6 +1692,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               width: double.infinity,
                               child: ElevatedButton.icon(
                                 onPressed: () {
+                                  if (role.toLowerCase().contains(
+                                        'pembimbing kelompok',
+                                      ) ||
+                                      role.toLowerCase().contains('panitia')) {
+                                    showCustomSnackBar(
+                                      context,
+                                      'Pembimbing Kelompok dan Panitia tidak bisa menghapus akunnya',
+                                    );
+                                    return;
+                                  }
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -2135,7 +2145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               );
                                               GlobalVariables
                                                   .timeOfDay = const TimeOfDay(
-                                                hour: 16,
+                                                hour: 12,
                                                 minute: 0,
                                               );
                                               _today = GlobalVariables.today;
@@ -2155,7 +2165,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             }
                                           },
                                           child: const Text(
-                                            '02-01-2026\n16:00',
+                                            '02-01-2026\n12:00',
                                             textAlign: TextAlign.center,
                                           ),
                                         ),

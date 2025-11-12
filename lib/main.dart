@@ -24,13 +24,56 @@ void main() async {
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
     // Navigasi ke screen sesuai data notifikasi
     final tujuan = message.data['tujuan']?.toString() ?? '';
-    final id = int.tryParse(message.data['id']?.toString() ?? '0') ?? 0;
+    final id = int.tryParse(message.data['acara_id']?.toString() ?? '0') ?? 0;
     final userId =
         int.tryParse(message.data['user_id']?.toString() ?? '0') ?? 0;
     print('Navigating with tujuan: $tujuan, id: $id, userId: $userId');
 
     switch (tujuan) {
       case 'pengumuman_list':
+        print('Navigating to Splash Screen First');
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder:
+                (_) => SplashScreen(
+                  fromNotification: true,
+                  tujuan: tujuan,
+                  id: id,
+                  userId: userId,
+                ),
+          ),
+        );
+        break;
+      case 'acara_list':
+        print('Navigating to Splash Screen First');
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder:
+                (_) => SplashScreen(
+                  fromNotification: true,
+                  tujuan: tujuan,
+                  id: id,
+                  userId: userId,
+                ),
+          ),
+        );
+
+        break;
+      case 'evaluasi_list':
+        print('Navigating to Splash Screen First');
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder:
+                (_) => SplashScreen(
+                  fromNotification: true,
+                  tujuan: tujuan,
+                  id: id,
+                  userId: userId,
+                ),
+          ),
+        );
+        break;
+      case 'dashboard':
         print('Navigating to Splash Screen First');
         navigatorKey.currentState?.push(
           MaterialPageRoute(

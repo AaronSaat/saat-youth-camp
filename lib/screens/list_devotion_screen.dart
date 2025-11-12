@@ -232,7 +232,7 @@ class _ListDevotionScreenState extends State<ListDevotionScreen> {
                             Padding(
                               padding: const EdgeInsets.only(left: 8),
                               child: Image.asset(
-                                'assets/texts/tutorial.png',
+                                'assets/texts/devotion.png',
                                 height: 72,
                               ),
                             ),

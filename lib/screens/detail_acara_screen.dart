@@ -473,8 +473,10 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                   _dataAcara?[0]["acara_nama"] ?? '-',
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
-        leading:
-            Navigator.canPop(context) ? BackButton(color: Colors.white) : null,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: Stack(
         children: [
@@ -615,124 +617,124 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                                 ),
                               ],
 
-                              if (Platform.isIOS) ...[
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 4.0,
-                                    vertical: 8.0,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      const Text(
-                                        'Pengingat notifikasi',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      const Spacer(),
-                                      // Two switches: Reminder (15m before) and Evaluasi (1h after)
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Column(
-                                            children: [
-                                              Text(
-                                                _notifReminderEnabled
-                                                    ? 'On'
-                                                    : 'Off',
-                                                style: const TextStyle(
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                              Switch.adaptive(
-                                                value: _notifReminderEnabled,
-                                                onChanged: (val) {
-                                                  _onReminderToggle(val);
-                                                },
-                                              ),
-                                              const SizedBox(height: 4),
-                                              const Text(
-                                                'Acara',
-                                                style: TextStyle(fontSize: 12),
-                                              ),
-                                            ],
-                                          ),
-                                          // Tampilkan switch "Evaluasi" hanya jika user adalah panitia
-                                          if (_userData != null &&
-                                              _userData!['role'] != null &&
-                                              (_userData!['role']!
-                                                      .toLowerCase()
-                                                      .contains('peserta') ||
-                                                  _userData!['role']!
-                                                      .toLowerCase()
-                                                      .contains('pembina')) &&
-                                              _dataAcara != null &&
-                                              _dataAcara!.isNotEmpty &&
-                                              _dataAcara![0]['is_eval']
-                                                      ?.toString() ==
-                                                  '1') ...[
-                                            const SizedBox(width: 12),
-                                            Column(
-                                              children: [
-                                                Text(
-                                                  _notifEvaluasiEnabled
-                                                      ? 'On'
-                                                      : 'Off',
-                                                  style: const TextStyle(
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                                Switch.adaptive(
-                                                  value: _notifEvaluasiEnabled,
-                                                  onChanged: (val) {
-                                                    _onEvaluasiToggle(val);
-                                                  },
-                                                ),
-                                                const SizedBox(height: 4),
-                                                const Text(
-                                                  'Evaluasi',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                // Show scheduled times if available
-                                if (_scheduledReminderTime != null)
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 4.0,
-                                    ),
-                                    child: Text(
-                                      'Reminder: ${_formatDateTime(_scheduledReminderTime!.toLocal())}',
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.black54,
-                                      ),
-                                    ),
-                                  ),
-                                if (_scheduledEvaluasiTime != null)
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 4.0,
-                                      vertical: 4.0,
-                                    ),
-                                    child: Text(
-                                      'Evaluasi: ${_formatDateTime(_scheduledEvaluasiTime!.toLocal())}',
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.black54,
-                                      ),
-                                    ),
-                                  ),
-                              ],
+                              // if (Platform.isIOS) ...[
+                              //   Padding(
+                              //     padding: const EdgeInsets.symmetric(
+                              //       horizontal: 4.0,
+                              //       vertical: 8.0,
+                              //     ),
+                              //     child: Row(
+                              //       children: [
+                              //         const Text(
+                              //           'Pengingat notifikasi',
+                              //           style: TextStyle(
+                              //             fontSize: 14,
+                              //             fontWeight: FontWeight.w600,
+                              //           ),
+                              //         ),
+                              //         const Spacer(),
+                              //         // Two switches: Reminder (15m before) and Evaluasi (1h after)
+                              //         Row(
+                              //           mainAxisSize: MainAxisSize.min,
+                              //           children: [
+                              //             Column(
+                              //               children: [
+                              //                 Text(
+                              //                   _notifReminderEnabled
+                              //                       ? 'On'
+                              //                       : 'Off',
+                              //                   style: const TextStyle(
+                              //                     fontSize: 12,
+                              //                   ),
+                              //                 ),
+                              //                 Switch.adaptive(
+                              //                   value: _notifReminderEnabled,
+                              //                   onChanged: (val) {
+                              //                     _onReminderToggle(val);
+                              //                   },
+                              //                 ),
+                              //                 const SizedBox(height: 4),
+                              //                 const Text(
+                              //                   'Acara',
+                              //                   style: TextStyle(fontSize: 12),
+                              //                 ),
+                              //               ],
+                              //             ),
+                              //             // Tampilkan switch "Evaluasi" hanya jika user adalah panitia
+                              //             if (_userData != null &&
+                              //                 _userData!['role'] != null &&
+                              //                 (_userData!['role']!
+                              //                         .toLowerCase()
+                              //                         .contains('peserta') ||
+                              //                     _userData!['role']!
+                              //                         .toLowerCase()
+                              //                         .contains('pembina')) &&
+                              //                 _dataAcara != null &&
+                              //                 _dataAcara!.isNotEmpty &&
+                              //                 _dataAcara![0]['is_eval']
+                              //                         ?.toString() ==
+                              //                     '1') ...[
+                              //               const SizedBox(width: 12),
+                              //               Column(
+                              //                 children: [
+                              //                   Text(
+                              //                     _notifEvaluasiEnabled
+                              //                         ? 'On'
+                              //                         : 'Off',
+                              //                     style: const TextStyle(
+                              //                       fontSize: 12,
+                              //                     ),
+                              //                   ),
+                              //                   Switch.adaptive(
+                              //                     value: _notifEvaluasiEnabled,
+                              //                     onChanged: (val) {
+                              //                       _onEvaluasiToggle(val);
+                              //                     },
+                              //                   ),
+                              //                   const SizedBox(height: 4),
+                              //                   const Text(
+                              //                     'Evaluasi',
+                              //                     style: TextStyle(
+                              //                       fontSize: 12,
+                              //                     ),
+                              //                   ),
+                              //                 ],
+                              //               ),
+                              //             ],
+                              //           ],
+                              //         ),
+                              //       ],
+                              //     ),
+                              //   ),
+                              //   // Show scheduled times if available
+                              //   if (_scheduledReminderTime != null)
+                              //     Padding(
+                              //       padding: const EdgeInsets.symmetric(
+                              //         horizontal: 4.0,
+                              //       ),
+                              //       child: Text(
+                              //         'Reminder: ${_formatDateTime(_scheduledReminderTime!.toLocal())}',
+                              //         style: const TextStyle(
+                              //           fontSize: 12,
+                              //           color: Colors.black54,
+                              //         ),
+                              //       ),
+                              //     ),
+                              //   if (_scheduledEvaluasiTime != null)
+                              //     Padding(
+                              //       padding: const EdgeInsets.symmetric(
+                              //         horizontal: 4.0,
+                              //         vertical: 4.0,
+                              //       ),
+                              //       child: Text(
+                              //         'Evaluasi: ${_formatDateTime(_scheduledEvaluasiTime!.toLocal())}',
+                              //         style: const TextStyle(
+                              //           fontSize: 12,
+                              //           color: Colors.black54,
+                              //         ),
+                              //       ),
+                              //     ),
+                              // ],
                               // DEBUG: tombol untuk scheduling cepat (hapus sebelum release)
                               // Padding(
                               //   padding: const EdgeInsets.symmetric(

@@ -344,34 +344,34 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
             onPressed: () => Navigator.pop(context, 'reload'),
           ),
         ),
-        actions: [
-          // Only show the bell when the logged-in user is the owner of this
-          // komitmen list and has role 'Peserta'. Otherwise hide it.
-          if ((_dataUser['id'] ?? '') == widget.userId &&
-              ((_dataUser['role'] ?? '').toString().toLowerCase() ==
-                      'peserta' ||
-                  (_dataUser['role'] ?? '').toString().toLowerCase() ==
-                      'pembina') &&
-              Platform.isIOS)
-            Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: IconButton(
-                tooltip:
-                    _notifKomitmenEnabled
-                        ? 'Nonaktifkan Notifikasi'
-                        : 'Aktifkan Notifikasi',
-                icon: Icon(
-                  _notifKomitmenEnabled
-                      ? Icons.notifications_active
-                      : Icons.notifications_none,
-                  color: Colors.white,
-                ),
-                onPressed: () => _toggleNotifKomitmen(!_notifKomitmenEnabled),
-              ),
-            )
-          else
-            const SizedBox.shrink(),
-        ],
+        // actions: [
+        //   // Only show the bell when the logged-in user is the owner of this
+        //   // komitmen list and has role 'Peserta'. Otherwise hide it.
+        //   if ((_dataUser['id'] ?? '') == widget.userId &&
+        //       ((_dataUser['role'] ?? '').toString().toLowerCase() ==
+        //               'peserta' ||
+        //           (_dataUser['role'] ?? '').toString().toLowerCase() ==
+        //               'pembina') &&
+        //       Platform.isIOS)
+        //     Padding(
+        //       padding: const EdgeInsets.only(right: 8.0),
+        //       child: IconButton(
+        //         tooltip:
+        //             _notifKomitmenEnabled
+        //                 ? 'Nonaktifkan Notifikasi'
+        //                 : 'Aktifkan Notifikasi',
+        //         icon: Icon(
+        //           _notifKomitmenEnabled
+        //               ? Icons.notifications_active
+        //               : Icons.notifications_none,
+        //           color: Colors.white,
+        //         ),
+        //         onPressed: () => _toggleNotifKomitmen(!_notifKomitmenEnabled),
+        //       ),
+        //     )
+        //   else
+        //     const SizedBox.shrink(),
+        // ],
       ),
       body: Stack(
         children: [

@@ -3,7 +3,11 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
 import 'package:package_info_plus/package_info_plus.dart' show PackageInfo;
+import 'package:syc/screens/detail_acara_screen.dart';
+import 'package:syc/screens/list_evaluasi_screen.dart';
 import 'package:syc/screens/pengumuman_list_screen.dart';
+import 'package:syc/utils/global_variables.dart';
+import 'package:syc/widgets/custom_snackbar.dart';
 import 'package:url_launcher/url_launcher.dart'
     show canLaunchUrl, LaunchMode, launchUrl;
 import '../services/api_service.dart';
@@ -107,6 +111,11 @@ class _SplashScreenState extends State<SplashScreen>
       final isValid = await ApiService.validateToken(context, token: getToken);
       setState(() => _isCheckingToken = false); // <-- Selesai loading
       if (isValid) {
+        final prefs = await SharedPreferences.getInstance();
+        final role = prefs.getString('role') ?? '';
+        final userId = prefs.getString('id') ?? '';
+        print('Role from SharedPreferences: $role');
+        print('User ID from SharedPreferences: $userId');
         print('Navigating CEK TOKEN: VALID');
         if (widget.tujuan == 'pengumuman_list') {
           // Pertama ke MainScreen
@@ -121,6 +130,72 @@ class _SplashScreenState extends State<SplashScreen>
               builder: (context) => const PengumumanListScreen(),
             ),
           );
+        } else if (widget.tujuan == 'acara_list') {
+          // reminder acara dan evaluasi
+          // ke MainScreen > Daftar Acara
+          setState(() {
+            GlobalVariables.currentIndex = 1;
+          });
+          print('Navigating to Main Screen > Daftar Acara');
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const MainScreen()),
+          );
+
+          print('Navigating to Detail Acara');
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder:
+                  (context) => DetailAcaraScreen(
+                    id: widget.id?.toString() ?? '',
+                    userId: userId.toString(),
+                  ),
+            ),
+          );
+        } else if (widget.tujuan == 'evaluasi_list') {
+          // evaluasi keseluruhan
+          // Pertama ke MainScreen > Profile
+          setState(() {
+            GlobalVariables.currentIndex = 4;
+          });
+          print('Navigating to Main Screen > Profile');
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const MainScreen()),
+          );
+          if (role.toLowerCase().trim() == 'peserta') {
+            // Setelah MainScreen dipush, lanjut ke EvaluasiListScreen
+            print('Navigating to Evaluasi List Screen');
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder:
+                    (context) => ListEvaluasiScreen(
+                      userId: widget.userId?.toString() ?? '',
+                    ),
+              ),
+            );
+          } else {
+            showCustomSnackBar(
+              context,
+              'Daftar evaluasi hanya tersedia untuk peserta dan pembina gereja',
+            );
+          }
+        } else if (widget.tujuan == 'dashboard') {
+          // komitmen
+          // ke MainScreen
+          print('Navigating to Main Screen');
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const MainScreen()),
+          );
+          if (role.toLowerCase().trim() == 'peserta') {
+            showCustomSnackBar(
+              context,
+              'Klik pada kartu reminder komitmen di halaman dashboard',
+            );
+          } else {
+            showCustomSnackBar(
+              context,
+              'Komitmen hanya tersedia untuk peserta',
+            );
+          }
         } else {
           print('Navigating to Main Screen');
           Navigator.pushReplacement(
