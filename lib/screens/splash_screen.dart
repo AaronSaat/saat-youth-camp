@@ -304,9 +304,9 @@ class _SplashScreenState extends State<SplashScreen>
       final cmpWithMin = compareVersions(a, minimum);
       final cmpWithLatest = compareVersions(a, latest);
 
-      // localVersion harus > minimumVersion (cmpWithMin > 0)
+      // localVersion harus >= minimumVersion (cmpWithMin >= 0)
       // localVersion harus <= latestVersion (cmpWithLatest <= 0)
-      return (cmpWithMin > 0) && (cmpWithLatest <= 0);
+      return (cmpWithMin >= 0) && (cmpWithLatest <= 0);
     }
 
     // Force update if below minimum_version or below latest (update available)

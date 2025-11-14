@@ -243,11 +243,11 @@ class _ListDevotionScreenState extends State<ListDevotionScreen> {
                             : _devotionList.isEmpty
                             ? Center(
                               child: CustomNotFound(
-                                text: "Gagal memuat daftar tutorial :(",
+                                text: "Gagal memuat daftar morning devotion :(",
                                 textColor: AppColors.brown1,
                                 imagePath: 'assets/images/data_not_found.png',
                                 onBack: initAll,
-                                backText: 'Reload Tutorial',
+                                backText: 'Reload Morning Devotion',
                               ),
                             )
                             : Builder(

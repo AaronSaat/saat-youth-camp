@@ -4,15 +4,18 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/screens/login_screen.dart';
+import 'package:syc/utils/global_variables.dart';
 import '/utils/api_helper.dart';
 import '../widgets/custom_snackbar.dart';
 
 class ApiService {
   // static const String baseurl = 'http://172.172.52.9:82/reg-new/api-syc2025/';
   // static const String baseurlLocal = 'http://172.172.52.9/website_backup/api/';
-  // static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
   // static const String baseurl = 'http://172.172.52.11:90/api-syc2025/';
-  static const String baseurl = 'https://netunim.seabs.ac.id/api-syc2025/';
+  // static const String baseurl = 'https://netunim.seabs.ac.id/api-syc2025/';
+  // static const String baseurl = 'https://reg.seabs.ac.id/api-syc2025/';
+
+  static const String baseurl = '${GlobalVariables.serverUrl}api-syc2025/';
 
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 

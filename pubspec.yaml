@@ -83,6 +83,7 @@ flutter:
     - assets/images/card_bacaan.png
     - assets/images/card_kontak.jpg
     - assets/images/card_dokumentasi.jpg
+    - assets/images/card_evaluasi_reminder.jpg
     - assets/images/card_tutorial.png
     - assets/images/card_devotion.jpg
     - assets/images/background_pengumuman.jpg

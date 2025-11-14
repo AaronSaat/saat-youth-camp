@@ -2444,7 +2444,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             ),
                                             image: const DecorationImage(
                                               image: AssetImage(
-                                                'assets/images/card_dashboard_komitmen.png',
+                                                'assets/images/card_evaluasi_reminder.jpg',
                                               ),
                                               fit: BoxFit.fill,
                                             ),
