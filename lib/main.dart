@@ -2,7 +2,9 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/screens/main_screen.dart';
 import 'package:syc/services/notification_service.dart';
 import 'package:syc/utils/app_colors.dart';
@@ -15,10 +17,35 @@ import 'screens/splash_screen.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+Future<void> handleFirstLaunchCleanup() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final installedBefore = prefs.getBool('installed_before') ?? false;
+    final storage = const FlutterSecureStorage();
+
+    if (!installedBefore) {
+      final token = await storage.read(key: 'token');
+      if (token != null && token.isNotEmpty) {
+        // Likely a reinstall where keychain survived — clear secure storage
+        await storage.deleteAll();
+        print('Secure storage cleared on first launch after reinstall');
+      }
+      await prefs.setBool('installed_before', true);
+    }
+  } catch (e) {
+    print('handleFirstLaunchCleanup failed: $e');
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService().initialize();
   tz.initializeTimeZones();
+
+  if (Platform.isIOS) {
+    await handleFirstLaunchCleanup();
+  }
+
   await Firebase.initializeApp();
 
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:shimmer/shimmer.dart';
@@ -74,7 +75,7 @@ class _ListGroupScreenState extends State<ListGroupScreen> {
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) {
-        if (!didPop) {
+        if (!didPop && Platform.isAndroid) {
           final now = DateTime.now();
           if (_lastBackPressed == null ||
               now.difference(_lastBackPressed!) > Duration(seconds: 2)) {

@@ -392,7 +392,7 @@ class _SplashScreenState extends State<SplashScreen>
         children: [
           FadeTransition(
             opacity: _bgFadeAnimation,
-            child: Container(color: AppColors.primary),
+            child: Container(color: AppColors.backgroundSplash),
           ),
           Center(
             child: Column(
@@ -425,7 +425,7 @@ class _SplashScreenState extends State<SplashScreen>
                     width: 32,
                     height: 32,
                     child: CircularProgressIndicator(
-                      color: Colors.white,
+                      color: AppColors.primary,
                       backgroundColor: Colors.white24,
                       strokeWidth: 3,
                     ),
@@ -436,7 +436,7 @@ class _SplashScreenState extends State<SplashScreen>
                         ? "Memeriksa versi aplikasi..."
                         : "Memeriksa akun...",
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColors.primary,
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                       letterSpacing: 0.5,

@@ -1,4 +1,5 @@
 import 'dart:convert'; // Tambahkan jika belum ada
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemNavigator;
@@ -75,7 +76,7 @@ class _ListKelompokScreenState extends State<ListKelompokScreen> {
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) {
-        if (!didPop) {
+        if (!didPop && Platform.isAndroid) {
           final now = DateTime.now();
           if (_lastBackPressed == null ||
               now.difference(_lastBackPressed!) > Duration(seconds: 2)) {

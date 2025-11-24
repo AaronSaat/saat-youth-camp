@@ -16,6 +16,7 @@ class AppColors {
   static const Color grey4 =
       Colors
           .grey; //kepake di custom card, disabled button (evaluasi detail acara)
+  static const Color backgroundSplash = Color(0xFFF9F6EE);
 
   // penyesuaian warna sementara
 

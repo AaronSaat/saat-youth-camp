@@ -356,7 +356,10 @@ class _BibleReadingMoreScreenState extends State<BibleReadingMoreScreen> {
               };
 
               try {
-                final res2 = await ApiService().putBrmNotes(context, brmNotes);
+                final res2 = await ApiService().postBrmNotesUpdate(
+                  context,
+                  brmNotes,
+                );
                 print('VANILLA res2: $res2');
 
                 if (res2['success'] == true) {

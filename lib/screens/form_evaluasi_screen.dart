@@ -259,6 +259,8 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
             (_) => ReviewEvaluasiScreen(
               userId: widget.userId,
               acaraHariId: widget.acaraHariId,
+              acaraHari: _acara['hari'] ?? 0,
+              acaraNama: _acara['acara_nama'] ?? '',
             ),
       ),
     );
@@ -381,7 +383,14 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Text(
-                                          'Form Evaluasi Hari ke-${_acara['hari']}\nNama Acara: ${_acara['acara_nama'] ?? ''}',
+                                          (int.tryParse(
+                                                    _acara['hari']
+                                                            ?.toString() ??
+                                                        '',
+                                                  ) ==
+                                                  99
+                                              ? 'Form Evaluasi Keseluruhan Acara\nEvaluasi: ${_acara['acara_nama'] ?? ''}'
+                                              : 'Form Evaluasi Hari ke-${_acara['hari']}\nNama Acara: ${_acara['acara_nama'] ?? ''}'),
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.w600,

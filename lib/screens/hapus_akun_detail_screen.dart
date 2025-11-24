@@ -1,6 +1,8 @@
 // lib/screens/login_screen3.dart
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syc/utils/api_helper.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:syc/screens/hapus_akun_detail_success_screen.dart';
 import 'package:timeago/timeago.dart'
@@ -9,6 +11,8 @@ import 'package:timeago/timeago.dart'
 import '../services/api_service.dart';
 import '../widgets/custom_snackbar.dart';
 import '../utils/app_colors.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class HapusAkunDetailScreen extends StatefulWidget {
   final String userId;
@@ -27,6 +31,7 @@ class HapusAkunDetailScreen extends StatefulWidget {
 class _HapusAkunDetailScreenState extends State<HapusAkunDetailScreen> {
   bool _isLoading = false;
   bool _isChecked = false;
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
   Future<void> _onSubmit() async {
     setState(() => _isLoading = true);
@@ -49,6 +54,33 @@ class _HapusAkunDetailScreenState extends State<HapusAkunDetailScreen> {
                 ),
           ),
         );
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.clear();
+        print('SharedPreferences cleared due to account deletion.');
+        await secureStorage.deleteAll();
+        print('Secure storage cleared due to account deletion.');
+        // hapus temp dir dan app documents (hati-hati: ini menghapus file yang mungkin penting)
+        try {
+          final tempDir = await getTemporaryDirectory();
+          if (await tempDir.exists()) {
+            await tempDir.delete(recursive: true);
+            debugPrint('Temporary directory deleted: ${tempDir.path}');
+          }
+        } catch (e) {
+          debugPrint('Failed to delete temporary directory: $e');
+        }
+
+        try {
+          final appDocDir = await getApplicationDocumentsDirectory();
+          if (await appDocDir.exists()) {
+            // jika Anda ingin lebih hati-hati, hapus hanya subfolder tertentu
+            await appDocDir.delete(recursive: true);
+            debugPrint('Application documents deleted: ${appDocDir.path}');
+          }
+        } catch (e) {
+          debugPrint('Failed to delete application documents: $e');
+        }
       } catch (e) {
         if (!mounted) return;
         Navigator.pushReplacement(
@@ -265,13 +297,26 @@ class _HapusAkunDetailScreenState extends State<HapusAkunDetailScreen> {
                                                       )
                                                       : Text(
                                                         'Hapus Akun ${widget.nama}',
+                                                        maxLines: 2,
+                                                        overflow:
+                                                            TextOverflow
+                                                                .ellipsis,
                                                         style: TextStyle(
                                                           color:
                                                               _isChecked
                                                                   ? Colors.white
                                                                   : AppColors
                                                                       .grey4,
-                                                          fontSize: 18,
+                                                          fontSize:
+                                                              ('Hapus Akun ${widget.nama}')
+                                                                          .length >
+                                                                      50
+                                                                  ? 10.0
+                                                                  : (('Hapus Akun ${widget.nama}')
+                                                                              .length >
+                                                                          30
+                                                                      ? 12.0
+                                                                      : 16.0),
                                                           fontWeight:
                                                               FontWeight.w500,
                                                         ),

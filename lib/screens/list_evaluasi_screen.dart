@@ -431,17 +431,17 @@ class _ListEvaluasiScreenState extends State<ListEvaluasiScreen> {
                                   }
                                 }
 
-                                if (_dataUser['id'] == widget.userId &&
-                                    acara['hari'] == 99) {
-                                  setState(() {
-                                    if (!mounted) return;
-                                    showCustomSnackBar(
-                                      context,
-                                      'Evaluasi keseluruhan dapat dilakukan setelah $time.',
-                                      isSuccess: false,
-                                    );
-                                  });
-                                }
+                                // if (_dataUser['id'] == widget.userId &&
+                                //     day != 99) {
+                                //   setState(() {
+                                //     if (!mounted) return;
+                                //     showCustomSnackBar(
+                                //       context,
+                                //       'Evaluasi keseluruhan dapat dilakukan setelah $time.',
+                                //       isSuccess: false,
+                                //     );
+                                //   });
+                                // }
 
                                 if (tanggal != null && waktu != null) {
                                   if (!evaluate) {

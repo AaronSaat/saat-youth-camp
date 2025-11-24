@@ -539,7 +539,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                           ),
                                           SizedBox(height: 8),
                                           Text(
-                                            'Tunjukkan QR ke pembimbing kelompok untuk check-in\nJika sudah berhasil, silakan login kembali ke aplikasi',
+                                            'Tunjukkan QR ke pembimbing kelompok untuk konfirmasi\nJika sudah berhasil, silakan refresh halaman ini atau login kembali ke aplikasi',
                                             style: TextStyle(
                                               color: AppColors.brown1,
                                               fontSize: 10,

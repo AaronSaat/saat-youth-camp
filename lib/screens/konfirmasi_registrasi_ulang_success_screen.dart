@@ -6,6 +6,7 @@ class KonfirmasiRegistrasiUlangSuccessScreen extends StatelessWidget {
   final String namakelompok;
   final bool isSuccess;
   final String metode; // 'QR' atau 'Manual'
+  final String message;
 
   const KonfirmasiRegistrasiUlangSuccessScreen({
     super.key,
@@ -14,11 +15,13 @@ class KonfirmasiRegistrasiUlangSuccessScreen extends StatelessWidget {
     required this.isSuccess,
     // this.metode = 'QR',
     required this.metode,
+    required this.message,
   });
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    print("metode success screen: $metode");
 
     return Scaffold(
       body: Stack(
@@ -39,16 +42,34 @@ class KonfirmasiRegistrasiUlangSuccessScreen extends StatelessWidget {
                       fit: BoxFit.contain,
                     ),
                     const SizedBox(height: 16),
-                    Text(
-                      isSuccess
-                          ? 'Registrasi ulang berhasil!\nSilakan minta peserta untuk refresh halaman edit profil atau login kembali ke aplikasi.'
-                          : 'Registrasi ulang gagal.',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.black1,
-                      ),
-                      textAlign: TextAlign.center,
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          isSuccess
+                              ? 'Konfirmasi Registrasi ulang berhasil!'
+                              : 'Konfirmasi Registrasi ulang gagal.',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color:
+                                isSuccess ? AppColors.green : AppColors.accent,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          isSuccess
+                              ? 'Silakan minta peserta untuk refresh halaman edit profil atau login kembali ke aplikasi.'
+                              : message,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.primary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -69,10 +90,11 @@ class KonfirmasiRegistrasiUlangSuccessScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     GestureDetector(
                       onTap: () async {
-                        if (metode == 'Manual') {
-                          print("metode: $metode");
+                        if (metode.toLowerCase() == 'manual') {
+                          Navigator.pop(context);
                           Navigator.pop(context, 'reload');
                         } else {
+                          Navigator.pop(context);
                           Navigator.pop(context);
                           Navigator.pop(context, 'reload');
                         }

@@ -364,7 +364,7 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                                                   user['id'] ==
                                                                       null) //sebagai anggota dan role user pembimbing kelompok atau panitia atau pembina dan anggota belum install app
                                                               ? 300
-                                                              : 300,
+                                                              : 270,
                                                       child: Padding(
                                                         padding: EdgeInsets.only(
                                                           left: 16,
@@ -493,8 +493,10 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                                                               ? 18
                                                                               : 24,
                                                                       color:
-                                                                          Colors
-                                                                              .white,
+                                                                          user['id'] ==
+                                                                                  null
+                                                                              ? AppColors.accent
+                                                                              : Colors.white,
                                                                     ),
                                                                     maxLines: 2,
                                                                     // textAlign:
@@ -631,7 +633,9 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                                                 (user['role']
                                                                         ?.toString()
                                                                         .toLowerCase() !=
-                                                                    'pembina'))
+                                                                    'pembina') &&
+                                                                user['id'] !=
+                                                                    null)
                                                               Row(
                                                                 mainAxisAlignment:
                                                                     MainAxisAlignment
@@ -764,7 +768,8 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                                                                       context,
                                                                                     ) => BibleReadingListScreen(
                                                                                       userId:
-                                                                                          user['id'],
+                                                                                          user['id'] ??
+                                                                                          '',
                                                                                     ),
                                                                               ),
                                                                             ).then((
@@ -854,7 +859,7 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .bold,
-                                                                fontSize: 10,
+                                                                fontSize: 13,
                                                               ),
                                                         ),
                                                       ),
@@ -884,7 +889,7 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .bold,
-                                                                  fontSize: 10,
+                                                                  fontSize: 13,
                                                                 ),
                                                           ),
                                                         ],

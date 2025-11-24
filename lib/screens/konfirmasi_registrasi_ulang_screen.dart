@@ -221,8 +221,9 @@ class _KonfirmasiRegistrasiUlangScreenState
                       body,
                     );
                     final isSuccess = (result['success'] == true);
+                    final message = result['message'] ?? '';
                     if (!mounted) return;
-                    Navigator.pushReplacement(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder:
@@ -231,6 +232,7 @@ class _KonfirmasiRegistrasiUlangScreenState
                               namakelompok: _dataKonfirmasi?['kelompok'] ?? '',
                               isSuccess: isSuccess,
                               metode: widget.metode,
+                              message: message,
                             ),
                       ),
                     );
@@ -245,6 +247,7 @@ class _KonfirmasiRegistrasiUlangScreenState
                               namakelompok: _dataKonfirmasi?['kelompok'] ?? '',
                               isSuccess: false,
                               metode: widget.metode,
+                              message: 'Terjadi kesalahan saat konfirmasi.',
                             ),
                       ),
                     );

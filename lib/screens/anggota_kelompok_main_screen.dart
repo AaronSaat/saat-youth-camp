@@ -447,13 +447,23 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                                 : userRole.contains('anggota') &&
                                     (role.contains('pembimbing kelompok') ||
                                         role.contains('panitia')) &&
-                                    state.widget.id != '41'
+                                    state.widget.id != '41' &&
+                                    user['id'] != null
                                 ? 325
+                                : userRole.contains('anggota') &&
+                                    (role.contains('pembimbing kelompok') ||
+                                        role.contains('panitia')) &&
+                                    state.widget.id != '41' &&
+                                    user['id'] == null
+                                ? 265
                                 : userRole.contains('anggota') &&
                                     (role.contains('pembimbing kelompok') ||
                                         role.contains('panitia')) &&
                                     state.widget.id == '41'
                                 ? 260
+                                : userRole.contains('anggota') &&
+                                    role.contains('pembina')
+                                ? 250
                                 : 325,
                         child: Padding(
                           padding: const EdgeInsets.only(
@@ -486,7 +496,10 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                                                         25)
                                                 ? 18
                                                 : 24,
-                                        color: Colors.white,
+                                        color:
+                                            user['id'] == null
+                                                ? AppColors.accent
+                                                : Colors.white,
                                       ),
                                       maxLines: 2,
                                     ),
@@ -614,7 +627,8 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                                         'pembina',
                                       ].contains(role)) &&
                                       userRole != 'pembimbing') &&
-                                  state.widget.id != '41')
+                                  state.widget.id != '41' &&
+                                  user['id'] != null)
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
@@ -718,7 +732,9 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                                                   builder:
                                                       (c) =>
                                                           BibleReadingListScreen(
-                                                            userId: user['id'],
+                                                            userId:
+                                                                user['id'] ??
+                                                                '',
                                                           ),
                                                 ),
                                               ).then((result) {
@@ -774,7 +790,7 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                             style: TextStyle(
                               color: AppColors.black1,
                               fontWeight: FontWeight.bold,
-                              fontSize: 10,
+                              fontSize: 13,
                             ),
                           ),
                         ),
@@ -801,8 +817,10 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                                       ),
                                 ),
                               ).then((result) {
-                                if (result == 'reload')
+                                if (result == 'reload' || result == true) {
+                                  print("Reload anggota kelompok");
                                   state._initAll(forceRefresh: true);
+                                }
                               });
                             } else {
                               showCustomSnackBar(
@@ -829,7 +847,7 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 10,
+                                fontSize: 13,
                               ),
                             ),
                           ),
@@ -857,7 +875,7 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
-                              fontSize: 10,
+                              fontSize: 13,
                             ),
                           ),
                         ),
@@ -879,7 +897,7 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 10,
+                                fontSize: 13,
                               ),
                             ),
                           ],
@@ -1028,7 +1046,10 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                                         25)
                                                 ? 18
                                                 : 24,
-                                        color: Colors.white,
+                                        color:
+                                            user['id'] == null
+                                                ? AppColors.accent
+                                                : Colors.white,
                                       ),
                                       maxLines: 2,
                                     ),
@@ -1309,7 +1330,7 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                             style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
-                              fontSize: 10,
+                              fontSize: 13,
                             ),
                           ),
                         ),
@@ -1336,8 +1357,10 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                                       ),
                                 ),
                               ).then((result) {
-                                if (result == 'reload')
+                                if (result == 'reload' || result == true) {
+                                  print("Reload anggota kelompok");
                                   state._initAll(forceRefresh: true);
+                                }
                               });
                             } else {
                               showCustomSnackBar(
@@ -1364,7 +1387,7 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 10,
+                                fontSize: 13,
                               ),
                             ),
                           ),
@@ -1392,7 +1415,7 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
-                              fontSize: 10,
+                              fontSize: 13,
                             ),
                           ),
                         ),
@@ -1414,7 +1437,7 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 10,
+                                fontSize: 13,
                               ),
                             ),
                           ],

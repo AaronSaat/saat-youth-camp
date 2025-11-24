@@ -1929,7 +1929,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                               ),
                                               style: const TextStyle(
                                                 fontSize: 12,
-                                                color: Colors.white,
+                                                color: AppColors.black1,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
@@ -2157,7 +2157,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                               ),
                                               style: const TextStyle(
                                                 fontSize: 12,
-                                                color: Colors.white,
+                                                color: AppColors.black1,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
@@ -2387,7 +2387,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                               ),
                                               style: const TextStyle(
                                                 fontSize: 12,
-                                                color: Colors.white,
+                                                color: AppColors.black1,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
@@ -2462,7 +2462,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                       const EdgeInsets.only(
                                                         right: 16.0,
                                                         bottom: 16.0,
-                                                        left: 64,
+                                                        left: 128,
                                                       ),
                                                   child: Text(
                                                     'Jangan lupa mengisi semua evaluasi keseluruhan!',
@@ -3180,7 +3180,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                       : '',
                                                   style: const TextStyle(
                                                     fontSize: 12,
-                                                    color: Colors.white,
+                                                    color: AppColors.black1,
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                                 ),

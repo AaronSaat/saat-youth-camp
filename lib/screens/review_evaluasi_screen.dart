@@ -8,11 +8,15 @@ import '../services/api_service.dart';
 class ReviewEvaluasiScreen extends StatefulWidget {
   final String userId;
   final int acaraHariId;
+  final String acaraHari;
+  final String acaraNama;
 
   const ReviewEvaluasiScreen({
     super.key,
     required this.userId,
     required this.acaraHariId,
+    required this.acaraHari,
+    required this.acaraNama,
   });
 
   @override
@@ -209,7 +213,9 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Form Evaluasi Acara ke-${widget.acaraHariId}\nNama: $_userName',
+                                int.tryParse(widget.acaraHari) == 99
+                                    ? 'Review Evaluasi Keseluruhan Acara\nEvaluasi: ${widget.acaraNama}\nNama: $_userName'
+                                    : 'Review Evaluasi Hari ke-${widget.acaraHari}\nNama Acara: ${widget.acaraNama}\nNama: $_userName',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,

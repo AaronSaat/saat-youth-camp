@@ -616,20 +616,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
     await secureStorage.deleteAll();
     print('Secure storage cleared due to version mismatch.');
 
-    // Hapus semua file gambar yang sudah didownload lokal (misal di direktori cache/app)
-    // (Contoh: hapus semua file di direktori temporary dan application documents)
+    // hapus temp dir dan app documents (hati-hati: ini menghapus file yang mungkin penting)
     try {
       final tempDir = await getTemporaryDirectory();
       if (await tempDir.exists()) {
         await tempDir.delete(recursive: true);
+        debugPrint('Temporary directory deleted: ${tempDir.path}');
       }
+    } catch (e) {
+      debugPrint('Failed to delete temporary directory: $e');
+    }
+
+    try {
       final appDocDir = await getApplicationDocumentsDirectory();
       if (await appDocDir.exists()) {
+        // jika Anda ingin lebih hati-hati, hapus hanya subfolder tertentu
         await appDocDir.delete(recursive: true);
+        debugPrint('Application documents deleted: ${appDocDir.path}');
       }
-      print('Local files cleared due to version mismatch.');
     } catch (e) {
-      print('Gagal menghapus file lokal: $e');
+      debugPrint('Failed to delete application documents: $e');
     }
 
     if (!context.mounted) return;
@@ -1687,43 +1693,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 8),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  if (role.toLowerCase().contains(
-                                        'pembimbing kelompok',
-                                      ) ||
-                                      role.toLowerCase().contains('panitia')) {
-                                    showCustomSnackBar(
+                            if (role.toLowerCase().contains('pembina') ||
+                                role.toLowerCase().contains('peserta'))
+                              const SizedBox(height: 8),
+                            if (role.toLowerCase().contains('pembina') ||
+                                role.toLowerCase().contains('peserta'))
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    if (role.toLowerCase().contains(
+                                          'pembimbing kelompok',
+                                        ) ||
+                                        role.toLowerCase().contains(
+                                          'panitia',
+                                        )) {
+                                      showCustomSnackBar(
+                                        context,
+                                        'Pembimbing Kelompok dan Panitia tidak bisa menghapus akunnya',
+                                      );
+                                      return;
+                                    }
+                                    Navigator.push(
                                       context,
-                                      'Pembimbing Kelompok dan Panitia tidak bisa menghapus akunnya',
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => HapusAkunDetailScreen(
+                                              userId: id,
+                                              nama: name,
+                                            ),
+                                      ),
                                     );
-                                    return;
-                                  }
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (context) => HapusAkunDetailScreen(
-                                            userId: id,
-                                            nama: name,
-                                          ),
+                                  },
+                                  icon: const Icon(Icons.delete_forever),
+                                  label: const Text('Hapus Akun'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.green,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(32),
                                     ),
-                                  );
-                                },
-                                icon: const Icon(Icons.delete_forever),
-                                label: const Text('Hapus Akun'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.green,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(32),
                                   ),
                                 ),
                               ),
-                            ),
                             const SizedBox(height: 8),
                             SizedBox(
                               width: double.infinity,
@@ -1745,436 +1757,436 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                             const SizedBox(height: 16),
                             // //[DEVELOPMENT NOTES] untuk testing, nanti dihapus
-                            // Padding(
-                            //   padding: const EdgeInsets.symmetric(
-                            //     horizontal: 24,
-                            //     vertical: 8,
-                            //   ),
-                            //   child: const Text(
-                            //     "Tombol testing untuk ganti tanggal waktu",
-                            //     style: TextStyle(
-                            //       fontSize: 12,
-                            //       fontWeight: FontWeight.bold,
-                            //       color: Colors.white,
-                            //     ),
-                            //   ),
-                            // ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 8,
+                              ),
+                              child: const Text(
+                                "Tombol testing untuk ganti tanggal waktu",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
 
-                            // //[DEVELOPMENT NOTES] untuk testing, nanti dihapus
-                            // Padding(
-                            //   padding: const EdgeInsets.symmetric(vertical: 8),
-                            //   child: Column(
-                            //     children: [
-                            //       Row(
-                            //         children: [
-                            //           Expanded(
-                            //             child: ElevatedButton(
-                            //               style: ElevatedButton.styleFrom(
-                            //                 backgroundColor:
-                            //                     AppColors.secondary,
-                            //                 foregroundColor: Colors.white,
-                            //                 padding: const EdgeInsets.symmetric(
-                            //                   vertical: 12,
-                            //                 ),
-                            //                 textStyle: const TextStyle(
-                            //                   fontSize: 12,
-                            //                   fontWeight: FontWeight.bold,
-                            //                 ),
-                            //               ),
-                            //               onPressed: () {
-                            //                 if (!mounted) return;
-                            //                 setState(() {
-                            //                   GlobalVariables.today = DateTime(
-                            //                     2025,
-                            //                     12,
-                            //                     30,
-                            //                   );
-                            //                   GlobalVariables
-                            //                       .timeOfDay = const TimeOfDay(
-                            //                     hour: 6,
-                            //                     minute: 0,
-                            //                   );
-                            //                   _today = GlobalVariables.today;
-                            //                   _timeOfDay =
-                            //                       GlobalVariables.timeOfDay;
-                            //                   GlobalVariables.currentIndex = 0;
-                            //                 });
-                            //                 if (mounted) {
-                            //                   Navigator.pushReplacement(
-                            //                     context,
-                            //                     MaterialPageRoute(
-                            //                       builder:
-                            //                           (context) =>
-                            //                               const MainScreen(),
-                            //                     ),
-                            //                   );
-                            //                 }
-                            //               },
-                            //               child: const Text(
-                            //                 '30-12-2025\n06:00',
-                            //                 textAlign: TextAlign.center,
-                            //               ),
-                            //             ),
-                            //           ),
-                            //           const SizedBox(width: 8),
-                            //           Expanded(
-                            //             child: ElevatedButton(
-                            //               style: ElevatedButton.styleFrom(
-                            //                 backgroundColor:
-                            //                     AppColors.secondary,
-                            //                 foregroundColor: Colors.white,
-                            //                 padding: const EdgeInsets.symmetric(
-                            //                   vertical: 12,
-                            //                 ),
-                            //                 textStyle: const TextStyle(
-                            //                   fontSize: 12,
-                            //                   fontWeight: FontWeight.bold,
-                            //                 ),
-                            //               ),
-                            //               onPressed: () {
-                            //                 if (!mounted) return;
-                            //                 setState(() {
-                            //                   GlobalVariables.today = DateTime(
-                            //                     2025,
-                            //                     12,
-                            //                     30,
-                            //                   );
-                            //                   GlobalVariables
-                            //                       .timeOfDay = const TimeOfDay(
-                            //                     hour: 21,
-                            //                     minute: 0,
-                            //                   );
-                            //                   _today = GlobalVariables.today;
-                            //                   _timeOfDay =
-                            //                       GlobalVariables.timeOfDay;
-                            //                   GlobalVariables.currentIndex = 0;
-                            //                 });
-                            //                 if (mounted) {
-                            //                   Navigator.pushReplacement(
-                            //                     context,
-                            //                     MaterialPageRoute(
-                            //                       builder:
-                            //                           (context) =>
-                            //                               const MainScreen(),
-                            //                     ),
-                            //                   );
-                            //                 }
-                            //               },
-                            //               child: const Text(
-                            //                 '30-12-2025\n21:00',
-                            //                 textAlign: TextAlign.center,
-                            //               ),
-                            //             ),
-                            //           ),
-                            //           const SizedBox(width: 8),
-                            //           Expanded(
-                            //             child: ElevatedButton(
-                            //               style: ElevatedButton.styleFrom(
-                            //                 backgroundColor:
-                            //                     AppColors.secondary,
-                            //                 foregroundColor: Colors.white,
-                            //                 padding: const EdgeInsets.symmetric(
-                            //                   vertical: 12,
-                            //                 ),
-                            //                 textStyle: const TextStyle(
-                            //                   fontSize: 12,
-                            //                   fontWeight: FontWeight.bold,
-                            //                 ),
-                            //               ),
-                            //               onPressed: () {
-                            //                 if (!mounted) return;
-                            //                 setState(() {
-                            //                   GlobalVariables.today = DateTime(
-                            //                     2025,
-                            //                     12,
-                            //                     31,
-                            //                   );
-                            //                   GlobalVariables
-                            //                       .timeOfDay = const TimeOfDay(
-                            //                     hour: 3,
-                            //                     minute: 0,
-                            //                   );
-                            //                   _today = GlobalVariables.today;
-                            //                   _timeOfDay =
-                            //                       GlobalVariables.timeOfDay;
-                            //                   GlobalVariables.currentIndex = 0;
-                            //                 });
-                            //                 if (mounted) {
-                            //                   Navigator.pushReplacement(
-                            //                     context,
-                            //                     MaterialPageRoute(
-                            //                       builder:
-                            //                           (context) =>
-                            //                               const MainScreen(),
-                            //                     ),
-                            //                   );
-                            //                 }
-                            //               },
-                            //               child: const Text(
-                            //                 '31-12-2025\n03:00',
-                            //                 textAlign: TextAlign.center,
-                            //               ),
-                            //             ),
-                            //           ),
-                            //           const SizedBox(width: 8),
-                            //           Expanded(
-                            //             child: ElevatedButton(
-                            //               style: ElevatedButton.styleFrom(
-                            //                 backgroundColor:
-                            //                     AppColors.secondary,
-                            //                 foregroundColor: Colors.white,
-                            //                 padding: const EdgeInsets.symmetric(
-                            //                   vertical: 12,
-                            //                 ),
-                            //                 textStyle: const TextStyle(
-                            //                   fontSize: 12,
-                            //                   fontWeight: FontWeight.bold,
-                            //                 ),
-                            //               ),
-                            //               onPressed: () {
-                            //                 if (!mounted) return;
-                            //                 setState(() {
-                            //                   GlobalVariables.today = DateTime(
-                            //                     2025,
-                            //                     12,
-                            //                     31,
-                            //                   );
-                            //                   GlobalVariables
-                            //                       .timeOfDay = const TimeOfDay(
-                            //                     hour: 21,
-                            //                     minute: 0,
-                            //                   );
-                            //                   _today = GlobalVariables.today;
-                            //                   _timeOfDay =
-                            //                       GlobalVariables.timeOfDay;
-                            //                   GlobalVariables.currentIndex = 0;
-                            //                 });
-                            //                 if (mounted) {
-                            //                   Navigator.pushReplacement(
-                            //                     context,
-                            //                     MaterialPageRoute(
-                            //                       builder:
-                            //                           (context) =>
-                            //                               const MainScreen(),
-                            //                     ),
-                            //                   );
-                            //                 }
-                            //               },
-                            //               child: const Text(
-                            //                 '31-12-2025\n21:00',
-                            //                 textAlign: TextAlign.center,
-                            //               ),
-                            //             ),
-                            //           ),
-                            //         ],
-                            //       ),
-                            //       const SizedBox(height: 8),
-                            //       Row(
-                            //         children: [
-                            //           Expanded(
-                            //             child: ElevatedButton(
-                            //               style: ElevatedButton.styleFrom(
-                            //                 backgroundColor:
-                            //                     AppColors.secondary,
-                            //                 foregroundColor: Colors.white,
-                            //                 padding: const EdgeInsets.symmetric(
-                            //                   vertical: 12,
-                            //                 ),
-                            //                 textStyle: const TextStyle(
-                            //                   fontSize: 12,
-                            //                   fontWeight: FontWeight.bold,
-                            //                 ),
-                            //               ),
-                            //               onPressed: () {
-                            //                 if (!mounted) return;
-                            //                 setState(() {
-                            //                   GlobalVariables.today = DateTime(
-                            //                     2026,
-                            //                     1,
-                            //                     1,
-                            //                   );
-                            //                   GlobalVariables
-                            //                       .timeOfDay = const TimeOfDay(
-                            //                     hour: 3,
-                            //                     minute: 0,
-                            //                   );
-                            //                   _today = GlobalVariables.today;
-                            //                   _timeOfDay =
-                            //                       GlobalVariables.timeOfDay;
-                            //                   GlobalVariables.currentIndex = 0;
-                            //                 });
-                            //                 if (mounted) {
-                            //                   Navigator.pushReplacement(
-                            //                     context,
-                            //                     MaterialPageRoute(
-                            //                       builder:
-                            //                           (context) =>
-                            //                               const MainScreen(),
-                            //                     ),
-                            //                   );
-                            //                 }
-                            //               },
-                            //               child: const Text(
-                            //                 '01-01-2026\n03:00',
-                            //                 textAlign: TextAlign.center,
-                            //               ),
-                            //             ),
-                            //           ),
-                            //           const SizedBox(width: 8),
-                            //           Expanded(
-                            //             child: ElevatedButton(
-                            //               style: ElevatedButton.styleFrom(
-                            //                 backgroundColor:
-                            //                     AppColors.secondary,
-                            //                 foregroundColor: Colors.white,
-                            //                 padding: const EdgeInsets.symmetric(
-                            //                   vertical: 12,
-                            //                 ),
-                            //                 textStyle: const TextStyle(
-                            //                   fontSize: 12,
-                            //                   fontWeight: FontWeight.bold,
-                            //                 ),
-                            //               ),
-                            //               onPressed: () {
-                            //                 if (!mounted) return;
-                            //                 setState(() {
-                            //                   GlobalVariables.today = DateTime(
-                            //                     2026,
-                            //                     1,
-                            //                     1,
-                            //                   );
-                            //                   GlobalVariables
-                            //                       .timeOfDay = const TimeOfDay(
-                            //                     hour: 21,
-                            //                     minute: 0,
-                            //                   );
-                            //                   _today = GlobalVariables.today;
-                            //                   _timeOfDay =
-                            //                       GlobalVariables.timeOfDay;
-                            //                   GlobalVariables.currentIndex = 0;
-                            //                 });
-                            //                 if (mounted) {
-                            //                   Navigator.pushReplacement(
-                            //                     context,
-                            //                     MaterialPageRoute(
-                            //                       builder:
-                            //                           (context) =>
-                            //                               const MainScreen(),
-                            //                     ),
-                            //                   );
-                            //                 }
-                            //               },
-                            //               child: const Text(
-                            //                 '01-01-2026\n21:00',
-                            //                 textAlign: TextAlign.center,
-                            //               ),
-                            //             ),
-                            //           ),
-                            //           const SizedBox(width: 8),
-                            //           Expanded(
-                            //             child: ElevatedButton(
-                            //               style: ElevatedButton.styleFrom(
-                            //                 backgroundColor:
-                            //                     AppColors.secondary,
-                            //                 foregroundColor: Colors.white,
-                            //                 padding: const EdgeInsets.symmetric(
-                            //                   vertical: 12,
-                            //                 ),
-                            //                 textStyle: const TextStyle(
-                            //                   fontSize: 12,
-                            //                   fontWeight: FontWeight.bold,
-                            //                 ),
-                            //               ),
-                            //               onPressed: () {
-                            //                 if (!mounted) return;
-                            //                 setState(() {
-                            //                   GlobalVariables.today = DateTime(
-                            //                     2026,
-                            //                     1,
-                            //                     2,
-                            //                   );
-                            //                   GlobalVariables
-                            //                       .timeOfDay = const TimeOfDay(
-                            //                     hour: 3,
-                            //                     minute: 0,
-                            //                   );
-                            //                   _today = GlobalVariables.today;
-                            //                   _timeOfDay =
-                            //                       GlobalVariables.timeOfDay;
-                            //                   GlobalVariables.currentIndex = 0;
-                            //                 });
-                            //                 if (mounted) {
-                            //                   Navigator.pushReplacement(
-                            //                     context,
-                            //                     MaterialPageRoute(
-                            //                       builder:
-                            //                           (context) =>
-                            //                               const MainScreen(),
-                            //                     ),
-                            //                   );
-                            //                 }
-                            //               },
-                            //               child: const Text(
-                            //                 '02-01-2026\n03:00',
-                            //                 textAlign: TextAlign.center,
-                            //               ),
-                            //             ),
-                            //           ),
-                            //           const SizedBox(width: 8),
-                            //           Expanded(
-                            //             child: ElevatedButton(
-                            //               style: ElevatedButton.styleFrom(
-                            //                 backgroundColor:
-                            //                     AppColors.secondary,
-                            //                 foregroundColor: Colors.white,
-                            //                 padding: const EdgeInsets.symmetric(
-                            //                   vertical: 12,
-                            //                 ),
-                            //                 textStyle: const TextStyle(
-                            //                   fontSize: 12,
-                            //                   fontWeight: FontWeight.bold,
-                            //                 ),
-                            //               ),
-                            //               onPressed: () {
-                            //                 if (!mounted) return;
-                            //                 setState(() {
-                            //                   GlobalVariables.today = DateTime(
-                            //                     2026,
-                            //                     1,
-                            //                     2,
-                            //                   );
-                            //                   GlobalVariables
-                            //                       .timeOfDay = const TimeOfDay(
-                            //                     hour: 12,
-                            //                     minute: 0,
-                            //                   );
-                            //                   _today = GlobalVariables.today;
-                            //                   _timeOfDay =
-                            //                       GlobalVariables.timeOfDay;
-                            //                   GlobalVariables.currentIndex = 0;
-                            //                 });
-                            //                 if (mounted) {
-                            //                   Navigator.pushReplacement(
-                            //                     context,
-                            //                     MaterialPageRoute(
-                            //                       builder:
-                            //                           (context) =>
-                            //                               const MainScreen(),
-                            //                     ),
-                            //                   );
-                            //                 }
-                            //               },
-                            //               child: const Text(
-                            //                 '02-01-2026\n12:00',
-                            //                 textAlign: TextAlign.center,
-                            //               ),
-                            //             ),
-                            //           ),
-                            //         ],
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
+                            //[DEVELOPMENT NOTES] untuk testing, nanti dihapus
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                AppColors.secondary,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 12,
+                                            ),
+                                            textStyle: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            if (!mounted) return;
+                                            setState(() {
+                                              GlobalVariables.today = DateTime(
+                                                2025,
+                                                12,
+                                                30,
+                                              );
+                                              GlobalVariables
+                                                  .timeOfDay = const TimeOfDay(
+                                                hour: 6,
+                                                minute: 0,
+                                              );
+                                              _today = GlobalVariables.today;
+                                              _timeOfDay =
+                                                  GlobalVariables.timeOfDay;
+                                              GlobalVariables.currentIndex = 0;
+                                            });
+                                            if (mounted) {
+                                              Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (context) =>
+                                                          const MainScreen(),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          child: const Text(
+                                            '30-12-2025\n06:00',
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                AppColors.secondary,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 12,
+                                            ),
+                                            textStyle: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            if (!mounted) return;
+                                            setState(() {
+                                              GlobalVariables.today = DateTime(
+                                                2025,
+                                                12,
+                                                30,
+                                              );
+                                              GlobalVariables
+                                                  .timeOfDay = const TimeOfDay(
+                                                hour: 21,
+                                                minute: 0,
+                                              );
+                                              _today = GlobalVariables.today;
+                                              _timeOfDay =
+                                                  GlobalVariables.timeOfDay;
+                                              GlobalVariables.currentIndex = 0;
+                                            });
+                                            if (mounted) {
+                                              Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (context) =>
+                                                          const MainScreen(),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          child: const Text(
+                                            '30-12-2025\n21:00',
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                AppColors.secondary,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 12,
+                                            ),
+                                            textStyle: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            if (!mounted) return;
+                                            setState(() {
+                                              GlobalVariables.today = DateTime(
+                                                2025,
+                                                12,
+                                                31,
+                                              );
+                                              GlobalVariables
+                                                  .timeOfDay = const TimeOfDay(
+                                                hour: 3,
+                                                minute: 0,
+                                              );
+                                              _today = GlobalVariables.today;
+                                              _timeOfDay =
+                                                  GlobalVariables.timeOfDay;
+                                              GlobalVariables.currentIndex = 0;
+                                            });
+                                            if (mounted) {
+                                              Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (context) =>
+                                                          const MainScreen(),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          child: const Text(
+                                            '31-12-2025\n03:00',
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                AppColors.secondary,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 12,
+                                            ),
+                                            textStyle: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            if (!mounted) return;
+                                            setState(() {
+                                              GlobalVariables.today = DateTime(
+                                                2025,
+                                                12,
+                                                31,
+                                              );
+                                              GlobalVariables
+                                                  .timeOfDay = const TimeOfDay(
+                                                hour: 21,
+                                                minute: 0,
+                                              );
+                                              _today = GlobalVariables.today;
+                                              _timeOfDay =
+                                                  GlobalVariables.timeOfDay;
+                                              GlobalVariables.currentIndex = 0;
+                                            });
+                                            if (mounted) {
+                                              Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (context) =>
+                                                          const MainScreen(),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          child: const Text(
+                                            '31-12-2025\n21:00',
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                AppColors.secondary,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 12,
+                                            ),
+                                            textStyle: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            if (!mounted) return;
+                                            setState(() {
+                                              GlobalVariables.today = DateTime(
+                                                2026,
+                                                1,
+                                                1,
+                                              );
+                                              GlobalVariables
+                                                  .timeOfDay = const TimeOfDay(
+                                                hour: 3,
+                                                minute: 0,
+                                              );
+                                              _today = GlobalVariables.today;
+                                              _timeOfDay =
+                                                  GlobalVariables.timeOfDay;
+                                              GlobalVariables.currentIndex = 0;
+                                            });
+                                            if (mounted) {
+                                              Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (context) =>
+                                                          const MainScreen(),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          child: const Text(
+                                            '01-01-2026\n03:00',
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                AppColors.secondary,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 12,
+                                            ),
+                                            textStyle: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            if (!mounted) return;
+                                            setState(() {
+                                              GlobalVariables.today = DateTime(
+                                                2026,
+                                                1,
+                                                1,
+                                              );
+                                              GlobalVariables
+                                                  .timeOfDay = const TimeOfDay(
+                                                hour: 21,
+                                                minute: 0,
+                                              );
+                                              _today = GlobalVariables.today;
+                                              _timeOfDay =
+                                                  GlobalVariables.timeOfDay;
+                                              GlobalVariables.currentIndex = 0;
+                                            });
+                                            if (mounted) {
+                                              Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (context) =>
+                                                          const MainScreen(),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          child: const Text(
+                                            '01-01-2026\n21:00',
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                AppColors.secondary,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 12,
+                                            ),
+                                            textStyle: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            if (!mounted) return;
+                                            setState(() {
+                                              GlobalVariables.today = DateTime(
+                                                2026,
+                                                1,
+                                                2,
+                                              );
+                                              GlobalVariables
+                                                  .timeOfDay = const TimeOfDay(
+                                                hour: 3,
+                                                minute: 0,
+                                              );
+                                              _today = GlobalVariables.today;
+                                              _timeOfDay =
+                                                  GlobalVariables.timeOfDay;
+                                              GlobalVariables.currentIndex = 0;
+                                            });
+                                            if (mounted) {
+                                              Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (context) =>
+                                                          const MainScreen(),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          child: const Text(
+                                            '02-01-2026\n03:00',
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                AppColors.secondary,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 12,
+                                            ),
+                                            textStyle: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            if (!mounted) return;
+                                            setState(() {
+                                              GlobalVariables.today = DateTime(
+                                                2026,
+                                                2,
+                                                1,
+                                              );
+                                              GlobalVariables
+                                                  .timeOfDay = const TimeOfDay(
+                                                hour: 13,
+                                                minute: 0,
+                                              );
+                                              _today = GlobalVariables.today;
+                                              _timeOfDay =
+                                                  GlobalVariables.timeOfDay;
+                                              GlobalVariables.currentIndex = 0;
+                                            });
+                                            if (mounted) {
+                                              Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (context) =>
+                                                          const MainScreen(),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          child: const Text(
+                                            '02-01-2026\n12:00',
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                       ],

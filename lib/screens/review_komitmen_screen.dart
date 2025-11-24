@@ -175,7 +175,7 @@ class _ReviewKomitmenScreenState extends State<ReviewKomitmenScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Form Komitmen Hari ke-${widget.acaraHariId}\nNama: $_userName',
+                                'Review Komitmen Hari ke-${widget.acaraHariId}\nNama: $_userName',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,

@@ -761,6 +761,51 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> postBrmNotesUpdate(
+    BuildContext context,
+    Map<String, dynamic> brmNotes,
+  ) async {
+    // final prefs = await SharedPreferences.getInstance();
+    // final token = prefs.getString('token');
+    final token = await secureStorage.read(key: 'token') ?? '';
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
+    final url = Uri.parse('${baseurl}brm-notes-update');
+    final body = json.encode({'data_notes': brmNotes});
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: body,
+    );
+
+    print('test body: $body');
+    print('test url: $url');
+    print('test response: ${response.statusCode} - ${response.body}');
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> result = json.decode(response.body);
+      print('✅ Brm notes update (edit) berhasil dikirim: $result');
+      return result;
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        context,
+        'Sesi login Anda telah habis. Silakan login kembali.',
+      );
+      await handleUnauthorized(context);
+      // throw Exception('Unauthorized');
+      return {};
+    } else {
+      print('❌ Error: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to post brm notes update (edit)');
+    }
+  }
+
   Future<Map<String, dynamic>> putBrmNotes(
     BuildContext context,
     Map<String, dynamic> brmNotes,
@@ -1031,6 +1076,9 @@ class ApiService {
       },
     );
 
+    print('url $url');
+    print('response ${response.statusCode} - ${response.body}');
+
     if (response.statusCode == 200) {
       final Map<String, dynamic> decoded = json.decode(response.body);
       final String countEval = decoded['count'] ?? '';
@@ -1254,6 +1302,7 @@ class ApiService {
     );
 
     print('url: $url');
+    print('response: ${response.statusCode} - ${response.body}');
     if (response.statusCode == 200) {
       final Map<String, dynamic> dataevaluasi = json.decode(response.body);
 
@@ -2270,6 +2319,10 @@ class ApiService {
     if (response.statusCode == 201) {
       final Map<String, dynamic> result = json.decode(response.body);
       print('✅ Konfirmasi datang berhasil dikirim: $result');
+      return result;
+    } else if (response.statusCode == 200) {
+      final Map<String, dynamic> result = json.decode(response.body);
+      print('❌ Konfirmasi datang gagal dikirim: $result');
       return result;
     } else if (response.statusCode == 401) {
       showCustomSnackBar(

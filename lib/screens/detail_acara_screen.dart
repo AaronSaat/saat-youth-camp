@@ -799,12 +799,9 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
                               const SizedBox(height: 24),
                               if (_userData != null &&
                                   _userData!['role'] != null &&
-                                  (_userData!['role']!.toLowerCase().contains(
-                                        'peserta',
-                                      ) ||
-                                      _userData!['role']!
-                                          .toLowerCase()
-                                          .contains('pembina')) &&
+                                  _userData!['role']!.toLowerCase().contains(
+                                    'peserta',
+                                  ) &&
                                   !_evaluasiDone)
                                 Column(
                                   children: [

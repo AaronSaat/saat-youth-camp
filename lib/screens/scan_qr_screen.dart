@@ -77,7 +77,7 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Registrasi Ulang Peserta Kelompok ${widget.namakelompok}',
+          'Konfirmasi Registrasi Ulang Peserta Kelompok ${widget.namakelompok}',
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
