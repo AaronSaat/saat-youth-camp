@@ -6,10 +6,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syc/screens/main_screen.dart';
-import 'package:syc/services/notification_service.dart';
 import 'package:syc/utils/app_colors.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:syc/services/notification_service2.dart' as notif2;
 
 // import 'orientation_guard.dart';
 import 'screens/login_screen.dart';
@@ -39,7 +39,7 @@ Future<void> handleFirstLaunchCleanup() async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await NotificationService().initialize();
+  // await NotificationService().initialize();
   tz.initializeTimeZones();
 
   if (Platform.isIOS) {
@@ -48,82 +48,82 @@ void main() async {
 
   await Firebase.initializeApp();
 
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    // Navigasi ke screen sesuai data notifikasi
-    final tujuan = message.data['tujuan']?.toString() ?? '';
-    final id = int.tryParse(message.data['acara_id']?.toString() ?? '0') ?? 0;
-    final userId =
-        int.tryParse(message.data['user_id']?.toString() ?? '0') ?? 0;
-    print('Navigating with tujuan: $tujuan, id: $id, userId: $userId');
+  // Inisialisasi notification service2 dengan navigatorKey
+  notif2.NotificationService.initialize(navigatorKey);
+  print('NotificationService2 initialized');
 
-    switch (tujuan) {
-      case 'pengumuman_list':
-        print('Navigating to Splash Screen First');
-        navigatorKey.currentState?.push(
-          MaterialPageRoute(
-            builder:
-                (_) => SplashScreen(
-                  fromNotification: true,
-                  tujuan: tujuan,
-                  id: id,
-                  userId: userId,
-                ),
-          ),
-        );
-        break;
-      case 'acara_list':
-        print('Navigating to Splash Screen First');
-        navigatorKey.currentState?.push(
-          MaterialPageRoute(
-            builder:
-                (_) => SplashScreen(
-                  fromNotification: true,
-                  tujuan: tujuan,
-                  id: id,
-                  userId: userId,
-                ),
-          ),
-        );
+  // FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+  //   // Navigasi ke screen sesuai data notifikasi
+  //   final tujuan = message.data['tujuan']?.toString() ?? '';
+  //   final id = int.tryParse(message.data['acara_id']?.toString() ?? '0') ?? 0;
+  //   final userId =
+  //       int.tryParse(message.data['user_id']?.toString() ?? '0') ?? 0;
+  //   print('Navigating with tujuan: $tujuan, id: $id, userId: $userId');
 
-        break;
-      case 'evaluasi_list':
-        print('Navigating to Splash Screen First');
-        navigatorKey.currentState?.push(
-          MaterialPageRoute(
-            builder:
-                (_) => SplashScreen(
-                  fromNotification: true,
-                  tujuan: tujuan,
-                  id: id,
-                  userId: userId,
-                ),
-          ),
-        );
-        break;
-      case 'dashboard':
-        print('Navigating to Splash Screen First');
-        navigatorKey.currentState?.push(
-          MaterialPageRoute(
-            builder:
-                (_) => SplashScreen(
-                  fromNotification: true,
-                  tujuan: tujuan,
-                  id: id,
-                  userId: userId,
-                ),
-          ),
-        );
-        break;
-      // Tambahkan case lain sesuai kebutuhan
-      default:
-        // Default action jika screen tidak dikenali
-        print('Navigating to Splash Screen');
-        navigatorKey.currentState?.push(
-          MaterialPageRoute(builder: (_) => const SplashScreen()),
-        );
-        break;
-    }
-  });
+  //   switch (tujuan) {
+  //     case 'pengumuman_list':
+  //       print('Navigating to Splash Screen First');
+  //       navigatorKey.currentState?.push(
+  //         MaterialPageRoute(
+  //           builder:
+  //               (_) => SplashScreen(
+  //                 fromNotification: true,
+  //                 tujuan: tujuan,
+  //                 id: id,
+  //               ),
+  //         ),
+  //       );
+  //       break;
+  //     case 'acara_list':
+  //       print('Navigating to Splash Screen First');
+  //       navigatorKey.currentState?.push(
+  //         MaterialPageRoute(
+  //           builder:
+  //               (_) => SplashScreen(
+  //                 fromNotification: true,
+  //                 tujuan: tujuan,
+  //                 id: id,
+  //               ),
+  //         ),
+  //       );
+
+  //       break;
+  //     case 'evaluasi_list':
+  //       print('Navigating to Splash Screen First');
+  //       navigatorKey.currentState?.push(
+  //         MaterialPageRoute(
+  //           builder:
+  //               (_) => SplashScreen(
+  //                 fromNotification: true,
+  //                 tujuan: tujuan,
+  //                 id: id,
+  //               ),
+  //         ),
+  //       );
+  //       break;
+  //     case 'dashboard':
+  //       print('Navigating to Splash Screen First');
+  //       navigatorKey.currentState?.push(
+  //         MaterialPageRoute(
+  //           builder:
+  //               (_) => SplashScreen(
+  //                 fromNotification: true,
+  //                 tujuan: tujuan,
+  //                 id: id,
+  //               ),
+  //         ),
+  //       );
+  //       break;
+  //     // Tambahkan case lain sesuai kebutuhan
+  //     default:
+  //       // Default action jika screen tidak dikenali
+  //       print('Navigating to Splash Screen');
+  //       navigatorKey.currentState?.push(
+  //         MaterialPageRoute(builder: (_) => const SplashScreen()),
+  //       );
+  //       break;
+  //   }
+  // });
 
   if (Platform.isIOS) {
     NotificationSettings settings = await FirebaseMessaging.instance

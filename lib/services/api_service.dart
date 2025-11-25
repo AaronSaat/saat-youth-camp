@@ -2422,6 +2422,10 @@ class ApiService {
       final Map<String, dynamic> dataVersion = json.decode(response.body);
 
       return dataVersion;
+    } else if (response.statusCode == 403) {
+      final Map<String, dynamic> dataVersion = json.decode(response.body);
+
+      return dataVersion;
     } else {
       print('❌ Error: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load data konfirmasi');

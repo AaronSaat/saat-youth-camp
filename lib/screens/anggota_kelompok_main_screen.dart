@@ -198,7 +198,6 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
   @override
   Widget build(BuildContext context) {
     _lastBackPressed = null;
-    final role = _dataUser['role'] ?? '-';
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) {
@@ -300,22 +299,23 @@ class _AnggotaKelompokMainScreenState extends State<AnggotaKelompokMainScreen> {
         floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
         floatingActionButton:
             (_dataUser['role']?.toLowerCase() == 'pembimbing kelompok' ||
-                        _dataUser['role']?.toLowerCase() == 'panitia') &&
-                    widget.id != '41'
+                    _dataUser['role']?.toLowerCase() == 'panitia')
                 ? Padding(
                   padding: const EdgeInsets.only(bottom: 96.0),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      FloatingActionButton(
-                        heroTag: 'toggle_info_card',
-                        backgroundColor: AppColors.floating_button,
-                        onPressed: _toggleInfoCardView,
-                        child: Icon(
-                          _showInfoCard ? Icons.view_list : Icons.info,
-                          color: AppColors.brown1,
-                        ),
-                      ),
+                      widget.id != '41'
+                          ? FloatingActionButton(
+                            heroTag: 'toggle_info_card',
+                            backgroundColor: AppColors.floating_button,
+                            onPressed: _toggleInfoCardView,
+                            child: Icon(
+                              _showInfoCard ? Icons.view_list : Icons.info,
+                              color: AppColors.brown1,
+                            ),
+                          )
+                          : const SizedBox.shrink(),
                       const SizedBox(height: 12),
                       FloatingActionButton(
                         backgroundColor: AppColors.floating_button,
@@ -385,6 +385,7 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
           itemBuilder: (context, index) {
             final user = anggota[index] as Map<String, dynamic>;
             final userRole = (user['role'] ?? '').toString().toLowerCase();
+            final kelengkapan = user['kelengkapan'] ?? 0;
 
             Widget avatarWidget() {
               if (isLoading) {
@@ -447,20 +448,59 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                                 : userRole.contains('anggota') &&
                                     (role.contains('pembimbing kelompok') ||
                                         role.contains('panitia')) &&
-                                    state.widget.id != '41' &&
-                                    user['id'] != null
-                                ? 325
+                                    state.widget.id == '41' &&
+                                    user['id'] == null &&
+                                    kelengkapan == 0
+                                ? 300
                                 : userRole.contains('anggota') &&
                                     (role.contains('pembimbing kelompok') ||
                                         role.contains('panitia')) &&
                                     state.widget.id != '41' &&
-                                    user['id'] == null
-                                ? 265
+                                    user['id'] == null &&
+                                    kelengkapan == 0
+                                ? 310
                                 : userRole.contains('anggota') &&
                                     (role.contains('pembimbing kelompok') ||
                                         role.contains('panitia')) &&
-                                    state.widget.id == '41'
+                                    state.widget.id == '41' &&
+                                    user['id'] != null &&
+                                    kelengkapan == 0
+                                ? 300
+                                : userRole.contains('anggota') &&
+                                    (role.contains('pembimbing kelompok') ||
+                                        role.contains('panitia')) &&
+                                    state.widget.id != '41' &&
+                                    user['id'] != null &&
+                                    kelengkapan == 0
+                                ? 330
+                                : userRole.contains('anggota') &&
+                                    (role.contains('pembimbing kelompok') ||
+                                        role.contains('panitia')) &&
+                                    state.widget.id == '41' &&
+                                    user['id'] == null &&
+                                    kelengkapan == 1
                                 ? 260
+                                : userRole.contains('anggota') &&
+                                    (role.contains('pembimbing kelompok') ||
+                                        role.contains('panitia')) &&
+                                    state.widget.id != '41' &&
+                                    user['id'] == null &&
+                                    kelengkapan == 1
+                                ? 250
+                                : userRole.contains('anggota') &&
+                                    (role.contains('pembimbing kelompok') ||
+                                        role.contains('panitia')) &&
+                                    state.widget.id == '41' &&
+                                    user['id'] != null &&
+                                    kelengkapan == 1
+                                ? 290
+                                : userRole.contains('anggota') &&
+                                    (role.contains('pembimbing kelompok') ||
+                                        role.contains('panitia')) &&
+                                    state.widget.id != '41' &&
+                                    user['id'] != null &&
+                                    kelengkapan == 1
+                                ? 300
                                 : userRole.contains('anggota') &&
                                     role.contains('pembina')
                                 ? 250
@@ -621,6 +661,7 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                                     ],
                                   ),
                                 ),
+                              const SizedBox(height: 8),
                               if ((([
                                         'panitia',
                                         'pembimbing kelompok',
@@ -762,6 +803,80 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                                         ),
                                       ),
                                     ),
+                                  ],
+                                ),
+                              const SizedBox(height: 8),
+                              if ((role.toLowerCase().contains('panitia') ||
+                                      role.toLowerCase().contains(
+                                        'pembimbing kelompok',
+                                      )) &&
+                                  userRole.toLowerCase().contains('anggota') &&
+                                  user['kelengkapan'] == 0)
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    if (userRole == 'anggota')
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 2,
+                                          ),
+                                          child: SizedBox(
+                                            height: 35,
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                showCustomSnackBar(
+                                                  context,
+                                                  'Peserta / pembina belum melengkapi data Konfirmasi Datang / Pulang.',
+                                                  duration: const Duration(
+                                                    seconds: 3,
+                                                  ),
+                                                );
+                                              },
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: AppColors.accent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(16),
+                                                ),
+                                                alignment: Alignment.center,
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: const [
+                                                    Icon(
+                                                      Icons
+                                                          .warning_amber_rounded,
+                                                      color: Colors.white,
+                                                      size: 18,
+                                                    ),
+                                                    SizedBox(width: 8),
+                                                    Text(
+                                                      'Belum Mengisi Jadwal',
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 8),
+                                                    Icon(
+                                                      Icons
+                                                          .warning_amber_rounded,
+                                                      color: Colors.white,
+                                                      size: 18,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                   ],
                                 ),
                             ],

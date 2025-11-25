@@ -143,6 +143,8 @@ flutter:
     - assets/mockups/bonding.jpg
     - assets/mockups/eat.jpg
     - assets/mockups/seeyou.jpg
+    - assets/mockups/event.jpg
+    - assets/mockups/180degrees.jpg
 
     # share verse
     - assets/shareverse/photo1.png

@@ -532,7 +532,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                             ),
                                             child: QrImageView(
                                               data:
-                                                  '${GlobalVariables.serverUrl}syc2025/konfirmasi-datang?secret=$encryptedSecret',
+                                                  '${GlobalVariables.serverUrl}syc2025/konfirmasi-datang/$encryptedSecret',
                                               size: 180.0,
                                               backgroundColor: Colors.white,
                                             ),

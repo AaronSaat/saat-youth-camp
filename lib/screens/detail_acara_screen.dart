@@ -9,7 +9,6 @@ import 'package:syc/screens/evaluasi_komitmen_view_screen.dart';
 import 'package:syc/widgets/custom_count_up.dart';
 import 'package:syc/widgets/custom_snackbar.dart';
 import '../services/api_service.dart';
-import '../services/notification_service.dart';
 import '../utils/app_colors.dart';
 import '../utils/global_variables.dart';
 
@@ -31,7 +30,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
   // Notification preferences for this acara
   bool _notifReminderEnabled = false; // 15 minutes before
   bool _notifEvaluasiEnabled = false; // 1 hour after
-  final NotificationService _notificationService = NotificationService();
+  // final NotificationService _notificationService = NotificationService();
   DateTime? _scheduledReminderTime;
   DateTime? _scheduledEvaluasiTime;
 
@@ -176,14 +175,14 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
         );
         return;
       }
-      await _notificationService.initialize();
-      await _notificationService.scheduledNotification(
-        id: notifId,
-        title: '⏰ ${acara['acara_nama'] ?? 'Acara'} akan dimulai',
-        body: '${acara['acara_nama'] ?? 'Acara'} akan dimulai dalam 15 menit',
-        scheduledTime: scheduled,
-        payload: 'splash',
-      );
+      // await _notificationService.initialize();
+      // await _notificationService.scheduledNotification(
+      //   id: notifId,
+      //   title: '⏰ ${acara['acara_nama'] ?? 'Acara'} akan dimulai',
+      //   body: '${acara['acara_nama'] ?? 'Acara'} akan dimulai dalam 15 menit',
+      //   scheduledTime: scheduled,
+      //   payload: 'splash',
+      // );
       await prefs.setBool(reminderKey, true);
       await prefs.setString(
         'notif_acara_${widget.id}_time',
@@ -201,7 +200,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
       );
     } else {
       try {
-        await _notificationService.cancelNotificationById(notifId);
+        // await _notificationService.cancelNotificationById(notifId);
         await prefs.remove(reminderKey);
         await prefs.remove('notif_acara_${widget.id}_time');
         if (!mounted) return;
@@ -272,15 +271,15 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
         );
         return;
       }
-      await _notificationService.initialize();
-      await _notificationService.scheduledNotification(
-        id: evalNotifId,
-        title: '📝 Waktu Evaluasi',
-        body:
-            'Silakan isi evaluasi untuk acara: ${acara['acara_nama'] ?? 'Acara'}',
-        scheduledTime: scheduledEval,
-        payload: 'splash',
-      );
+      // await _notificationService.initialize();
+      // await _notificationService.scheduledNotification(
+      //   id: evalNotifId,
+      //   title: '📝 Waktu Evaluasi',
+      //   body:
+      //       'Silakan isi evaluasi untuk acara: ${acara['acara_nama'] ?? 'Acara'}',
+      //   scheduledTime: scheduledEval,
+      //   payload: 'splash',
+      // );
       await prefs.setBool(evalKey, true);
       await prefs.setString(
         'notif_acara_${widget.id}_eval_time',
@@ -298,7 +297,7 @@ class _DetailAcaraScreenState extends State<DetailAcaraScreen> {
       );
     } else {
       try {
-        await _notificationService.cancelNotificationById(evalNotifId);
+        // await _notificationService.cancelNotificationById(evalNotifId);
         await prefs.remove(evalKey);
         await prefs.remove('notif_acara_${widget.id}_eval_time');
         if (!mounted) return;

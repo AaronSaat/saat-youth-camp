@@ -1,5 +1,4 @@
 // import 'package:workmanager/workmanager.dart';
-// import 'package:syc/services/notification_service.dart';
 
 // @pragma('vm:entry-point')
 // void callbackDispatcher() {

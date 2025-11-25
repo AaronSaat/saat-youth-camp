@@ -5,7 +5,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import '../services/api_service.dart';
-import '../services/notification_service.dart';
 import '../utils/app_colors.dart';
 import '../utils/global_variables.dart';
 import '../widgets/custom_card.dart';
@@ -29,7 +28,7 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
   bool _isLoading = true;
   // Komitmen notification setting (default OFF)
   bool _notifKomitmenEnabled = false;
-  final NotificationService _notificationService = NotificationService();
+  // final NotificationService _notificationService = NotificationService();
 
   // [DEVELOPMENT NOTES] nanti hapus
   // DateTime _today = DateTime.now();
@@ -195,13 +194,13 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
           final body = 'Jangan lupa mengisi komitmen untuk tanggal $tanggal.';
           final payload = 'splash';
 
-          await _notificationService.scheduledNotification(
-            id: notifId,
-            title: title,
-            body: body,
-            scheduledTime: scheduledDate,
-            payload: payload,
-          );
+          // await _notificationService.scheduledNotification(
+          //   id: notifId,
+          //   title: title,
+          //   body: body,
+          //   scheduledTime: scheduledDate,
+          //   payload: payload,
+          // );
           print('Scheduled komitmen notif (ID: $notifId) for $scheduledDate');
 
           scheduledIds.add(notifId.toString());
@@ -226,7 +225,7 @@ class _ListKomitmenScreenState extends State<ListKomitmenScreen> {
       for (final idStr in ids) {
         final id = int.tryParse(idStr);
         if (id != null) {
-          await _notificationService.cancelNotificationById(id);
+          // await _notificationService.cancelNotificationById(id);
         }
       }
       await prefs.remove(notifIdsKey);

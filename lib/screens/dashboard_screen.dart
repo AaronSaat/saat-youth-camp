@@ -16,8 +16,6 @@ import 'package:syc/screens/list_evaluasi_screen.dart';
 import 'package:syc/screens/list_tutorial_screen.dart';
 import 'package:syc/screens/main_screen.dart';
 import 'package:syc/screens/profile_edit_screen.dart';
-import 'package:syc/services/notification_service.dart'
-    show NotificationService;
 import 'package:syc/utils/global_variables.dart';
 import 'package:syc/widgets/custom_snackbar.dart';
 import 'package:flutter/services.dart';
@@ -63,7 +61,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _komitmenDone = false;
   DateTime? _lastBackPressed;
   // DateTime _today = DateTime.now();
-  final NotificationService _notificationService = NotificationService();
+  // final NotificationService _notificationService = NotificationService();
 
   bool isSupported = false;
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -89,9 +87,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final List<Map<String, dynamic>> acaraStatisHari1 = [
     {
       'id': 1,
-      'acara_nama': 'Welcome to STT SAAT - SYC 2025 & Registration',
+      'acara_nama': 'Welcome to STT SAAT SYC 2025 & Registration (Registrasi)',
       'tanggal': DateTime(2025, 12, 30),
-      'waktu': TimeOfDay(hour: 7, minute: 0),
+      'waktu': TimeOfDay(hour: 6, minute: 0),
       'tempat': 'Plaza Auditorium',
       'gambar': 'assets/mockups/registration.jpg',
     },
@@ -113,9 +111,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     },
     {
       'id': 4,
-      'acara_nama': 'Opening (KKR1)',
+      'acara_nama': 'Opening + KKR 1 | Redeemed: The Only Solution',
       'tanggal': DateTime(2025, 12, 30),
-      'waktu': TimeOfDay(hour: 19, minute: 30),
+      'waktu': TimeOfDay(hour: 19, minute: 00),
       'tempat': 'Auditorium',
       'gambar': 'assets/mockups/opening.jpg',
     },
@@ -123,7 +121,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'id': 5,
       'acara_nama': 'Alone with God',
       'tanggal': DateTime(2025, 12, 30),
-      'waktu': TimeOfDay(hour: 21, minute: 30),
+      'waktu': TimeOfDay(hour: 21, minute: 00),
       'tempat': 'Auditorium',
       'gambar': 'assets/mockups/awg.jpg',
     },
@@ -131,7 +129,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'id': 6,
       'acara_nama': 'Rest',
       'tanggal': DateTime(2025, 12, 30),
-      'waktu': TimeOfDay(hour: 22, minute: 30),
+      'waktu': TimeOfDay(hour: 22, minute: 00),
       'tempat': 'Ruangan Masing-Masing',
       'gambar': 'assets/mockups/rest.jpg',
     },
@@ -165,7 +163,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     },
     {
       'id': 10,
-      'acara_nama': 'Group Acitivity (with snack) - The Path of Redemption',
+      'acara_nama': 'Group Acitivity | The Path of Redemption',
       'tanggal': DateTime(2025, 12, 31),
       'waktu': TimeOfDay(hour: 9, minute: 0),
       'tempat': 'Seluruh Kampus',
@@ -197,7 +195,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     },
     {
       'id': 14,
-      'acara_nama': 'SYC Talks: The Book of Galatian',
+      'acara_nama': 'SYC Talks: The Spirit of Redemption',
       'tanggal': DateTime(2025, 12, 31),
       'waktu': TimeOfDay(hour: 16, minute: 30),
       'tempat': 'Auditorium',
@@ -213,7 +211,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     },
     {
       'id': 16,
-      'acara_nama': 'KKR 2 - Jesus Paid it All',
+      'acara_nama': 'KKR 2 | Jesus Paid it All (Karmelita)',
       'tanggal': DateTime(2025, 12, 31),
       'waktu': TimeOfDay(hour: 19, minute: 30),
       'tempat': 'Auditorium',
@@ -221,9 +219,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
     },
     {
       'id': 17,
-      'acara_nama': 'Special Program',
+      'acara_nama': '180 Degrees + Re-connect',
       'tanggal': DateTime(2025, 12, 31),
       'waktu': TimeOfDay(hour: 21, minute: 30),
+      'tempat': 'Auditorium',
+      'gambar': 'assets/mockups/180degrees.jpg',
+    },
+    {
+      'id': 18,
+      'acara_nama': 'To the New Year, New Me',
+      'tanggal': DateTime(2025, 12, 31),
+      'waktu': TimeOfDay(hour: 23, minute: 30),
       'tempat': 'Auditorium',
       'gambar': 'assets/mockups/special.jpg',
     },
@@ -232,15 +238,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
   //static data
   final List<Map<String, dynamic>> acaraStatisHari3 = [
     {
-      'id': 18,
+      'id': 19,
       'acara_nama': 'Rest',
       'tanggal': DateTime(2026, 01, 01),
-      'waktu': TimeOfDay(hour: 1, minute: 30),
+      'waktu': TimeOfDay(hour: 0, minute: 15),
       'tempat': 'Ruangan Masing-Masing',
       'gambar': 'assets/mockups/rest.jpg',
     },
     {
-      'id': 19,
+      'id': 20,
       'acara_nama': 'Self Preparation',
       'tanggal': DateTime(2026, 01, 01),
       'waktu': TimeOfDay(hour: 6, minute: 0),
@@ -248,7 +254,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/preparation.jpg',
     },
     {
-      'id': 20,
+      'id': 21,
       'acara_nama': 'Breakfast',
       'tanggal': DateTime(2026, 01, 01),
       'waktu': TimeOfDay(hour: 8, minute: 0),
@@ -256,7 +262,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/eat.jpg',
     },
     {
-      'id': 21,
+      'id': 22,
       'acara_nama': 'Morning Devotion',
       'tanggal': DateTime(2026, 01, 01),
       'waktu': TimeOfDay(hour: 9, minute: 0),
@@ -264,15 +270,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/devotion.jpg',
     },
     {
-      'id': 22,
-      'acara_nama': 'Group Acitivity "Living Redeemed Life"',
+      'id': 23,
+      'acara_nama': 'Group Acitivity | "Living Redeemed Life?"',
       'tanggal': DateTime(2026, 01, 01),
       'waktu': TimeOfDay(hour: 10, minute: 0),
       'tempat': 'Seluruh Kampus',
       'gambar': 'assets/mockups/activity.jpg',
     },
     {
-      'id': 23,
+      'id': 24,
       'acara_nama': 'Lunch',
       'tanggal': DateTime(2026, 01, 01),
       'waktu': TimeOfDay(hour: 12, minute: 30),
@@ -280,7 +286,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/eat.jpg',
     },
     {
-      'id': 24,
+      'id': 25,
       'acara_nama': 'BKC - Final',
       'tanggal': DateTime(2026, 01, 01),
       'waktu': TimeOfDay(hour: 13, minute: 0),
@@ -288,7 +294,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/bkc2.jpg',
     },
     {
-      'id': 25,
+      'id': 26,
       'acara_nama': "Self Preparation",
       "tanggal": DateTime(2026, 01, 01),
       "waktu": TimeOfDay(hour: 15, minute: 0),
@@ -296,7 +302,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       "gambar": "assets/mockups/preparation.jpg",
     },
     {
-      'id': 26,
+      'id': 27,
       'acara_nama': 'SYC Talks: The Work of Christ',
       'tanggal': DateTime(2026, 01, 01),
       'waktu': TimeOfDay(hour: 16, minute: 30),
@@ -304,7 +310,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/talks.jpg',
     },
     {
-      'id': 27,
+      'id': 28,
       'acara_nama': 'Dinner',
       'tanggal': DateTime(2026, 01, 01),
       'waktu': TimeOfDay(hour: 18, minute: 30),
@@ -312,23 +318,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/eat.jpg',
     },
     {
-      'id': 28,
-      'acara_nama': "KKR 3 - The Redeemed Z's",
+      'id': 29,
+      'acara_nama': "KKR 3 | The Redeemed Zs",
       'tanggal': DateTime(2026, 01, 01),
       'waktu': TimeOfDay(hour: 19, minute: 30),
       'tempat': 'Auditorium',
       'gambar': 'assets/mockups/kkr3.jpg',
     },
     {
-      'id': 29,
-      'acara_nama': "Commited Among Us",
+      'id': 30,
+      'acara_nama': "Commitment Among Us",
       "tanggal": DateTime(2026, 01, 01),
       "waktu": TimeOfDay(hour: 21, minute: 30),
       "tempat": "Auditorium",
       "gambar": "assets/mockups/amongus.jpg",
     },
     {
-      'id': 30,
+      'id': 31,
       'acara_nama': "Rest",
       "tanggal": DateTime(2026, 01, 01),
       "waktu": TimeOfDay(hour: 22, minute: 30),
@@ -340,7 +346,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   //static data
   final List<Map<String, dynamic>> acaraStatisHari4 = [
     {
-      'id': 31,
+      'id': 32,
       'acara_nama': 'Self Preparation',
       'tanggal': DateTime(2026, 01, 02),
       'waktu': TimeOfDay(hour: 6, minute: 0),
@@ -348,7 +354,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/preparation.jpg',
     },
     {
-      'id': 32,
+      'id': 33,
       'acara_nama': 'Breakfast',
       'tanggal': DateTime(2026, 01, 02),
       'waktu': TimeOfDay(hour: 7, minute: 0),
@@ -356,7 +362,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/eat.jpg',
     },
     {
-      'id': 33,
+      'id': 34,
       'acara_nama': 'Morning Devotion',
       'tanggal': DateTime(2026, 01, 02),
       'waktu': TimeOfDay(hour: 8, minute: 0),
@@ -364,15 +370,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'gambar': 'assets/mockups/devotion.jpg',
     },
     {
-      'id': 34,
-      'acara_nama': "Closing - Redeemed: The Story I Love to Share",
+      'id': 35,
+      'acara_nama':
+          "Closing | Redeemed: The Story I Love to Share & Announcements",
       'tanggal': DateTime(2026, 01, 02),
       'waktu': TimeOfDay(hour: 9, minute: 0),
       'tempat': 'Auditorium',
       'gambar': 'assets/mockups/closing.jpg',
     },
     {
-      'id': 35,
+      'id': 36,
       'acara_nama': "Lunch",
       "tanggal": DateTime(2026, 01, 02),
       "waktu": TimeOfDay(hour: 12, minute: 30),
@@ -380,9 +387,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       "gambar": "assets/mockups/eat.jpg",
     },
     {
-      'id': 36,
+      'id': 37,
       'acara_nama':
-          "Home, Transformed & Recharged to Worship & Witness For The Glory of God -> See You @ SYC 2026",
+          "Redeemed Me, Redeem the World | Home | Transformed & Recharged to Worship and Witness For The Glory of God | See You @ SYC 2026",
       "tanggal": DateTime(2026, 01, 02),
       "waktu": TimeOfDay(hour: 13, minute: 0),
       "tempat": "Auditorium",
@@ -403,18 +410,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
 
     // Inisialisasi plugin notifikasi lokal
-    const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const iosInit = DarwinInitializationSettings();
-    const initSettings = InitializationSettings(
-      android: androidInit,
-      iOS: iosInit,
-    );
-    flutterLocalNotificationsPlugin.initialize(initSettings);
+    // const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+    // const iosInit = DarwinInitializationSettings();
+    // const initSettings = InitializationSettings(
+    //   android: androidInit,
+    //   iOS: iosInit,
+    // );
+    // flutterLocalNotificationsPlugin.initialize(initSettings);
 
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('Pesan FCM masuk: ${message.notification?.title}');
-      _showLocalNotification(message);
-    });
+    // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    //   print('Pesan FCM masuk: ${message.notification?.title}');
+    //   _showLocalNotification(message);
+    // });
 
     AppBadgePlus.isSupported().then((value) {
       isSupported = value;
@@ -791,7 +798,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           roleLower.contains('peserta') || roleLower.contains('pembina');
 
       // Ensure notification service initialized once
-      await _notificationService.initialize();
+      // await _notificationService.initialize();
 
       final now = DateTime.now();
 
@@ -857,13 +864,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             final bodyRem =
                 '${acara['acara_nama'] ?? 'Acara'} akan dimulai dalam 15 menit';
 
-            await _notificationService.scheduledNotification(
-              id: reminderId,
-              title: titleRem,
-              body: bodyRem,
-              scheduledTime: scheduledReminder,
-              payload: 'splash',
-            );
+            // await _notificationService.scheduledNotification(
+            //   id: reminderId,
+            //   title: titleRem,
+            //   body: bodyRem,
+            //   scheduledTime: scheduledReminder,
+            //   payload: 'splash',
+            // );
 
             scheduledIds.add(reminderId.toString());
             await prefs.setBool('notif_acara_${acaraIdStr}_reminder', true);
@@ -900,13 +907,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             final bodyEval =
                 'Jangan lupa mengisi evaluasi untuk acara: ${acara['acara_nama'] ?? 'Acara'}';
 
-            await _notificationService.scheduledNotification(
-              id: evalId,
-              title: titleEval,
-              body: bodyEval,
-              scheduledTime: scheduledEval,
-              payload: 'splash',
-            );
+            // await _notificationService.scheduledNotification(
+            //   id: evalId,
+            //   title: titleEval,
+            //   body: bodyEval,
+            //   scheduledTime: scheduledEval,
+            //   payload: 'splash',
+            // );
 
             scheduledIds.add(evalId.toString());
             await prefs.setBool('notif_acara_${acaraIdStr}_evaluasi', true);
@@ -991,7 +998,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       await prefs.setBool(notifEnabledKey, true);
 
       // Ensure notification plugin initialized
-      await _notificationService.initialize();
+      // await _notificationService.initialize();
 
       final now = DateTime.now();
       final List<String> scheduledIds = [];
@@ -1040,13 +1047,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
               'Jangan lupa mengisi komitmen untuk tanggal $tanggalStr.';
           final payload = 'splash';
 
-          await _notificationService.scheduledNotification(
-            id: notifId,
-            title: title,
-            body: body,
-            scheduledTime: scheduledDate,
-            payload: payload,
-          );
+          // await _notificationService.scheduledNotification(
+          //   id: notifId,
+          //   title: title,
+          //   body: body,
+          //   scheduledTime: scheduledDate,
+          //   payload: payload,
+          // );
 
           // record scheduled id (string)
           scheduledIds.add(notifId.toString());

@@ -20,14 +20,12 @@ class SplashScreen extends StatefulWidget {
   final bool fromNotification;
   final String? tujuan;
   final int? id;
-  final int? userId;
 
   const SplashScreen({
     Key? key,
     this.fromNotification = false,
     this.tujuan,
     this.id,
-    this.userId,
   }) : super(key: key);
 
   @override
@@ -167,9 +165,8 @@ class _SplashScreenState extends State<SplashScreen>
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder:
-                    (context) => ListEvaluasiScreen(
-                      userId: widget.userId?.toString() ?? '',
-                    ),
+                    (context) =>
+                        ListEvaluasiScreen(userId: userId?.toString() ?? ''),
               ),
             );
           } else {
@@ -182,6 +179,9 @@ class _SplashScreenState extends State<SplashScreen>
           // komitmen
           // ke MainScreen
           print('Navigating to Main Screen');
+          setState(() {
+            GlobalVariables.currentIndex = 0;
+          });
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => const MainScreen()),
           );

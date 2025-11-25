@@ -189,7 +189,8 @@ Widget _buildDecodedResultWidget(
     print('QR Data: $data');
     String? secret;
     // Ambil secret dengan regex agar fleksibel dan tidak terpotong karakter base64
-    final regex = RegExp(r'secret=([^&\s]+)');
+    final regex = RegExp(r'datang/([^&\s]+)'); //secret=([^&\s]+)
+
     final match = regex.firstMatch(data ?? '');
     if (match != null) {
       secret = match.group(1);

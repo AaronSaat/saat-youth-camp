@@ -559,6 +559,10 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                                                 return Image.asset(
                                                   'assets/mockups/new_year.jpg',
                                                 ).image;
+                                              case '180 Degrees + Re-connect':
+                                                return Image.asset(
+                                                  'assets/mockups/180degrees.jpg',
+                                                ).image;
                                               case 'Closing - Redeemed: The Story I Love to Share':
                                               case 'Closing':
                                                 return Image.asset(
