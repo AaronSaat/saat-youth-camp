@@ -371,9 +371,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: BackButton(
-          color: AppColors.primary,
-          onPressed: () => Navigator.pop(context, 'reload'),
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: IconButton(
+            icon: Icon(Icons.arrow_back_ios, color: AppColors.primary),
+            onPressed: () => Navigator.pop(context, 'reload'),
+          ),
         ),
       ),
       body: Stack(
@@ -513,7 +516,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                         children: [
                                           Center(
                                             child: Text(
-                                              'QR Code Konfirmasi Registrasi Ulang Peserta',
+                                              'QR Code Registrasi Ulang Peserta',
                                               style: TextStyle(
                                                 color: AppColors.primary,
                                                 fontWeight: FontWeight.bold,
@@ -539,7 +542,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                           ),
                                           SizedBox(height: 8),
                                           Text(
-                                            'Tunjukkan QR ke pembimbing kelompok untuk konfirmasi\nJika sudah berhasil, silakan refresh halaman ini atau login kembali ke aplikasi',
+                                            'Tunjukkan QR ke pembimbing kelompok untuk registrasi ulang.\nJika sudah berhasil, silakan refresh halaman ini atau login kembali ke aplikasi',
                                             style: TextStyle(
                                               color: AppColors.brown1,
                                               fontSize: 10,
@@ -549,7 +552,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                         ],
                                       )
                                       : Text(
-                                        '✅  Terima kasih sudah melakukan konfirmasi registrasi ulang',
+                                        '✅  Terima kasih sudah melakukan registrasi ulang',
                                         style: TextStyle(
                                           color: AppColors.brown1,
                                           fontSize: 12,

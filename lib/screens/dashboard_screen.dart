@@ -1555,7 +1555,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             const SizedBox(width: 16),
                                             Expanded(
                                               child: Text(
-                                                "Kamu belum melakukan konfirmasi registrasi ulang. Segera konfirmasi ke pembimbing kelompokmu!",
+                                                "Kamu belum melakukan registrasi ulang. Segera konfirmasi ke pembimbing kelompokmu!",
                                                 style: const TextStyle(
                                                   color: Colors.white,
                                                   fontWeight: FontWeight.bold,

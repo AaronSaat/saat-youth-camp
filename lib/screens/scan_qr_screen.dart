@@ -77,7 +77,7 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Konfirmasi Registrasi Ulang Peserta Kelompok ${widget.namakelompok}',
+          'Registrasi Ulang Peserta Kelompok ${widget.namakelompok}',
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
@@ -86,9 +86,12 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
             color: Colors.white,
           ),
         ),
-        leading: BackButton(
-          color: Colors.white,
-          onPressed: () => Navigator.pop(context, 'reload'),
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+            onPressed: () => Navigator.pop(context, 'reload'),
+          ),
         ),
         backgroundColor: AppColors.primary,
       ),
@@ -436,7 +439,7 @@ Widget _buildDecodedResultWidget(
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      'Konfirmasi Registrasi Ulang',
+                      'Registrasi Ulang',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,

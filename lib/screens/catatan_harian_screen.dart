@@ -227,6 +227,19 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: AppColors.brown1,
+            ),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ),
         title: const Text(
           'Catatan Harian',
           style: TextStyle(
@@ -234,8 +247,6 @@ class _CatatanHarianScreenState extends State<CatatanHarianScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        centerTitle: true,
-        elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.brown1),
       ),
       body: Stack(

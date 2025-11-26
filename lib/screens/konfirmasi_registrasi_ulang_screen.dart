@@ -65,7 +65,7 @@ class _KonfirmasiRegistrasiUlangScreenState
     try {
       String? secret;
       // Ambil secret dengan regex agar fleksibel
-      final regex = RegExp(r'secret=([^&\s]+)');
+      final regex = RegExp(r'datang/([^&\s]+)');
       final match = regex.firstMatch(widget.qrResult!);
       if (match != null) {
         secret = match.group(1);
@@ -163,7 +163,7 @@ class _KonfirmasiRegistrasiUlangScreenState
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const Text(
-            'Konfirmasi Registrasi Ulang',
+            'Registrasi Ulang',
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,

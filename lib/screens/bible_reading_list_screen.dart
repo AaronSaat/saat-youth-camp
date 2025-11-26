@@ -334,7 +334,15 @@ class _BibleReadingListScreenState extends State<BibleReadingListScreen> {
             fontSize: 20,
           ),
         ),
-        automaticallyImplyLeading: true,
+        automaticallyImplyLeading: false,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+            onPressed: () => Navigator.of(context).pop(),
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          ),
+        ),
         actions: [
           Container(
             decoration: BoxDecoration(

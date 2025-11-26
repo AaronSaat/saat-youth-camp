@@ -197,10 +197,17 @@ class _AnggotaKelompokScreenState extends State<AnggotaKelompokScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading:
-            Navigator.canPop(context)
-                ? BackButton(color: AppColors.primary)
-                : null,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child:
+              Navigator.canPop(context)
+                  ? IconButton(
+                    icon: const Icon(Icons.arrow_back_ios),
+                    color: AppColors.primary,
+                    onPressed: () => Navigator.of(context).maybePop(),
+                  )
+                  : null,
+        ),
       ),
       body: Stack(
         children: [
@@ -374,24 +381,24 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                       child: SizedBox(
                         height:
                             userRole.contains('pembimbing')
-                                ? 220
+                                ? 230
                                 : userRole.contains('anggota') &&
                                     role.contains('peserta')
-                                ? 250
+                                ? 280
                                 : userRole.contains('anggota') &&
                                     (role.contains('pembimbing kelompok') ||
                                         role.contains('panitia')) &&
                                     state.widget.id == '41' &&
                                     user['id'] == null &&
                                     kelengkapan == 0
-                                ? 300
+                                ? 310
                                 : userRole.contains('anggota') &&
                                     (role.contains('pembimbing kelompok') ||
                                         role.contains('panitia')) &&
                                     state.widget.id != '41' &&
                                     user['id'] == null &&
                                     kelengkapan == 0
-                                ? 300
+                                ? 310
                                 : userRole.contains('anggota') &&
                                     (role.contains('pembimbing kelompok') ||
                                         role.contains('panitia')) &&
@@ -405,7 +412,7 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                                     state.widget.id != '41' &&
                                     user['id'] != null &&
                                     kelengkapan == 0
-                                ? 330
+                                ? 350
                                 : userRole.contains('anggota') &&
                                     (role.contains('pembimbing kelompok') ||
                                         role.contains('panitia')) &&
@@ -419,7 +426,7 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                                     state.widget.id != '41' &&
                                     user['id'] == null &&
                                     kelengkapan == 1
-                                ? 250
+                                ? 275
                                 : userRole.contains('anggota') &&
                                     (role.contains('pembimbing kelompok') ||
                                         role.contains('panitia')) &&
@@ -436,7 +443,7 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                                 ? 300
                                 : userRole.contains('anggota') &&
                                     role.contains('pembina')
-                                ? 250
+                                ? 280
                                 : 325,
                         child: Padding(
                           padding: const EdgeInsets.only(
@@ -479,6 +486,7 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                                   ),
                                 ],
                               ),
+                              const SizedBox(height: 8),
                               if (userRole == 'pembimbing')
                                 Center(
                                   child: Row(

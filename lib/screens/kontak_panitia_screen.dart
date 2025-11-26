@@ -89,7 +89,13 @@ class _KontakPanitiaScreenState extends State<KontakPanitiaScreen> {
         ),
         centerTitle: true,
         elevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.brown1),
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: IconButton(
+            icon: Icon(Icons.arrow_back_ios, color: AppColors.primary),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ),
       ),
       body: Stack(
         children: [

@@ -47,8 +47,8 @@ class KonfirmasiRegistrasiUlangSuccessScreen extends StatelessWidget {
                       children: [
                         Text(
                           isSuccess
-                              ? 'Konfirmasi Registrasi ulang berhasil!'
-                              : 'Konfirmasi Registrasi ulang gagal.',
+                              ? 'Registrasi ulang berhasil!'
+                              : 'Registrasi ulang gagal.',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,

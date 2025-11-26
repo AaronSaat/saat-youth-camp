@@ -188,10 +188,17 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading:
-            Navigator.canPop(context)
-                ? BackButton(color: AppColors.primary)
-                : null,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child:
+              Navigator.canPop(context)
+                  ? IconButton(
+                    icon: const Icon(Icons.arrow_back_ios),
+                    color: AppColors.primary,
+                    onPressed: () => Navigator.of(context).maybePop(),
+                  )
+                  : null,
+        ),
       ),
       body: Stack(
         children: [
