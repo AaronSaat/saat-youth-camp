@@ -124,8 +124,8 @@ flutter:
 
     #mockups
     - assets/mockups/bible_reading.jpg #dashboard
-    - assets/mockups/bkc.jpg 
-    - assets/mockups/bkc2.jpg 
+    - assets/mockups/semifinal.jpg 
+    - assets/mockups/final.jpg 
     - assets/mockups/kkr2.jpg 
     - assets/mockups/kkr3.jpg 
     - assets/mockups/talks.jpg 

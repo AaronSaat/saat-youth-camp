@@ -104,29 +104,18 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
           item['id'].toString(),
           () => FocusNode(),
         );
-      } else if (item['type'].toString() == '3' ||
-          item['type'].toString() == '4' ||
-          item['type'].toString() == '5' ||
-          item['type'].toString() == '6' ||
-          item['type'].toString() == '7' ||
-          item['type'].toString() == '8' ||
-          item['type'].toString() == '9' ||
-          item['type'].toString() == '10' ||
-          item['type'].toString() == '11' ||
-          item['type'].toString() == '12' ||
-          item['type'].toString() == '13' ||
-          item['type'].toString() == '14' ||
-          item['type'].toString() == '15') {
+      }
+
+      if (item['questionType']['type'].toString().contains('Skala')) {
         _slider_answer[item['id'].toString()] = prefs.getDouble(key) ?? 1.0;
-      } else if (item['type'].toString() == '18' ||
-          item['type'].toString() == '19') {
+      } else if (item['questionType']['type'].toString().contains('Single')) {
         _single_choice_answer[item['id'].toString()] =
             prefs.getString(key) ?? '';
         _singleChoiceFocusNodes.putIfAbsent(
           item['id'].toString(),
           () => FocusNode(),
         );
-      } else if (item['type'].toString() == '16') {
+      } else if (item['questionType']['type'].toString().contains('Multiple')) {
         _multiple_choice_answer[item['id'].toString()] =
             prefs.getString(key) ?? '';
         _multipleChoiceFocusNodes.putIfAbsent(
@@ -154,24 +143,13 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
         final value = (_checkbox_answer[idStr] ?? false) ? 'Ya' : 'Tidak';
         await prefs.setString(key, value);
         print('Save Ya/Tidak: $key = $value');
-      } else if (item['type'].toString() == '3' ||
-          item['type'].toString() == '4' ||
-          item['type'].toString() == '5' ||
-          item['type'].toString() == '6' ||
-          item['type'].toString() == '7' ||
-          item['type'].toString() == '8' ||
-          item['type'].toString() == '9' ||
-          item['type'].toString() == '10' ||
-          item['type'].toString() == '11' ||
-          item['type'].toString() == '12' ||
-          item['type'].toString() == '13' ||
-          item['type'].toString() == '14' ||
-          item['type'].toString() == '15') {
+      }
+
+      if (item['questionType']['type'].toString().contains('Skala')) {
         await prefs.setDouble(key, _slider_answer[idStr] ?? 1.0);
-      } else if (item['type'].toString() == '18' ||
-          item['type'].toString() == '19') {
+      } else if (item['questionType']['type'].toString().contains('Single')) {
         await prefs.setString(key, _single_choice_answer[idStr] ?? '');
-      } else if (item['type'].toString() == '16') {
+      } else if (item['questionType']['type'].toString().contains('Multiple')) {
         await prefs.setString(key, _multiple_choice_answer[idStr] ?? '');
       }
     }
@@ -213,8 +191,7 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
         } else {
           _errorText[id] = null;
         }
-      } else if (item['type'].toString() == '18' ||
-          item['type'].toString() == '19') {
+      } else if (item['questionType']['type'].toString().contains('Single')) {
         if ((_single_choice_answer[id] ?? '').isEmpty) {
           _errorText[id] = 'Wajib diisi';
           hasError = true;
@@ -224,7 +201,7 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
         } else {
           _errorText[id] = null;
         }
-      } else if (item['type'].toString() == '16') {
+      } else if (item['questionType']['type'].toString().contains('Multiple')) {
         if ((_multiple_choice_answer[id] ?? '').isEmpty) {
           _errorText[id] = 'Wajib diisi';
           hasError = true;
@@ -417,6 +394,7 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                         );
                                         return Column(
                                           children: [
+                                            const SizedBox(height: 16),
                                             Card(
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
@@ -460,6 +438,11 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                                   ),
                                                 ),
                                               ),
+                                            ),
+                                            const SizedBox(height: 16),
+                                            const Divider(
+                                              color: Colors.white,
+                                              thickness: 1,
                                             ),
                                             const SizedBox(height: 16),
                                           ],
@@ -541,34 +524,13 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                             const SizedBox(height: 16),
                                           ],
                                         );
-                                      } else if ([
-                                        3,
-                                        4,
-                                        5,
-                                        6,
-                                        7,
-                                        8,
-                                        9,
-                                        10,
-                                        11,
-                                        12,
-                                        13,
-                                        14,
-                                        15,
-                                      ].contains(
-                                        item['type'] is int
-                                            ? item['type']
-                                            : int.tryParse(
-                                              item['type'].toString(),
-                                            ),
-                                      )) {
+                                      } else if (item['questionType']['type']
+                                          .toString()
+                                          .contains('Skala')) {
                                         // Slider with dynamic settings
                                         _slider_answer.putIfAbsent(
                                           id,
                                           () => 1.0,
-                                        );
-                                        print(
-                                          "AARON TRUE ${item['type']} : ${item['question']}",
                                         );
                                         // Get slider settings from questionType
                                         final questionType =
@@ -681,9 +643,9 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                             const SizedBox(height: 16),
                                           ],
                                         );
-                                      } else if (item['type'].toString() ==
-                                              '18' ||
-                                          item['type'].toString() == '19') {
+                                      } else if (item['questionType']['type']
+                                          .toString()
+                                          .contains('Single')) {
                                         final selectedValue =
                                             _single_choice_answer[id] ?? '';
                                         final options =
@@ -758,8 +720,9 @@ class _FormEvaluasiScreenState extends State<FormEvaluasiScreen> {
                                             ),
                                           ],
                                         );
-                                      } else if (item['type'].toString() ==
-                                          '16') {
+                                      } else if (item['questionType']['type']
+                                          .toString()
+                                          .contains('Multiple')) {
                                         final selectedString =
                                             _multiple_choice_answer[id] ?? '';
                                         final selectedValues =

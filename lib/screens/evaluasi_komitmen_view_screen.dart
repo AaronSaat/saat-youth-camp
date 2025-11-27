@@ -236,6 +236,8 @@ class _EvaluasiKomitmenViewScreenState
                       ...dataList.map((item) {
                         final question = item['question'] ?? '';
                         final type = item['type']?.toString();
+                        final questionType =
+                            item['questionType']?['type']?.toString() ?? '';
                         final answerList =
                             (item['komitmenAnswer'] ?? item['evaluasiAnswer'])
                                 as List?;
@@ -244,7 +246,7 @@ class _EvaluasiKomitmenViewScreenState
                                 ? answerList[0]['answer']
                                 : null;
 
-                        if (["1", "18", "19"].contains(type)) {
+                        if (type == "1") {
                           // Text answer
                           return CustomTextCard(
                             text: question,
@@ -257,21 +259,8 @@ class _EvaluasiKomitmenViewScreenState
                             text: question,
                             value: answer == "1" ? 'Ya' : 'Tidak',
                           );
-                        } else if ([
-                          "3",
-                          "4",
-                          "5",
-                          "6",
-                          "7",
-                          "8",
-                          "9",
-                          "10",
-                          "11",
-                          "12",
-                          "13",
-                          "14",
-                          "15",
-                        ].contains(type)) {
+                        }
+                        if (questionType.contains('Skala')) {
                           final scale =
                               item['questionType']['scale_range']?.toString() ??
                               '';
@@ -280,7 +269,14 @@ class _EvaluasiKomitmenViewScreenState
                             value: '${answer?.toString() ?? '0'} dari ${scale}',
                             backgroundColor: AppColors.brown1, // opsional
                           );
-                        } else if (type == "16") {
+                        } else if (questionType.contains('Single')) {
+                          // Text answer
+                          return CustomTextCard(
+                            text: question,
+                            value: answer?.toString() ?? '',
+                            backgroundColor: AppColors.brown1,
+                          );
+                        } else if (questionType.contains('Multiple')) {
                           final raw = answer?.toString() ?? '';
                           final displayValue =
                               raw.isEmpty

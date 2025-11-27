@@ -98,6 +98,7 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
       );
       if (item.isEmpty) continue;
       final type = item['type']?.toString();
+      final questionType = item['questionType']['type']?.toString() ?? '';
       final answer = _localAnswers[id];
       if (type == "1") {
         evaluasiAnswer.add({
@@ -111,33 +112,21 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
           "user_id": userId,
           "answer": (answer == true || answer == 'Ya') ? 1 : 0,
         });
-      } else if ([
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "10",
-        "11",
-        "12",
-        "13",
-        "14",
-        "15",
-      ].contains(type)) {
+      }
+
+      if (questionType.contains('Skala')) {
         evaluasiAnswer.add({
           "eval_question_id": int.tryParse(id) ?? id,
           "user_id": userId,
           "answer": answer ?? '',
         });
-      } else if (type == "18" || type == "19") {
+      } else if (questionType.contains('Single')) {
         evaluasiAnswer.add({
           "eval_question_id": int.tryParse(id) ?? id,
           "user_id": userId,
           "answer": answer ?? '',
         });
-      } else if (type == "16") {
+      } else if (questionType.contains('Multiple')) {
         evaluasiAnswer.add({
           "eval_question_id": int.tryParse(id) ?? id,
           "user_id": userId,
@@ -236,13 +225,12 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
                       if (item.isEmpty) return const SizedBox.shrink();
                       final question = item['question'] ?? 'Pertanyaan';
                       final type = item['type']?.toString();
+                      final questionType =
+                          item['questionType']['type']?.toString() ?? '';
                       final scale =
                           item['questionType']['scale_range']?.toString() ?? '';
                       final answer = _localAnswers[id];
-                      print(
-                        'MBEK Processing question: $question, type: $type, answer: $answer',
-                      );
-                      if (["1", "18", "19"].contains(type)) {
+                      if (type == "1") {
                         return CustomTextCard(
                           text: question,
                           value: answer?.toString() ?? '',
@@ -252,21 +240,9 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
                           text: question,
                           value: answer == true ? 'Ya' : 'Tidak',
                         );
-                      } else if ([
-                        "3",
-                        "4",
-                        "5",
-                        "6",
-                        "7",
-                        "8",
-                        "9",
-                        "10",
-                        "11",
-                        "12",
-                        "13",
-                        "14",
-                        "15",
-                      ].contains(type)) {
+                      }
+
+                      if (questionType.contains('Skala')) {
                         final answerValue =
                             answer is double ? answer.toInt() : answer;
                         return CustomTextCard(
@@ -275,7 +251,12 @@ class _ReviewEvaluasiScreenState extends State<ReviewEvaluasiScreen> {
                               '${answerValue?.toString() ?? '0'} dari ${scale}',
                           backgroundColor: AppColors.brown1, // opsional
                         );
-                      } else if (type == "16") {
+                      } else if (questionType.contains('Single')) {
+                        return CustomTextCard(
+                          text: question,
+                          value: answer?.toString() ?? '',
+                        );
+                      } else if (questionType.contains('Multiple')) {
                         final raw = answer?.toString() ?? '';
                         final displayValue =
                             raw.isEmpty

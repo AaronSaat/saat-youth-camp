@@ -196,7 +196,7 @@ class _KonfirmasiRegistrasiUlangScreenState
                       (context) => CustomAlertDialog(
                         title: 'Konfirmasi',
                         content:
-                            'Apakah Anda yakin ingin melakukan konfirmasi kehadiran?',
+                            'Apakah Anda yakin ingin melakukan registrasi ulang?',
                         cancelText: 'Batal',
                         confirmText: 'Yakin',
                         onCancel: () => Navigator.of(context).pop(false),
@@ -263,7 +263,7 @@ class _KonfirmasiRegistrasiUlangScreenState
                 ),
                 alignment: Alignment.center,
                 child: const Text(
-                  'Konfirmasi',
+                  'Registrasi Ulang',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,

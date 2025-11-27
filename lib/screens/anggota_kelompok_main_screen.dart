@@ -836,7 +836,7 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                                               onTap: () {
                                                 showCustomSnackBar(
                                                   context,
-                                                  'Peserta / pembina belum melengkapi data Konfirmasi Datang / Pulang.',
+                                                  'Peserta / pembina belum melengkapi jadwal datang / pulang.',
                                                   duration: const Duration(
                                                     seconds: 3,
                                                   ),
@@ -948,7 +948,7 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                             } else {
                               showCustomSnackBar(
                                 context,
-                                'Konfirmasi dilakukan oleh salah satu pembimbing kelompok kamu',
+                                'Registrasi ulang dilakukan oleh salah satu pembimbing kelompok kamu',
                                 duration: const Duration(seconds: 3),
                               );
                             }
@@ -966,11 +966,11 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                               vertical: 8,
                             ),
                             child: const Text(
-                              'Belum konfirmasi',
+                              'Belum registrasi ulang',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 13,
+                                fontSize: 11,
                               ),
                             ),
                           ),
@@ -994,11 +994,11 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                             vertical: 8,
                           ),
                           child: const Text(
-                            'Sudah konfirmasi',
+                            'Sudah registrasi ulang',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
-                              fontSize: 13,
+                              fontSize: 11,
                             ),
                           ),
                         ),
@@ -1028,7 +1028,6 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                       ),
                   ],
                 ),
-                const SizedBox(height: 16),
               ],
             );
           },
@@ -1506,11 +1505,11 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                               vertical: 8,
                             ),
                             child: const Text(
-                              'Belum konfirmasi',
+                              'Belum registrasi ulang',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 13,
+                                fontSize: 11,
                               ),
                             ),
                           ),
@@ -1534,11 +1533,11 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                             vertical: 8,
                           ),
                           child: const Text(
-                            'Sudah konfirmasi',
+                            'Sudah registrasi ulang',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
-                              fontSize: 13,
+                              fontSize: 11,
                             ),
                           ),
                         ),
@@ -1568,7 +1567,6 @@ class AnggotaKelompokStatsCard extends StatelessWidget {
                       ),
                   ],
                 ),
-                const SizedBox(height: 16),
               ],
             );
           },

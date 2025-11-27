@@ -476,99 +476,154 @@ class _DaftarAcaraScreenState extends State<DaftarAcaraScreen> {
                                                 acara['acara_nama']
                                                     ?.toString() ??
                                                 '';
-                                            switch (nama) {
-                                              case 'Welcome to STT SAAT - SYC 2025 & Registration':
+                                            final id =
+                                                acara['id']?.toString() ?? '';
+                                            switch (id) {
+                                              case '1':
                                                 return Image.asset(
                                                   'assets/mockups/registration.jpg',
                                                 ).image;
-                                              case 'Group Bonding':
+                                              case '2':
                                                 return Image.asset(
                                                   'assets/mockups/bonding.jpg',
                                                 ).image;
-                                              case 'Dinner':
+                                              case '3':
                                                 return Image.asset(
                                                   'assets/mockups/eat.jpg',
                                                 ).image;
-                                              case 'Opening (KKR1)':
+                                              case '4':
                                                 return Image.asset(
                                                   'assets/mockups/opening.jpg',
                                                 ).image;
-                                              case 'Alone with God':
+                                              case '5':
                                                 return Image.asset(
                                                   'assets/mockups/awg.jpg',
                                                 ).image;
-                                              case 'Rest':
+                                              case '6':
                                                 return Image.asset(
                                                   'assets/mockups/rest.jpg',
                                                 ).image;
-                                              case 'Self Preparation':
+                                              case '7':
                                                 return Image.asset(
                                                   'assets/mockups/preparation.jpg',
                                                 ).image;
-                                              case 'Breakfast':
+                                              case '8':
                                                 return Image.asset(
                                                   'assets/mockups/eat.jpg',
                                                 ).image;
-                                              case 'Morning Devotion':
+                                              case '9':
                                                 return Image.asset(
                                                   'assets/mockups/devotion.jpg',
                                                 ).image;
-                                              case 'Group Acitivity (with snack) - The Path of Redemption':
-                                              case 'Group Acitivity "Living Redeemed Life"':
+                                              case '10':
                                                 return Image.asset(
                                                   'assets/mockups/activity.jpg',
                                                 ).image;
-                                              case 'Lunch':
+                                              case '11':
                                                 return Image.asset(
                                                   'assets/mockups/eat.jpg',
                                                 ).image;
-                                              case 'BKC - Semifinal':
+                                              case '12':
                                                 return Image.asset(
-                                                  'assets/mockups/bkc.jpg',
+                                                  'assets/mockups/semifinal.jpg',
                                                 ).image;
-                                              case 'BKC - Final':
+                                              case '13':
                                                 return Image.asset(
-                                                  'assets/mockups/bkc2.jpg',
+                                                  'assets/mockups/preparation.jpg',
                                                 ).image;
-                                              case 'SYC Talks: The Book of Galatian':
-                                              case 'SYC Talks: The Work of Christ':
+                                              case '14':
                                                 return Image.asset(
                                                   'assets/mockups/talks.jpg',
                                                 ).image;
-                                              case 'KKR 2 - Jesus Paid it All':
+                                              case '15':
+                                                return Image.asset(
+                                                  'assets/mockups/eat.jpg',
+                                                ).image;
+                                              case '16':
                                                 return Image.asset(
                                                   'assets/mockups/kkr2.jpg',
                                                 ).image;
-                                              case "KKR 3 - The Redeemed Z's":
-                                                return Image.asset(
-                                                  'assets/mockups/kkr3.jpg',
-                                                ).image;
-                                              case 'Special Program':
-                                                return Image.asset(
-                                                  'assets/mockups/special.jpg',
-                                                ).image;
-                                              case 'Commited Among Us':
-                                                return Image.asset(
-                                                  'assets/mockups/amongus.jpg',
-                                                ).image;
-                                              case 'Drama Musikal':
-                                                return Image.asset(
-                                                  'assets/mockups/drama_musikal.jpg',
-                                                ).image;
-                                              case 'New Year Countdown':
-                                                return Image.asset(
-                                                  'assets/mockups/new_year.jpg',
-                                                ).image;
-                                              case '180 Degrees + Re-connect':
+                                              case '40':
                                                 return Image.asset(
                                                   'assets/mockups/180degrees.jpg',
                                                 ).image;
-                                              case 'Closing - Redeemed: The Story I Love to Share':
-                                              case 'Closing':
+                                              case "17":
+                                                return Image.asset(
+                                                  'assets/mockups/special.jpg',
+                                                ).image;
+                                              case '18':
+                                                return Image.asset(
+                                                  'assets/mockups/rest.jpg',
+                                                ).image;
+                                              case '19':
+                                                return Image.asset(
+                                                  'assets/mockups/preparation.jpg',
+                                                ).image;
+                                              case '20':
+                                                return Image.asset(
+                                                  'assets/mockups/eat.jpg',
+                                                ).image;
+                                              case '21':
+                                                return Image.asset(
+                                                  'assets/mockups/devotion.jpg',
+                                                ).image;
+                                              case '22':
+                                                return Image.asset(
+                                                  'assets/mockups/activity.jpg',
+                                                ).image;
+                                              case '23':
+                                                return Image.asset(
+                                                  'assets/mockups/eat.jpg',
+                                                ).image;
+                                              case '24':
+                                                return Image.asset(
+                                                  'assets/mockups/final.jpg',
+                                                ).image;
+                                              case "25":
+                                                return Image.asset(
+                                                  'assets/mockups/preparation.jpg',
+                                                ).image;
+                                              case "26":
+                                                return Image.asset(
+                                                  'assets/mockups/talks.jpg',
+                                                ).image;
+                                              case "27":
+                                                return Image.asset(
+                                                  'assets/mockups/eat.jpg',
+                                                ).image;
+                                              case "28":
+                                                return Image.asset(
+                                                  'assets/mockups/kkr3.jpg',
+                                                ).image;
+                                              case "29":
+                                                return Image.asset(
+                                                  'assets/mockups/amongus.jpg',
+                                                ).image;
+                                              case "30":
+                                                return Image.asset(
+                                                  'assets/mockups/rest.jpg',
+                                                ).image;
+                                              case "31":
+                                                return Image.asset(
+                                                  'assets/mockups/preparation.jpg',
+                                                ).image;
+                                              case "32":
+                                                return Image.asset(
+                                                  'assets/mockups/eat.jpg',
+                                                ).image;
+                                              case "33":
+                                                return Image.asset(
+                                                  'assets/mockups/devotion.jpg',
+                                                ).image;
+                                              case "34":
                                                 return Image.asset(
                                                   'assets/mockups/closing.jpg',
                                                 ).image;
-                                              case "Home, Transformed & Recharged to Worship & Witness For The Glory of God -> See You @ SYC 2026":
+                                              case "35":
+                                                return Image.asset(
+                                                  'assets/mockups/eat.jpg',
+                                                ).image;
+                                              case "36":
                                                 return Image.asset(
                                                   'assets/mockups/seeyou.jpg',
                                                 ).image;
