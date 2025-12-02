@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
@@ -615,6 +616,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     print('SharedPreferences cleared due to version mismatch.');
     await secureStorage.deleteAll();
     print('Secure storage cleared due to version mismatch.');
+
+    FirebaseMessaging.instance.unsubscribeFromTopic('syc');
 
     // hapus temp dir dan app documents (hati-hati: ini menghapus file yang mungkin penting)
     try {

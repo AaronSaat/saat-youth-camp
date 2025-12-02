@@ -356,7 +356,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     final role = _dataUser['role'] ?? '';
     final secret = _dataUser['secret'] ?? 'Null';
     print('Secret: $secret');
-    final encryptedSecret = encryptSecret(secret).replaceAll(' ', '+');
+    final encryptedSecret = encryptSecret(
+      secret,
+    ).replaceAll(' ', '+').replaceAll('/', '_');
+    // final encryptedSecret2 = encryptSecret(
+    //   encryptedSecret1,
+    // ).replaceAll('/', 's');
     print('Fixed Secret: $encryptedSecret');
     final status_datang = _dataUser['status_datang'] ?? '0';
     return Scaffold(

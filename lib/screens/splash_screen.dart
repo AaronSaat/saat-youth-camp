@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
@@ -45,6 +48,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   bool _isCheckingToken = false;
   bool _isCheckingVersion = false;
+  bool _isCheckingTime = false;
 
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
@@ -95,6 +99,7 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> _checkAll() async {
     setState(() => _isCheckingVersion = true);
     await getCheckVersion();
+    await checkLocalAndServerTime();
     setState(() => _isCheckingVersion = false);
 
     // Lanjut cek token (existing code)
@@ -377,6 +382,102 @@ class _SplashScreenState extends State<SplashScreen>
     setState(() => _isCheckingVersion = false);
   }
 
+  Future<bool> checkLocalAndServerTime() async {
+    if (!mounted) return false;
+    setState(() => _isCheckingTime = true);
+    try {
+      final response = await ApiService.getCheckVersion(context);
+      var timeRaw = response['current_time'] ?? '';
+      final now = DateTime.now();
+
+      // Normalize server time string to a parseable format
+      String normalize(String s) {
+        s = s.toString().trim();
+        if (s.isEmpty) return '';
+        // replace space with 'T' so DateTime.parse is more robust
+        if (s.contains(' ')) s = s.replaceFirst(' ', 'T');
+        return s;
+      }
+
+      final normalized = normalize(timeRaw);
+      DateTime serverTime;
+      try {
+        serverTime = normalized.isNotEmpty ? DateTime.parse(normalized) : now;
+      } catch (_) {
+        // fallback: try replacing any milliseconds part or use now
+        try {
+          serverTime = DateTime.parse(normalized.split('.').first);
+        } catch (_) {
+          serverTime = now;
+        }
+      }
+
+      // Helper to format DateTime as "yyyy-MM-dd HH:mm:ss"
+      String formatDT(DateTime d) {
+        String two(int n) => n.toString().padLeft(2, '0');
+        return '${d.year.toString().padLeft(4, '0')}-${two(d.month)}-${two(d.day)} ${two(d.hour)}:${two(d.minute)}:${two(d.second)}';
+      }
+
+      final serverFormatted = formatDT(serverTime.toLocal());
+      final localFormatted = formatDT(now.toLocal());
+      print('Server time: $serverFormatted, Local time: $localFormatted');
+
+      // Consider times in sync if difference is within threshold (e.g., 2 minutes)
+      final diffSeconds =
+          serverTime.toUtc().difference(now.toUtc()).inSeconds.abs();
+      const thresholdSeconds = 120;
+      final isInSync = diffSeconds <= thresholdSeconds;
+
+      if (isInSync) {
+        return true;
+      } else {
+        // Jika tidak sinkron, tampilkan dialog agar user membuka pengaturan
+        if (!mounted) return false;
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder:
+              (ctx) => AlertDialog(
+                title: const Text('Waktu Tidak Sinkron'),
+                content: const Text(
+                  'Waktu perangkat tidak sinkron dengan server.'
+                  'Silakan buka pengaturan dan sesuaikan Tanggal & Waktu (gunakan "Tanggal & Waktu otomatis").',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () async {
+                      // Navigator.of(ctx).pop();
+                      // Coba buka pengaturan perangkat menggunakan scheme yang umum.
+                      // Perhatikan: perilaku scheme ini bisa berbeda antar platform/device.
+                      // final settingsUri = Uri.parse('settings:');
+                      // if (await canLaunchUrl(settingsUri)) {
+                      //   await launchUrl(
+                      //     settingsUri,
+                      //     mode: LaunchMode.externalApplication,
+                      //   );
+                      // } else {
+                      //   print(
+                      //     'Tidak dapat membuka pengaturan perangkat. Keluar aplikasi.',
+                      //   );
+                      //    SystemNavigator.pop();
+                      // }
+                      exit(0);
+                    },
+                    child: const Text('Buka Pengaturan'),
+                  ),
+                ],
+              ),
+        );
+        return false;
+      }
+    } catch (e) {
+      print('Error checking local and server time: $e');
+      return false;
+    } finally {
+      if (mounted) setState(() => _isCheckingTime = false);
+    }
+  }
+
   @override
   void dispose() {
     _bgFadeController.dispose();
@@ -420,7 +521,9 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
                 const SizedBox(height: 48),
                 // Loading saat cek versi atau cek token
-                if (_isCheckingVersion || _isCheckingToken) ...[
+                if (_isCheckingVersion ||
+                    _isCheckingToken ||
+                    _isCheckingTime) ...[
                   SizedBox(
                     width: 32,
                     height: 32,
@@ -434,7 +537,9 @@ class _SplashScreenState extends State<SplashScreen>
                   Text(
                     _isCheckingVersion
                         ? "Memeriksa versi aplikasi..."
-                        : "Memeriksa akun...",
+                        : _isCheckingToken
+                        ? "Memeriksa sesi pengguna..."
+                        : "Memeriksa waktu server dan lokal...",
                     style: const TextStyle(
                       color: AppColors.primary,
                       fontSize: 14,
