@@ -243,7 +243,8 @@ class _ListDevotionScreenState extends State<ListDevotionScreen> {
                             : _devotionList.isEmpty
                             ? Center(
                               child: CustomNotFound(
-                                text: "Gagal memuat daftar morning devotion :(",
+                                text:
+                                    "Saat ini morning devotion belum tersedia :(",
                                 textColor: AppColors.brown1,
                                 imagePath: 'assets/images/data_not_found.png',
                                 onBack: initAll,

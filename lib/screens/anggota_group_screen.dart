@@ -116,7 +116,7 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
       print('[PREF_API] Anggota Grup (from API): $anggota');
     } catch (e) {
       setState(() {});
-      print('Gagal mengambil data grup: $e');
+      print(' mengambil data grup: $e');
     }
 
     // load avatar dan download
@@ -172,7 +172,7 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
           print('[AVATAR] Error download avatar anggota $userId: $e');
         }
       }
-      print('[AVATAR] Gagal download avatar anggota $userId dari API');
+      print('[AVATAR]  download avatar anggota $userId dari API');
       return '';
     } else {
       print('[AVATAR] Ambil avatar anggota $userId dari local: $filePath');
@@ -239,7 +239,7 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
                           : anggota.isEmpty
                           ? Center(
                             child: CustomNotFound(
-                              text: "Gagal memuat anggota grup pendaftaran :(",
+                              text: " memuat anggota grup pendaftaran :(",
                               textColor: AppColors.brown1,
                               imagePath: 'assets/images/data_not_found.png',
                               onBack: () => _initAll(forceRefresh: true),
@@ -581,7 +581,7 @@ class _AnggotaGroupScreenState extends State<AnggotaGroupScreen> {
                                                                             6,
                                                                       ),
                                                                       Text(
-                                                                        "${user['kamar'] ?? 'Tidak ada kamar'}",
+                                                                        "${user['kamar'] ?? 'Belum ada kamar'}",
                                                                         style: TextStyle(
                                                                           fontSize:
                                                                               (user['kamar'] !=

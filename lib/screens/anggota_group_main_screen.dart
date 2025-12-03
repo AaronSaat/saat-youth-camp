@@ -608,7 +608,7 @@ class _AnggotaGroupMainScreenState extends State<AnggotaGroupMainScreen> {
                                                                               6,
                                                                         ),
                                                                         Text(
-                                                                          "${user['kamar'] ?? 'Tidak ada kamar'}",
+                                                                          "${user['kamar'] ?? 'Belum ada kamar'}",
                                                                           style: TextStyle(
                                                                             fontSize:
                                                                                 (user['kamar'] !=

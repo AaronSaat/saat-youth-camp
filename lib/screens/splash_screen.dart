@@ -440,7 +440,7 @@ class _SplashScreenState extends State<SplashScreen>
               (ctx) => AlertDialog(
                 title: const Text('Waktu Tidak Sinkron'),
                 content: const Text(
-                  'Waktu perangkat tidak sinkron dengan server.'
+                  'Waktu perangkat tidak sinkron dengan server. '
                   'Silakan buka pengaturan dan sesuaikan Tanggal & Waktu (gunakan "Tanggal & Waktu otomatis").',
                 ),
                 actions: [

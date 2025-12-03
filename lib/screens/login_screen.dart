@@ -138,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
           response['user']['kelompok']?['id']?.toString() ?? 'Null',
           response['user']['kelompok']?['nama_kelompok'] ??
               'Tidak ada kelompok',
-          response['user']['kamar'] ?? 'Tidak ada kamar',
+          response['user']['kamar'] ?? 'Belum ada kamar',
           response['user']['secret'] ?? 'Null',
           response['user']['status_datang'] ?? 'Null',
         );

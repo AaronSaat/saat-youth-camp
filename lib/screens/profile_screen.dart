@@ -199,8 +199,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             await prefs.setString('kamar', data['kamar'].toString());
             userData['kamar'] = data['kamar'].toString();
           } else {
-            await prefs.setString('kamar', 'Tidak ada kamar');
-            userData['kamar'] = 'Tidak ada kamar';
+            await prefs.setString('kamar', 'Belum ada kamar');
+            userData['kamar'] = 'Belum ada kamar';
           }
           // Bandingkan, jika berubah, pushReplacement ke MainScreen
           final newKelompokNama = userData['kelompok_nama'] ?? '';
@@ -1418,7 +1418,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             ? progresDay2 / totalDay2
                                             : 0.0;
 
-                                    // Ambil jumlah peserta yang sudah mengisi komitmen hari ke-2
+                                    // Ambil jumlah peserta yang sudah mengisi komitmen hari ke-3
                                     final progresDay3Str =
                                         _komitmenDoneDay3MapPanitia['count'] ??
                                         '0';
@@ -1426,7 +1426,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         _countUserMapPanitia["count_peserta"] ??
                                         '0';
                                     final progresDay3 =
-                                        int.tryParse(progresDay2Str) ?? 0;
+                                        int.tryParse(progresDay3Str) ?? 0;
                                     final totalDay3 =
                                         int.tryParse(totalDay3Str) ?? 1;
                                     final progressDay3Value =

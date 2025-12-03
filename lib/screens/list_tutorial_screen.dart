@@ -245,7 +245,7 @@ class _ListTutorialScreenState extends State<ListTutorialScreen> {
                             : _tutorialList.isEmpty
                             ? Center(
                               child: CustomNotFound(
-                                text: "Gagal memuat daftar tutorial :(",
+                                text: "Saat ini tutorial belum tersedia :(",
                                 textColor: AppColors.brown1,
                                 imagePath: 'assets/images/data_not_found.png',
                                 onBack: initAll,

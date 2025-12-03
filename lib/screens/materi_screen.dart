@@ -261,7 +261,7 @@ class _MateriScreenState extends State<MateriScreen> {
                             : _materiList.isEmpty
                             ? Center(
                               child: CustomNotFound(
-                                text: "Gagal memuat daftar materi :(",
+                                text: "Saat ini materi belum tersedia :(",
                                 textColor: AppColors.brown1,
                                 imagePath: 'assets/images/data_not_found.png',
                                 onBack: initAll,

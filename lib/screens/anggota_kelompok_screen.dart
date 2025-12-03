@@ -499,7 +499,7 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                                       ),
                                       const SizedBox(width: 6),
                                       Text(
-                                        "${user['kamar'] ?? 'Tidak ada kamar'}",
+                                        "${user['kamar'] ?? 'Belum ada kamar'}",
                                         style: TextStyle(
                                           fontSize:
                                               (user['kamar'] != null &&
@@ -583,7 +583,7 @@ class AnggotaKelompokInfoCard extends StatelessWidget {
                                           ),
                                           const SizedBox(width: 6),
                                           Text(
-                                            "${user['kamar'] ?? 'Tidak ada kamar'}",
+                                            "${user['kamar'] ?? 'Belum ada kamar'}",
                                             style: TextStyle(
                                               fontSize:
                                                   (user['kamar'] != null &&
